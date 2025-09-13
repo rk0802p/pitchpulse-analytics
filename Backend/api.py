@@ -94,7 +94,9 @@ def get_leagues():
         return jsonify(players), 500
     
     if players:
-        leagues = pd.DataFrame(players)['league'].unique().tolist()
+        df = pd.DataFrame(players)
+        # Get unique leagues from the 'Comp' column instead of 'league'
+        leagues = df['Comp'].unique().tolist()
         return jsonify(leagues)
     return jsonify([])
 
@@ -108,7 +110,8 @@ def get_teams_by_league(league):
     
     if players:
         df = pd.DataFrame(players)
-        league_teams = df[df['league'] == league]['Squad'].unique().tolist()
+        # Use 'Comp' column instead of 'league' for filtering
+        league_teams = df[df['Comp'] == league]['Squad'].unique().tolist()
         return jsonify(league_teams)
     return jsonify([])
 
@@ -122,7 +125,8 @@ def get_players_by_team(league, team):
     
     if players:
         df = pd.DataFrame(players)
-        team_players = df[(df['league'] == league) & (df['Squad'] == team)].to_dict(orient='records')
+        # Use 'Comp' column instead of 'league' for filtering
+        team_players = df[(df['Comp'] == league) & (df['Squad'] == team)].to_dict(orient='records')
         return jsonify(team_players)
     return jsonify([])
 
