@@ -1,358 +1,239 @@
 # ⚽ Football Analytics Platform
 
-A comprehensive sports analytics platform for Premier League data analysis, featuring detailed player statistics, performance trends, heat maps, and comparison tools.
+A comprehensive web application for analyzing football player statistics and team performance across the top 5 European leagues (Premier League, La Liga, Serie A, Ligue 1, Bundesliga).
 
 ## 🚀 Features
 
 ### 📊 Player Statistics & Analysis
-- **Detailed Player Profiles**: Comprehensive statistics including goals, assists, minutes played, pass accuracy, tackles, and more
-- **Performance Trends**: Visual charts showing player performance over the last 10 matches
-- **Heat Maps**: Interactive field activity heat maps showing player positioning and movement patterns
-- **Performance Radar Charts**: Multi-dimensional performance analysis using radar charts
+- **Detailed Player Profiles**: Comprehensive statistics including goals, assists, minutes played, and more
+- **Performance Trends**: Visual charts showing player performance over time
+- **Interactive Charts**: Radar charts, bar charts, and trend analysis
+- **Multi-League Support**: Analyze players from all top 5 European leagues
 
 ### ⚖️ Player Comparison Tools
-- **Side-by-Side Comparison**: Compare up to 4 players simultaneously
+- **Cross-League Comparison**: Compare up to 4 players from different leagues and teams
+- **Search Functionality**: Search for players across all leagues
 - **Statistical Comparison**: Bar charts and radar charts for easy comparison
-- **Multiple Metrics**: Compare goals, assists, pass accuracy, tackles, minutes played, and shots
-- **Team-based Selection**: Select players from specific teams for comparison
+- **Multiple Metrics**: Compare goals, assists, matches, minutes, and more
 
 ### 🏆 League Leaders
-- **Category Leaders**: Top performers in goals, assists, clean sheets, and pass accuracy
+- **Category Leaders**: Top performers in goals, assists, matches, and minutes
 - **Interactive Leaderboards**: Sortable tables with player rankings
 - **Visual Charts**: Bar charts showing leaderboard data
 - **Multiple Categories**: Switch between different statistical categories
 
 ### 🏟️ Team & Match Data
-- **Team Information**: Detailed team profiles with squad sizes, coaches, and venues
-- **Recent Matches**: Latest Premier League match results and statistics
-- **Player Rosters**: Complete team player lists with basic statistics
+- **Team Information**: Browse teams from all 5 leagues
+- **Player Rosters**: Complete team player lists with statistics
+- **League Selection**: Easy navigation between different leagues
 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **FastAPI**: Modern, fast web framework for building APIs
-- **Python**: Core programming language
-- **Football-Data.org API**: External data source for Premier League information
-- **Mock Data Generation**: Realistic player statistics for demonstration
+- **Flask**: Lightweight web framework for building APIs
+- **Python 3.9+**: Core programming language
+- **Pandas**: Data manipulation and analysis
+- **OpenPyXL**: Excel file processing
 
 ### Frontend
-- **React**: Modern JavaScript library for building user interfaces
-- **Chart.js**: Comprehensive charting library for data visualization
-- **React-Chartjs-2**: React wrapper for Chart.js
+- **React 18**: Modern JavaScript library for building user interfaces
+- **Chart.js & React-Chartjs-2**: Comprehensive charting library for data visualization
 - **Axios**: HTTP client for API communication
 - **CSS3**: Modern styling with responsive design
+
+## 📊 Data Source
+
+This application uses data from the [All Football Players Stats in Top 5 Leagues 24/25](https://www.kaggle.com/datasets/orkunaktas/all-football-players-stats-in-top-5-leagues-2425) dataset on Kaggle.
+
+The dataset includes comprehensive player statistics from:
+- **Premier League** (England)
+- **La Liga** (Spain) 
+- **Serie A** (Italy)
+- **Ligue 1** (France)
+- **Bundesliga** (Germany)
 
 ## 📦 Installation & Setup
 
 ### Prerequisites
-- **Node.js** (v14 or higher) - [Download here](https://nodejs.org/)
-- **Python** (v3.8 or higher) - [Download here](https://www.python.org/downloads/)
+- **Node.js** (v16 or higher) - [Download here](https://nodejs.org/)
+- **Python** (v3.9 or higher) - [Download here](https://www.python.org/downloads/)
 - **npm** or **yarn** (comes with Node.js)
-- **Git** (for cloning the repository)
+- **Git** - [Download here](https://git-scm.com/)
 
-### 🔑 Step 1: Get Your API Key (Required)
+### Backend Setup
 
-**You need a Football-Data.org API key to use this platform:**
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/football-analytics.git
+   cd football-analytics
+   ```
 
-1. **Visit**: [Football-Data.org](https://www.football-data.org/client/register)
-2. **Register** for a free account
-3. **Verify your email** and log in
-4. **Get your API key** from your dashboard
-5. **Copy the API key** - you'll need it in the next step
+2. **Navigate to backend directory**:
+   ```bash
+   cd Backend
+   ```
 
-### 🚀 Step 2: Clone & Setup Project
+3. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 
-```bash
-# Clone the repository
-git clone https://github.com/rk0802p/sports-analytics
-cd sports-analytics
+4. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Or if you already have the project, navigate to it
-cd sports-analytics
-```
+5. **Download data file**:
+   - Download `top5-players24-25.xlsx` from the [Kaggle dataset](https://www.kaggle.com/datasets/orkunaktas/all-football-players-stats-in-top-5-leagues-2425)
+   - Place it in the `Backend` directory
 
-### ⚙️ Step 3: Configure Backend
+6. **Run the server**:
+   ```bash
+   python api.py
+   ```
 
-```bash
-# Navigate to backend directory
-cd Backend
+The backend will be available at `http://localhost:5000`
 
-# Install Python dependencies
-pip install -r requirements.txt
+### Frontend Setup
 
-# Run the setup script to configure your API key
-python setup.py
-```
+1. **Navigate to frontend directory**:
+   ```bash
+   cd ../frontend
+   ```
 
-**Or manually create `.env` file:**
-```bash
-# Create .env file in Backend directory
-echo "FOOTBALL_DATA_API_KEY=your_actual_api_key_here" > .env
-```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-### 🎯 Step 4: Start Backend Server
+3. **Start development server**:
+   ```bash
+   npm start
+   ```
 
-```bash
-# Make sure you're in the Backend directory
-cd Backend
+The frontend will be available at `http://localhost:3000`
 
-# Start the FastAPI server
-python api.py
-```
+## 🔌 API Endpoints
 
-**Expected output:**
-```
-INFO:     Started server process [xxxx]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-```
+### Leagues
+- `GET /api/leagues` - Get all available leagues
 
-**✅ Backend is running when you see:**
-- Server started on `http://localhost:8000`
-- No error messages
-- API documentation available at `http://localhost:8000/docs`
+### Teams
+- `GET /api/teams/{league}` - Get teams for a specific league
 
-### 🌐 Step 5: Start Frontend
+### Players
+- `GET /api/players` - Get all players
+- `GET /api/players/{league}/{team}` - Get players for a specific team
+- `GET /api/player/{player_id}` - Get detailed player profile
+- `POST /api/players/compare` - Compare multiple players
 
-**Open a new terminal window/tab:**
+### League Leaders
+- `GET /api/league-leaders` - Get top performers by category
 
-```bash
-# Navigate to frontend directory
-cd frontend
+## 🎯 Usage
 
-# Install Node.js dependencies
-npm install
+1. **Start the application**:
+   - Backend: `http://localhost:5000`
+   - Frontend: `http://localhost:3000`
 
-# Start React development server
-npm start
-```
+2. **Select League & Team**: Choose a league and team to view players
 
-**Expected output:**
-```
-Compiled successfully!
+3. **Player Analysis**: Click on any player to see detailed statistics and charts
 
-You can now view frontend in the browser.
+4. **Compare Players**: Use the "Compare Players" button to compare up to 4 players from different leagues
 
-  Local:            http://localhost:3000
-  On Your Network:  http://192.168.x.x:3000
+5. **League Leaders**: View top performers across different categories
 
-Note that the development build is not optimized.
-To create a production build, use npm run build.
-```
+6. **Search Players**: Use the search functionality to find specific players across all leagues
 
-**✅ Frontend is running when you see:**
-- Browser opens automatically to `http://localhost:3000`
-- Football Analytics Platform loads without errors
-- You can see the main dashboard
-
-## 🔍 Verification & Testing
-
-### Test Backend API
-```bash
-# Test if backend is responding
-curl http://localhost:8000/
-
-# Expected response:
-# {"message": "Football Analysis API is running!"}
-
-# Test teams endpoint
-curl http://localhost:8000/teams
-```
-
-### Test Frontend
-1. **Open browser** to `http://localhost:3000`
-2. **Check navigation tabs** - Teams, Matches, Player Analysis
-3. **Click on a team** to see team details
-4. **Navigate to Player Analysis** tab
-5. **Select a team** to view players
-
-## 🚨 Troubleshooting
-
-### Backend Issues
-
-**Port 8000 already in use:**
-```bash
-# Find process using port 8000
-netstat -ano | findstr :8000  # Windows
-lsof -i :8000                 # Mac/Linux
-
-# Kill the process or use different port
-python api.py --port 8001
-```
-
-**API key not found:**
-```bash
-# Check if .env file exists
-ls -la Backend/.env
-
-# Verify API key in .env file
-cat Backend/.env
-
-# Re-run setup
-cd Backend
-python setup.py
-```
-
-**Python packages missing:**
-```bash
-# Reinstall requirements
-pip install -r requirements.txt --force-reinstall
-
-# Or install individually
-pip install fastapi uvicorn requests python-dotenv
-```
-
-### Frontend Issues
-
-**Port 3000 already in use:**
-```bash
-# React will automatically suggest a different port
-# Or manually specify:
-PORT=3001 npm start
-```
-
-**Dependencies not installed:**
-```bash
-# Clear npm cache and reinstall
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm install
-```
-
-**Build errors:**
-```bash
-# Check for syntax errors
-npm run build
-
-# Clear build cache
-rm -rf build
-npm start
-```
-
-## 🎮 How to Use the Platform
-
-### 1. **View Teams & Matches**
-- Click "Teams" tab to see all Premier League teams
-- Click "Recent Matches" to view latest match results
-- Click on any team card to see detailed information
-
-### 2. **Player Analysis**
-- Click "Player Analysis" tab
-- Select a team from the list
-- Browse through all players with their statistics
-- Use search and position filters to find specific players
-- Click on any player card to see detailed profile
-
-### 3. **Player Profiles**
-- **Overview**: Key statistics and performance summary
-- **Statistics**: Comprehensive season statistics with radar charts
-- **Performance Trends**: Line charts showing last 10 matches
-- **Heat Maps**: Field activity visualization
-
-### 4. **Player Comparison**
-- Click "Compare Players" button
-- Select a team and choose 2-4 players
-- View side-by-side comparison charts
-- Analyze performance across multiple metrics
-
-### 5. **League Leaders**
-- Click "League Leaders" button
-- Switch between different categories (goals, assists, etc.)
-- View top performers and their statistics
-- Analyze league-wide performance data
-
-## 🔧 Configuration Options
-
-### Environment Variables
-The platform automatically loads configuration from:
-1. `.env` file (created by setup script)
-2. `config.env` file (alternative configuration)
-3. System environment variables
-
-**Available variables:**
-- `FOOTBALL_DATA_API_KEY` - Your Football-Data.org API key (required)
-- `API_BASE_URL` - API base URL (default: https://api.football-data.org/v4)
-- `DEBUG_MODE` - Enable debug logging (true/false)
-
-### Custom Ports
-```bash
-# Backend on different port
-python api.py --port 8001
-
-# Frontend on different port
-PORT=3001 npm start
-```
-
-## 📱 Platform Access
-
-### Local Development
-- **Backend API**: `http://localhost:8000`
-- **Frontend App**: `http://localhost:3000`
-- **API Docs**: `http://localhost:8000/docs`
-
-### Network Access
-- **Backend**: `http://your-ip:8000`
-- **Frontend**: `http://your-ip:3000`
-
-## 🚀 Production Deployment
-
-### Backend Deployment
-```bash
-# Install production dependencies
-pip install -r requirements.txt
-
-# Run with production server
-uvicorn api:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-### Frontend Deployment
-```bash
-# Build production version
-npm run build
-
-# Serve static files
-npx serve -s build -l 3000
-```
-
-## 🔮 Future Enhancements
-
-### Planned Features
-- **Real-time match data**: Live match statistics and updates
-- **Advanced analytics**: Expected goals (xG), player value metrics
-- **Historical data**: Multi-season statistics and trends
-- **Team tactics analysis**: Formation and strategy visualization
-- **Player scouting tools**: Advanced filtering and recommendation system
-
-### Technical Improvements
-- **Database integration**: Persistent data storage
-- **Caching system**: Improved performance for frequently accessed data
-- **Authentication**: User accounts and personalized dashboards
-- **Export functionality**: PDF reports and data export options
+## 🚀 Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions using Vercel.
+
+### Quick Vercel Deployment
+
+1. **Deploy Backend**:
+   ```bash
+   cd Backend
+   vercel --prod
+   ```
+
+2. **Deploy Frontend**:
+   ```bash
+   cd frontend
+   vercel --prod
+   ```
+
+## 📈 Features in Detail
+
+### Player Comparison
+- **Cross-League Support**: Compare players from different leagues and teams
+- **Search Mode**: Search for specific players across all leagues
+- **Team Mode**: Browse players by league and team
+- **Interactive Charts**: Radar charts and bar charts for comparison
+- **Up to 4 Players**: Compare multiple players simultaneously
+
+### League Leaders
+- **Top 10 Performers**: View top performers in each category
+- **Categories**: Goals, Assists, Matches, Minutes
+- **Interactive Charts**: Bar charts and leaderboards
+- **Real-time Data**: Updated statistics from the dataset
+
+### Player Profiles
+- **Detailed Statistics**: Comprehensive player information
+- **Performance Trends**: Visual representation of player performance
+- **Interactive Charts**: Radar charts and trend analysis
+- **Multi-tab Interface**: Overview, Statistics, and Performance tabs
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Data File Missing**:
+   - Ensure `top5-players24-25.xlsx` is in the Backend directory
+   - Download from the [Kaggle dataset](https://www.kaggle.com/datasets/orkunaktas/all-football-players-stats-in-top-5-leagues-2425)
+
+2. **CORS Errors**:
+   - Backend includes CORS headers for localhost:3000
+   - For production, update CORS origins in `api.py`
+
+3. **Port Conflicts**:
+   - Backend runs on port 5000
+   - Frontend runs on port 3000
+   - Check if ports are available
+
+4. **Player Comparison Issues**:
+   - Use search mode to find players from different leagues
+   - Ensure players are selected before comparing
+
+### Getting Help
+
+- Check the [Issues](https://github.com/yourusername/football-analytics/issues) page
+- Create a new issue with detailed error information
+- Include browser console logs and backend logs
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [Football-Data.org](https://www.football-data.org/) for providing the API
-- [Chart.js](https://www.chartjs.org/) for excellent charting capabilities
-- [React](https://reactjs.org/) for the amazing frontend framework
-- [FastAPI](https://fastapi.tiangolo.com/) for the modern Python web framework
-
-## 📞 Support
-
-For questions, issues, or feature requests, please open an issue on GitHub or contact the development team.
+- Data provided by [Kaggle Dataset](https://www.kaggle.com/datasets/orkunaktas/all-football-players-stats-in-top-5-leagues-2425)
+- Built with React, Flask, and Chart.js
+- Inspired by modern sports analytics platforms
 
 ---
 
-**⚽ Enjoy exploring Premier League statistics and player analysis!** 
+**Note**: This application is for educational and demonstration purposes. The data is sourced from publicly available datasets and is not affiliated with any official football organizations.

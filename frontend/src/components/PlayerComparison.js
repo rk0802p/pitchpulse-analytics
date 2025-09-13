@@ -27,6 +27,8 @@ ChartJS.register(
 const API_BASE_URL = 'http://localhost:5000';
 
 const PlayerComparison = ({ onClose }) => {
+  const [leagues, setLeagues] = useState([]);
+  const [selectedLeague, setSelectedLeague] = useState('');
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [players, setPlayers] = useState([]);
@@ -34,16 +36,52 @@ const PlayerComparison = ({ onClose }) => {
   const [comparisonData, setComparisonData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchMode, setSearchMode] = useState('team'); // 'team' or 'search'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
-  const fetchTeams = useCallback(async () => {
+  const fetchLeagues = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/leagues`);
       if (response.data) {
-        // Get teams from the first league for simplicity
-        const firstLeague = response.data[0];
-        const teamsResponse = await axios.get(`${API_BASE_URL}/api/teams/${encodeURIComponent(firstLeague)}`);
-        setTeams(teamsResponse.data);
+        setLeagues(response.data);
       }
+    } catch (err) {
+      console.error('Error fetching leagues:', err);
+      setError('Failed to fetch leagues');
+    }
+  }, []);
+
+  const searchPlayers = useCallback(async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/players`);
+      if (response.data) {
+        const allPlayers = response.data;
+        const filtered = allPlayers.filter(player => 
+          player.Player && player.Player.toLowerCase().includes(query.toLowerCase())
+        );
+        setSearchResults(filtered.slice(0, 20)); // Limit to 20 results
+      }
+    } catch (err) {
+      console.error('Error searching players:', err);
+      setError('Failed to search players');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchTeams = useCallback(async (league) => {
+    if (!league) return;
+    
+    try {
+      const teamsResponse = await axios.get(`${API_BASE_URL}/api/teams/${encodeURIComponent(league)}`);
+      setTeams(teamsResponse.data);
     } catch (err) {
       console.error('Error fetching teams:', err);
       setError('Failed to fetch teams');
@@ -51,18 +89,14 @@ const PlayerComparison = ({ onClose }) => {
   }, []);
 
   const fetchTeamPlayers = useCallback(async (team) => {
-    if (!team) return;
+    if (!team || !selectedLeague) return;
     
     setLoading(true);
     setError(null);
     
     try {
-      // Get players from the first league for simplicity
-      const leaguesResponse = await axios.get(`${API_BASE_URL}/api/leagues`);
-      const firstLeague = leaguesResponse.data[0];
-      
       const response = await axios.get(
-        `${API_BASE_URL}/api/players/${encodeURIComponent(firstLeague)}/${encodeURIComponent(team)}`
+        `${API_BASE_URL}/api/players/${encodeURIComponent(selectedLeague)}/${encodeURIComponent(team)}`
       );
       
       if (response.data) {
@@ -74,7 +108,7 @@ const PlayerComparison = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedLeague]);
 
   const comparePlayers = useCallback(async () => {
     if (selectedPlayers.length < 2) {
@@ -103,9 +137,18 @@ const PlayerComparison = ({ onClose }) => {
     }
   }, [selectedPlayers]);
 
+  const handleLeagueSelect = (league) => {
+    setSelectedLeague(league);
+    setSelectedTeam('');
+    setPlayers([]);
+    // Don't reset selectedPlayers - keep them for comparison
+    setComparisonData(null);
+    fetchTeams(league);
+  };
+
   const handleTeamSelect = (team) => {
     setSelectedTeam(team);
-    setSelectedPlayers([]);
+    // Don't reset selectedPlayers - keep them for comparison
     setComparisonData(null);
     fetchTeamPlayers(team);
   };
@@ -127,8 +170,19 @@ const PlayerComparison = ({ onClose }) => {
   };
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    fetchLeagues();
+  }, [fetchLeagues]);
+
+  // Debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchMode === 'search' && searchQuery) {
+        searchPlayers(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchMode, searchPlayers]);
 
   // Prepare comparison chart data
   const prepareChartData = () => {
@@ -249,20 +303,125 @@ const PlayerComparison = ({ onClose }) => {
             </div>
           )}
 
-          <div className="team-selection">
-            <h3>Select Team</h3>
-            <select 
-              value={selectedTeam} 
-              onChange={(e) => handleTeamSelect(e.target.value)}
-            >
-              <option value="">Choose a team...</option>
-              {teams.map(team => (
-                <option key={team} value={team}>{team}</option>
-              ))}
-            </select>
+          {/* Selected Players Section - Always visible */}
+          {selectedPlayers.length > 0 && (
+            <div className="selected-players-persistent">
+              <h3>Selected Players ({selectedPlayers.length}/4)</h3>
+              <div className="selected-players-list">
+                {selectedPlayers.map(player => (
+                  <div key={player.Rk} className="selected-player-card">
+                    <div className="player-info">
+                      <span className="player-name">{player.Player}</span>
+                      <span className="player-details">{player.Squad} • {player.Comp}</span>
+                    </div>
+                    <button 
+                      className="remove-player"
+                      onClick={() => removePlayer(player.Rk)}
+                      title="Remove player"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="selected-players-actions">
+                <button 
+                  className="compare-button"
+                  onClick={comparePlayers}
+                  disabled={selectedPlayers.length < 2 || loading}
+                >
+                  {loading ? 'Comparing...' : `Compare ${selectedPlayers.length} Players`}
+                </button>
+                <button 
+                  className="clear-all-button"
+                  onClick={() => setSelectedPlayers([])}
+                  disabled={selectedPlayers.length === 0}
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Comparison Results - Show above player selection */}
+          {comparisonData && (
+            <div className="comparison-charts">
+              <h3>Comparison Results</h3>
+              <div className="charts-grid">
+                <div className="chart-container">
+                  <h4>Goals, Assists & Matches</h4>
+                  {chartData && <Bar data={chartData} options={chartOptions} />}
+                </div>
+                <div className="chart-container">
+                  <h4>Performance Radar</h4>
+                  {radarData && <Radar data={radarData} options={radarOptions} />}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="selection-mode">
+            <h3>Choose Selection Mode</h3>
+            <div className="mode-buttons">
+              <button 
+                className={searchMode === 'team' ? 'active' : ''}
+                onClick={() => setSearchMode('team')}
+              >
+                🏟️ Select by Team
+              </button>
+              <button 
+                className={searchMode === 'search' ? 'active' : ''}
+                onClick={() => setSearchMode('search')}
+              >
+                🔍 Search Players
+              </button>
+            </div>
           </div>
 
-          {selectedTeam && (
+          {searchMode === 'team' ? (
+            <>
+              <div className="league-selection">
+                <h3>Select League</h3>
+                <select 
+                  value={selectedLeague} 
+                  onChange={(e) => handleLeagueSelect(e.target.value)}
+                >
+                  <option value="">Choose a league...</option>
+                  {leagues.map(league => (
+                    <option key={league} value={league}>{league}</option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedLeague && (
+                <div className="team-selection">
+                  <h3>Select Team</h3>
+                  <select 
+                    value={selectedTeam} 
+                    onChange={(e) => handleTeamSelect(e.target.value)}
+                  >
+                    <option value="">Choose a team...</option>
+                    {teams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="player-search">
+              <h3>Search Players</h3>
+              <input
+                type="text"
+                placeholder="Type player name to search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+            </div>
+          )}
+
+          {((searchMode === 'team' && selectedLeague && selectedTeam) || (searchMode === 'search' && searchResults.length > 0)) && (
             <div className="players-selection">
               <h3>Select Players (Max 4)</h3>
               {loading ? (
@@ -272,7 +431,7 @@ const PlayerComparison = ({ onClose }) => {
                 </div>
               ) : (
                 <div className="players-grid">
-                  {players.map(player => (
+                  {(searchMode === 'search' ? searchResults : players).map(player => (
                     <div 
                       key={player.Rk}
                       className={`player-card ${selectedPlayers.some(p => p.Rk === player.Rk) ? 'selected' : ''}`}
@@ -281,6 +440,8 @@ const PlayerComparison = ({ onClose }) => {
                       <div className="player-header">
                         <h4>{player.Player}</h4>
                         <span className="player-position">{player.Pos}</span>
+                        <span className="player-team">{player.Squad}</span>
+                        <span className="player-league">{player.Comp}</span>
                       </div>
                       <div className="player-stats">
                         <div className="stat-item">
@@ -300,48 +461,6 @@ const PlayerComparison = ({ onClose }) => {
                   ))}
                 </div>
               )}
-            </div>
-          )}
-
-          {selectedPlayers.length > 0 && (
-            <div className="selected-players">
-              <h3>Selected Players ({selectedPlayers.length}/4)</h3>
-              <div className="selected-players-list">
-                {selectedPlayers.map(player => (
-                  <div key={player.Rk} className="selected-player-card">
-                    <span>{player.Player}</span>
-                    <button 
-                      className="remove-player"
-                      onClick={() => removePlayer(player.Rk)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button 
-                className="analysis-button"
-                onClick={comparePlayers}
-                disabled={selectedPlayers.length < 2 || loading}
-              >
-                {loading ? 'Comparing...' : 'Compare Players'}
-              </button>
-            </div>
-          )}
-
-          {comparisonData && (
-            <div className="comparison-charts">
-              <h3>Comparison Results</h3>
-              <div className="charts-grid">
-                <div className="chart-container">
-                  <h4>Goals, Assists & Matches</h4>
-                  {chartData && <Bar data={chartData} options={chartOptions} />}
-                </div>
-                <div className="chart-container">
-                  <h4>Performance Radar</h4>
-                  {radarData && <Radar data={radarData} options={radarOptions} />}
-                </div>
-              </div>
             </div>
           )}
         </div>
