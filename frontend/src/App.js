@@ -1,144 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import './App.css';
+import PlayerProfile from './components/PlayerProfile';
+import PlayerComparison from './components/PlayerComparison';
+import LeagueLeaders from './components/LeagueLeaders';
 
 const API_BASE_URL = 'http://localhost:5000';
-
-// Enhanced Diagnostic Component
-const DiagnosticComponent = () => {
-  const [diagnostics, setDiagnostics] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const runDiagnostics = async () => {
-      const results = {};
-      
-      // Test 1: Check if backend is accessible
-      try {
-        const statusResponse = await axios.get(`${API_BASE_URL}/api/`);
-        results.backendStatus = {
-          success: true,
-          data: statusResponse.data,
-          status: statusResponse.status
-        };
-      } catch (error) {
-        results.backendStatus = {
-          success: false,
-          error: error.message,
-          details: error.response?.data || 'No response'
-        };
-      }
-
-      // Test 2: Check debug endpoint
-      try {
-        const debugResponse = await axios.get(`${API_BASE_URL}/api/debug`);
-        results.debugInfo = {
-          success: true,
-          data: debugResponse.data,
-          status: debugResponse.status
-        };
-      } catch (error) {
-        results.debugInfo = {
-          success: false,
-          error: error.message
-        };
-      }
-
-      // Test 3: Check leagues endpoint
-      try {
-        const leaguesResponse = await axios.get(`${API_BASE_URL}/api/leagues`);
-        results.leaguesEndpoint = {
-          success: true,
-          dataLength: leaguesResponse.data.length,
-          data: leaguesResponse.data,
-          status: leaguesResponse.status
-        };
-      } catch (error) {
-        results.leaguesEndpoint = {
-          success: false,
-          error: error.message,
-          details: error.response?.data || 'No response'
-        };
-      }
-
-      setDiagnostics(results);
-      setLoading(false);
-    };
-
-    runDiagnostics();
-  }, []);
-
-  if (loading) {
-    return <div style={{padding: '20px', textAlign: 'center'}}>🔍 Running diagnostics...</div>;
-  }
-
-  return (
-    <div style={{ padding: '20px', backgroundColor: '#f5f5f5', margin: '20px', borderRadius: '8px' }}>
-      <h2>🔍 API Diagnostics</h2>
-      
-      <div style={{ marginBottom: '20px' }}>
-        <h3>Backend Status:</h3>
-        <div style={{ 
-          padding: '10px', 
-          backgroundColor: diagnostics.backendStatus?.success ? '#d4edda' : '#f8d7da',
-          borderRadius: '5px',
-          color: diagnostics.backendStatus?.success ? '#155724' : '#721c24'
-        }}>
-          {diagnostics.backendStatus?.success ? (
-            <>✅ Backend accessible: {JSON.stringify(diagnostics.backendStatus.data)}</>
-          ) : (
-            <>❌ Backend failed: {diagnostics.backendStatus?.error}</>
-          )}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '20px' }}>
-        <h3>File System Check:</h3>
-        <div style={{ 
-          padding: '10px', 
-          backgroundColor: diagnostics.debugInfo?.success ? '#d4edda' : '#f8d7da',
-          borderRadius: '5px',
-          color: diagnostics.debugInfo?.success ? '#155724' : '#721c24'
-        }}>
-          {diagnostics.debugInfo?.success ? (
-            <details>
-              <summary>✅ File system accessible</summary>
-              <pre style={{fontSize: '12px', marginTop: '10px'}}>
-                {JSON.stringify(diagnostics.debugInfo.data, null, 2)}
-              </pre>
-            </details>
-          ) : (
-            <>❌ Debug failed: {diagnostics.debugInfo?.error}</>
-          )}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '20px' }}>
-        <h3>Leagues Data:</h3>
-        <div style={{ 
-          padding: '10px', 
-          backgroundColor: diagnostics.leaguesEndpoint?.success ? '#d4edda' : '#f8d7da',
-          borderRadius: '5px',
-          color: diagnostics.leaguesEndpoint?.success ? '#155724' : '#721c24'
-        }}>
-          {diagnostics.leaguesEndpoint?.success ? (
-            <>
-              ✅ Found {diagnostics.leaguesEndpoint.dataLength} leagues: 
-              <br/>
-              <strong>{JSON.stringify(diagnostics.leaguesEndpoint.data)}</strong>
-            </>
-          ) : (
-            <>
-              ❌ Leagues failed: {diagnostics.leaguesEndpoint?.error}
-              <br/>
-              Details: {JSON.stringify(diagnostics.leaguesEndpoint?.details)}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const [leagues, setLeagues] = useState([]);
@@ -151,6 +18,11 @@ function App() {
   const [apiStatus, setApiStatus] = useState('');
   const [loadingTeams, setLoadingTeams] = useState(false);
   const [loadingPlayers, setLoadingPlayers] = useState(false);
+  
+  // Modal states
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [showPlayerComparison, setShowPlayerComparison] = useState(false);
+  const [showLeagueLeaders, setShowLeagueLeaders] = useState(false);
 
   // Load initial data (API status and leagues)
   useEffect(() => {
@@ -240,6 +112,31 @@ function App() {
     loadPlayers();
   }, [selectedLeague, selectedTeam]);
 
+  // Handler functions
+  const handlePlayerClick = useCallback((player) => {
+    setSelectedPlayer(player);
+  }, []);
+
+  const closePlayerProfile = useCallback(() => {
+    setSelectedPlayer(null);
+  }, []);
+
+  const handleShowPlayerComparison = useCallback(() => {
+    setShowPlayerComparison(true);
+  }, []);
+
+  const closePlayerComparison = useCallback(() => {
+    setShowPlayerComparison(false);
+  }, []);
+
+  const handleShowLeagueLeaders = useCallback(() => {
+    setShowLeagueLeaders(true);
+  }, []);
+
+  const closeLeagueLeaders = useCallback(() => {
+    setShowLeagueLeaders(false);
+  }, []);
+
   if (loading) {
     return (
       <div className="App">
@@ -260,10 +157,17 @@ function App() {
       <header className="App-header">
         <h1>Football Analysis Platform</h1>
         <p>API Status: {apiStatus}</p>
+        
+        {/* Navigation buttons */}
+        <div className="tab-nav">
+          <button onClick={handleShowPlayerComparison}>
+            🔍 Compare Players
+          </button>
+          <button onClick={handleShowLeagueLeaders}>
+            🏆 League Leaders
+          </button>
+        </div>
       </header>
-      
-      {/* Diagnostic component - remove this after testing */}
-      <DiagnosticComponent />
       
       <main className="main-content">
         {error && (
@@ -331,7 +235,11 @@ function App() {
                 {players.length > 0 ? (
                   <div className="players-grid">
                     {players.map((player, index) => (
-                      <div key={player.Rk || index} className="player-card">
+                      <div 
+                        key={player.Rk || index} 
+                        className="player-card"
+                        onClick={() => handlePlayerClick(player)}
+                      >
                         <div className="player-header">
                           <h4>{player.Player || 'Unknown Player'}</h4>
                           <span className="player-position">{player.Pos || 'N/A'}</span>
@@ -380,6 +288,9 @@ function App() {
                             </div>
                           )}
                         </div>
+                        <button className="analysis-button">
+                          📊 Analyze Player
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -393,6 +304,26 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Modals */}
+      {selectedPlayer && (
+        <PlayerProfile 
+          player={selectedPlayer} 
+          onClose={closePlayerProfile} 
+        />
+      )}
+      
+      {showPlayerComparison && (
+        <PlayerComparison 
+          onClose={closePlayerComparison} 
+        />
+      )}
+      
+      {showLeagueLeaders && (
+        <LeagueLeaders 
+          onClose={closeLeagueLeaders} 
+        />
+      )}
     </div>
   );
 }
