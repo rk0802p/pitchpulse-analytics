@@ -34,7 +34,7 @@ def load_players_data():
                 return players_df.to_dict(orient='records')
             else:
                 logger.error("No CSV or Excel files found")
-                return {
+            return {
                     'error': 'No data files found',
                     'message': 'Please add CSV files or Excel file to Backend directory',
                     'files_in_directory': os.listdir(dir_path)
@@ -108,7 +108,7 @@ def get_teams_by_league(league):
     
     if players:
         df = pd.DataFrame(players)
-        league_teams = df[df['league'] == league]['squad'].unique().tolist()
+        league_teams = df[df['league'] == league]['Squad'].unique().tolist()
         return jsonify(league_teams)
     return jsonify([])
 
@@ -125,6 +125,91 @@ def get_players_by_team(league, team):
         team_players = df[(df['league'] == league) & (df['Squad'] == team)].to_dict(orient='records')
         return jsonify(team_players)
     return jsonify([])
+
+@app.route('/api/player/<int:player_id>', methods=['GET'])
+def get_player_profile(player_id):
+    """Get detailed player profile"""
+    players = load_players_data()
+    
+    if isinstance(players, dict) and 'error' in players:
+        return jsonify(players), 500
+    
+    if players:
+        df = pd.DataFrame(players)
+        player = df[df['Rk'] == player_id].iloc[0].to_dict() if len(df[df['Rk'] == player_id]) > 0 else None
+        
+        if player:
+            return jsonify({
+                'success': True,
+                'player': player,
+                'statistics': {
+                    'goals': player.get('Gls', 0),
+                    'assists': player.get('Ast', 0),
+                    'matches_played': player.get('MP', 0),
+                    'minutes': player.get('Min', 0),
+                    'starts': player.get('Starts', 0),
+                    'yellow_cards': player.get('CrdY', 0),
+                    'red_cards': player.get('CrdR', 0)
+                }
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Player not found'}), 404
+    
+    return jsonify({'success': False, 'error': 'No data available'}), 500
+
+@app.route('/api/players/compare', methods=['POST'])
+def compare_players():
+    """Compare multiple players"""
+    from flask import request
+    data = request.get_json()
+    player_ids = data.get('player_ids', [])
+    
+    players = load_players_data()
+    
+    if isinstance(players, dict) and 'error' in players:
+        return jsonify(players), 500
+    
+    if players and player_ids:
+        df = pd.DataFrame(players)
+        selected_players = df[df['Rk'].isin(player_ids)].to_dict(orient='records')
+        
+        return jsonify({
+            'success': True,
+            'players': selected_players,
+            'comparison_data': {
+                'goals': [p.get('Gls', 0) for p in selected_players],
+                'assists': [p.get('Ast', 0) for p in selected_players],
+                'matches': [p.get('MP', 0) for p in selected_players],
+                'minutes': [p.get('Min', 0) for p in selected_players]
+            }
+        })
+    
+    return jsonify({'success': False, 'error': 'No players to compare'}), 400
+
+@app.route('/api/league-leaders', methods=['GET'])
+def get_league_leaders():
+    """Get league leaders in various categories"""
+    players = load_players_data()
+    
+    if isinstance(players, dict) and 'error' in players:
+        return jsonify(players), 500
+    
+    if players:
+        df = pd.DataFrame(players)
+        
+        leaders = {
+            'goals': df.nlargest(10, 'Gls')[['Player', 'Squad', 'Gls', 'Pos']].to_dict(orient='records'),
+            'assists': df.nlargest(10, 'Ast')[['Player', 'Squad', 'Ast', 'Pos']].to_dict(orient='records'),
+            'matches': df.nlargest(10, 'MP')[['Player', 'Squad', 'MP', 'Pos']].to_dict(orient='records'),
+            'minutes': df.nlargest(10, 'Min')[['Player', 'Squad', 'Min', 'Pos']].to_dict(orient='records')
+        }
+        
+        return jsonify({
+            'success': True,
+            'leaders': leaders
+        })
+    
+    return jsonify({'success': False, 'error': 'No data available'}), 500
 
 @app.route('/api/debug', methods=['GET'])
 def debug_info():
