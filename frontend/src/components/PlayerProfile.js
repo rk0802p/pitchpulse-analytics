@@ -103,6 +103,21 @@ const PlayerProfile = ({ player, onClose }) => {
 
   const { player: playerInfo, statistics } = playerData;
 
+  // Helpers
+  const asNumber = (val, digits = null) => {
+    const num = Number(val ?? 0);
+    if (Number.isNaN(num)) return 0;
+    return digits == null ? num : Number(num.toFixed(digits));
+  };
+
+  const infoChips = [
+    playerInfo?.Pos,
+    playerInfo?.Squad,
+    playerInfo?.Comp,
+    playerInfo?.Age ? `Age: ${playerInfo.Age}` : null,
+    playerInfo?.Nation
+  ].filter(Boolean);
+
   // Prepare radar chart data
   const radarData = {
     labels: ['Goals', 'Assists', 'Matches', 'Minutes', 'Starts', 'Cards'],
@@ -218,14 +233,15 @@ const PlayerProfile = ({ player, onClose }) => {
       <div className="modal-content player-profile-modal" onClick={e => e.stopPropagation()}>
         <button className="close-button" onClick={onClose}>×</button>
         
-        <div className="player-header">
-          <h2>{playerInfo.Player}</h2>
-          <div className="player-details">
-            <span>{playerInfo.Pos}</span>
-            <span>{playerInfo.Squad}</span>
-            <span>{playerInfo.Comp}</span>
-            <span>Age: {playerInfo.Age}</span>
-            <span>{playerInfo.Nation}</span>
+        {/* Clean Header */}
+        <div className="player-header-clean">
+          <div className="player-name-main">{playerInfo.Player}</div>
+          <div className="player-chips">
+            <span className="chip">{playerInfo.Pos}</span>
+            <span className="chip">{playerInfo.Squad}</span>
+            <span className="chip">{playerInfo.Comp}</span>
+            <span className="chip">Age: {playerInfo.Age}</span>
+            <span className="chip">{playerInfo.Nation}</span>
           </div>
         </div>
 
@@ -253,30 +269,53 @@ const PlayerProfile = ({ player, onClose }) => {
         <div className="player-content">
           {activeTab === 'overview' && (
             <div className="overview-section">
-              <div className="overview-stats">
-                <div className="stat-highlight">
-                  <div className="stat-number">{statistics.goals || 0}</div>
+              {/* Top Stats Cards */}
+              <div className="top-stats-grid">
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.Gls)}</div>
                   <div className="stat-label">Goals</div>
                 </div>
-                <div className="stat-highlight">
-                  <div className="stat-number">{statistics.assists || 0}</div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.Ast)}</div>
                   <div className="stat-label">Assists</div>
                 </div>
-                <div className="stat-highlight">
-                  <div className="stat-number">{statistics.matches_played || 0}</div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.MP)}</div>
                   <div className="stat-label">Matches</div>
                 </div>
-                <div className="stat-highlight">
-                  <div className="stat-number">{Math.round((statistics.minutes || 0) / 90)}</div>
-                  <div className="stat-label">90s Played</div>
-                </div>
-                <div className="stat-highlight">
-                  <div className="stat-number">{statistics.starts || 0}</div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.Starts)}</div>
                   <div className="stat-label">Starts</div>
                 </div>
-                <div className="stat-highlight">
-                  <div className="stat-number">{(statistics.yellow_cards || 0) + (statistics.red_cards || 0)}</div>
-                  <div className="stat-label">Cards</div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.Min)}</div>
+                  <div className="stat-label">Minutes</div>
+                </div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo['90s'])}</div>
+                  <div className="stat-label">90s</div>
+                </div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.CrdY)}</div>
+                  <div className="stat-label">Yellow</div>
+                </div>
+                <div className="stat-card-clean">
+                  <div className="stat-number">{asNumber(playerInfo.CrdR)}</div>
+                  <div className="stat-label">Red</div>
+                </div>
+              </div>
+
+              {/* Progress Bar for Minutes */}
+              <div className="progress-section">
+                <div className="progress-header">
+                  <span>Minutes Played</span>
+                  <span>{asNumber(playerInfo.Min)} / 2700</span>
+                </div>
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill" 
+                    style={{width: `${Math.min((asNumber(playerInfo.Min) / 2700) * 100, 100)}%`}}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -284,45 +323,187 @@ const PlayerProfile = ({ player, onClose }) => {
 
           {activeTab === 'statistics' && (
             <div className="statistics-section">
-              <div className="stats-grid">
-                <div className="stats-cards">
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.Gls || 0}</div>
-                    <div className="stat-label">Goals</div>
+              {/* Playing Time */}
+              <div className="stats-section">
+                <h3 className="section-title">Playing Time</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Matches Played</span>
+                    <span className="stat-value">{asNumber(playerInfo.MP)}</span>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.Ast || 0}</div>
-                    <div className="stat-label">Assists</div>
+                  <div className="stat-item">
+                    <span className="stat-label">Starts</span>
+                    <span className="stat-value">{asNumber(playerInfo.Starts)}</span>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.MP || 0}</div>
-                    <div className="stat-label">Matches</div>
+                  <div className="stat-item">
+                    <span className="stat-label">Minutes</span>
+                    <span className="stat-value">{asNumber(playerInfo.Min)}</span>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.Starts || 0}</div>
-                    <div className="stat-label">Starts</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.Min || 0}</div>
-                    <div className="stat-label">Minutes</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.CrdY || 0}</div>
-                    <div className="stat-label">Yellow Cards</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.CrdR || 0}</div>
-                    <div className="stat-label">Red Cards</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{playerInfo.xG?.toFixed(1) || 0}</div>
-                    <div className="stat-label">Expected Goals</div>
+                  <div className="stat-item">
+                    <span className="stat-label">90s</span>
+                    <span className="stat-value">{asNumber(playerInfo['90s'])}</span>
                   </div>
                 </div>
-                <div className="radar-chart">
-                  <h4>Performance Radar</h4>
-                  <Radar data={radarData} options={radarOptions} />
+              </div>
+
+              {/* Goals & Assists */}
+              <div className="stats-section">
+                <h3 className="section-title">Goals & Assists</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Goals</span>
+                    <span className="stat-value">{asNumber(playerInfo.Gls)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Assists</span>
+                    <span className="stat-value">{asNumber(playerInfo.Ast)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">G + A</span>
+                    <span className="stat-value">{asNumber(playerInfo['G+A'])}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Non-PK Goals</span>
+                    <span className="stat-value">{asNumber(playerInfo['G-PK'])}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Penalty Goals</span>
+                    <span className="stat-value">{asNumber(playerInfo.PK)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Penalty Attempts</span>
+                    <span className="stat-value">{asNumber(playerInfo.PKatt)}</span>
+                  </div>
                 </div>
+              </div>
+
+              {/* Discipline */}
+              <div className="stats-section">
+                <h3 className="section-title">Discipline</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Yellow Cards</span>
+                    <span className="stat-value">{asNumber(playerInfo.CrdY)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Red Cards</span>
+                    <span className="stat-value">{asNumber(playerInfo.CrdR)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expected Stats */}
+              <div className="stats-section">
+                <h3 className="section-title">Expected Stats (xG / xA)</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">xG</span>
+                    <span className="stat-value">{asNumber(playerInfo.xG, 1)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Non-PK xG</span>
+                    <span className="stat-value">{asNumber(playerInfo.npxG, 1)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">xA</span>
+                    <span className="stat-value">{asNumber(playerInfo.xAG, 1)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Non-PK xG + xA</span>
+                    <span className="stat-value">{asNumber(playerInfo['npxG+xAG'], 1)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progression */}
+              <div className="stats-section">
+                <h3 className="section-title">Progression</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Progressive Carries</span>
+                    <span className="stat-value">{asNumber(playerInfo.PrgC)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Progressive Passes</span>
+                    <span className="stat-value">{asNumber(playerInfo.PrgP)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Progressive Receptions</span>
+                    <span className="stat-value">{asNumber(playerInfo.PrgR)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Per-90 Metrics Table */}
+              <div className="stats-section">
+                <h3 className="section-title">Per-90 Metrics</h3>
+                <div className="per90-table">
+                  <div className="per90-row">
+                    <span className="metric-name">Goals/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill attacking" 
+                        style={{width: `${Math.min((asNumber(playerInfo.Gls_90) / 1.0) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.Gls_90, 2)}</span>
+                  </div>
+                  <div className="per90-row">
+                    <span className="metric-name">Assists/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill attacking" 
+                        style={{width: `${Math.min((asNumber(playerInfo.Ast_90) / 1.0) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.Ast_90, 2)}</span>
+                  </div>
+                  <div className="per90-row">
+                    <span className="metric-name">xG/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill attacking" 
+                        style={{width: `${Math.min((asNumber(playerInfo.xG_90) / 1.0) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.xG_90, 2)}</span>
+                  </div>
+                  <div className="per90-row">
+                    <span className="metric-name">xA/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill attacking" 
+                        style={{width: `${Math.min((asNumber(playerInfo.xAG_90) / 1.0) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.xAG_90, 2)}</span>
+                  </div>
+                  <div className="per90-row">
+                    <span className="metric-name">Prog Carries/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill progression" 
+                        style={{width: `${Math.min((asNumber(playerInfo.PrgC) / 10) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.PrgC)}</span>
+                  </div>
+                  <div className="per90-row">
+                    <span className="metric-name">Prog Passes/90</span>
+                    <div className="metric-bar">
+                      <div 
+                        className="metric-fill progression" 
+                        style={{width: `${Math.min((asNumber(playerInfo.PrgP) / 10) * 100, 100)}%`}}
+                      ></div>
+                    </div>
+                    <span className="metric-value">{asNumber(playerInfo.PrgP)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="radar-chart">
+                <h4>Performance Radar</h4>
+                <Radar data={radarData} options={radarOptions} />
               </div>
             </div>
           )}
