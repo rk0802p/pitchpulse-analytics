@@ -23,6 +23,12 @@ function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showPlayerComparison, setShowPlayerComparison] = useState(false);
   const [showLeagueLeaders, setShowLeagueLeaders] = useState(false);
+  
+  // Theme state
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme || 'light';
+  });
 
   // Load initial data (API status and leagues)
   useEffect(() => {
@@ -137,6 +143,19 @@ function App() {
     setShowLeagueLeaders(false);
   }, []);
 
+  // Theme toggle handler
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  }, [theme]);
+
+  // Apply theme on mount and theme change
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   if (loading) {
     return (
       <div className="App">
@@ -155,8 +174,17 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Football Analysis Platform</h1>
-        <p>API Status: {apiStatus}</p>
+        <div className="header-content">
+          <div className="header-main">
+            <h1>Football Analysis Platform</h1>
+            <p>API Status: {apiStatus}</p>
+          </div>
+          
+          {/* Theme Toggle Button */}
+          <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </div>
         
         {/* Navigation buttons */}
         <div className="tab-nav">

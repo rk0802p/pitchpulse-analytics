@@ -4,6 +4,12 @@ A comprehensive web application for analyzing football player statistics and tea
 
 ## 🚀 Features
 
+### 🎨 Modern UI & Theming
+- **Dark/Light Mode Toggle**: Switch between modern dark and light themes
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Modern Color Palette**: Clean, professional design with subtle gradients
+- **Smooth Animations**: Polished transitions and hover effects
+
 ### 📊 Player Statistics & Analysis
 - **Detailed Player Profiles**: Comprehensive statistics including goals, assists, minutes played, and more
 - **Performance Trends**: Visual charts showing player performance over time
@@ -39,7 +45,8 @@ A comprehensive web application for analyzing football player statistics and tea
 - **React 18**: Modern JavaScript library for building user interfaces
 - **Chart.js & React-Chartjs-2**: Comprehensive charting library for data visualization
 - **Axios**: HTTP client for API communication
-- **CSS3**: Modern styling with responsive design
+- **CSS3**: Modern styling with CSS custom properties for theming
+- **Theme System**: Dark/light mode with smooth transitions
 
 ## 📊 Data Source
 
