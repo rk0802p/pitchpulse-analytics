@@ -110,13 +110,7 @@ const PlayerProfile = ({ player, onClose }) => {
     return digits == null ? num : Number(num.toFixed(digits));
   };
 
-  const infoChips = [
-    playerInfo?.Pos,
-    playerInfo?.Squad,
-    playerInfo?.Comp,
-    playerInfo?.Age ? `Age: ${playerInfo.Age}` : null,
-    playerInfo?.Nation
-  ].filter(Boolean);
+
 
   // Prepare radar chart data
   const radarData = {
