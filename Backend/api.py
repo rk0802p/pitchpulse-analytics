@@ -11,6 +11,13 @@ CORS(app, resources={r'/api/*': {'origins': 'http://localhost:3000'}})
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+team_logos = {
+    "Arsenal": "https://i.imgur.com/2b6BbEB.png",
+    "Manchester Utd": "https://pngimg.com/uploads/manchester_united/manchester_united_PNG26.png",
+    "Real Madrid": "https://dlscenter.com/wp-content/uploads/2025/06/Real-Madrid-Logo-512x512.png",
+    "Barcelona": "https://i.imgur.com/qfwhJQv.png",
+}
+
 def load_players_data():
     try:
         # Construct the absolute path to look for CSV files
