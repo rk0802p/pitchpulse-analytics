@@ -62,3 +62,6 @@ The frontend will be running at `http://localhost:3000`.
 ## Deployment
 
 The project is configured for deployment on Vercel. The `vercel.json` files in the `frontend` and `Backend` directories are used for this purpose.
+
+
+aa
