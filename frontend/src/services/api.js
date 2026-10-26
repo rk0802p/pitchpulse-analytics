@@ -3,7 +3,19 @@
  * Configurable via REACT_APP_API_URL environment variable.
  */
 
-const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/api').replace(/\/+$/, '');
+const getApiBaseUrl = () => {
+  const envUrl = process.env.REACT_APP_API_URL;
+  if (envUrl && !envUrl.includes('your-backend-url')) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  // Production Vercel or cloud domain
+  if (typeof window !== 'undefined' && window.location.hostname && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+    return 'https://sports-analytics-backend.vercel.app/api';
+  }
+  return 'http://127.0.0.1:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiError extends Error {
   constructor(message, status, details = null) {

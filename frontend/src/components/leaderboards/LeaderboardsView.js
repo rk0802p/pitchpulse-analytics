@@ -1,9 +1,7 @@
 import React from 'react';
-import { 
-  Trophy, 
-  Crown, 
-  Medal, 
-  Target, 
+import {
+Crown,
+Target, 
   Zap, 
   Sparkles, 
   Clock, 
@@ -186,7 +184,6 @@ export const LeaderboardsView = ({
                 const rank = idx + 1;
                 const isGold = rank === 1;
                 const isSilver = rank === 2;
-                const isBronze = rank === 3;
 
                 const borderColor = isGold
                   ? 'border-amber-500/50 bg-gradient-to-b from-amber-500/10 to-pitch-card'

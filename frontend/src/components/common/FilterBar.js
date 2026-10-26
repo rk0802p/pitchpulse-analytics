@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { Search, X, RotateCcw } from 'lucide-react';
 
 export const FilterBar = ({
   search = "",

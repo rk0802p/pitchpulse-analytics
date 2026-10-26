@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import LeagueBanner from './components/LeagueBanner';
 import PlayerCard from './components/PlayerCard';
@@ -95,9 +95,7 @@ afterEach(() => {
 });
 
 test('renders PitchPulse Analytics navigation and European Football Intelligence dashboard', async () => {
-  await act(async () => {
-    render(<App />);
-  });
+  render(<App />);
 
   expect(screen.getAllByText(/PitchPulse/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/European Football Intelligence/i)).toBeInTheDocument();
@@ -109,16 +107,14 @@ test('renders PitchPulse Analytics navigation and European Football Intelligence
 });
 
 test('renders Dashboard charts: Finishing Efficiency and Attacking Scatter Matrix', async () => {
-  await act(async () => {
-    render(<App />);
-  });
+  render(<App />);
 
   await waitFor(() => {
     expect(screen.getByText(/Finishing Efficiency vs Expected Goals/i)).toBeInTheDocument();
-    expect(screen.getByText(/Attacking Output Matrix/i)).toBeInTheDocument();
-    expect(screen.getByText(/Ball Progression Leaders/i)).toBeInTheDocument();
-    expect(screen.getByText(/Patrik Schick/i)).toBeInTheDocument();
   });
+  expect(screen.getByText(/Attacking Output Matrix/i)).toBeInTheDocument();
+  expect(screen.getByText(/Ball Progression Leaders/i)).toBeInTheDocument();
+  expect(screen.getByText(/Patrik Schick/i)).toBeInTheDocument();
 });
 
 test('renders LeagueBanner with clean league name', () => {

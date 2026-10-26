@@ -22,13 +22,10 @@ import {
   Trophy,
   Users,
   Target,
-  Sparkles,
-  Zap,
-  TrendingUp,
-  ArrowRight,
+Zap,
+ArrowRight,
   Shield,
-  Layers,
-  ArrowLeft,
+ArrowLeft,
   X,
   Plus
 } from 'lucide-react';
@@ -45,13 +42,11 @@ function App() {
   // Global Metadata & Competitions
   const [competitions, setCompetitions] = useState([]);
   const [metadata, setMetadata] = useState(null);
-  const [loadingMeta, setLoadingMeta] = useState(false);
   const [globalError, setGlobalError] = useState(null);
 
   // Dashboard State
   const [dashboardComp, setDashboardComp] = useState('');
   const [dashboardData, setDashboardData] = useState(null);
-  const [loadingDashboard, setLoadingDashboard] = useState(false);
 
   // Explorer State
   const [explorerPlayers, setExplorerPlayers] = useState([]);
@@ -89,7 +84,6 @@ function App() {
   const [legacyPlayers, setLegacyPlayers] = useState([]);
   const [selectedLegacyLeague, setSelectedLegacyLeague] = useState(null);
   const [selectedLegacyTeam, setSelectedLegacyTeam] = useState(null);
-  const [loadingLegacy, setLoadingLegacy] = useState(false);
 
   // Sync hash routing
   useEffect(() => {
@@ -119,7 +113,6 @@ function App() {
 
   // Fetch initial metadata and competitions
   const fetchInitialData = useCallback(async () => {
-    setLoadingMeta(true);
     setGlobalError(null);
     try {
       const [compRes, metaRes] = await Promise.all([
@@ -131,8 +124,6 @@ function App() {
       if (metaRes?.success) setMetadata(metaRes.data);
     } catch (err) {
       setGlobalError(err.message);
-    } finally {
-      setLoadingMeta(false);
     }
   }, []);
 
@@ -142,7 +133,6 @@ function App() {
 
   // Fetch Dashboard Analytics
   const fetchDashboardData = useCallback(async () => {
-    setLoadingDashboard(true);
     try {
       const res = await api.getDashboard(dashboardComp);
       if (res?.success) {
@@ -150,8 +140,6 @@ function App() {
       }
     } catch (err) {
       console.error("Error fetching dashboard analytics:", err);
-    } finally {
-      setLoadingDashboard(false);
     }
   }, [dashboardComp]);
 
@@ -255,13 +243,11 @@ function App() {
   // Classic Browser Handlers
   useEffect(() => {
     if (currentTab === 'browse' && legacyLeagues.length === 0) {
-      setLoadingLegacy(true);
       api.getLegacyLeagues()
         .then(data => {
           setLegacyLeagues(Array.isArray(data) ? data : []);
         })
-        .catch(err => setGlobalError(err.message))
-        .finally(() => setLoadingLegacy(false));
+        .catch(err => setGlobalError(err.message));
     }
   }, [currentTab, legacyLeagues.length]);
 
@@ -269,27 +255,21 @@ function App() {
     setSelectedLegacyLeague(league);
     setSelectedLegacyTeam(null);
     setLegacyPlayers([]);
-    setLoadingLegacy(true);
     try {
       const teams = await api.getLegacyTeams(league);
       setLegacyTeams(Array.isArray(teams) ? teams : []);
     } catch (err) {
       setGlobalError(err.message);
-    } finally {
-      setLoadingLegacy(false);
     }
   };
 
   const handleLegacyTeamSelect = async (team) => {
     setSelectedLegacyTeam(team);
-    setLoadingLegacy(true);
     try {
       const players = await api.getLegacyPlayersByTeam(selectedLegacyLeague, team);
       setLegacyPlayers(Array.isArray(players) ? players : []);
     } catch (err) {
       setGlobalError(err.message);
-    } finally {
-      setLoadingLegacy(false);
     }
   };
 

@@ -105,4 +105,4 @@ METRIC_DEFINITIONS = {
     "npxG+xAG_90": {"name": "npxG + xAG per 90", "category": "Advanced Rates", "description": "Non-penalty xG + xAG per 90 minutes"}
 }
 
-ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://localhost:3005,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3005').split(',')
+ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')

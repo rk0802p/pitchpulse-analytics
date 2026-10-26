@@ -6,10 +6,8 @@ import {
   GitCompare, 
   Layers, 
   Menu, 
-  X, 
-  Activity, 
-  ExternalLink,
-  Search
+  X,
+Search
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -20,7 +18,6 @@ export const AppLayout = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [apiOnline, setApiOnline] = useState(true);
-  const [metadata, setMetadata] = useState(null);
 
   useEffect(() => {
     // Check API health on layout mount
@@ -32,12 +29,7 @@ export const AppLayout = ({
         setApiOnline(false);
       });
 
-    api.getMetadata()
-      .then(res => {
-        if (res?.success) setMetadata(res.data);
-      })
-      .catch(() => {});
-  }, []);
+    }, []);
 
   const navItems = [
     { id: "dashboard", label: "Overview", icon: LayoutDashboard },

@@ -1,17 +1,13 @@
 import React from 'react';
 import { 
-  ArrowLeft, 
-  Calendar, 
-  Shield, 
-  Users, 
-  Target, 
+  ArrowLeft,
+Target, 
   Sparkles, 
   Zap, 
   AlertTriangle,
   GitCompare,
   Check,
-  TrendingUp,
-  Award
+Award
 } from 'lucide-react';
 import StatCard from '../common/StatCard';
 

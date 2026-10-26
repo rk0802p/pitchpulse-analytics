@@ -18,7 +18,7 @@ def create_app():
     app = Flask(__name__)
 
     # Enable CORS for frontend clients
-    CORS(app, resources={r'/api/*': {'origins': '*' if '*' in ALLOWED_ORIGINS else ALLOWED_ORIGINS}})
+    CORS(app, resources={r'/api/*': {'origins': '*', 'methods': ['GET', 'POST', 'OPTIONS'], 'allow_headers': ['Content-Type', 'Authorization']}})
 
     # Pre-load and validate dataset at application startup
     try:

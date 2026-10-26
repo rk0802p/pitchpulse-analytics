@@ -1,6 +1,6 @@
 import React from 'react';
 import './PlayerCard.css';
-import { Shield, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const getRoleBadge = (position) => {
   if (!position) return { label: 'POS', border: 'border-slate-600', text: 'text-slate-400' };

@@ -1,14 +1,6 @@
 import React from 'react';
 import { Target, Zap, Clock, ShieldAlert, Award } from 'lucide-react';
 
-const CATEGORY_META = {
-  total: { label: 'Volume & Playing Time', icon: Clock, color: 'text-slate-400' },
-  expected: { label: 'Expected Values (Advanced)', icon: Zap, color: 'text-cyan-400' },
-  differential: { label: 'Finishing Efficiency', icon: Target, color: 'text-emerald-400' },
-  progression: { label: 'Ball Movement & Progression', icon: Zap, color: 'text-purple-400' },
-  rate: { label: 'Standardized Rates (Per 90)', icon: Award, color: 'text-blue-400' },
-  discipline: { label: 'Discipline & Cards', icon: ShieldAlert, color: 'text-amber-400' }
-};
 
 export const ComparisonMatrix = ({
   comparisonData,

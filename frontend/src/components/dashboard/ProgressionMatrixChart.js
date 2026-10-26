@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, ArrowUpRight } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 export const ProgressionMatrixChart = ({
   progressionLeaders = [],
