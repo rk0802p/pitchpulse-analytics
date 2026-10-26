@@ -63,5 +63,29 @@ class TestLeaderboardsEndpoints(unittest.TestCase):
         self.assertIn('minutes', leaders)
         self.assertEqual(len(leaders['goals']), 10)
 
+    def test_dashboard_analytics(self):
+        res = self.client.get('/api/dashboard')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        analytics = data['data']
+        self.assertIn('kpis', analytics)
+        self.assertIn('top_scorers', analytics)
+        self.assertIn('top_creators', analytics)
+        self.assertIn('overperformers', analytics)
+        self.assertIn('underperformers', analytics)
+        self.assertIn('scatter_data', analytics)
+        self.assertEqual(analytics['kpis']['total_players'], 2854)
+        self.assertEqual(analytics['kpis']['total_clubs'], 96)
+
+    def test_dashboard_analytics_filtered(self):
+        res = self.client.get('/api/dashboard?competition=premier-league')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        analytics = data['data']
+        self.assertEqual(analytics['kpis']['total_clubs'], 20)
+        self.assertEqual(analytics['kpis']['total_players'], 574)
+
 if __name__ == '__main__':
     unittest.main()

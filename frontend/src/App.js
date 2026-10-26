@@ -9,6 +9,9 @@ import ErrorBanner from './components/common/ErrorBanner';
 import LeagueBanner from './components/LeagueBanner';
 import TeamBadge from './components/TeamBadge';
 import PlayerCard from './components/PlayerCard';
+import FinishingEfficiencyChart from './components/dashboard/FinishingEfficiencyChart';
+import AttackingScatterChart from './components/dashboard/AttackingScatterChart';
+import ProgressionMatrixChart from './components/dashboard/ProgressionMatrixChart';
 import api from './services/api';
 
 import {
@@ -40,6 +43,11 @@ function App() {
   const [metadata, setMetadata] = useState(null);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [globalError, setGlobalError] = useState(null);
+
+  // Dashboard State
+  const [dashboardComp, setDashboardComp] = useState('');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(false);
 
   // Explorer State
   const [explorerPlayers, setExplorerPlayers] = useState([]);
@@ -124,6 +132,27 @@ function App() {
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
+
+  // Fetch Dashboard Analytics
+  const fetchDashboardData = useCallback(async () => {
+    setLoadingDashboard(true);
+    try {
+      const res = await api.getDashboard(dashboardComp);
+      if (res?.success) {
+        setDashboardData(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard analytics:", err);
+    } finally {
+      setLoadingDashboard(false);
+    }
+  }, [dashboardComp]);
+
+  useEffect(() => {
+    if (currentTab === 'dashboard') {
+      fetchDashboardData();
+    }
+  }, [currentTab, fetchDashboardData]);
 
   // Fetch Explorer Players
   const fetchExplorerPlayers = useCallback(async () => {
@@ -357,165 +386,169 @@ function App() {
             }
           />
 
-          {/* Headline Stat Cards */}
+          {/* Competition Filter Selector Bar */}
+          <div className="bg-pitch-card border border-pitch-border rounded-xl p-3 mb-6 flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
+              <span className="text-xs font-mono text-slate-400 mr-1 flex items-center gap-1.5 flex-shrink-0">
+                <Trophy className="w-3.5 h-3.5 text-emerald-400" /> Competition:
+              </span>
+              <button
+                onClick={() => setDashboardComp('')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                  dashboardComp === ''
+                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-xs'
+                    : 'bg-pitch-surface text-slate-400 hover:text-white border border-pitch-border'
+                }`}
+              >
+                All 5 Leagues
+              </button>
+              {competitions.map((comp) => (
+                <button
+                  key={comp.id}
+                  onClick={() => setDashboardComp(comp.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                    dashboardComp === comp.id
+                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-xs'
+                      : 'bg-pitch-surface text-slate-400 hover:text-white border border-pitch-border'
+                  }`}
+                >
+                  {comp.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="text-xs font-mono text-slate-400 hidden lg:block">
+              {dashboardData?.kpis?.total_clubs || 96} Clubs · {dashboardData?.kpis?.total_players || 2854} Players
+            </div>
+          </div>
+
+          {/* Responsive KPI Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard
               title="Players Monitored"
-              value={metadata?.total_records || "2,854"}
-              subtext="Across Big 5 European Leagues"
+              value={dashboardData?.kpis?.total_players || metadata?.total_records || "2,854"}
+              subtext={dashboardComp ? `${dashboardData?.kpis?.total_clubs} Clubs Monitored` : "Across Big 5 European Leagues"}
               icon={Users}
-              badge="Top 5 Leagues"
+              badge={dashboardComp ? "Filtered" : "Top 5 Leagues"}
               accentColor="emerald"
             />
             <StatCard
-              title="Competitions"
-              value={competitions.length || "5"}
+              title="Monitored Clubs"
+              value={dashboardData?.kpis?.total_clubs || 96}
               subtext="ENG, ESP, ITA, GER, FRA"
               icon={Trophy}
-              badge="96 Clubs"
+              badge={`${dashboardData?.kpis?.total_clubs || 96} Squads`}
               accentColor="blue"
             />
             <StatCard
-              title="Goals & Assists Tracked"
-              value={competitions.reduce((acc, c) => acc + (c.total_goals || 0), 0) || "3,200+"}
-              subtext="Detailed with xG & xAG models"
+              title="Goals Scored"
+              value={dashboardData?.kpis?.total_goals?.toLocaleString() || "4,806"}
+              subtext={`Assists: ${dashboardData?.kpis?.total_assists?.toLocaleString() || "3,200+"}`}
               icon={Target}
               badge="Full 24/25"
               accentColor="rose"
             />
             <StatCard
-              title="Progression Metrics"
-              value="37 Columns"
-              subtext="Carries, passes, per-90 rates"
+              title="Cumulative xG"
+              value={dashboardData?.kpis?.total_xg ? `${dashboardData.kpis.total_xg.toLocaleString()}` : "4,870"}
+              subtext={`Finishing: ${dashboardData?.kpis?.finishing_delta > 0 ? `+${dashboardData.kpis.finishing_delta}` : dashboardData?.kpis?.finishing_delta || '0'} Goals`}
               icon={Zap}
-              badge="Advanced"
+              badge={dashboardData?.kpis?.finishing_delta >= 0 ? "Overperforming xG" : "Underperforming xG"}
+              badgeType={dashboardData?.kpis?.finishing_delta >= 0 ? "positive" : "negative"}
               accentColor="purple"
             />
           </div>
 
-          {/* Competitions Grid */}
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-emerald-400" /> Monitored Competitions
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {competitions.map((comp) => (
-                <div
-                  key={comp.id}
-                  onClick={() => {
-                    setSelectedComp(comp.id);
-                    navigateTo('explorer');
-                  }}
-                  className="bg-pitch-card hover:bg-slate-800 border border-pitch-border hover:border-emerald-500/50 p-4 rounded-xl cursor-pointer transition-all duration-200 group shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      {comp.code}
-                    </span>
-                    <span className="text-xs text-slate-500 font-mono">{comp.teams_count} Clubs</span>
+          {/* Analytics Charts Grid - Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <FinishingEfficiencyChart
+              overperformers={dashboardData?.overperformers || []}
+              underperformers={dashboardData?.underperformers || []}
+              onPlayerClick={(id) => navigateTo('profile', id)}
+            />
+            <AttackingScatterChart
+              data={dashboardData?.scatter_data || []}
+              onPlayerClick={(id) => navigateTo('profile', id)}
+            />
+          </div>
+
+          {/* Analytics Charts Grid - Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <ProgressionMatrixChart
+              progressionLeaders={dashboardData?.progression_leaders || []}
+              onPlayerClick={(id) => navigateTo('profile', id)}
+            />
+
+            {/* Standout Scorers & Creators */}
+            <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-pitch-border">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-rose-400" />
+                    <h3 className="font-bold text-white text-sm">Top Goal Scorers</h3>
                   </div>
-                  <h3 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors">
-                    {comp.name}
-                  </h3>
-                  <div className="text-xs text-slate-400 mt-2 flex justify-between font-mono">
-                    <span>{comp.players_count} Players</span>
-                    <span className="text-emerald-400 font-medium">{comp.total_goals} Gls</span>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setLeaderboardMetric('Gls');
+                      navigateTo('leaderboards');
+                    }}
+                    className="text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                  >
+                    Leaderboards &rarr;
+                  </button>
                 </div>
-              ))}
+                <div className="space-y-2.5">
+                  {(dashboardData?.top_scorers || []).slice(0, 5).map((l, i) => (
+                    <div
+                      key={l.id || i}
+                      onClick={() => navigateTo('profile', l.id)}
+                      className="flex items-center justify-between p-2.5 rounded-lg bg-pitch-surface/60 hover:bg-slate-800 border border-pitch-border/50 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 text-center font-mono font-bold text-xs text-slate-500">#{i + 1}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-white hover:text-emerald-400 transition-colors">{l.Player}</p>
+                          <p className="text-xs text-slate-400">{l.Squad} · {l.competition_name || l.Comp}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-base font-bold font-mono text-emerald-400">{l.Gls} <span className="text-xs text-slate-400 font-normal">Gls</span></p>
+                        <p className="text-xs font-mono text-slate-400">{l.xG} xG</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-pitch-border/60 mt-4 flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-mono">Ranked by Total Output</span>
+                <button
+                  onClick={() => navigateTo('explorer')}
+                  className="text-xs text-slate-300 hover:text-emerald-400 font-medium flex items-center gap-1"
+                >
+                  Browse all 2,854 players <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Standout Leaders Preview */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Scorers */}
-            <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-pitch-border">
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-rose-400" />
-                  <h3 className="font-bold text-white text-sm">Top Scorers (Goals vs xG)</h3>
-                </div>
-                <button
-                  onClick={() => {
-                    setLeaderboardMetric('Gls');
-                    navigateTo('leaderboards');
-                  }}
-                  className="text-xs text-emerald-400 hover:text-emerald-300 font-medium"
-                >
-                  View All &rarr;
-                </button>
-              </div>
-              <div className="space-y-2.5">
-                {leaderboardLeaders.slice(0, 5).map((l, i) => (
-                  <div
-                    key={l.id || i}
-                    onClick={() => navigateTo('profile', l.id)}
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-pitch-surface/60 hover:bg-slate-800 border border-pitch-border/50 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 text-center font-mono font-bold text-xs text-slate-500">#{l.rank}</span>
-                      <div>
-                        <p className="text-sm font-semibold text-white hover:text-emerald-400 transition-colors">{l.player}</p>
-                        <p className="text-xs text-slate-400">{l.squad} · {l.competition}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-base font-bold font-mono text-emerald-400">{l.value} <span className="text-xs text-slate-400 font-normal">Gls</span></p>
-                      <p className="text-xs font-mono text-slate-400">{l.xg} xG</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Analytical Provenance & Model Limitations Banner */}
+          <div className="bg-pitch-card/60 border border-pitch-border rounded-xl p-5 shadow-sm text-xs text-slate-400 space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-pitch-border/60">
+              <span className="font-mono font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Shield className="w-4 h-4 text-emerald-400" /> Data Provenance & Model Notes
+              </span>
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                2024/25 Regular Season Coverage
+              </span>
             </div>
-
-            {/* Quick Actions & Analytics Insights */}
-            <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-pitch-border">
-                  <Sparkles className="w-4 h-4 text-emerald-400" />
-                  <h3 className="font-bold text-white text-sm">Analytics Capabilities</h3>
-                </div>
-                <div className="space-y-3">
-                  <div
-                    onClick={() => navigateTo('explorer')}
-                    className="p-3 rounded-lg bg-pitch-surface/60 hover:bg-slate-800 border border-pitch-border/60 cursor-pointer transition-colors flex items-center justify-between"
-                  >
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">Full Player Explorer</h4>
-                      <p className="text-xs text-slate-400">Search and sort 2,854 players by xG, xAG, per-90 rates, and progressive carries.</p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </div>
-
-                  <div
-                    onClick={() => navigateTo('compare')}
-                    className="p-3 rounded-lg bg-pitch-surface/60 hover:bg-slate-800 border border-pitch-border/60 cursor-pointer transition-colors flex items-center justify-between"
-                  >
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">Player Comparison Matrix</h4>
-                      <p className="text-xs text-slate-400">Side-by-side production benchmarks, radar dimension scores, and metric deltas.</p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </div>
-
-                  <div
-                    onClick={() => navigateTo('browse')}
-                    className="p-3 rounded-lg bg-pitch-surface/60 hover:bg-slate-800 border border-pitch-border/60 cursor-pointer transition-colors flex items-center justify-between"
-                  >
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">Club Squad Roster Browser</h4>
-                      <p className="text-xs text-slate-400">Browse squad cards by league and team with 3D flip card profiles.</p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-pitch-border/60 text-xs text-slate-500 font-mono flex items-center justify-between">
-                <span>DATASET: 2024/25 REGULAR SEASON</span>
-                <span className="text-emerald-400">AUTHENTIC RECONCILIATION</span>
-              </div>
-            </div>
+            <p>
+              This analytics engine models player-level aggregates across the Big 5 European leagues (Premier League, La Liga, Serie A, Bundesliga, Ligue 1).
+              Expected Goals (xG) and Expected Assisted Goals (xAG) evaluate chance quality based on historical shot profiles.
+            </p>
+            <p className="text-slate-500">
+              * Note: Player records reflect distinct spells per club. Performance evaluations must account for minutes played, tactical roles, and competition strength.
+            </p>
           </div>
         </div>
       )}

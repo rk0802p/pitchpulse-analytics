@@ -119,3 +119,66 @@ def compare_players(record_ids):
         "metrics": aligned_matrix,
         "radar": radar_data
     }
+
+def get_dashboard_analytics(competition=None):
+    df = data_loader.get_dataframe()
+    if competition:
+        resolved = resolve_competition(competition)
+        if resolved:
+            df = df[df['Comp'] == resolved]
+        else:
+            return None
+
+    total_players = int(len(df))
+    total_clubs = int(df['Squad'].nunique())
+    total_goals = int(df['Gls'].sum())
+    total_assists = int(df['Ast'].sum())
+    total_xg = round(float(df['xG'].sum()), 1)
+    total_xag = round(float(df['xAG'].sum()), 1)
+    finishing_delta = round(total_goals - total_xg, 1)
+
+    top_scorers = df.sort_values(by='Gls', ascending=False).head(8)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
+    ].to_dict(orient='records')
+
+    top_creators = df.sort_values(by='Ast', ascending=False).head(8)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Ast', 'xAG', 'Ast_minus_xAG', 'Min']
+    ].to_dict(orient='records')
+
+    min_500 = df[df['Min'] >= 500].copy()
+    overperformers = min_500.sort_values(by='Gls_minus_xG', ascending=False).head(5)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
+    ].to_dict(orient='records')
+
+    underperformers = min_500.sort_values(by='Gls_minus_xG', ascending=True).head(5)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
+    ].to_dict(orient='records')
+
+    progression_leaders = df.sort_values(by='PrgC', ascending=False).head(8)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'PrgC', 'PrgP', 'Min']
+    ].to_dict(orient='records')
+
+    min_450 = df[df['Min'] >= 450].copy()
+    min_450['production_sum'] = min_450['xG'] + min_450['xAG']
+    scatter_data = min_450.sort_values(by='production_sum', ascending=False).head(25)[
+        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'xG', 'xAG', 'Gls', 'Ast', 'Min']
+    ].to_dict(orient='records')
+
+    return {
+        "kpis": {
+            "total_players": total_players,
+            "total_clubs": total_clubs,
+            "total_goals": total_goals,
+            "total_assists": total_assists,
+            "total_xg": total_xg,
+            "total_xag": total_xag,
+            "finishing_delta": finishing_delta
+        },
+        "top_scorers": top_scorers,
+        "top_creators": top_creators,
+        "overperformers": overperformers,
+        "underperformers": underperformers,
+        "progression_leaders": progression_leaders,
+        "scatter_data": scatter_data
+    }
+

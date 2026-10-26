@@ -1,8 +1,16 @@
 from flask import Blueprint, request, jsonify
-from services.analytics_service import get_leaderboard
-from schemas.responses import success_response
+from services.analytics_service import get_leaderboard, get_dashboard_analytics
+from schemas.responses import success_response, error_response
 
 leaderboards_bp = Blueprint('leaderboards', __name__)
+
+@leaderboards_bp.route('/dashboard', methods=['GET'])
+def dashboard_analytics():
+    comp = request.args.get('competition') or request.args.get('comp')
+    data = get_dashboard_analytics(comp)
+    if data is None and comp:
+        return error_response(f"Competition '{comp}' not recognized", status_code=404)
+    return success_response(data or {})
 
 @leaderboards_bp.route('/leaderboards', methods=['GET'])
 def leaderboards():

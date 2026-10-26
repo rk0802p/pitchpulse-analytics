@@ -56,6 +56,11 @@ export const api = {
   getMetadata: () => request('/metadata'),
   getMetrics: () => request('/metrics'),
 
+  getDashboard: (competition) => {
+    const query = competition ? `?competition=${encodeURIComponent(competition)}` : '';
+    return request(`/dashboard${query}`);
+  },
+
   getCompetitions: () => request('/competitions'),
 
   getTeams: (competition) => {

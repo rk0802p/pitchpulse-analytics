@@ -22,6 +22,40 @@ beforeEach(() => {
         })
       });
     }
+    if (url.includes('/api/dashboard')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            kpis: {
+              total_players: 2854,
+              total_clubs: 96,
+              total_goals: 4806,
+              total_assists: 3200,
+              total_xg: 4870.2,
+              total_xag: 3450.5,
+              finishing_delta: -64.2
+            },
+            top_scorers: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Comp: 'eng Premier League', competition_name: 'Premier League', Gls: 25, xG: 22.4 }
+            ],
+            overperformers: [
+              { id: 2, Player: 'Patrik Schick', Squad: 'Leverkusen', Pos: 'FW', Gls: 21, xG: 12.7, Gls_minus_xG: 8.3 }
+            ],
+            underperformers: [
+              { id: 3, Player: 'Hugo Ekitike', Squad: 'Eint Frankfurt', Pos: 'FW', Gls: 15, xG: 21.6, Gls_minus_xG: -6.6 }
+            ],
+            scatter_data: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Pos: 'FW', xG: 22.4, xAG: 3.5, Gls: 25, Ast: 3 }
+            ],
+            progression_leaders: [
+              { id: 4, Player: 'Florian Wirtz', Squad: 'Leverkusen', Pos: 'MF', PrgC: 110, PrgP: 135 }
+            ]
+          }
+        })
+      });
+    }
     if (url.includes('/api/competitions')) {
       return Promise.resolve({
         ok: true,
@@ -67,6 +101,19 @@ test('renders PitchPulse Analytics navigation and European Football Intelligence
 
   await waitFor(() => {
     expect(screen.getAllByText(/Premier League/i).length).toBeGreaterThan(0);
+  });
+});
+
+test('renders Dashboard charts: Finishing Efficiency and Attacking Scatter Matrix', async () => {
+  await act(async () => {
+    render(<App />);
+  });
+
+  await waitFor(() => {
+    expect(screen.getByText(/Finishing Efficiency vs Expected Goals/i)).toBeInTheDocument();
+    expect(screen.getByText(/Attacking Output Matrix/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ball Progression Leaders/i)).toBeInTheDocument();
+    expect(screen.getByText(/Patrik Schick/i)).toBeInTheDocument();
   });
 });
 
