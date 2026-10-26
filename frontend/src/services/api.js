@@ -17,7 +17,7 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(message, status, details = null) {
     super(message);
     this.name = 'ApiError';
@@ -111,10 +111,55 @@ export const api = {
     return request(`/leaderboards${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Backward compatibility methods
-  getLegacyLeagues: () => request('/leagues'),
-  getLegacyTeams: (league) => request(`/teams/${encodeURIComponent(league)}`),
-  getLegacyPlayersByTeam: (league, team) => request(`/players/${encodeURIComponent(league)}/${encodeURIComponent(team)}`)
+  // Backward compatibility methods with smart envelope unwrapping & serverless query fallback
+  getLegacyLeagues: async () => {
+    const res = await request('/leagues');
+    if (Array.isArray(res)) return res;
+    if (res?.success && Array.isArray(res.data)) return res.data;
+    return [];
+  },
+
+  getLegacyTeams: async (league) => {
+    // 1. Query param is decoded reliably across serverless WSGI environments (Vercel)
+    try {
+      const queryRes = await request(`/teams?competition=${encodeURIComponent(league)}`);
+      if (queryRes?.success && Array.isArray(queryRes.data) && queryRes.data.length > 0) {
+        return queryRes.data;
+      }
+      if (Array.isArray(queryRes) && queryRes.length > 0) {
+        return queryRes;
+      }
+    } catch {
+      // Fallback to legacy path endpoint
+    }
+
+    // 2. Direct path endpoint fallback
+    const pathRes = await request(`/teams/${encodeURIComponent(league)}`);
+    if (Array.isArray(pathRes)) return pathRes;
+    if (pathRes?.success && Array.isArray(pathRes.data)) return pathRes.data;
+    return [];
+  },
+
+  getLegacyPlayersByTeam: async (league, team) => {
+    // 1. Query param endpoint fallback with all=true
+    try {
+      const queryRes = await request(`/players?competition=${encodeURIComponent(league)}&team=${encodeURIComponent(team)}&all=true`);
+      if (queryRes?.success && Array.isArray(queryRes.data) && queryRes.data.length > 0) {
+        return queryRes.data;
+      }
+      if (Array.isArray(queryRes) && queryRes.length > 0) {
+        return queryRes;
+      }
+    } catch {
+      // Fallback
+    }
+
+    // 2. Direct path endpoint fallback
+    const pathRes = await request(`/players/${encodeURIComponent(league)}/${encodeURIComponent(team)}`);
+    if (Array.isArray(pathRes)) return pathRes;
+    if (pathRes?.success && Array.isArray(pathRes.data)) return pathRes.data;
+    return [];
+  }
 };
 
 export default api;

@@ -70,5 +70,13 @@ class TestCompetitionsEndpoints(unittest.TestCase):
         self.assertEqual(len(teams), 20)
         self.assertIn('Arsenal', teams)
 
+    def test_legacy_teams_url_encoded(self):
+        res = self.client.get('/api/teams/es%20La%20Liga')
+        self.assertEqual(res.status_code, 200)
+        teams = res.get_json()
+        self.assertEqual(len(teams), 20)
+        self.assertIn('Real Madrid', teams)
+        self.assertIn('Barcelona', teams)
+
 if __name__ == '__main__':
     unittest.main()

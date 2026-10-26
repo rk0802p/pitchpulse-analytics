@@ -47,7 +47,7 @@ def get_player(player_id):
 
 # --- Backward compatibility endpoints for existing frontend ---
 
-@players_bp.route('/players/<path:league>/<team>', methods=['GET'])
+@players_bp.route('/players/<path:league>/<path:team>', methods=['GET'])
 def get_players_by_team_legacy(league, team):
     """Legacy endpoint returning list of players for team and league."""
     items, _ = search_players(competition=league, squad=team, limit=100)

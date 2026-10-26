@@ -1,3 +1,4 @@
+import urllib.parse
 import pandas as pd
 from services.data_loader import data_loader
 from services.validation_service import resolve_competition, validate_position, validate_metric, validate_pagination
@@ -46,7 +47,8 @@ def search_players(search=None, competition=None, squad=None, position=None,
 
     # Filter by squad
     if squad:
-        df = df[df['Squad'].str.lower() == squad.strip().lower()]
+        squad_decoded = urllib.parse.unquote(str(squad)).strip().lower()
+        df = df[df['Squad'].str.lower() == squad_decoded]
 
     # Filter by position
     if position:

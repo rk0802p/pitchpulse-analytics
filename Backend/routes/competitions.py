@@ -25,7 +25,7 @@ def get_leagues_legacy():
     raw_leagues = list(COMPETITIONS.keys())
     return jsonify(raw_leagues)
 
-@competitions_bp.route('/teams/<league>', methods=['GET'])
+@competitions_bp.route('/teams/<path:league>', methods=['GET'])
 def get_teams_by_league_legacy(league):
     """Legacy endpoint returning list of squads in league."""
     teams = get_teams_by_competition(league)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AppLayout from './components/layout/AppLayout';
 import PageHeader from './components/common/PageHeader';
 import StatCard from './components/common/StatCard';
@@ -29,6 +29,13 @@ ArrowLeft,
   X,
   Plus
 } from 'lucide-react';
+
+const unwrapList = (response) => {
+  if (Array.isArray(response)) return response;
+  if (response?.success && Array.isArray(response.data)) return response.data;
+  if (response?.data && Array.isArray(response.data)) return response.data;
+  return [];
+};
 
 function App() {
   // Navigation & View State
@@ -84,6 +91,12 @@ function App() {
   const [legacyPlayers, setLegacyPlayers] = useState([]);
   const [selectedLegacyLeague, setSelectedLegacyLeague] = useState(null);
   const [selectedLegacyTeam, setSelectedLegacyTeam] = useState(null);
+  const [loadingLegacyTeams, setLoadingLegacyTeams] = useState(false);
+  const [loadingLegacyPlayers, setLoadingLegacyPlayers] = useState(false);
+  const [clubSearchQuery, setClubSearchQuery] = useState('');
+  const [playerSquadSearchQuery, setPlayerSquadSearchQuery] = useState('');
+  const [selectedSquadPos, setSelectedSquadPos] = useState('ALL');
+  const [squadViewMode, setSquadViewMode] = useState('cards');
 
   // Sync hash routing
   useEffect(() => {
@@ -245,7 +258,7 @@ function App() {
     if (currentTab === 'browse' && legacyLeagues.length === 0) {
       api.getLegacyLeagues()
         .then(data => {
-          setLegacyLeagues(Array.isArray(data) ? data : []);
+          setLegacyLeagues(unwrapList(data));
         })
         .catch(err => setGlobalError(err.message));
     }
@@ -254,24 +267,50 @@ function App() {
   const handleLegacyLeagueSelect = async (league) => {
     setSelectedLegacyLeague(league);
     setSelectedLegacyTeam(null);
+    setLegacyTeams([]);
     setLegacyPlayers([]);
+    setClubSearchQuery('');
+    setLoadingLegacyTeams(true);
     try {
-      const teams = await api.getLegacyTeams(league);
-      setLegacyTeams(Array.isArray(teams) ? teams : []);
+      const response = await api.getLegacyTeams(league);
+      setLegacyTeams(unwrapList(response));
     } catch (err) {
       setGlobalError(err.message);
+    } finally {
+      setLoadingLegacyTeams(false);
     }
   };
 
   const handleLegacyTeamSelect = async (team) => {
     setSelectedLegacyTeam(team);
+    setLegacyPlayers([]);
+    setPlayerSquadSearchQuery('');
+    setSelectedSquadPos('ALL');
+    setLoadingLegacyPlayers(true);
     try {
-      const players = await api.getLegacyPlayersByTeam(selectedLegacyLeague, team);
-      setLegacyPlayers(Array.isArray(players) ? players : []);
+      const response = await api.getLegacyPlayersByTeam(selectedLegacyLeague, team);
+      setLegacyPlayers(unwrapList(response));
     } catch (err) {
       setGlobalError(err.message);
+    } finally {
+      setLoadingLegacyPlayers(false);
     }
   };
+
+  const filteredClubs = useMemo(() => {
+    if (!clubSearchQuery.trim()) return legacyTeams;
+    const q = clubSearchQuery.trim().toLowerCase();
+    return legacyTeams.filter(t => (typeof t === 'string' ? t : t?.name || '').toLowerCase().includes(q));
+  }, [legacyTeams, clubSearchQuery]);
+
+  const filteredSquadPlayers = useMemo(() => {
+    return legacyPlayers.filter(p => {
+      const matchesPos = selectedSquadPos === 'ALL' || (p.Pos && p.Pos.includes(selectedSquadPos));
+      const matchesSearch = !playerSquadSearchQuery.trim() || 
+        (p.Player && p.Player.toLowerCase().includes(playerSquadSearchQuery.trim().toLowerCase()));
+      return matchesPos && matchesSearch;
+    });
+  }, [legacyPlayers, selectedSquadPos, playerSquadSearchQuery]);
 
   // Compare actions
   const toggleComparePlayer = (player) => {
@@ -819,7 +858,7 @@ function App() {
         <div>
           <PageHeader
             title="Club Squad Roster Browser"
-            subtitle="Explore clubs and players through interactive 3D analytics cards."
+            subtitle="Explore clubs and players through interactive 3D analytics cards and scouting tables."
             season="2024/25"
             actions={
               selectedLegacyLeague && (
@@ -850,47 +889,293 @@ function App() {
             </div>
           ) : !selectedLegacyTeam ? (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-emerald-400" />
-                  Select a Club in {selectedLegacyLeague.replace(/^[a-z]{2,3}\s/, '')}
-                </h2>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {legacyTeams.map((team) => (
-                  <TeamBadge
-                    key={team}
-                    team={{ name: team, logo: '' }}
-                    onSelect={() => handleLegacyTeamSelect(team)}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <button
-                    onClick={() => setSelectedLegacyTeam(null)}
-                    className="text-xs text-slate-400 hover:text-emerald-400 font-mono mb-1 inline-flex items-center gap-1"
-                  >
-                    &larr; Back to Clubs
-                  </button>
-                  <h2 className="text-2xl font-bold text-white">{selectedLegacyTeam}</h2>
-                  <p className="text-xs text-slate-400 font-mono">{legacyPlayers.length} Players Monitored</p>
+              {/* League Header with Search & Badge Count */}
+              <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 mb-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                      <Shield className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-white">
+                          {selectedLegacyLeague.replace(/^[a-z]{2,3}\s/, '')}
+                        </h2>
+                        <span className="px-2 py-0.5 text-xs font-mono rounded bg-slate-800 text-slate-300 border border-pitch-border">
+                          {selectedLegacyLeague.split(' ')[0].toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                        {loadingLegacyTeams ? 'Loading club registry...' : `${legacyTeams.length} Clubs Competing in 2024/25 Season`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Club Search Bar */}
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-full md:w-72">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search clubs (e.g. Madrid, Barca)..."
+                        value={clubSearchQuery}
+                        onChange={(e) => setClubSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-8 py-2 bg-pitch-surface border border-pitch-border rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60"
+                      />
+                      {clubSearchQuery && (
+                        <button
+                          onClick={() => setClubSearchQuery('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {legacyPlayers.map((player) => (
-                  <PlayerCard
-                    key={player.Rk || player.id}
-                    player={player}
-                    onSelectProfile={(p) => navigateTo('profile', p.id || p.Rk)}
-                    onCompare={(p) => toggleComparePlayer(p)}
-                  />
-                ))}
+              {/* Clubs Content: Loading / Empty / Grid */}
+              {loadingLegacyTeams ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {Array.from({ length: 15 }).map((_, i) => (
+                    <div key={i} className="bg-pitch-card border border-pitch-border rounded-xl p-5 animate-pulse flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-xl bg-slate-700/60 mb-3"></div>
+                      <div className="h-4 w-24 bg-slate-700/50 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : legacyTeams.length === 0 ? (
+                <EmptyState
+                  title="No Clubs Available"
+                  message={`Unable to load clubs for ${selectedLegacyLeague.replace(/^[a-z]{2,3}\s/, '')}. Please check backend connectivity.`}
+                  onReset={() => handleLegacyLeagueSelect(selectedLegacyLeague)}
+                  resetText="Retry Loading Clubs"
+                />
+              ) : filteredClubs.length === 0 ? (
+                <EmptyState
+                  title="No clubs matched"
+                  message={`No clubs in ${selectedLegacyLeague.replace(/^[a-z]{2,3}\s/, '')} match "${clubSearchQuery}".`}
+                  onReset={() => setClubSearchQuery('')}
+                  resetText="Clear Search"
+                />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {filteredClubs.map((team) => {
+                    const teamName = typeof team === 'string' ? team : team.name;
+                    return (
+                      <TeamBadge
+                        key={teamName}
+                        team={{ name: teamName, logo: team?.logo || '' }}
+                        onSelect={() => handleLegacyTeamSelect(teamName)}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              {/* Club Header & Controls */}
+              <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 mb-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <button
+                      onClick={() => setSelectedLegacyTeam(null)}
+                      className="text-xs text-slate-400 hover:text-emerald-400 font-mono mb-2 inline-flex items-center gap-1.5 transition-colors"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> Back to {selectedLegacyLeague.replace(/^[a-z]{2,3}\s/, '')} Clubs
+                    </button>
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-bold text-white">{selectedLegacyTeam}</h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {legacyPlayers.length} Squad Players
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Filter & View Mode Controls */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Position Filter Pills */}
+                    <div className="flex items-center bg-pitch-surface border border-pitch-border rounded-lg p-1 text-xs font-mono">
+                      {['ALL', 'FW', 'MF', 'DF', 'GK'].map((pos) => (
+                        <button
+                          key={pos}
+                          onClick={() => setSelectedSquadPos(pos)}
+                          className={`px-2.5 py-1 rounded-md transition-colors ${
+                            selectedSquadPos === pos
+                              ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {pos}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Search inside squad */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search player..."
+                        value={playerSquadSearchQuery}
+                        onChange={(e) => setPlayerSquadSearchQuery(e.target.value)}
+                        className="pl-8 pr-3 py-1.5 bg-pitch-surface border border-pitch-border rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 w-40"
+                      />
+                    </div>
+
+                    {/* View Switcher: Cards vs Table */}
+                    <div className="flex items-center bg-pitch-surface border border-pitch-border rounded-lg p-1">
+                      <button
+                        onClick={() => setSquadViewMode('cards')}
+                        className={`p-1.5 rounded transition-colors ${
+                          squadViewMode === 'cards' ? 'bg-pitch-card text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                        title="Card Grid View"
+                      >
+                        <LayoutGrid className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setSquadViewMode('table')}
+                        className={`p-1.5 rounded transition-colors ${
+                          squadViewMode === 'table' ? 'bg-pitch-card text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                        title="Roster Table View"
+                      >
+                        <List className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Roster Display */}
+              {loadingLegacyPlayers ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="bg-pitch-card border border-pitch-border rounded-xl p-5 animate-pulse">
+                      <div className="h-4 w-32 bg-slate-700/60 rounded mb-2"></div>
+                      <div className="h-3 w-20 bg-slate-800 rounded mb-4"></div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="h-8 bg-slate-700/40 rounded"></div>
+                        <div className="h-8 bg-slate-700/40 rounded"></div>
+                        <div className="h-8 bg-slate-700/40 rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : legacyPlayers.length === 0 ? (
+                <EmptyState
+                  title="No Players Found"
+                  message={`Unable to load squad roster for ${selectedLegacyTeam}.`}
+                  onReset={() => handleLegacyTeamSelect(selectedLegacyTeam)}
+                  resetText="Retry Loading Squad"
+                />
+              ) : filteredSquadPlayers.length === 0 ? (
+                <EmptyState
+                  title="No Players Matched"
+                  message="No players match the selected filters."
+                  onReset={() => {
+                    setPlayerSquadSearchQuery('');
+                    setSelectedSquadPos('ALL');
+                  }}
+                  resetText="Clear Filters"
+                />
+              ) : squadViewMode === 'cards' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredSquadPlayers.map((player) => (
+                    <PlayerCard
+                      key={player.Rk || player.id}
+                      player={player}
+                      onSelectProfile={(p) => navigateTo('profile', p.id || p.Rk)}
+                      onCompare={(p) => toggleComparePlayer(p)}
+                      isCompared={compareList.some(c => (c.id || c.Rk) === (player.id || player.Rk))}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-pitch-card border border-pitch-border rounded-xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-pitch-border bg-pitch-surface/60 text-slate-400 font-mono uppercase tracking-wider">
+                          <th className="py-3 px-4">Player</th>
+                          <th className="py-3 px-3">Pos</th>
+                          <th className="py-3 px-3">Age</th>
+                          <th className="py-3 px-3 text-right">Apps</th>
+                          <th className="py-3 px-3 text-right">Mins</th>
+                          <th className="py-3 px-3 text-right">Goals</th>
+                          <th className="py-3 px-3 text-right">xG</th>
+                          <th className="py-3 px-3 text-right">Assists</th>
+                          <th className="py-3 px-3 text-right">xAG</th>
+                          <th className="py-3 px-3 text-right">PrgC</th>
+                          <th className="py-3 px-3 text-right">PrgP</th>
+                          <th className="py-3 px-4 text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-pitch-border/40">
+                        {filteredSquadPlayers.map((p) => {
+                          const pId = p.id || p.Rk;
+                          const isComp = compareList.some(c => (c.id || c.Rk) === pId);
+                          return (
+                            <tr key={pId} className="hover:bg-slate-800/40 transition-colors">
+                              <td className="py-3 px-4 font-medium text-white">
+                                <button
+                                  onClick={() => navigateTo('profile', pId)}
+                                  className="hover:text-emerald-400 hover:underline text-left font-semibold"
+                                >
+                                  {p.Player}
+                                </button>
+                                <span className="block text-[10px] text-slate-400 font-mono">{p.Nation || ''}</span>
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${
+                                  p.Pos?.includes('FW') ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' :
+                                  p.Pos?.includes('MF') ? 'bg-blue-500/15 text-blue-300 border border-blue-500/30' :
+                                  p.Pos?.includes('DF') ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' :
+                                  'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                }`}>
+                                  {p.Pos}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-slate-300 font-mono">{p.Age || '-'}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.MP || 0}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono font-medium">{p.Min?.toLocaleString() || 0}</td>
+                              <td className="py-3 px-3 text-right text-emerald-400 font-mono font-bold">{p.Gls || 0}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{Number(p.xG || 0).toFixed(1)}</td>
+                              <td className="py-3 px-3 text-right text-cyan-400 font-mono font-bold">{p.Ast || 0}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{Number(p.xAG || 0).toFixed(1)}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgC || 0}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgP || 0}</td>
+                              <td className="py-3 px-4 text-center">
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => navigateTo('profile', pId)}
+                                    className="px-2 py-1 rounded bg-pitch-surface hover:bg-slate-700 text-slate-300 hover:text-white border border-pitch-border text-[11px] transition-colors"
+                                  >
+                                    Dossier
+                                  </button>
+                                  <button
+                                    onClick={() => toggleComparePlayer(p)}
+                                    className={`px-2 py-1 rounded text-[11px] transition-colors border ${
+                                      isComp
+                                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold'
+                                        : 'bg-pitch-surface hover:bg-slate-700 text-slate-300 hover:text-white border-pitch-border'
+                                    }`}
+                                  >
+                                    {isComp ? 'Compared' : '+ Compare'}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

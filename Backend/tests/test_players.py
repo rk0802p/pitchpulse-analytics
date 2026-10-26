@@ -93,5 +93,13 @@ class TestPlayersEndpoints(unittest.TestCase):
         self.assertIn('player', data)
         self.assertIn('statistics', data)
 
+    def test_legacy_players_url_encoded(self):
+        res = self.client.get('/api/players/es%20La%20Liga/Real%20Madrid')
+        self.assertEqual(res.status_code, 200)
+        players = res.get_json()
+        self.assertIsInstance(players, list)
+        self.assertGreater(len(players), 0)
+        self.assertEqual(players[0]['Squad'], 'Real Madrid')
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,3 +1,4 @@
+import urllib.parse
 from config import COMPETITION_LOOKUP, METRIC_DEFINITIONS
 
 VALID_POSITIONS = {'GK', 'DF', 'MF', 'FW', 'DF,MF', 'MF,DF', 'MF,FW', 'FW,MF', 'DF,FW', 'FW,DF'}
@@ -6,8 +7,17 @@ def resolve_competition(comp_param):
     """Maps competition param (raw name, short name, or slug) to raw dataset name."""
     if not comp_param:
         return None
-    key = str(comp_param).strip().lower()
-    return COMPETITION_LOOKUP.get(key)
+    decoded = urllib.parse.unquote(str(comp_param)).strip()
+    key = decoded.lower()
+    if key in COMPETITION_LOOKUP:
+        return COMPETITION_LOOKUP[key]
+    key_clean = key.replace('-', ' ').replace('_', ' ')
+    if key_clean in COMPETITION_LOOKUP:
+        return COMPETITION_LOOKUP[key_clean]
+    for lookup_k, v in COMPETITION_LOOKUP.items():
+        if lookup_k == key or lookup_k.endswith(key) or key.endswith(lookup_k):
+            return v
+    return None
 
 def validate_position(pos_param):
     if not pos_param:
