@@ -19,8 +19,8 @@ module.exports = {
         'poppins': ['Poppins', 'sans-serif'],
       },
       backgroundImage: {
-        'grass-light': "url('/img/grass-light.jpg')",
-        'grass-dark': "url('/img/grass-dark.jpg')",
+        'grass-light': 'linear-gradient(to bottom, #1e3a1e, #111827)',
+        'grass-dark': 'linear-gradient(to bottom, #0f2014, #0b0f17)',
       }
     },
   },

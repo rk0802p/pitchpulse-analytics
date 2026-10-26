@@ -1,3 +1,23 @@
+# Dependencies
 /frontend/node_modules
-/Backend/config.env
+/Backend/venv
+/Backend/env
+.venv
+
+# Python artifacts
 /Backend/__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Frontend build
+/frontend/build
+
+# Environment files
+/Backend/config.env
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
