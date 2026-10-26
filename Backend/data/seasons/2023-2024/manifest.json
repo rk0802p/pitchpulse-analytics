@@ -1,0 +1,131 @@
+{
+  "season": "2023-2024",
+  "source": "FBref / StatsBomb style player-level aggregates",
+  "imported_at": "2026-10-26T23:12:49.672715+00:00",
+  "original_filename": "tmpq5z0c0md.csv",
+  "original_sha256": "0f081fafcfa32f642a7a6f39ab18ff35be0f989e81c846a54bd88235ec99e7d7",
+  "records_count": 2852,
+  "columns_count": 37,
+  "competitions_count": 5,
+  "clubs_count": 96,
+  "competitions": {
+    "it Serie A": 616,
+    "es La Liga": 609,
+    "eng Premier League": 580,
+    "fr Ligue 1": 540,
+    "de Bundesliga": 507
+  },
+  "totals": {
+    "goals": 4906,
+    "assists": 3485,
+    "minutes": 3460336,
+    "xg": 4979.0,
+    "xag": 3511.1,
+    "yellow_cards": 7572,
+    "red_cards": 342,
+    "progressive_passes": 133681,
+    "progressive_carries": 61247
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Harry Kane",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 36,
+        "Ast": 8,
+        "xG": 30.6
+      },
+      {
+        "Player": "Serhou Guirassy",
+        "Squad": "Stuttgart",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 3,
+        "xG": 20.8
+      },
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Paris S-G",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 7,
+        "xG": 21.0
+      },
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 5,
+        "xG": 29.2
+      },
+      {
+        "Player": "Artem Dovbyk",
+        "Squad": "Girona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 24,
+        "Ast": 8,
+        "xG": 24.2
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Alex Baena",
+        "Squad": "Villarreal",
+        "Comp": "es La Liga",
+        "Pos": "MF,FW",
+        "Ast": 14,
+        "Gls": 2,
+        "xAG": 9.2
+      },
+      {
+        "Player": "\u00c1lex Grimaldo",
+        "Squad": "Leverkusen",
+        "Comp": "de Bundesliga",
+        "Pos": "DF",
+        "Ast": 13,
+        "Gls": 10,
+        "xAG": 9.1
+      },
+      {
+        "Player": "Ollie Watkins",
+        "Squad": "Aston Villa",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 13,
+        "Gls": 19,
+        "xAG": 7.3
+      },
+      {
+        "Player": "Leroy San\u00e9",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 11,
+        "Gls": 8,
+        "xAG": 10.8
+      },
+      {
+        "Player": "Julian Brandt",
+        "Squad": "Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "MF,FW",
+        "Ast": 11,
+        "Gls": 7,
+        "xAG": 9.5
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2023-2024.xlsx",
+    "csv": "top5-players-2023-2024.csv"
+  },
+  "validation_status": "passed",
+  "schema_version": "1.0.0"
+}
