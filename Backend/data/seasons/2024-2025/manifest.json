@@ -1,0 +1,16 @@
+{
+  "season": "2024-2025",
+  "display_name": "2024/25 Regular Season",
+  "is_baseline": true,
+  "imported_at": "2024-2025 Regular Season",
+  "source": "FBref / StatsBomb style player-level aggregates",
+  "records_count": 2854,
+  "competitions_count": 5,
+  "clubs_count": 96,
+  "files": {
+    "excel": "top5-players24-25.xlsx",
+    "csv": "top5-players24-25.csv"
+  },
+  "sha256": "7dbea8fdd43b9cf09eef5a18632953d9079d0f10bd11532da3337d937213e7e0",
+  "validation_status": "passed"
+}
