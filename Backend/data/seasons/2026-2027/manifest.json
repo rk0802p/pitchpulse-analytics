@@ -1,0 +1,131 @@
+{
+  "season": "2026-2027",
+  "source": "PitchPulse Football Intelligence (2026/27 Season Projections)",
+  "imported_at": "2026-10-26T23:18:01.499964+00:00",
+  "original_filename": "temp_2627_inject.csv",
+  "original_sha256": "f79a26138f1570a069e851af27ba6b85e0915d6dc7fbe19dfd889ed5f9e6875e",
+  "records_count": 2854,
+  "columns_count": 37,
+  "competitions_count": 5,
+  "clubs_count": 96,
+  "competitions": {
+    "it Serie A": 634,
+    "es La Liga": 601,
+    "eng Premier League": 574,
+    "fr Ligue 1": 553,
+    "de Bundesliga": 492
+  },
+  "totals": {
+    "goals": 4887,
+    "assists": 3542,
+    "minutes": 3419861,
+    "xg": 4731.8,
+    "xag": 3500.7,
+    "yellow_cards": 7134,
+    "red_cards": 330,
+    "progressive_passes": 127788,
+    "progressive_carries": 59219
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 32,
+        "Ast": 3,
+        "xG": 28.8
+      },
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 3,
+        "xG": 26.1
+      },
+      {
+        "Player": "Mohamed Salah",
+        "Squad": "Liverpool",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 16,
+        "xG": 26.5
+      },
+      {
+        "Player": "Mateo Retegui",
+        "Squad": "Atalanta",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 8,
+        "xG": 23.0
+      },
+      {
+        "Player": "Alexander Isak",
+        "Squad": "Newcastle Utd",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 23,
+        "Ast": 6,
+        "xG": 24.1
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Lamine Yamal",
+        "Squad": "Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 24,
+        "Gls": 16,
+        "xAG": 21.5
+      },
+      {
+        "Player": "Florian Wirtz",
+        "Squad": "Leverkusen",
+        "Comp": "de Bundesliga",
+        "Pos": "MF,FW",
+        "Ast": 16,
+        "Gls": 13,
+        "xAG": 17.1
+      },
+      {
+        "Player": "Mohamed Salah",
+        "Squad": "Liverpool",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 16,
+        "Gls": 26,
+        "xAG": 17.2
+      },
+      {
+        "Player": "Michael Olise",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW,MF",
+        "Ast": 14,
+        "Gls": 12,
+        "xAG": 12.4
+      },
+      {
+        "Player": "Bukayo Saka",
+        "Squad": "Arsenal",
+        "Comp": "eng Premier League",
+        "Pos": "FW,MF",
+        "Ast": 12,
+        "Gls": 8,
+        "xAG": 12.3
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2026-2027.xlsx",
+    "csv": "top5-players-2026-2027.csv"
+  },
+  "validation_status": "passed",
+  "schema_version": "1.0.0"
+}

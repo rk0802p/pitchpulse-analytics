@@ -1,0 +1,131 @@
+{
+  "season": "2025-2026",
+  "source": "PitchPulse Football Intelligence (2025/26 Season Projections)",
+  "imported_at": "2026-10-26T23:17:59.655718+00:00",
+  "original_filename": "temp_2526_inject.csv",
+  "original_sha256": "afb8760673808691489e202db5d7ded1027c21a5ab60a39ea1f2236e04f54f9f",
+  "records_count": 2854,
+  "columns_count": 37,
+  "competitions_count": 5,
+  "clubs_count": 96,
+  "competitions": {
+    "it Serie A": 634,
+    "es La Liga": 601,
+    "eng Premier League": 574,
+    "fr Ligue 1": 553,
+    "de Bundesliga": 492
+  },
+  "totals": {
+    "goals": 5015,
+    "assists": 3652,
+    "minutes": 3424130,
+    "xg": 4825.8,
+    "xag": 3605.9,
+    "yellow_cards": 7160,
+    "red_cards": 326,
+    "progressive_passes": 129834,
+    "progressive_carries": 60282
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 32,
+        "Ast": 3,
+        "xG": 28.9
+      },
+      {
+        "Player": "Harry Kane",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 10,
+        "xG": 26.3
+      },
+      {
+        "Player": "Mateo Retegui",
+        "Squad": "Atalanta",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 9,
+        "xG": 23.3
+      },
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 3,
+        "xG": 23.6
+      },
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 23,
+        "Ast": 1,
+        "xG": 20.8
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Lamine Yamal",
+        "Squad": "Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 18,
+        "Gls": 13,
+        "xAG": 16.7
+      },
+      {
+        "Player": "Michael Olise",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW,MF",
+        "Ast": 15,
+        "Gls": 12,
+        "xAG": 14.9
+      },
+      {
+        "Player": "Mohamed Salah",
+        "Squad": "Liverpool",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 23,
+        "xAG": 15.1
+      },
+      {
+        "Player": "Florian Wirtz",
+        "Squad": "Leverkusen",
+        "Comp": "de Bundesliga",
+        "Pos": "MF,FW",
+        "Ast": 14,
+        "Gls": 12,
+        "xAG": 14.9
+      },
+      {
+        "Player": "Bukayo Saka",
+        "Squad": "Arsenal",
+        "Comp": "eng Premier League",
+        "Pos": "FW,MF",
+        "Ast": 12,
+        "Gls": 7,
+        "xAG": 12.8
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2025-2026.xlsx",
+    "csv": "top5-players-2025-2026.csv"
+  },
+  "validation_status": "passed",
+  "schema_version": "1.0.0"
+}

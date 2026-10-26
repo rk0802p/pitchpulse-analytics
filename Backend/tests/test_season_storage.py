@@ -18,24 +18,24 @@ class TestSeasonStorage(unittest.TestCase):
         cls.client = app.test_client()
         cls.backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         cls.seasons_dir = os.path.join(cls.backend_dir, 'data', 'seasons')
-        cls.test_season_dir = os.path.join(cls.seasons_dir, '2025-2026')
+        cls.test_season_dir = os.path.join(cls.seasons_dir, '2099-2100')
         
-        # Create a sample 2025-2026 dataset from baseline to test multi-season separation
+        # Create a sample 2099-2100 dataset from baseline to test multi-season separation
         baseline_csv = os.path.join(cls.seasons_dir, '2024-2025', 'top5-players24-25.csv')
         df = pd.read_csv(baseline_csv)
-        # Modify some values for 2025-26 so we can distinguish it
-        df_2526 = df.copy()
-        df_2526['Gls'] = df_2526['Gls'] + 2
-        df_2526['Gls_90'] = (df_2526['Gls'] / df_2526['90s'].apply(lambda x: x if x > 0 else 1.0)).round(2)
+        # Modify some values for 2099-2100 so we can distinguish it
+        df_test = df.copy()
+        df_test['Gls'] = df_test['Gls'] + 2
+        df_test['Gls_90'] = (df_test['Gls'] / df_test['90s'].apply(lambda x: x if x > 0 else 1.0)).round(2)
 
         cls.importer = DatasetImporter(strict=True)
-        temp_csv = os.path.join(cls.backend_dir, 'data', 'temp_2526.csv')
-        df_2526.to_csv(temp_csv, index=False)
+        temp_csv = os.path.join(cls.backend_dir, 'data', 'temp_2099.csv')
+        df_test.to_csv(temp_csv, index=False)
         
         cls.importer.import_file(
             file_path=temp_csv,
-            season='2025-2026',
-            source_name='PitchPulse 2025/26 Test Data',
+            season='2099-2100',
+            source_name='PitchPulse Test Fixture Season',
             output_format='both'
         )
         if os.path.exists(temp_csv):
@@ -59,7 +59,7 @@ class TestSeasonStorage(unittest.TestCase):
 
         season_ids = [s['id'] for s in seasons]
         self.assertIn('2024-2025', season_ids)
-        self.assertIn('2025-2026', season_ids)
+        self.assertIn('2099-2100', season_ids)
 
         # Baseline season check
         b24 = next(s for s in seasons if s['id'] == '2024-2025')
@@ -67,9 +67,9 @@ class TestSeasonStorage(unittest.TestCase):
         self.assertEqual(b24['records_count'], 2854)
 
         # Test season check
-        s25 = next(s for s in seasons if s['id'] == '2025-2026')
-        self.assertEqual(s25['records_count'], 2854)
-        self.assertEqual(s25['source'], 'PitchPulse 2025/26 Test Data')
+        s_test = next(s for s in seasons if s['id'] == '2099-2100')
+        self.assertEqual(s_test['records_count'], 2854)
+        self.assertEqual(s_test['source'], 'PitchPulse Test Fixture Season')
 
     def test_02_get_active_season(self):
         """GET /api/seasons/active returns current active season."""
@@ -81,14 +81,14 @@ class TestSeasonStorage(unittest.TestCase):
 
     def test_03_switch_active_season(self):
         """POST /api/seasons/active updates the active season."""
-        res = self.client.post('/api/seasons/active', json={'season': '2025-2026'})
+        res = self.client.post('/api/seasons/active', json={'season': '2099-2100'})
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertTrue(data['success'])
-        self.assertEqual(data['data']['active_season'], '2025-2026')
+        self.assertEqual(data['data']['active_season'], '2099-2100')
 
         # Verify active season changed
-        self.assertEqual(season_service.get_active_season(), '2025-2026')
+        self.assertEqual(season_service.get_active_season(), '2099-2100')
 
         # Reset back to 2024-2025
         res_reset = self.client.post('/api/seasons/active', json={'season': '2024-2025'})
@@ -96,17 +96,17 @@ class TestSeasonStorage(unittest.TestCase):
         self.assertEqual(season_service.get_active_season(), '2024-2025')
 
     def test_04_query_specific_season_dashboard(self):
-        """GET /api/dashboard?season=2024-2025 vs ?season=2025-2026 returns season-specific data."""
+        """GET /api/dashboard?season=2024-2025 vs ?season=2099-2100 returns season-specific data."""
         res_24 = self.client.get('/api/dashboard?season=2024-2025')
         self.assertEqual(res_24.status_code, 200)
         data_24 = res_24.get_json()['data']
 
-        res_25 = self.client.get('/api/dashboard?season=2025-2026')
-        self.assertEqual(res_25.status_code, 200)
-        data_25 = res_25.get_json()['data']
+        res_test = self.client.get('/api/dashboard?season=2099-2100')
+        self.assertEqual(res_test.status_code, 200)
+        data_test = res_test.get_json()['data']
 
-        # Total goals in 2025-26 should be higher due to the +2 goal offset
-        self.assertGreater(data_25['kpis']['total_goals'], data_24['kpis']['total_goals'])
+        # Total goals in test season should be higher due to the +2 goal offset
+        self.assertGreater(data_test['kpis']['total_goals'], data_24['kpis']['total_goals'])
 
     def test_05_query_specific_season_players(self):
         """GET /api/players?season=... returns players from the requested season."""
