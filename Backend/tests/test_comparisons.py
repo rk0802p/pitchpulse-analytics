@@ -21,13 +21,22 @@ class TestComparisonsEndpoints(unittest.TestCase):
         self.assertIn('radar', data)
         self.assertIn('comparison_data', data)
 
-        # Ensure metrics matrix contains aligned values
+        # Ensure metrics matrix contains aligned values and leaders
         first_metric = data['metrics'][0]
         self.assertIn('key', first_metric)
         self.assertIn('label', first_metric)
         self.assertIn('values', first_metric)
+        self.assertIn('leaders', first_metric)
         self.assertIn('1', first_metric['values'])
         self.assertIn('2', first_metric['values'])
+
+        # Ensure radar data contains percentile scores
+        first_radar = data['radar'][0]
+        self.assertIn('dimension', first_radar)
+        self.assertIn('values', first_radar)
+        self.assertIn('scores', first_radar)
+        self.assertIn('1', first_radar['scores'])
+        self.assertIn('2', first_radar['scores'])
 
     def test_compare_non_json_request(self):
         res = self.client.post('/api/players/compare', data="not json", content_type='text/plain')

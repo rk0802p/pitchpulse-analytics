@@ -13,6 +13,9 @@ import FinishingEfficiencyChart from './components/dashboard/FinishingEfficiency
 import AttackingScatterChart from './components/dashboard/AttackingScatterChart';
 import ProgressionMatrixChart from './components/dashboard/ProgressionMatrixChart';
 import PlayerProfileView from './components/profile/PlayerProfileView';
+import ComparisonRadarChart from './components/compare/ComparisonRadarChart';
+import ComparisonMatrix from './components/compare/ComparisonMatrix';
+import LeaderboardsView from './components/leaderboards/LeaderboardsView';
 import api from './services/api';
 
 import {
@@ -65,6 +68,8 @@ function App() {
   // Leaderboards State
   const [leaderboardMetric, setLeaderboardMetric] = useState('Gls');
   const [leaderboardComp, setLeaderboardComp] = useState('');
+  const [leaderboardPos, setLeaderboardPos] = useState('');
+  const [leaderboardMinMin, setLeaderboardMinMin] = useState(0);
   const [leaderboardLeaders, setLeaderboardLeaders] = useState([]);
   const [loadingLeaders, setLoadingLeaders] = useState(false);
 
@@ -196,7 +201,9 @@ function App() {
       const res = await api.getLeaderboards({
         metric: leaderboardMetric,
         competition: leaderboardComp,
-        limit: 15
+        position: leaderboardPos,
+        min_minutes: leaderboardMinMin,
+        limit: 20
       });
       if (res?.success) {
         setLeaderboardLeaders(res.data);
@@ -206,7 +213,7 @@ function App() {
     } finally {
       setLoadingLeaders(false);
     }
-  }, [leaderboardMetric, leaderboardComp]);
+  }, [leaderboardMetric, leaderboardComp, leaderboardPos, leaderboardMinMin]);
 
   useEffect(() => {
     if (currentTab === 'leaderboards' || currentTab === 'dashboard') {
@@ -679,124 +686,22 @@ function App() {
             season="2024/25"
           />
 
-          {/* Metric Selector Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              { id: 'Gls', label: 'Goals', category: 'Scoring' },
-              { id: 'xG', label: 'Expected Goals (xG)', category: 'Advanced' },
-              { id: 'Gls_minus_xG', label: 'Finishing Overperf. (Gls - xG)', category: 'Finishing' },
-              { id: 'Ast', label: 'Assists', category: 'Playmaking' },
-              { id: 'xAG', label: 'Expected Assists (xAG)', category: 'Advanced' },
-              { id: 'PrgC', label: 'Prog. Carries (PrgC)', category: 'Progression' },
-              { id: 'PrgP', label: 'Prog. Passes (PrgP)', category: 'Progression' },
-              { id: 'Min', label: 'Minutes Played', category: 'Time' },
-            ].map((m) => {
-              const isActive = leaderboardMetric === m.id;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setLeaderboardMetric(m.id)}
-                  className={`
-                    px-3.5 py-2 rounded-lg text-xs font-medium transition-all
-                    ${isActive
-                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                      : 'bg-pitch-card hover:bg-slate-800 text-slate-300 border border-pitch-border'}
-                  `}
-                >
-                  {m.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* League Filter */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-            <span className="text-xs text-slate-500 mr-1">Competition:</span>
-            <button
-              onClick={() => setLeaderboardComp('')}
-              className={`px-3 py-1 rounded-md text-xs font-mono transition-colors ${
-                leaderboardComp === ''
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  : 'bg-pitch-card text-slate-400 border border-pitch-border'
-              }`}
-            >
-              All 5 Leagues
-            </button>
-            {competitions.map((comp) => (
-              <button
-                key={comp.id}
-                onClick={() => setLeaderboardComp(comp.id)}
-                className={`px-3 py-1 rounded-md text-xs font-mono transition-colors whitespace-nowrap ${
-                  leaderboardComp === comp.id
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                    : 'bg-pitch-card text-slate-400 border border-pitch-border'
-                }`}
-              >
-                {comp.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Leaders List */}
-          {loadingLeaders ? (
-            <div className="p-12 text-center text-slate-400">
-              <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-sm font-mono">Loading rankings...</p>
-            </div>
-          ) : (
-            <div className="bg-pitch-card border border-pitch-border rounded-xl overflow-hidden shadow-sm">
-              <div className="divide-y divide-pitch-border/60">
-                {leaderboardLeaders.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => navigateTo('profile', item.id)}
-                    className="p-4 hover:bg-slate-800/40 transition-colors flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className={`
-                        w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm
-                        ${item.rank === 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' :
-                          item.rank === 2 ? 'bg-slate-400/20 text-slate-200 border border-slate-400/40' :
-                          item.rank === 3 ? 'bg-amber-700/20 text-amber-600 border border-amber-700/40' :
-                          'text-slate-500 font-normal'}
-                      `}>
-                        {item.rank}
-                      </span>
-                      <div>
-                        <h4 className="font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-2">
-                          {item.player}
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pitch-surface border border-pitch-border text-slate-400">
-                            {item.position}
-                          </span>
-                        </h4>
-                        <p className="text-xs text-slate-400">
-                          {item.squad} · <span className="text-slate-500">{item.competition}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                      <div className="text-right hidden sm:block">
-                        <span className="text-xs text-slate-500 block">Matches / Mins</span>
-                        <span className="text-xs font-mono text-slate-300">{item.matches} apps · {item.minutes}m</span>
-                      </div>
-
-                      <div className="text-right min-w-[80px]">
-                        <span className="text-xl font-bold font-mono text-emerald-400">
-                          {typeof item.value === 'number' && item.metric?.includes('minus')
-                            ? (item.value > 0 ? `+${item.value.toFixed(2)}` : item.value.toFixed(2))
-                            : item.value}
-                        </span>
-                        <span className="text-[10px] text-slate-400 uppercase font-mono block">
-                          {item.metric}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <LeaderboardsView
+            leaders={leaderboardLeaders}
+            loading={loadingLeaders}
+            activeMetric={leaderboardMetric}
+            onSelectMetric={setLeaderboardMetric}
+            activeComp={leaderboardComp}
+            onSelectComp={setLeaderboardComp}
+            activePosition={leaderboardPos}
+            onSelectPosition={setLeaderboardPos}
+            minMinutes={leaderboardMinMin}
+            onSelectMinMinutes={setLeaderboardMinMin}
+            competitions={competitions}
+            onPlayerClick={(id) => navigateTo('profile', id)}
+            onCompareToggle={toggleComparePlayer}
+            isCompared={(id) => compareList.some(p => (p.id || p.Rk) === id)}
+          />
         </div>
       )}
 
@@ -808,106 +713,120 @@ function App() {
             subtitle="Side-by-side performance benchmarks, scoring, progression, and rates."
             season="2024/25"
             actions={
-              <button
-                onClick={() => navigateTo('explorer')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pitch-card hover:bg-slate-800 border border-pitch-border text-xs text-slate-300 font-medium transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                Add Player from Explorer
-              </button>
+              <div className="flex items-center gap-2">
+                {compareList.length > 0 && (
+                  <button
+                    onClick={() => setCompareList([])}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pitch-card hover:bg-rose-950/40 hover:border-rose-500/40 border border-pitch-border text-xs text-rose-400 font-medium transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Clear All
+                  </button>
+                )}
+                <button
+                  onClick={() => navigateTo('explorer')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-sm transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Player
+                </button>
+              </div>
             }
           />
 
           {compareList.length === 0 ? (
             <EmptyState
               title="No players selected for comparison"
-              message="Browse the Player Explorer and click the '+' button to select up to 5 players for side-by-side analysis."
+              message="Browse the Player Explorer or Leaderboards and click the compare button to select up to 5 players for side-by-side analysis."
               onReset={() => navigateTo('explorer')}
               resetText="Go to Player Explorer"
             />
           ) : (
-            <div>
+            <div className="space-y-6">
               {/* Selected Players Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {compareList.map((p) => (
-                  <div key={p.id || p.Rk} className="bg-pitch-card border border-pitch-border rounded-xl p-4 relative shadow-sm">
-                    <button
-                      onClick={() => toggleComparePlayer(p)}
-                      className="absolute top-3 right-3 text-slate-500 hover:text-rose-400 p-1"
-                      title="Remove from comparison"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {compareList.map((p, idx) => {
+                  const borderColors = [
+                    'border-emerald-500/40 hover:border-emerald-500',
+                    'border-cyan-500/40 hover:border-cyan-500',
+                    'border-rose-500/40 hover:border-rose-500',
+                    'border-amber-500/40 hover:border-amber-500',
+                    'border-purple-500/40 hover:border-purple-500'
+                  ];
+                  const dotColors = [
+                    'bg-emerald-500',
+                    'bg-cyan-500',
+                    'bg-rose-500',
+                    'bg-amber-500',
+                    'bg-purple-500'
+                  ];
+
+                  return (
+                    <div
+                      key={p.id || p.Rk}
+                      className={`bg-pitch-card border rounded-xl p-4 relative shadow-sm transition-all ${borderColors[idx % borderColors.length]}`}
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold font-mono">
-                        {p.Player?.substring(0, 2).toUpperCase()}
+                      <button
+                        onClick={() => toggleComparePlayer(p)}
+                        className="absolute top-3 right-3 text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition-colors"
+                        title="Remove from comparison"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-lg bg-pitch-surface border border-pitch-border flex items-center justify-center relative">
+                          <span className="font-bold font-mono text-white text-xs">
+                            {p.Player?.substring(0, 2).toUpperCase()}
+                          </span>
+                          <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full ${dotColors[idx % dotColors.length]} border-2 border-slate-900`}></span>
+                        </div>
+                        <div
+                          onClick={() => navigateTo('profile', p.id || p.Rk)}
+                          className="pr-6 cursor-pointer hover:text-emerald-400"
+                        >
+                          <h4 className="font-bold text-white text-sm truncate">{p.Player}</h4>
+                          <p className="text-xs text-slate-400 truncate">{p.Squad} · <span className="text-slate-500 font-mono">{p.Pos}</span></p>
+                        </div>
                       </div>
-                      <div className="pr-6">
-                        <h4 className="font-bold text-white text-sm truncate">{p.Player}</h4>
-                        <p className="text-xs text-slate-400 truncate">{p.Squad}</p>
+
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2.5 border-t border-pitch-border/60 font-mono">
+                        <div>
+                          <span className="text-slate-500 block text-[10px]">GOALS</span>
+                          <span className="font-bold text-white">{p.Gls}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[10px]">xG</span>
+                          <span className="font-bold text-cyan-400">{p.xG}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[10px]">AST</span>
+                          <span className="font-bold text-white">{p.Ast}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-pitch-border">
-                      <div>
-                        <span className="text-slate-500 block text-[10px]">GOALS</span>
-                        <span className="font-mono font-bold text-white">{p.Gls}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[10px]">xG</span>
-                        <span className="font-mono font-bold text-emerald-400">{p.xG}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[10px]">AST</span>
-                        <span className="font-mono font-bold text-white">{p.Ast}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Comparison Metrics Matrix */}
               {loadingCompare ? (
-                <div className="p-12 text-center text-slate-400">
+                <div className="p-16 text-center text-slate-400">
                   <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                  <p className="text-sm font-mono">Calculating comparison matrix...</p>
+                  <p className="text-sm font-mono">Calculating head-to-head comparison metrics...</p>
                 </div>
               ) : comparisonData?.metrics ? (
-                <div className="bg-pitch-card border border-pitch-border rounded-xl overflow-hidden shadow-sm">
-                  <div className="p-4 bg-pitch-surface border-b border-pitch-border flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-white">Statistical Benchmark Matrix</h3>
-                    <span className="text-xs text-slate-400 font-mono">Normalized 2024/25 Records</span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-300">
-                      <thead className="bg-pitch-surface/60 text-xs font-mono uppercase text-slate-400 border-b border-pitch-border">
-                        <tr>
-                          <th className="py-3 px-4">Metric</th>
-                          {comparisonData.players.map((p) => (
-                            <th key={p.id} className="py-3 px-4 text-right">
-                              {p.Player}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-pitch-border/60">
-                        {comparisonData.metrics.map((row) => (
-                          <tr key={row.key} className="hover:bg-slate-800/30">
-                            <td className="py-3 px-4 font-medium text-slate-300">
-                              {row.label}
-                            </td>
-                            {comparisonData.players.map((p) => {
-                              const val = row.values[String(p.id)];
-                              return (
-                                <td key={p.id} className="py-3 px-4 text-right font-mono font-semibold text-white">
-                                  {val !== undefined && val !== null ? val : '—'}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="space-y-6">
+                  {/* Radar Chart Visual */}
+                  <ComparisonRadarChart
+                    radarData={comparisonData.radar}
+                    players={comparisonData.players}
+                  />
+
+                  {/* Benchmark Matrix */}
+                  <ComparisonMatrix
+                    comparisonData={comparisonData}
+                    onPlayerClick={(id) => navigateTo('profile', id)}
+                  />
                 </div>
               ) : null}
             </div>

@@ -33,7 +33,7 @@ def validate_metric(metric_param, default="Gls"):
         "prgr": "PrgR"
     }
     metric_key = alias_map.get(cleaned.lower(), cleaned)
-    if metric_key in METRIC_DEFINITIONS or metric_key in ['Gls_minus_xG', 'Ast_minus_xAG']:
+    if metric_key in METRIC_DEFINITIONS or metric_key in ['Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls']:
         return metric_key
     return default
 

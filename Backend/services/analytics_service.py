@@ -29,6 +29,8 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
 
     results = []
     for rank, (_, row) in enumerate(sorted_df.iterrows(), start=1):
+        raw_val = row[metric_key]
+        clean_val = round(float(raw_val), 2) if isinstance(raw_val, (float, int)) and not pd.isna(raw_val) else raw_val
         results.append({
             "rank": rank,
             "id": int(row["id"]),
@@ -36,18 +38,26 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
             "slug": row["player_slug"],
             "squad": row["Squad"],
             "competition": row["competition_name"],
+            "competition_id": row.get("competition_id", ""),
             "country": row["country"],
             "position": row["Pos"],
+            "age": row.get("Age"),
             "minutes": int(row["Min"]),
             "matches": int(row["MP"]),
-            "value": row[metric_key],
+            "starts": int(row.get("Starts", 0)),
+            "value": clean_val,
             "metric": metric_key,
             "goals": int(row["Gls"]),
             "assists": int(row["Ast"]),
             "xg": float(row["xG"]),
             "xag": float(row["xAG"]),
+            "goals_per_90": float(row.get("Gls_90", 0.0)),
+            "assists_per_90": float(row.get("Ast_90", 0.0)),
+            "xg_per_90": float(row.get("xG_90", 0.0)),
+            "xag_per_90": float(row.get("xAG_90", 0.0)),
             "progressive_passes": int(row["PrgP"]),
-            "progressive_carries": int(row["PrgC"])
+            "progressive_carries": int(row["PrgC"]),
+            "finishing_differential": float(row.get("Gls_minus_xG", 0.0))
         })
     return results
 
@@ -99,19 +109,55 @@ def compare_players(record_ids):
 
     aligned_matrix = []
     for m in metrics_to_compare:
+        val_map = {str(p["id"]): p.get(m["key"], 0) for p in players}
+        try:
+            numeric_vals = [float(v) for v in val_map.values() if v is not None]
+            if numeric_vals:
+                best_val = max(numeric_vals)
+                leaders = [pid for pid, v in val_map.items() if v is not None and float(v) == best_val]
+            else:
+                best_val = None
+                leaders = []
+        except (ValueError, TypeError):
+            best_val = None
+            leaders = []
+
         aligned_matrix.append({
             "key": m["key"],
             "label": m["label"],
             "category": m["type"],
-            "values": {str(p["id"]): p.get(m["key"], 0) for p in players}
+            "values": val_map,
+            "leaders": leaders,
+            "best_value": best_val
         })
+
+    df = data_loader.get_dataframe()
+    # Compute percentile rank against European players with at least 270 mins
+    qualified_peers = df[df['Min'] >= 270] if len(df) > 0 else df
 
     radar_data = []
     for dim in radar_dimensions:
+        key = dim["key"]
+        dim_values = {str(p["id"]): p.get(key, 0) for p in players}
+        dim_scores = {}
+        
+        series = qualified_peers[key] if key in qualified_peers.columns else None
+        for p in players:
+            raw_val = p.get(key, 0) or 0
+            if series is not None and len(series) > 0:
+                try:
+                    pct = round(float((series < float(raw_val)).mean() * 100), 1)
+                except (ValueError, TypeError):
+                    pct = 50.0
+            else:
+                pct = 50.0
+            dim_scores[str(p["id"])] = pct
+
         radar_data.append({
             "dimension": dim["label"],
-            "key": dim["key"],
-            "values": {str(p["id"]): p.get(dim["key"], 0) for p in players}
+            "key": key,
+            "values": dim_values,
+            "scores": dim_scores
         })
 
     return {

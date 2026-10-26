@@ -77,6 +77,7 @@ class DataLoader:
         # Derived metrics
         df['Gls_minus_xG'] = (df['Gls'] - df['xG']).round(2)
         df['Ast_minus_xAG'] = (df['Ast'] - df['xAG']).round(2)
+        df['xG_minus_Gls'] = (df['xG'] - df['Gls']).round(2)
 
         # Stable identifiers and metadata
         df['id'] = df['Rk']
