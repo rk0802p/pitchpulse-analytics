@@ -16,6 +16,7 @@ import PlayerProfileView from './components/profile/PlayerProfileView';
 import ComparisonRadarChart from './components/compare/ComparisonRadarChart';
 import ComparisonMatrix from './components/compare/ComparisonMatrix';
 import LeaderboardsView from './components/leaderboards/LeaderboardsView';
+import DataManagementView from './components/data/DataManagementView';
 import api from './services/api';
 
 import {
@@ -41,10 +42,14 @@ function App() {
   // Navigation & View State
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace(/^#\/?/, '').split('/')[0];
-    return ['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile'].includes(hash)
+    return ['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(hash)
       ? hash
       : 'dashboard';
   });
+
+  // Season Management State
+  const [activeSeason, setActiveSeason] = useState('2024-2025');
+  const [availableSeasons, setAvailableSeasons] = useState([{ id: '2024-2025', name: '2024/25 Regular Season' }]);
 
   // Global Metadata & Competitions
   const [competitions, setCompetitions] = useState([]);
@@ -103,7 +108,7 @@ function App() {
     const handleHashChange = () => {
       const parts = window.location.hash.replace(/^#\/?/, '').split('/');
       const tab = parts[0];
-      if (['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile'].includes(tab)) {
+      if (['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(tab)) {
         setCurrentTab(tab);
         if (tab === 'profile' && parts[1]) {
           setProfilePlayerId(parts[1]);
@@ -122,6 +127,33 @@ function App() {
     } else {
       window.location.hash = `#${tab}`;
     }
+  };
+
+  // Load stored seasons on mount
+  useEffect(() => {
+    api.getSeasons()
+      .then(res => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setAvailableSeasons(res.data);
+          const active = res.data.find(s => s.is_active);
+          if (active) setActiveSeason(active.id);
+        }
+      })
+      .catch(err => console.error("Error loading seasons:", err));
+  }, []);
+
+  const handleSeasonChange = async (seasonId) => {
+    setActiveSeason(seasonId);
+    try {
+      await api.setActiveSeason(seasonId);
+    } catch (err) {
+      console.error("Error setting active season:", err);
+    }
+    api.getSeasons().then(res => {
+      if (res?.success && Array.isArray(res.data)) {
+        setAvailableSeasons(res.data);
+      }
+    }).catch(() => {});
   };
 
   // Fetch initial metadata and competitions
@@ -147,14 +179,14 @@ function App() {
   // Fetch Dashboard Analytics
   const fetchDashboardData = useCallback(async () => {
     try {
-      const res = await api.getDashboard(dashboardComp);
+      const res = await api.getDashboard(dashboardComp, activeSeason);
       if (res?.success) {
         setDashboardData(res.data);
       }
     } catch (err) {
       console.error("Error fetching dashboard analytics:", err);
     }
-  }, [dashboardComp]);
+  }, [dashboardComp, activeSeason]);
 
   useEffect(() => {
     if (currentTab === 'dashboard') {
@@ -174,7 +206,8 @@ function App() {
         sort_by: sortBy,
         order: sortOrder,
         page: explorerPagination.page,
-        limit: explorerPagination.limit
+        limit: explorerPagination.limit,
+        season: activeSeason
       });
       if (res?.success) {
         setExplorerPlayers(res.data);
@@ -187,7 +220,7 @@ function App() {
     } finally {
       setLoadingExplorer(false);
     }
-  }, [searchQuery, selectedComp, selectedPos, minMinutes, sortBy, sortOrder, explorerPagination.page, explorerPagination.limit]);
+  }, [searchQuery, selectedComp, selectedPos, minMinutes, sortBy, sortOrder, explorerPagination.page, explorerPagination.limit, activeSeason]);
 
   useEffect(() => {
     if (currentTab === 'explorer') {
@@ -204,7 +237,8 @@ function App() {
         competition: leaderboardComp,
         position: leaderboardPos,
         min_minutes: leaderboardMinMin,
-        limit: 20
+        limit: 20,
+        season: activeSeason
       });
       if (res?.success) {
         setLeaderboardLeaders(res.data);
@@ -214,7 +248,7 @@ function App() {
     } finally {
       setLoadingLeaders(false);
     }
-  }, [leaderboardMetric, leaderboardComp, leaderboardPos, leaderboardMinMin]);
+  }, [leaderboardMetric, leaderboardComp, leaderboardPos, leaderboardMinMin, activeSeason]);
 
   useEffect(() => {
     if (currentTab === 'leaderboards' || currentTab === 'dashboard') {
@@ -366,7 +400,13 @@ function App() {
   ];
 
   return (
-    <AppLayout currentTab={currentTab} onNavigate={navigateTo}>
+    <AppLayout 
+        currentTab={currentTab} 
+        onNavigate={navigateTo}
+        activeSeason={activeSeason}
+        availableSeasons={availableSeasons}
+        onSelectSeason={handleSeasonChange}
+      >
       {globalError && (
         <ErrorBanner
           message="Analytics API Connection Notice"
@@ -1205,6 +1245,14 @@ function App() {
             />
           )}
         </div>
+      )}
+
+      {/* VIEW: DATASET MANAGEMENT */}
+      {currentTab === 'data' && (
+        <DataManagementView
+          activeSeason={activeSeason}
+          onSeasonChange={handleSeasonChange}
+        />
       )}
     </AppLayout>
   );

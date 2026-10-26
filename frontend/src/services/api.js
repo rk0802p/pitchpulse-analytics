@@ -29,8 +29,9 @@ export class ApiError extends Error {
 async function request(path, options = {}) {
   const url = `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
   
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {})
   };
 
@@ -76,6 +77,14 @@ export const api = {
     body: JSON.stringify({ season })
   }),
   getSeasonDetails: (id) => request(`/seasons/${encodeURIComponent(id)}`),
+  verifyBaseline: () => request('/seasons/baseline/verify'),
+  importSeason: (formDataOrData) => {
+    const isForm = typeof FormData !== 'undefined' && formDataOrData instanceof FormData;
+    return request('/seasons/import', {
+      method: 'POST',
+      body: isForm ? formDataOrData : JSON.stringify(formDataOrData)
+    });
+  },
 
   getDashboard: (competition, season) => {
     const params = new URLSearchParams();
