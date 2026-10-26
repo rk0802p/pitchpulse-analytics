@@ -14,6 +14,7 @@ def get_players():
     position = request.args.get('position') or request.args.get('pos')
     sort_by = request.args.get('sort_by') or request.args.get('sort') or 'Gls'
     order = request.args.get('order', 'desc')
+    season = request.args.get('season')
 
     min_minutes_raw = request.args.get('min_minutes') or request.args.get('min_mins')
     try:
@@ -26,21 +27,24 @@ def get_players():
     if all_records:
         items, total = search_players(
             search=search, competition=competition, squad=squad, position=position,
-            min_minutes=min_minutes, sort_by=sort_by, order=order, page=1, limit=3000
+            min_minutes=min_minutes, sort_by=sort_by, order=order, page=1, limit=3000,
+            season=season
         )
-        return success_response(items, metadata={"total": total})
+        return success_response(items, metadata={"total": total, "season": season})
 
     page, limit = validate_pagination(request.args.get('page'), request.args.get('limit'))
     items, total = search_players(
         search=search, competition=competition, squad=squad, position=position,
-        min_minutes=min_minutes, sort_by=sort_by, order=order, page=page, limit=limit
+        min_minutes=min_minutes, sort_by=sort_by, order=order, page=page, limit=limit,
+        season=season
     )
 
     return paginated_response(items, total, page, limit)
 
 @players_bp.route('/players/<player_id>', methods=['GET'])
 def get_player(player_id):
-    profile = get_player_profile(player_id)
+    season = request.args.get('season')
+    profile = get_player_profile(player_id, season=season)
     if not profile:
         return error_response(f"Player with ID '{player_id}' not found", status_code=404)
     return success_response(profile)
@@ -50,13 +54,15 @@ def get_player(player_id):
 @players_bp.route('/players/<path:league>/<path:team>', methods=['GET'])
 def get_players_by_team_legacy(league, team):
     """Legacy endpoint returning list of players for team and league."""
-    items, _ = search_players(competition=league, squad=team, limit=100)
+    season = request.args.get('season')
+    items, _ = search_players(competition=league, squad=team, limit=100, season=season)
     return jsonify(items)
 
 @players_bp.route('/player/<player_id>', methods=['GET'])
 def get_player_legacy(player_id):
     """Legacy endpoint returning original format."""
-    player = data_loader.get_by_id(player_id)
+    season = request.args.get('season')
+    player = data_loader.get_by_id(player_id, season=season)
     if not player:
         return jsonify({'success': False, 'error': 'Player not found'}), 404
 

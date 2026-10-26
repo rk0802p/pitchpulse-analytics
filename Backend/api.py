@@ -9,6 +9,7 @@ from routes.competitions import competitions_bp
 from routes.players import players_bp
 from routes.comparisons import comparisons_bp
 from routes.leaderboards import leaderboards_bp
+from routes.seasons import seasons_bp
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(players_bp, url_prefix='/api')
     app.register_blueprint(comparisons_bp, url_prefix='/api')
     app.register_blueprint(leaderboards_bp, url_prefix='/api')
+    app.register_blueprint(seasons_bp, url_prefix='/api')
 
     @app.route('/api/')
     @app.route('/')
@@ -57,7 +59,3 @@ app = create_app()
 # Backward compatibility helper for legacy scripts
 def load_players_data():
     return data_loader.get_records()
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='127.0.0.1', port=port, debug=True)

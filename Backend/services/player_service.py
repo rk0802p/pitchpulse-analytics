@@ -4,8 +4,8 @@ from services.data_loader import data_loader
 from services.validation_service import resolve_competition, validate_position, validate_metric, validate_pagination
 from config import COMPETITIONS
 
-def get_competitions_summary():
-    df = data_loader.get_dataframe()
+def get_competitions_summary(season=None):
+    df = data_loader.get_dataframe(season=season)
     summary = []
     for raw_name, info in COMPETITIONS.items():
         comp_df = df[df['Comp'] == raw_name]
@@ -23,8 +23,8 @@ def get_competitions_summary():
         })
     return summary
 
-def get_teams_by_competition(competition=None):
-    df = data_loader.get_dataframe()
+def get_teams_by_competition(competition=None, season=None):
+    df = data_loader.get_dataframe(season=season)
     if competition:
         resolved_comp = resolve_competition(competition)
         if resolved_comp:
@@ -34,8 +34,8 @@ def get_teams_by_competition(competition=None):
     return sorted(df['Squad'].unique().tolist())
 
 def search_players(search=None, competition=None, squad=None, position=None,
-                   min_minutes=0, sort_by="Gls", order="desc", page=1, limit=50):
-    df = data_loader.get_dataframe()
+                   min_minutes=0, sort_by="Gls", order="desc", page=1, limit=50, season=None):
+    df = data_loader.get_dataframe(season=season)
 
     # Filter by competition
     if competition:
@@ -82,8 +82,8 @@ def search_players(search=None, competition=None, squad=None, position=None,
 
     return paginated_df.to_dict(orient='records'), total_count
 
-def get_player_profile(record_id):
-    player = data_loader.get_by_id(record_id)
+def get_player_profile(record_id, season=None):
+    player = data_loader.get_by_id(record_id, season=season)
     if not player:
         return None
 
@@ -99,7 +99,7 @@ def get_player_profile(record_id):
             "position": player["Pos"],
             "squad": player["Squad"],
             "competition": player["competition_name"],
-            "competition_id": player["competition_id"],
+            "competition_id": player.get("competition_id", ""),
             "country": player["country"],
             "age": player["Age"],
             "born": player["Born"]
@@ -108,22 +108,22 @@ def get_player_profile(record_id):
             "matches_played": player["MP"],
             "starts": player["Starts"],
             "minutes": player["Min"],
-            "ninetys": player["90s"]
+            "nineties": player["90s"]
         },
         "scoring": {
             "goals": player["Gls"],
-            "goals_non_penalty": player["G-PK"],
-            "penalties_made": player["PK"],
+            "non_penalty_goals": player["G-PK"],
+            "penalty_goals": player["PK"],
             "penalties_attempted": player["PKatt"],
-            "expected_goals": player["xG"],
-            "non_penalty_xg": player["npxG"],
-            "finishing_differential": player["Gls_minus_xG"]
+            "xg": player["xG"],
+            "npxg": player["npxG"],
+            "goals_minus_xg": player["Gls_minus_xG"]
         },
         "playmaking": {
             "assists": player["Ast"],
+            "xag": player["xAG"],
+            "assists_minus_xag": player["Ast_minus_xAG"],
             "goals_plus_assists": player["G+A"],
-            "expected_assisted_goals": player["xAG"],
-            "assists_differential": player["Ast_minus_xAG"],
             "npxg_plus_xag": player["npxG+xAG"]
         },
         "progression": {
@@ -138,7 +138,9 @@ def get_player_profile(record_id):
         "per_90_rates": {
             "goals_per_90": player["Gls_90"],
             "assists_per_90": player["Ast_90"],
-            "ga_per_90": player["G+A_90"],
+            "goals_plus_assists_per_90": player["G+A_90"],
+            "non_penalty_goals_per_90": player["G-PK_90"],
+            "goals_plus_assists_non_pk_per_90": player["G+A-PK_90"],
             "xg_per_90": player["xG_90"],
             "xag_per_90": player["xAG_90"],
             "xg_plus_xag_per_90": player["xG+xAG_90"],
@@ -150,7 +152,7 @@ def get_player_profile(record_id):
 
     # Positional peer percentile benchmarks (min 270 mins threshold)
     pos_clean = player["Pos"].split(',')[0].strip() if player["Pos"] else "MF"
-    df_all = data_loader.get_dataframe()
+    df_all = data_loader.get_dataframe(season=season)
     peers = df_all[(df_all['Pos'].str.contains(pos_clean, na=False)) & (df_all['Min'] >= 270)]
     if len(peers) == 0:
         peers = df_all[df_all['Min'] >= 270]

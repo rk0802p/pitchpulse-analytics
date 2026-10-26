@@ -7,7 +7,8 @@ leaderboards_bp = Blueprint('leaderboards', __name__)
 @leaderboards_bp.route('/dashboard', methods=['GET'])
 def dashboard_analytics():
     comp = request.args.get('competition') or request.args.get('comp')
-    data = get_dashboard_analytics(comp)
+    season = request.args.get('season')
+    data = get_dashboard_analytics(comp, season=season)
     if data is None and comp:
         return error_response(f"Competition '{comp}' not recognized", status_code=404)
     return success_response(data or {})
@@ -17,6 +18,7 @@ def leaderboards():
     metric = request.args.get('metric', 'Gls')
     competition = request.args.get('competition') or request.args.get('comp')
     position = request.args.get('position') or request.args.get('pos')
+    season = request.args.get('season')
 
     min_minutes_raw = request.args.get('min_minutes')
     try:
@@ -36,7 +38,8 @@ def leaderboards():
         competition=competition,
         position=position,
         min_minutes=min_minutes,
-        limit=limit
+        limit=limit,
+        season=season
     )
 
     return success_response(results, metadata={
@@ -44,7 +47,8 @@ def leaderboards():
         "competition": competition or "All Competitions",
         "position": position or "All Positions",
         "min_minutes": min_minutes,
-        "limit": limit
+        "limit": limit,
+        "season": season
     })
 
 # --- Backward compatibility endpoint for existing frontend ---
@@ -52,17 +56,17 @@ def leaderboards():
 @leaderboards_bp.route('/league-leaders', methods=['GET'])
 def get_league_leaders_legacy():
     """Legacy endpoint returning leaders for goals, assists, matches, minutes."""
+    season = request.args.get('season')
     leaders = {
         'goals': [{'Player': r['player'], 'Squad': r['squad'], 'Gls': r['value'], 'Pos': r['position']}
-                  for r in get_leaderboard(metric='Gls', limit=10)],
+                  for r in get_leaderboard(metric='Gls', limit=10, season=season)],
         'assists': [{'Player': r['player'], 'Squad': r['squad'], 'Ast': r['value'], 'Pos': r['position']}
-                    for r in get_leaderboard(metric='Ast', limit=10)],
+                    for r in get_leaderboard(metric='Ast', limit=10, season=season)],
         'matches': [{'Player': r['player'], 'Squad': r['squad'], 'MP': r['value'], 'Pos': r['position']}
-                    for r in get_leaderboard(metric='MP', limit=10)],
+                    for r in get_leaderboard(metric='MP', limit=10, season=season)],
         'minutes': [{'Player': r['player'], 'Squad': r['squad'], 'Min': r['value'], 'Pos': r['position']}
-                    for r in get_leaderboard(metric='Min', limit=10)]
+                    for r in get_leaderboard(metric='Min', limit=10, season=season)]
     }
-
     return jsonify({
         'success': True,
         'leaders': leaders

@@ -8,13 +8,15 @@ competitions_bp = Blueprint('competitions', __name__)
 
 @competitions_bp.route('/competitions', methods=['GET'])
 def get_competitions():
-    summary = get_competitions_summary()
+    season = request.args.get('season')
+    summary = get_competitions_summary(season=season)
     return success_response(summary)
 
 @competitions_bp.route('/teams', methods=['GET'])
 def get_teams():
     comp_param = request.args.get('competition')
-    teams = get_teams_by_competition(comp_param)
+    season = request.args.get('season')
+    teams = get_teams_by_competition(comp_param, season=season)
     return success_response(teams)
 
 # --- Backward compatibility endpoints for existing frontend ---
@@ -28,5 +30,6 @@ def get_leagues_legacy():
 @competitions_bp.route('/teams/<path:league>', methods=['GET'])
 def get_teams_by_league_legacy(league):
     """Legacy endpoint returning list of squads in league."""
-    teams = get_teams_by_competition(league)
+    season = request.args.get('season')
+    teams = get_teams_by_competition(league, season=season)
     return jsonify(teams)

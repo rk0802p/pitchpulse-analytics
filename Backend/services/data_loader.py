@@ -3,6 +3,7 @@ import re
 import logging
 import pandas as pd
 from config import DATASET_PATH, COMPETITIONS, COMPETITION_LOOKUP, METRIC_DEFINITIONS
+from services.season_service import season_service
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,14 @@ def slugify(text):
     return re.sub(r'[-\s]+', '-', text).strip('-')
 
 class DataLoader:
+    """
+    Multi-season data loader and in-memory cache for PitchPulse.
+    Supports on-demand loading of individual seasons with fallback to the immutable baseline.
+    """
     _instance = None
+    _seasons_df = {}
+    _seasons_records = {}
+    _seasons_by_id = {}
     _df = None
     _records = None
     _by_id = {}
@@ -23,30 +31,66 @@ class DataLoader:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(DataLoader, cls).__new__(cls)
+            cls._instance._seasons_df = {}
+            cls._instance._seasons_records = {}
+            cls._instance._seasons_by_id = {}
         return cls._instance
 
     def initialize(self, force_reload=False):
         if self._is_initialized and not force_reload:
             return
 
-        logger.info(f"Initializing DataLoader from: {DATASET_PATH}")
-        if not os.path.exists(DATASET_PATH):
-            raise FileNotFoundError(f"Dataset file not found at: {DATASET_PATH}")
-
-        # Load Excel file
-        xls = pd.ExcelFile(DATASET_PATH)
-        all_dfs = []
-        for sheet_name in xls.sheet_names:
-            sheet_df = pd.read_excel(xls, sheet_name=sheet_name)
-            all_dfs.append(sheet_df)
-
-        df = pd.concat(all_dfs, ignore_index=True)
-        self._validate_schema(df)
-        self._df = self._normalize_dataset(df)
-        self._records = self._df.to_dict(orient='records')
-        self._by_id = {r['Rk']: r for r in self._records}
+        active_season = season_service.get_active_season()
+        logger.info(f"Initializing DataLoader with active season: {active_season}")
+        self.load_season(active_season, force_reload=force_reload)
         self._is_initialized = True
-        logger.info(f"DataLoader initialized successfully with {len(self._records)} player records.")
+
+    def load_season(self, season_id, force_reload=False):
+        """Loads and normalizes a specific season dataset into memory."""
+        s_id = season_service.resolve_season(season_id)
+        if s_id in self._seasons_df and not force_reload:
+            return self._seasons_df[s_id]
+
+        file_path = season_service.get_season_file_path(s_id, preferred_format='csv')
+        if not file_path or not os.path.exists(file_path):
+            if s_id == '2024-2025' and os.path.exists(DATASET_PATH):
+                file_path = DATASET_PATH
+            else:
+                raise FileNotFoundError(f"Season data file not found for season '{s_id}'.")
+
+        logger.info(f"Loading season '{s_id}' from: {file_path}")
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext in ['.csv', '.txt']:
+            try:
+                raw_df = pd.read_csv(file_path, encoding='utf-8')
+            except UnicodeDecodeError:
+                raw_df = pd.read_csv(file_path, encoding='latin1')
+        elif ext in ['.xlsx', '.xls']:
+            xls = pd.ExcelFile(file_path)
+            all_dfs = []
+            for sheet_name in xls.sheet_names:
+                all_dfs.append(pd.read_excel(xls, sheet_name=sheet_name))
+            raw_df = pd.concat(all_dfs, ignore_index=True) if all_dfs else pd.DataFrame()
+        else:
+            raise ValueError(f"Unsupported file format '{ext}' for season '{s_id}'.")
+
+        self._validate_schema(raw_df)
+        norm_df = self._normalize_dataset(raw_df)
+        records = norm_df.to_dict(orient='records')
+        by_id = {r['Rk']: r for r in records}
+
+        self._seasons_df[s_id] = norm_df
+        self._seasons_records[s_id] = records
+        self._seasons_by_id[s_id] = by_id
+
+        # Update primary defaults if this is the active season or uninitialized
+        if s_id == season_service.get_active_season() or self._df is None:
+            self._df = norm_df
+            self._records = records
+            self._by_id = by_id
+
+        logger.info(f"Season '{s_id}' loaded successfully with {len(records)} player records.")
+        return norm_df
 
     def _validate_schema(self, df):
         """Validates that all expected baseline columns exist and types are correct."""
@@ -68,11 +112,13 @@ class DataLoader:
         # Ensure numeric metrics are clean floats or ints
         int_cols = ['Rk', 'MP', 'Starts', 'Min', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'CrdY', 'CrdR', 'PrgC', 'PrgP', 'PrgR']
         for col in int_cols:
-            df[col] = df[col].fillna(0).astype(int)
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
 
         float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']
         for col in float_cols:
-            df[col] = df[col].fillna(0.0).astype(float).round(2)
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float).round(2)
 
         # Derived metrics
         df['Gls_minus_xG'] = (df['Gls'] - df['xG']).round(2)
@@ -94,31 +140,51 @@ class DataLoader:
             ])
 
         df[['competition_id', 'competition_name', 'country']] = df['Comp'].apply(map_comp_info)
-        # Fix legacy 'league' bug: assign competition_name instead of 'Sheet1'
         df['league'] = df['competition_name']
 
         return df
 
-    def get_dataframe(self):
+    def get_dataframe(self, season=None):
         if not self._is_initialized:
             self.initialize()
+        if not season:
+            return self._df
+        s_id = season_service.resolve_season(season)
+        if s_id in self._seasons_df:
+            return self._seasons_df[s_id]
+        if season_service.season_exists(s_id):
+            return self.load_season(s_id)
         return self._df
 
-    def get_records(self):
+    def get_records(self, season=None):
         if not self._is_initialized:
             self.initialize()
+        if not season:
+            return self._records
+        s_id = season_service.resolve_season(season)
+        if s_id in self._seasons_records:
+            return self._seasons_records[s_id]
+        if season_service.season_exists(s_id):
+            self.load_season(s_id)
+            return self._seasons_records.get(s_id, self._records)
         return self._records
 
-    def get_by_id(self, record_id):
+    def get_by_id(self, record_id, season=None):
         if not self._is_initialized:
             self.initialize()
+        s_id = season_service.resolve_season(season) if season else season_service.get_active_season()
+        if s_id not in self._seasons_by_id and season_service.season_exists(s_id):
+            self.load_season(s_id)
+
+        target_by_id = self._seasons_by_id.get(s_id, self._by_id)
+        target_records = self._seasons_records.get(s_id, self._records)
+
         try:
             int_id = int(record_id)
-            return self._by_id.get(int_id)
+            return target_by_id.get(int_id)
         except (ValueError, TypeError):
-            # Try searching by player_slug
             slug = slugify(str(record_id))
-            matches = [r for r in self._records if r['player_slug'] == slug]
+            matches = [r for r in target_records if r.get('player_slug') == slug]
             return matches[0] if matches else None
 
 # Global singleton accessor

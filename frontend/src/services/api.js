@@ -65,19 +65,37 @@ export const api = {
   baseUrl: API_BASE_URL,
 
   getHealth: () => request('/health'),
-  getMetadata: () => request('/metadata'),
+  getMetadata: (season) => request(`/metadata${season ? `?season=${encodeURIComponent(season)}` : ''}`),
   getMetrics: () => request('/metrics'),
 
-  getDashboard: (competition) => {
-    const query = competition ? `?competition=${encodeURIComponent(competition)}` : '';
-    return request(`/dashboard${query}`);
+  // Multi-season storage endpoints
+  getSeasons: () => request('/seasons'),
+  getActiveSeason: () => request('/seasons/active'),
+  setActiveSeason: (season) => request('/seasons/active', {
+    method: 'POST',
+    body: JSON.stringify({ season })
+  }),
+  getSeasonDetails: (id) => request(`/seasons/${encodeURIComponent(id)}`),
+
+  getDashboard: (competition, season) => {
+    const params = new URLSearchParams();
+    if (competition) params.append('competition', competition);
+    if (season) params.append('season', season);
+    const qs = params.toString();
+    return request(`/dashboard${qs ? `?${qs}` : ''}`);
   },
 
-  getCompetitions: () => request('/competitions'),
+  getCompetitions: (season) => {
+    const query = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/competitions${query}`);
+  },
 
-  getTeams: (competition) => {
-    const query = competition ? `?competition=${encodeURIComponent(competition)}` : '';
-    return request(`/teams${query}`);
+  getTeams: (competition, season) => {
+    const params = new URLSearchParams();
+    if (competition) params.append('competition', competition);
+    if (season) params.append('season', season);
+    const qs = params.toString();
+    return request(`/teams${qs ? `?${qs}` : ''}`);
   },
 
   getPlayers: (params = {}) => {
@@ -91,12 +109,15 @@ export const api = {
     return request(`/players${queryString ? `?${queryString}` : ''}`);
   },
 
-  getPlayer: (id) => request(`/players/${encodeURIComponent(id)}`),
+  getPlayer: (id, season) => {
+    const query = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/players/${encodeURIComponent(id)}${query}`);
+  },
 
-  comparePlayers: (playerIds) => {
+  comparePlayers: (playerIds, season) => {
     return request('/players/compare', {
       method: 'POST',
-      body: JSON.stringify({ player_ids: playerIds })
+      body: JSON.stringify({ player_ids: playerIds, season })
     });
   },
 
@@ -119,10 +140,11 @@ export const api = {
     return [];
   },
 
-  getLegacyTeams: async (league) => {
+  getLegacyTeams: async (league, season) => {
     // 1. Query param is decoded reliably across serverless WSGI environments (Vercel)
     try {
-      const queryRes = await request(`/teams?competition=${encodeURIComponent(league)}`);
+      const query = `/teams?competition=${encodeURIComponent(league)}${season ? `&season=${encodeURIComponent(season)}` : ''}`;
+      const queryRes = await request(query);
       if (queryRes?.success && Array.isArray(queryRes.data) && queryRes.data.length > 0) {
         return queryRes.data;
       }
@@ -134,16 +156,18 @@ export const api = {
     }
 
     // 2. Direct path endpoint fallback
-    const pathRes = await request(`/teams/${encodeURIComponent(league)}`);
+    const pathQuery = `/teams/${encodeURIComponent(league)}${season ? `?season=${encodeURIComponent(season)}` : ''}`;
+    const pathRes = await request(pathQuery);
     if (Array.isArray(pathRes)) return pathRes;
     if (pathRes?.success && Array.isArray(pathRes.data)) return pathRes.data;
     return [];
   },
 
-  getLegacyPlayersByTeam: async (league, team) => {
+  getLegacyPlayersByTeam: async (league, team, season) => {
     // 1. Query param endpoint fallback with all=true
     try {
-      const queryRes = await request(`/players?competition=${encodeURIComponent(league)}&team=${encodeURIComponent(team)}&all=true`);
+      const query = `/players?competition=${encodeURIComponent(league)}&team=${encodeURIComponent(team)}&all=true${season ? `&season=${encodeURIComponent(season)}` : ''}`;
+      const queryRes = await request(query);
       if (queryRes?.success && Array.isArray(queryRes.data) && queryRes.data.length > 0) {
         return queryRes.data;
       }
@@ -155,7 +179,8 @@ export const api = {
     }
 
     // 2. Direct path endpoint fallback
-    const pathRes = await request(`/players/${encodeURIComponent(league)}/${encodeURIComponent(team)}`);
+    const pathQuery = `/players/${encodeURIComponent(league)}/${encodeURIComponent(team)}${season ? `?season=${encodeURIComponent(season)}` : ''}`;
+    const pathRes = await request(pathQuery);
     if (Array.isArray(pathRes)) return pathRes;
     if (pathRes?.success && Array.isArray(pathRes.data)) return pathRes.data;
     return [];

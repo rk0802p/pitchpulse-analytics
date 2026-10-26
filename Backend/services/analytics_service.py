@@ -2,8 +2,8 @@ import pandas as pd
 from services.data_loader import data_loader
 from services.validation_service import resolve_competition, validate_metric
 
-def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0, limit=10):
-    df = data_loader.get_dataframe()
+def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0, limit=10, season=None):
+    df = data_loader.get_dataframe(season=season)
     metric_key = validate_metric(metric, default="Gls")
 
     # Filter competition
@@ -61,7 +61,7 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
         })
     return results
 
-def compare_players(record_ids):
+def compare_players(record_ids, season=None):
     if not record_ids:
         return None
 
@@ -69,7 +69,7 @@ def compare_players(record_ids):
     clean_ids = record_ids[:5]
     players = []
     for rid in clean_ids:
-        p = data_loader.get_by_id(rid)
+        p = data_loader.get_by_id(rid, season=season)
         if p:
             players.append(p)
 
@@ -99,39 +99,41 @@ def compare_players(record_ids):
     ]
 
     radar_dimensions = [
-        {"key": "Gls_90", "label": "Finishing (Gls/90)"},
-        {"key": "xG_90", "label": "Shot Quality (xG/90)"},
-        {"key": "Ast_90", "label": "Creation (Ast/90)"},
-        {"key": "xAG_90", "label": "Chance Quality (xAG/90)"},
-        {"key": "PrgP", "label": "Prog. Passing (PrgP)"},
-        {"key": "PrgC", "label": "Ball Carrying (PrgC)"}
+        {"key": "Gls_90", "label": "Goals/90", "max": 1.5},
+        {"key": "xG_90", "label": "xG/90", "max": 1.2},
+        {"key": "Ast_90", "label": "Assists/90", "max": 1.0},
+        {"key": "xAG_90", "label": "xAG/90", "max": 1.0},
+        {"key": "PrgC", "label": "Prog. Carries", "max": 150},
+        {"key": "PrgP", "label": "Prog. Passes", "max": 250},
+        {"key": "PrgR", "label": "Prog. Receptions", "max": 300}
     ]
 
     aligned_matrix = []
-    for m in metrics_to_compare:
-        val_map = {str(p["id"]): p.get(m["key"], 0) for p in players}
-        try:
-            numeric_vals = [float(v) for v in val_map.values() if v is not None]
-            if numeric_vals:
-                best_val = max(numeric_vals)
-                leaders = [pid for pid, v in val_map.items() if v is not None and float(v) == best_val]
-            else:
-                best_val = None
-                leaders = []
-        except (ValueError, TypeError):
-            best_val = None
-            leaders = []
+    for metric_meta in metrics_to_compare:
+        key = metric_meta["key"]
+        values = {str(p["id"]): p.get(key, 0) for p in players}
+        
+        # Determine best/leader value
+        raw_vals = [p.get(key, 0) or 0 for p in players]
+        # For cards, lower is better; for others, higher is better
+        if key in ["CrdY", "CrdR"]:
+            best_val = min(raw_vals) if raw_vals else 0
+        else:
+            best_val = max(raw_vals) if raw_vals else 0
+
+        leaders = [str(p["id"]) for p in players if (p.get(key, 0) or 0) == best_val and best_val > 0]
 
         aligned_matrix.append({
-            "key": m["key"],
-            "label": m["label"],
-            "category": m["type"],
-            "values": val_map,
+            "metric": metric_meta["label"],
+            "label": metric_meta["label"],
+            "key": key,
+            "category": metric_meta["type"],
+            "values": values,
             "leaders": leaders,
             "best_value": best_val
         })
 
-    df = data_loader.get_dataframe()
+    df = data_loader.get_dataframe(season=season)
     # Compute percentile rank against European players with at least 270 mins
     qualified_peers = df[df['Min'] >= 270] if len(df) > 0 else df
 
@@ -166,8 +168,8 @@ def compare_players(record_ids):
         "radar": radar_data
     }
 
-def get_dashboard_analytics(competition=None):
-    df = data_loader.get_dataframe()
+def get_dashboard_analytics(competition=None, season=None):
+    df = data_loader.get_dataframe(season=season)
     if competition:
         resolved = resolve_competition(competition)
         if resolved:
@@ -227,4 +229,3 @@ def get_dashboard_analytics(competition=None):
         "progression_leaders": progression_leaders,
         "scatter_data": scatter_data
     }
-

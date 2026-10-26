@@ -11,6 +11,7 @@ def compare():
 
     data = request.get_json() or {}
     player_ids = data.get('player_ids') or data.get('ids') or []
+    season = data.get('season') or request.args.get('season')
 
     if not isinstance(player_ids, list):
         return jsonify({'success': False, 'error': 'player_ids must be a list'}), 400
@@ -18,7 +19,7 @@ def compare():
     if not player_ids:
         return jsonify({'success': False, 'error': 'No players to compare'}), 400
 
-    result = compare_players(player_ids)
+    result = compare_players(player_ids, season=season)
     if not result or not result['players']:
         return jsonify({'success': False, 'error': 'None of the requested players were found'}), 404
 
