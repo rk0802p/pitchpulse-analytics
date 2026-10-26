@@ -67,6 +67,7 @@ class TestPlayersEndpoints(unittest.TestCase):
         self.assertIn('progression', profile)
         self.assertIn('discipline', profile)
         self.assertIn('per_90_rates', profile)
+        self.assertIn('percentiles', profile)
         self.assertEqual(profile['identity']['id'], 1)
 
     def test_get_player_profile_not_found(self):

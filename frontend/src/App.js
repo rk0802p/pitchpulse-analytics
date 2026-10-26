@@ -12,6 +12,7 @@ import PlayerCard from './components/PlayerCard';
 import FinishingEfficiencyChart from './components/dashboard/FinishingEfficiencyChart';
 import AttackingScatterChart from './components/dashboard/AttackingScatterChart';
 import ProgressionMatrixChart from './components/dashboard/ProgressionMatrixChart';
+import PlayerProfileView from './components/profile/PlayerProfileView';
 import api from './services/api';
 
 import {
@@ -58,6 +59,7 @@ function App() {
   const [minMinutes, setMinMinutes] = useState(0);
   const [sortBy, setSortBy] = useState('Gls');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [rateMode, setRateMode] = useState(false);
   const [loadingExplorer, setLoadingExplorer] = useState(false);
 
   // Leaderboards State
@@ -310,8 +312,19 @@ function App() {
     }
   };
 
-  // Columns for Explorer Table
-  const explorerColumns = [
+  // Columns for Explorer Table (Dynamic: Totals vs Per-90 Rates)
+  const explorerColumns = rateMode ? [
+    { key: 'Player', label: 'Player & Club', sortable: true },
+    { key: 'Pos', label: 'Pos', sortable: true },
+    { key: 'Min', label: 'Mins', sortable: true, align: 'right' },
+    { key: 'Gls_90', label: 'Goals/90', sortable: true, align: 'right' },
+    { key: 'xG_90', label: 'xG/90', sortable: true, align: 'right' },
+    { key: 'Ast_90', label: 'Ast/90', sortable: true, align: 'right' },
+    { key: 'xAG_90', label: 'xAG/90', sortable: true, align: 'right' },
+    { key: 'xG+xAG_90', label: 'xG+xAG/90', sortable: true, align: 'right' },
+    { key: 'PrgC', label: 'PrgC', sortable: true, align: 'right' },
+    { key: 'PrgP', label: 'PrgP', sortable: true, align: 'right' },
+  ] : [
     { key: 'Player', label: 'Player & Club', sortable: true },
     { key: 'Pos', label: 'Pos', sortable: true },
     { key: 'Age', label: 'Age', sortable: true, align: 'right' },
@@ -561,18 +574,48 @@ function App() {
             subtitle="Search, filter, and inspect 2,854 player records. Filter by role, minutes threshold, and sorting metric."
             season="2024/25"
             actions={
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedComp('');
-                  setSelectedPos('');
-                  setMinMinutes(0);
-                  setSortBy('Gls');
-                }}
-                className="px-3 py-1.5 rounded-lg border border-pitch-border text-xs text-slate-300 hover:text-white bg-pitch-card hover:bg-slate-800 transition-colors"
-              >
-                Clear Filters
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center p-0.5 rounded-lg bg-pitch-card border border-pitch-border">
+                  <button
+                    onClick={() => {
+                      setRateMode(false);
+                      setSortBy('Gls');
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                      !rateMode
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Totals (Output)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRateMode(true);
+                      setSortBy('Gls_90');
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                      rateMode
+                        ? 'bg-cyan-500/20 text-cyan-400 font-bold shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Per 90 (Rates)
+                  </button>
+                </div>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedComp('');
+                    setSelectedPos('');
+                    setMinMinutes(0);
+                    setSortBy(rateMode ? 'Gls_90' : 'Gls');
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-pitch-border text-xs text-slate-300 hover:text-white bg-pitch-card hover:bg-slate-800 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
             }
           />
 
@@ -957,121 +1000,22 @@ function App() {
       {/* VIEW: PLAYER PROFILE */}
       {currentTab === 'profile' && (
         <div>
-          <button
-            onClick={() => navigateTo('explorer')}
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white font-mono mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Explorer
-          </button>
-
           {loadingProfile ? (
             <div className="p-12 text-center text-slate-400">
               <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               <p className="text-sm font-mono">Loading player dossier...</p>
             </div>
           ) : playerProfile ? (
-            <div className="space-y-6">
-              {/* Profile Hero Card */}
-              <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold font-mono text-2xl flex items-center justify-center">
-                      {playerProfile.identity.name?.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          {playerProfile.identity.position}
-                        </span>
-                        <span className="text-xs text-slate-400 font-mono">
-                          {playerProfile.identity.nation}
-                        </span>
-                      </div>
-                      <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                        {playerProfile.identity.name}
-                      </h1>
-                      <p className="text-sm text-slate-400">
-                        {playerProfile.identity.squad} · <span className="text-slate-300">{playerProfile.identity.competition}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => toggleComparePlayer(playerProfile.raw_record)}
-                      className="px-4 py-2 rounded-lg bg-pitch-surface hover:bg-slate-800 border border-pitch-border text-xs font-medium text-slate-200 transition-colors"
-                    >
-                      {compareList.some(p => (p.id || p.Rk) === playerProfile.identity.id) ? '✓ In Comparison' : '+ Compare'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* KPI Stat Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard
-                  title="Goals Scored"
-                  value={playerProfile.scoring.goals}
-                  subtext={`xG: ${playerProfile.scoring.expected_goals}`}
-                  badge={playerProfile.scoring.finishing_differential > 0 ? `+${playerProfile.scoring.finishing_differential} Diff` : `${playerProfile.scoring.finishing_differential} Diff`}
-                  badgeType={playerProfile.scoring.finishing_differential > 0 ? "positive" : "negative"}
-                  accentColor="rose"
-                />
-                <StatCard
-                  title="Assists"
-                  value={playerProfile.playmaking.assists}
-                  subtext={`xAG: ${playerProfile.playmaking.expected_assisted_goals}`}
-                  badge={`${playerProfile.playmaking.goals_plus_assists} G+A`}
-                  badgeType="accent"
-                  accentColor="blue"
-                />
-                <StatCard
-                  title="Playing Time"
-                  value={`${playerProfile.playing_time.minutes}m`}
-                  subtext={`${playerProfile.playing_time.matches_played} apps (${playerProfile.playing_time.starts} starts)`}
-                  badge={`${playerProfile.playing_time.ninetys} 90s`}
-                  badgeType="neutral"
-                  accentColor="emerald"
-                />
-                <StatCard
-                  title="Progression"
-                  value={playerProfile.progression.progressive_carries}
-                  subtext={`Passes: ${playerProfile.progression.progressive_passes}`}
-                  badge="PrgC"
-                  badgeType="accent"
-                  accentColor="purple"
-                />
-              </div>
-
-              {/* Per-90 Rates Breakdown */}
-              <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 pb-2 border-b border-pitch-border font-mono">
-                  Rates Per 90 Minutes (Standardized Output)
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-3 rounded-lg bg-pitch-surface border border-pitch-border text-center">
-                    <span className="text-xs text-slate-400 block mb-1">Goals / 90</span>
-                    <span className="text-xl font-bold font-mono text-emerald-400">{playerProfile.per_90_rates.goals_per_90}</span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-pitch-surface border border-pitch-border text-center">
-                    <span className="text-xs text-slate-400 block mb-1">xG / 90</span>
-                    <span className="text-xl font-bold font-mono text-cyan-400">{playerProfile.per_90_rates.xg_per_90}</span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-pitch-surface border border-pitch-border text-center">
-                    <span className="text-xs text-slate-400 block mb-1">Assists / 90</span>
-                    <span className="text-xl font-bold font-mono text-blue-400">{playerProfile.per_90_rates.assists_per_90}</span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-pitch-surface border border-pitch-border text-center">
-                    <span className="text-xs text-slate-400 block mb-1">xAG / 90</span>
-                    <span className="text-xl font-bold font-mono text-purple-400">{playerProfile.per_90_rates.xag_per_90}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PlayerProfileView
+              profile={playerProfile}
+              onBack={() => navigateTo('explorer')}
+              onCompare={() => toggleComparePlayer(playerProfile.raw_record)}
+              isCompared={compareList.some(p => (p.id || p.Rk) === playerProfile.identity.id)}
+            />
           ) : (
             <EmptyState
               title="Player not found"
-              message="Could not locate the requested player record."
+              message="Could not locate the requested player record in the 2024/25 dataset."
               onReset={() => navigateTo('explorer')}
               resetText="Return to Explorer"
             />

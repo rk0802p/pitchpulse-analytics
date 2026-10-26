@@ -145,4 +145,30 @@ def get_player_profile(record_id):
         },
         "raw_record": player
     }
+
+    # Positional peer percentile benchmarks (min 270 mins threshold)
+    pos_clean = player["Pos"].split(',')[0].strip() if player["Pos"] else "MF"
+    df_all = data_loader.get_dataframe()
+    peers = df_all[(df_all['Pos'].str.contains(pos_clean, na=False)) & (df_all['Min'] >= 270)]
+    if len(peers) == 0:
+        peers = df_all[df_all['Min'] >= 270]
+
+    def get_pct(col):
+        val = player.get(col, 0)
+        if val is None or len(peers) == 0:
+            return 50
+        return int(round((peers[col] < val).mean() * 100))
+
+    profile["percentiles"] = {
+        "goals_per_90": {"value": player["Gls_90"], "percentile": get_pct("Gls_90"), "label": "Goals / 90"},
+        "xg_per_90": {"value": player["xG_90"], "percentile": get_pct("xG_90"), "label": "Shot Threat (xG/90)"},
+        "assists_per_90": {"value": player["Ast_90"], "percentile": get_pct("Ast_90"), "label": "Assists / 90"},
+        "xag_per_90": {"value": player["xAG_90"], "percentile": get_pct("xAG_90"), "label": "Creation Quality (xAG/90)"},
+        "progressive_carries": {"value": player["PrgC"], "percentile": get_pct("PrgC"), "label": "Prog. Carries"},
+        "progressive_passes": {"value": player["PrgP"], "percentile": get_pct("PrgP"), "label": "Prog. Passes"},
+        "progressive_receptions": {"value": player["PrgR"], "percentile": get_pct("PrgR"), "label": "Prog. Receptions"},
+        "peer_sample_size": int(len(peers)),
+        "comparison_position": pos_clean
+    }
+
     return profile
