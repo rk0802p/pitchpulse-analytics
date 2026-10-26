@@ -249,6 +249,6 @@ test('renders DataManagementView with baseline status and season registry', () =
   expect(screen.getByText(/Dataset Registry & Versioned Storage/i)).toBeInTheDocument();
   expect(screen.getByText(/Reference 2024\/25 Baseline/i)).toBeInTheDocument();
   expect(screen.getByText(/Verify Baseline Integrity/i)).toBeInTheDocument();
-  expect(screen.getByText(/Import New Season Dataset/i)).toBeInTheDocument();
+  expect(screen.getByText(/Import & Verify Season Dataset/i)).toBeInTheDocument();
   expect(screen.getByText(/7dbea8fdd43b9cf09eef5a18632953d9079d0f10bd11532da3337d937213e7e0/i)).toBeInTheDocument();
 });

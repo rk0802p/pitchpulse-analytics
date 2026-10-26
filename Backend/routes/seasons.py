@@ -1,5 +1,6 @@
 import os
 import tempfile
+import urllib.request
 from flask import Blueprint, request, jsonify
 from services.season_service import season_service
 from services.data_loader import data_loader
@@ -55,16 +56,23 @@ def verify_baseline():
     except Exception as e:
         return error_response(f"Verification error: {str(e)}", status_code=500)
 
+@seasons_bp.route('/seasons/presets', methods=['GET'])
+def get_presets():
+    """Returns verified online dataset presets for one-click downloading and testing."""
+    presets = season_service.get_download_presets()
+    return success_response(presets)
+
 @seasons_bp.route('/seasons/import', methods=['POST'])
 def import_season_file():
     """
     Imports or validates a season dataset (.xlsx, .xls, .csv).
-    Accepts multipart/form-data with 'file', or JSON with 'file_path'.
+    Accepts multipart/form-data with 'file', JSON with 'file_path' or 'url'.
     """
     dry_run = request.form.get('dry_run', '').lower() in ['true', '1']
     allow_unknown = request.form.get('allow_unknown', '').lower() in ['true', '1']
     season = request.form.get('season')
     source = request.form.get('source') or "FBref / StatsBomb style player-level aggregates"
+    url = request.form.get('url')
     file_path = None
 
     if request.is_json:
@@ -73,6 +81,7 @@ def import_season_file():
         allow_unknown = data.get('allow_unknown', False)
         season = data.get('season', season)
         source = data.get('source', source)
+        url = data.get('url', url)
         file_path = data.get('file_path')
 
     uploaded_file = request.files.get('file')
@@ -88,10 +97,25 @@ def import_season_file():
             os.close(fd)
             uploaded_file.save(temp_target)
             source_file = temp_target
+        elif url and url.startswith(('http://', 'https://')):
+            ext = '.xlsx' if '.xlsx' in url.lower() else '.csv'
+            fd, temp_target = tempfile.mkstemp(suffix=ext)
+            os.close(fd)
+            req = urllib.request.Request(
+                url,
+                headers={'User-Agent': 'Mozilla/5.0 PitchPulse/1.0 (Dataset Importer)'}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    with open(temp_target, 'wb') as f:
+                        f.write(resp.read())
+            except Exception as e:
+                return error_response(f"Failed to download dataset from URL: {str(e)}", status_code=400)
+            source_file = temp_target
         elif file_path and os.path.exists(file_path):
             source_file = file_path
         else:
-            return error_response("No file uploaded or file_path provided.", status_code=400)
+            return error_response("No file uploaded, URL provided, or file_path found.", status_code=400)
 
         if not season:
             return error_response("Missing required parameter 'season' (e.g. '2025-2026').", status_code=400)

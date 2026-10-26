@@ -77,6 +77,7 @@ export const api = {
     body: JSON.stringify({ season })
   }),
   getSeasonDetails: (id) => request(`/seasons/${encodeURIComponent(id)}`),
+  getSeasonPresets: () => request('/seasons/presets'),
   verifyBaseline: () => request('/seasons/baseline/verify'),
   importSeason: (formDataOrData) => {
     const isForm = typeof FormData !== 'undefined' && formDataOrData instanceof FormData;

@@ -95,6 +95,13 @@ COLUMN_ALIASES = {
 
 VALID_POSITIONS = {'GK', 'DF', 'MF', 'FW', 'DF,MF', 'MF,DF', 'MF,FW', 'FW,MF', 'DF,FW', 'FW,DF'}
 
+# Columns that can be deterministically auto-computed if missing from raw files
+DERIVABLE_COLUMNS = {
+    'Rk', '90s', 'G+A', 'G-PK', 'npxG+xAG',
+    'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90',
+    'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90'
+}
+
 class DatasetValidationError(Exception):
     """Raised when an incoming dataset fails schema or data integrity validation."""
     def __init__(self, message, errors=None):
@@ -189,11 +196,12 @@ class DatasetImporter:
 
         normalized_cols = set(cleaned_col_map.values())
 
-        # 3. Check for missing required canonical columns
+        # 3. Check for missing required canonical columns (excluding auto-derivable fields)
         missing_required = []
         for col, meta in CANONICAL_SCHEMA.items():
             if meta['required'] and col not in normalized_cols:
-                missing_required.append(col)
+                if col not in DERIVABLE_COLUMNS:
+                    missing_required.append(col)
 
         if missing_required:
             errors.append(f"Missing {len(missing_required)} required columns: {sorted(missing_required)}")
@@ -308,6 +316,14 @@ class DatasetImporter:
         if '90s' not in ndf.columns or (ndf['90s'] == 0).all():
             ndf['90s'] = (ndf['Min'] / 90.0).round(1)
 
+        # Auto-compute compound counters if missing
+        if 'G+A' not in ndf.columns:
+            ndf['G+A'] = ndf['Gls'] + ndf['Ast']
+        if 'G-PK' not in ndf.columns:
+            ndf['G-PK'] = ndf['Gls'] - ndf['PK']
+        if 'npxG+xAG' not in ndf.columns:
+            ndf['npxG+xAG'] = (ndf['npxG'] + ndf['xAG']).round(2)
+
         # Auto-compute per-90 rates if missing or incomplete
         nineties = ndf['90s'].apply(lambda x: x if x > 0 else 1.0)
         has_minutes = ndf['90s'] > 0
@@ -399,6 +415,18 @@ class DatasetImporter:
             'progressive_carries': int(norm_df['PrgC'].sum())
         }
 
+        top_scorers_preview = norm_df.sort_values(by=['Gls', 'Min'], ascending=[False, True]).head(5)[
+            ['Player', 'Squad', 'Comp', 'Pos', 'Gls', 'Ast', 'xG']
+        ].to_dict('records')
+        top_creators_preview = norm_df.sort_values(by=['Ast', 'Min'], ascending=[False, True]).head(5)[
+            ['Player', 'Squad', 'Comp', 'Pos', 'Ast', 'Gls', 'xAG']
+        ].to_dict('records')
+
+        preview = {
+            'top_scorers': top_scorers_preview,
+            'top_creators': top_creators_preview
+        }
+
         manifest = {
             'season': season,
             'source': source_name or "FBref / StatsBomb style player-level aggregates",
@@ -411,6 +439,7 @@ class DatasetImporter:
             'clubs_count': int(norm_df['Squad'].nunique()),
             'competitions': {str(k): int(v) for k, v in norm_df['Comp'].value_counts().items()},
             'totals': summary_totals,
+            'preview': preview,
             'files': {
                 'excel': excel_filename,
                 'csv': csv_filename
@@ -440,6 +469,7 @@ class DatasetImporter:
             'columns_count': len(norm_df.columns),
             'competitions': manifest['competitions'],
             'totals': summary_totals,
+            'preview': preview,
             'manifest': manifest,
             'warnings': validation['warnings']
         }

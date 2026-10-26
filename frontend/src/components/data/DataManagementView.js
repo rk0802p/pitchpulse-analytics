@@ -14,7 +14,10 @@ import {
   ChevronUp, 
   Lock,
   ArrowRight,
-  FileCheck
+  FileCheck,
+  Globe,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -33,8 +36,12 @@ export const DataManagementView = ({
   const [copiedHash, setCopiedHash] = useState(false);
 
   // Import form state
-  const [importSeasonId, setImportSeasonId] = useState('');
-  const [importSource, setImportSource] = useState('FBref / StatsBomb style player-level aggregates');
+  const [importMode, setImportMode] = useState('preset'); // 'preset', 'url', 'file'
+  const [presets, setPresets] = useState([]);
+  const [selectedPreset, setSelectedPreset] = useState('top5-2023-2024');
+  const [importUrl, setImportUrl] = useState('https://raw.githubusercontent.com/JSzamik/FootballDataAnalysis-R-Visualisations/main/top5-players.csv');
+  const [importSeasonId, setImportSeasonId] = useState('2023-2024');
+  const [importSource, setImportSource] = useState('FBref / StatsBomb (JSzamik 2023-24 archive)');
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDryRun, setIsDryRun] = useState(true);
   const [allowUnknown, setAllowUnknown] = useState(false);
@@ -59,7 +66,33 @@ export const DataManagementView = ({
 
   useEffect(() => {
     fetchSeasons();
+    if (api.getSeasonPresets) {
+      api.getSeasonPresets().then(res => {
+        if (res?.success && Array.isArray(res.data)) {
+          setPresets(res.data);
+          if (res.data.length > 0) {
+            setSelectedPreset(res.data[0].id);
+            setImportUrl(res.data[0].url);
+            setImportSeasonId(res.data[0].season);
+            setImportSource(res.data[0].source);
+          }
+        }
+      }).catch(() => {});
+    }
   }, [fetchSeasons]);
+
+  const handlePresetSelect = (presetId) => {
+    setSelectedPreset(presetId);
+    if (presetId === 'custom') {
+      return;
+    }
+    const found = presets.find(p => p.id === presetId);
+    if (found) {
+      setImportUrl(found.url);
+      setImportSeasonId(found.season);
+      setImportSource(found.source);
+    }
+  };
 
   // Run on-demand baseline verification
   const handleVerifyBaseline = async () => {
@@ -131,13 +164,17 @@ export const DataManagementView = ({
 
   // Handle import execution
   const handleImportSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedFile) {
+    if (e) e.preventDefault();
+    if (importMode === 'file' && !selectedFile) {
       alert("Please select a file to import (.xlsx, .xls, or .csv).");
       return;
     }
+    if ((importMode === 'url' || importMode === 'preset') && !importUrl.trim()) {
+      alert("Please provide a valid download URL.");
+      return;
+    }
     if (!importSeasonId.trim()) {
-      alert("Please enter a season identifier (e.g. 2025-2026).");
+      alert("Please enter a season identifier (e.g. 2023-2024).");
       return;
     }
 
@@ -145,15 +182,27 @@ export const DataManagementView = ({
     setImportResult(null);
     setImportError(null);
 
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('season', importSeasonId.trim());
-    formData.append('source', importSource.trim());
-    formData.append('dry_run', isDryRun ? 'true' : 'false');
-    formData.append('allow_unknown', allowUnknown ? 'true' : 'false');
+    let payload;
+    if (importMode === 'file') {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('season', importSeasonId.trim());
+      formData.append('source', importSource.trim());
+      formData.append('dry_run', isDryRun ? 'true' : 'false');
+      formData.append('allow_unknown', allowUnknown ? 'true' : 'false');
+      payload = formData;
+    } else {
+      payload = {
+        url: importUrl.trim(),
+        season: importSeasonId.trim(),
+        source: importSource.trim(),
+        dry_run: isDryRun,
+        allow_unknown: allowUnknown
+      };
+    }
 
     try {
-      const res = await api.importSeason(formData);
+      const res = await api.importSeason(payload);
       if (res?.success) {
         setImportResult(res.data);
         if (!isDryRun) {
@@ -162,6 +211,46 @@ export const DataManagementView = ({
         }
       } else {
         setImportError(res?.error || "Import validation failed");
+      }
+    } catch (err) {
+      setImportError(err.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // Commit & register dataset after successful dry-run
+  const handleCommitAfterDryRun = async () => {
+    setImporting(true);
+    setImportError(null);
+    let payload;
+    if (importMode === 'file') {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('season', importSeasonId.trim());
+      formData.append('source', importSource.trim());
+      formData.append('dry_run', 'false');
+      formData.append('allow_unknown', allowUnknown ? 'true' : 'false');
+      payload = formData;
+    } else {
+      payload = {
+        url: importUrl.trim(),
+        season: importSeasonId.trim(),
+        source: importSource.trim(),
+        dry_run: false,
+        allow_unknown: allowUnknown
+      };
+    }
+
+    try {
+      const res = await api.importSeason(payload);
+      if (res?.success) {
+        setImportResult(res.data);
+        fetchSeasons();
+        setSelectedFile(null);
+        setIsDryRun(true);
+      } else {
+        setImportError(res?.error || "Commit failed");
       }
     } catch (err) {
       setImportError(err.message);
@@ -391,21 +480,145 @@ export const DataManagementView = ({
         )}
       </div>
 
-      {/* SECTION 3: Interactive Import & Ingestion Workspace */}
+      {/* SECTION 3: Interactive Ingestion & Verification Workspace */}
       <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <Upload className="w-4 h-4" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <Download className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Import & Verify Season Dataset</h2>
+              <p className="text-xs text-slate-400 font-mono">
+                Download verified online datasets or upload your own files to inspect and persist into versioned storage.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">Import New Season Dataset</h2>
-            <p className="text-xs text-slate-400 font-mono">
-              Upload a downloadable season dataset (.xlsx or .csv) to validate schema and persist into versioned storage.
-            </p>
+
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center gap-1 bg-pitch-surface p-1 rounded-lg border border-pitch-border">
+            <button
+              type="button"
+              onClick={() => setImportMode('preset')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                importMode === 'preset'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>Web Preset / URL</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setImportMode('file')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                importMode === 'file'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Upload File</span>
+            </button>
           </div>
         </div>
 
         <form onSubmit={handleImportSubmit} className="space-y-4">
+          {/* Web Preset / URL Mode Controls */}
+          {importMode === 'preset' ? (
+            <div className="space-y-4 p-4 rounded-xl bg-pitch-surface/60 border border-pitch-border/70">
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1.5 font-semibold">
+                  Select Verified Dataset Preset or Custom URL
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div
+                    onClick={() => handlePresetSelect('top5-2023-2024')}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedPreset === 'top5-2023-2024'
+                        ? 'bg-emerald-500/10 border-emerald-500/50 text-white'
+                        : 'bg-pitch-surface border-pitch-border text-slate-400 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-emerald-400">Top 5 European Leagues 2023/24</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Preset</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300">
+                      2,852 player rows across Premier League, La Liga, Serie A, Bundesliga & Ligue 1.
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => handlePresetSelect('custom')}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedPreset === 'custom'
+                        ? 'bg-emerald-500/10 border-emerald-500/50 text-white'
+                        : 'bg-pitch-surface border-pitch-border text-slate-400 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-slate-200">Custom Dataset URL</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">Custom</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Paste any direct raw CSV or Excel URL from GitHub, Hugging Face, or Kaggle.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                  Direct Download URL <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://.../dataset.csv"
+                  value={importUrl}
+                  onChange={(e) => {
+                    setImportUrl(e.target.value);
+                    setSelectedPreset('custom');
+                  }}
+                  required={importMode === 'preset'}
+                  className="w-full px-3.5 py-2 bg-pitch-surface border border-pitch-border rounded-lg text-xs text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-emerald-500/60"
+                />
+              </div>
+            </div>
+          ) : (
+            /* File Upload Mode Controls */
+            <div>
+              <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                Select Dataset File (.xlsx, .xls, .csv) <span className="text-rose-400">*</span>
+              </label>
+              <div className="border-2 border-dashed border-pitch-border hover:border-emerald-500/40 rounded-xl p-6 text-center bg-pitch-surface/40 cursor-pointer transition-colors">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={(e) => setSelectedFile(e.target.files[0] || null)}
+                  className="hidden"
+                  id="season-file-input"
+                />
+                <label htmlFor="season-file-input" className="cursor-pointer flex flex-col items-center">
+                  <FileSpreadsheet className="w-10 h-10 text-slate-400 mb-2" />
+                  {selectedFile ? (
+                    <div className="space-y-1">
+                      <span className="font-semibold text-emerald-400 text-sm">{selectedFile.name}</span>
+                      <p className="text-xs text-slate-500 font-mono">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="text-sm font-semibold text-slate-200">Click to choose a dataset file</span>
+                      <p className="text-xs text-slate-400 mt-0.5">Supports Big 5 European Leagues Excel or CSV workbooks</p>
+                    </div>
+                  )}
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Common Season ID & Attribution Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono text-slate-300 mb-1.5">
@@ -413,7 +626,7 @@ export const DataManagementView = ({
               </label>
               <input
                 type="text"
-                placeholder="e.g. 2025-2026, 2026-2027"
+                placeholder="e.g. 2023-2024, 2025-2026"
                 value={importSeasonId}
                 onChange={(e) => setImportSeasonId(e.target.value)}
                 required
@@ -434,36 +647,6 @@ export const DataManagementView = ({
             </div>
           </div>
 
-          {/* File Selector */}
-          <div>
-            <label className="block text-xs font-mono text-slate-300 mb-1.5">
-              Select Dataset File (.xlsx, .xls, .csv) <span className="text-rose-400">*</span>
-            </label>
-            <div className="border-2 border-dashed border-pitch-border hover:border-emerald-500/40 rounded-xl p-6 text-center bg-pitch-surface/40 cursor-pointer transition-colors">
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={(e) => setSelectedFile(e.target.files[0] || null)}
-                className="hidden"
-                id="season-file-input"
-              />
-              <label htmlFor="season-file-input" className="cursor-pointer flex flex-col items-center">
-                <FileSpreadsheet className="w-10 h-10 text-slate-400 mb-2" />
-                {selectedFile ? (
-                  <div className="space-y-1">
-                    <span className="font-semibold text-emerald-400 text-sm">{selectedFile.name}</span>
-                    <p className="text-xs text-slate-500 font-mono">{(selectedFile.size / 1024).toFixed(1)} KB</p>
-                  </div>
-                ) : (
-                  <div>
-                    <span className="text-sm font-semibold text-slate-200">Click to choose a dataset</span>
-                    <p className="text-xs text-slate-400 mt-0.5">Supports Big 5 European Leagues Excel or CSV workbooks</p>
-                  </div>
-                )}
-              </label>
-            </div>
-          </div>
-
           {/* Toggles */}
           <div className="flex flex-wrap items-center gap-6 pt-2">
             <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
@@ -473,7 +656,7 @@ export const DataManagementView = ({
                 onChange={(e) => setIsDryRun(e.target.checked)}
                 className="rounded bg-pitch-surface border-pitch-border text-emerald-500 focus:ring-0"
               />
-              <span>Dry-Run Mode (Validate schema without writing to storage)</span>
+              <span>Dry-Run Mode (Validate schema & preview stats without persisting)</span>
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
@@ -491,18 +674,18 @@ export const DataManagementView = ({
           <div className="pt-2">
             <button
               type="submit"
-              disabled={importing || !selectedFile}
+              disabled={importing || (importMode === 'file' && !selectedFile) || (importMode === 'preset' && !importUrl)}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
             >
               {importing ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Validating & Processing...</span>
+                  <span>Downloading & Validating...</span>
                 </>
               ) : (
                 <>
                   <FileCheck className="w-4 h-4" />
-                  <span>{isDryRun ? 'Run Schema Validation (Dry-Run)' : 'Publish Season Dataset'}</span>
+                  <span>{isDryRun ? 'Download & Verify Dataset (Dry-Run)' : 'Publish Season Dataset'}</span>
                 </>
               )}
             </button>
@@ -521,28 +704,29 @@ export const DataManagementView = ({
         )}
 
         {importResult && (
-          <div className="mt-6 p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 space-y-3">
+          <div className="mt-6 p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                 <span>
                   {importResult.dry_run 
-                    ? `Dry-Run Validation Succeeded for ${importResult.season}` 
-                    : `Season ${importResult.season} Successfully Imported!`}
+                    ? `Verification Succeeded for Season ${importResult.season}` 
+                    : `Season ${importResult.season} Successfully Registered!`}
                 </span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 uppercase">
-                {importResult.dry_run ? 'Dry Run' : 'Published'}
+                {importResult.dry_run ? 'Dry-Run Validated' : 'Published Live'}
               </span>
             </div>
 
+            {/* Invariant & Stats Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono bg-pitch-surface/60 p-3 rounded-lg border border-pitch-border/50 text-slate-200">
               <div>
                 <span className="text-slate-500 text-[10px] block">VALID ROWS</span>
                 <span className="font-bold">{importResult.records_count?.toLocaleString()}</span>
               </div>
               <div>
-                <span className="text-slate-500 text-[10px] block">COLUMNS</span>
+                <span className="text-slate-500 text-[10px] block">CANONICAL COLS</span>
                 <span className="font-bold">{importResult.columns_count} / 37</span>
               </div>
               <div>
@@ -554,6 +738,57 @@ export const DataManagementView = ({
                 <span className="font-bold text-cyan-400">{importResult.totals?.assists?.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Top Goalscorers Preview */}
+            {importResult.preview?.top_scorers && importResult.preview.top_scorers.length > 0 && (
+              <div className="p-3 bg-pitch-surface/80 rounded-lg border border-pitch-border/60">
+                <span className="text-[11px] font-mono text-slate-400 block mb-2 font-semibold">
+                  ★ Top Goalscorers in Candidate Dataset
+                </span>
+                <div className="space-y-1.5">
+                  {importResult.preview.top_scorers.map((p, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs font-mono text-slate-200">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500 w-4">{i + 1}.</span>
+                        <span className="font-semibold text-white">{p.Player}</span>
+                        <span className="text-[11px] text-slate-400">({p.Squad}, {p.Comp})</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-emerald-400 font-bold">{p.Gls} Goals</span>
+                        <span className="text-slate-400 text-[11px]">xG: {p.xG}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Commit Button (if in Dry-Run mode) */}
+            {importResult.dry_run && (
+              <div className="pt-2 flex items-center justify-between border-t border-emerald-500/20">
+                <span className="text-xs text-slate-300 font-mono">
+                  All 37 canonical metrics verified. Ready to register into versioned storage?
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCommitAfterDryRun}
+                  disabled={importing}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
+                >
+                  {importing ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Ingesting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Commit & Register Season ({importResult.season})</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             {importResult.warnings && importResult.warnings.length > 0 && (
               <div className="text-[11px] text-amber-300/90 font-mono space-y-0.5 pt-1">

@@ -134,5 +134,16 @@ class TestSeasonStorage(unittest.TestCase):
         csv_24 = os.path.join(self.seasons_dir, '2024-2025', 'top5-players24-25.csv')
         self.assertTrue(os.path.exists(csv_24))
 
+    def test_08_get_presets_endpoint(self):
+        """GET /api/seasons/presets returns verified presets for data download."""
+        res = self.client.get('/api/seasons/presets')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        presets = data['data']
+        self.assertGreaterEqual(len(presets), 1)
+        self.assertEqual(presets[0]['id'], 'top5-2023-2024')
+        self.assertTrue(presets[0]['url'].startswith('https://'))
+
 if __name__ == '__main__':
     unittest.main()

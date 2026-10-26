@@ -20,6 +20,8 @@ import os
 import sys
 import argparse
 import json
+import tempfile
+import urllib.request
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -70,6 +72,17 @@ def main():
         help="Path to source Excel (.xlsx, .xls) or CSV (.csv) dataset."
     )
     parser.add_argument(
+        '--url', '-u',
+        type=str,
+        help="Direct URL to candidate dataset (.csv or .xlsx) from GitHub/HuggingFace/open web."
+    )
+    parser.add_argument(
+        '--preset',
+        type=str,
+        choices=['sample-2023-2024'],
+        help="Verified sample dataset preset (e.g. sample-2023-2024 for 2023/24 Top 5 Leagues)."
+    )
+    parser.add_argument(
         '--season', '-s',
         type=str,
         default=None,
@@ -114,70 +127,91 @@ def main():
     if args.verify_baseline:
         return handle_verify_baseline()
 
-    if not args.file:
+    temp_target = None
+    if args.preset == 'sample-2023-2024':
+        args.url = 'https://raw.githubusercontent.com/JSzamik/FootballDataAnalysis-R-Visualisations/main/top5-players.csv'
+        if not args.season:
+            args.season = '2023-2024'
+        if not args.source:
+            args.source = 'FBref / StatsBomb (JSzamik 2023-24 archive)'
+
+    if args.url:
+        print(f"\n[DOWNLOAD] Fetching candidate dataset from: {args.url}")
+        ext = '.xlsx' if '.xlsx' in args.url.lower() else '.csv'
+        fd, temp_target = tempfile.mkstemp(suffix=ext)
+        os.close(fd)
+        req = urllib.request.Request(args.url, headers={'User-Agent': 'Mozilla/5.0 PitchPulse/1.0'})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = resp.read()
+                with open(temp_target, 'wb') as f:
+                    f.write(data)
+            file_path = temp_target
+            print(f"  ✓ Download completed: {len(data):,} bytes received.")
+        except Exception as e:
+            print(f"\n[ERROR] Failed to download URL: {e}", file=sys.stderr)
+            if temp_target and os.path.exists(temp_target):
+                os.remove(temp_target)
+            return 1
+    elif args.file:
+        file_path = os.path.abspath(args.file)
+        if not os.path.exists(file_path):
+            print(f"\n[ERROR] File not found: {file_path}", file=sys.stderr)
+            return 1
+    else:
         parser.print_help()
-        print("\n[ERROR] Either --file <path> or --verify-baseline must be specified.", file=sys.stderr)
+        print("\n[ERROR] One of --file <path>, --url <url>, --preset <name>, or --verify-baseline must be specified.", file=sys.stderr)
         return 1
 
-    file_path = os.path.abspath(args.file)
-    if not os.path.exists(file_path):
-        print(f"\n[ERROR] File not found: {file_path}", file=sys.stderr)
-        return 1
-
-    importer = DatasetImporter(
-        strict=not args.allow_unknown,
-        allow_unknown=args.allow_unknown
-    )
-
-    print(f"\n[1/3] Inspecting Source File: {os.path.basename(file_path)}")
     try:
+        importer = DatasetImporter(
+            strict=not args.allow_unknown,
+            allow_unknown=args.allow_unknown
+        )
+
+        print(f"\n[1/3] Inspecting Source File: {os.path.basename(file_path)}")
         inspection = importer.inspect_file(file_path)
         print(f"  ✓ Format: {os.path.splitext(file_path)[1].upper()}")
         print(f"  ✓ Rows: {inspection['rows']:,} | Columns: {inspection['column_count']}")
-    except Exception as e:
-        print(f"  ✗ Failed to read file: {e}", file=sys.stderr)
-        return 1
 
-    print("\n[2/3] Validating Schema & Metrics...")
-    df = importer.read_file(file_path)
-    val = importer.validate_dataframe(df)
+        print("\n[2/3] Validating Schema & Metrics...")
+        df = importer.read_file(file_path)
+        val = importer.validate_dataframe(df)
 
-    if val['mapped_columns']:
-        print("  ℹ Header Aliases Normalized:")
-        for src, target in val['mapped_columns'].items():
-            print(f"      - '{src}' -> '{target}'")
+        if val['mapped_columns']:
+            print("  ℹ Header Aliases Normalized:")
+            for src, target in val['mapped_columns'].items():
+                print(f"      - '{src}' -> '{target}'")
 
-    if val['warnings']:
-        print("  ⚠ Warnings:")
-        for w in val['warnings']:
-            print(f"      - {w}")
+        if val['warnings']:
+            print("  ⚠ Warnings:")
+            for w in val['warnings']:
+                print(f"      - {w}")
 
-    if not val['is_valid']:
-        print("\n  ✗ VALIDATION FAILED! The file does not conform to the canonical PitchPulse schema:")
-        for err in val['errors']:
-            print(f"      • {err}")
-        print("\nImport rejected to prevent dataset corruption.", file=sys.stderr)
-        return 1
+        if not val['is_valid']:
+            print("\n  ✗ VALIDATION FAILED! The file does not conform to the canonical PitchPulse schema:")
+            for err in val['errors']:
+                print(f"      • {err}")
+            print("\nImport rejected to prevent dataset corruption.", file=sys.stderr)
+            return 1
 
-    print("  ✓ Schema validation passed: All 37 canonical metrics present and valid.")
-    stats = val['stats']
-    print(f"  ✓ Valid Records: {stats['total_records']:,} | Squads: {stats['total_squads']}")
-    print("  ✓ Competitions:")
-    for comp, count in stats['competitions'].items():
-        print(f"      - {comp}: {count} players")
+        print("  ✓ Schema validation passed: All 37 canonical metrics present and valid.")
+        stats = val['stats']
+        print(f"  ✓ Valid Records: {stats['total_records']:,} | Squads: {stats['total_squads']}")
+        print("  ✓ Competitions:")
+        for comp, count in stats['competitions'].items():
+            print(f"      - {comp}: {count} players")
 
-    if args.validate_only:
-        print("\nValidation completed successfully (--validate-only). No files imported.")
-        return 0
+        if args.validate_only:
+            print("\nValidation completed successfully (--validate-only). No files imported.")
+            return 0
 
-    season = args.season
-    if not season:
-        # Prompt or infer season
-        season = "2024-2025"
-        print(f"  ℹ No --season provided. Defaulting to '{season}'.")
+        season = args.season
+        if not season:
+            season = "2024-2025"
+            print(f"  ℹ No --season provided. Defaulting to '{season}'.")
 
-    print(f"\n[3/3] Importing Season '{season}' (dry_run={args.dry_run})...")
-    try:
+        print(f"\n[3/3] Importing Season '{season}' (dry_run={args.dry_run})...")
         res = importer.import_file(
             file_path=file_path,
             season=season,
@@ -188,6 +222,11 @@ def main():
         print(f"  ✓ Normalization: Complete ({res['records_count']:,} records)")
         print(f"  ✓ Total Goals: {res['totals']['goals']:,} | Assists: {res['totals']['assists']:,}")
         print(f"  ✓ Total xG: {res['totals']['xg']:,} | xAG: {res['totals']['xag']:,}")
+
+        if res.get('preview') and res['preview'].get('top_scorers'):
+            print("\n  ★ Top 5 Goalscorers in Dataset:")
+            for idx, p in enumerate(res['preview']['top_scorers'], 1):
+                print(f"      {idx}. {p['Player']} ({p['Squad']}, {p['Comp']}) - {p['Gls']} Goals | {p['Ast']} Ast | xG: {p['xG']}")
 
         if args.dry_run:
             print("\nDry-run completed successfully. No files written to disk.")
@@ -207,6 +246,12 @@ def main():
     except Exception as e:
         print(f"\n[ERROR] Unexpected error during import:\n{e}", file=sys.stderr)
         return 1
+    finally:
+        if temp_target and os.path.exists(temp_target):
+            try:
+                os.remove(temp_target)
+            except Exception:
+                pass
 
 if __name__ == '__main__':
     sys.exit(main())

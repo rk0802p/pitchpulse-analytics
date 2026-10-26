@@ -137,4 +137,19 @@ class SeasonService:
 
         return None
 
+    def get_download_presets(self):
+        """Returns verified online dataset presets for one-click download & testing."""
+        return [
+            {
+                'id': 'top5-2023-2024',
+                'season': '2023-2024',
+                'title': 'Top 5 European Leagues 2023/24',
+                'description': 'Complete player season stats across Premier League, La Liga, Serie A, Bundesliga, and Ligue 1.',
+                'url': 'https://raw.githubusercontent.com/JSzamik/FootballDataAnalysis-R-Visualisations/main/top5-players.csv',
+                'source': 'FBref / StatsBomb (JSzamik archive)',
+                'records_approx': 2852,
+                'format': 'csv'
+            }
+        ]
+
 season_service = SeasonService()
