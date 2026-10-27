@@ -252,6 +252,37 @@ Creates an optimized, production bundle (`build/`) with zero warnings or errors.
 
 ---
 
+## 🚀 Vercel Deployment Guide
+
+PitchPulse Analytics is structured for seamless production deployment on **Vercel** as a decoupled frontend static SPA and serverless Python API.
+
+### 1. Frontend Deployment (React SPA)
+- **Vercel Project Root Directory**: `frontend`
+- **Framework Preset**: Create React App
+- **Build Command**: `npm run build` (configured with `cross-env CI=false react-scripts build`)
+- **Output Directory**: `build`
+- **Node Version**: `>=18.x` (enforced via `package.json` engines)
+- **Environment Variables**:
+  - `REACT_APP_API_URL`: URL of your deployed Python API (e.g. `https://sports-analytics-backend.vercel.app/api`).
+- **SPA Routing & Caching**: Handled automatically via `frontend/vercel.json`:
+  - `rewrites`: Maps `/(.*)` to `/index.html` to eliminate 404 errors on browser page reloads.
+  - `headers`: Long-term immutable caching for `/static/(.*)` assets and HTTP security headers (`nosniff`, `DENY` frames, XSS protection).
+
+### 2. Backend Deployment (Python Serverless Function)
+- **Vercel Project Root Directory**: `Backend`
+- **Framework Preset**: Other
+- **Runtime**: `@vercel/python` (Python 3.11)
+- **File Bundling**: Configured in `Backend/vercel.json` with `includeFiles` to ensure all multi-season dataset CSVs, XLSXs, and JSON baseline manifests are packaged into the serverless container:
+  ```json
+  "includeFiles": [
+    "data/**",
+    "top5-players24-25.xlsx"
+  ]
+  ```
+- **Read-Only Serverless Safety**: The dataset ingestion engine automatically detects read-only serverless filesystems, preventing runtime crashes while allowing full dry-run validation.
+
+---
+
 ## 📁 Repository Directory Structure
 
 ```text

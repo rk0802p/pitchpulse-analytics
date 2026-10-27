@@ -449,17 +449,34 @@ class DatasetImporter:
         }
 
         if not dry_run:
-            os.makedirs(season_dir, exist_ok=True)
-            if output_format in ['excel', 'both']:
-                norm_df.to_excel(excel_path, index=False)
-                logger.info(f"Saved Excel dataset to: {excel_path}")
-            if output_format in ['csv', 'both']:
-                norm_df.to_csv(csv_path, index=False, encoding='utf-8')
-                logger.info(f"Saved CSV dataset to: {csv_path}")
+            try:
+                os.makedirs(season_dir, exist_ok=True)
+                if output_format in ['excel', 'both']:
+                    norm_df.to_excel(excel_path, index=False)
+                    logger.info(f"Saved Excel dataset to: {excel_path}")
+                if output_format in ['csv', 'both']:
+                    norm_df.to_csv(csv_path, index=False, encoding='utf-8')
+                    logger.info(f"Saved CSV dataset to: {csv_path}")
 
-            with open(manifest_path, 'w', encoding='utf-8') as f:
-                json.dump(manifest, f, indent=2)
-            logger.info(f"Saved season manifest to: {manifest_path}")
+                with open(manifest_path, 'w', encoding='utf-8') as f:
+                    json.dump(manifest, f, indent=2)
+                logger.info(f"Saved season manifest to: {manifest_path}")
+            except OSError as e:
+                logger.warning(f"Storage filesystem is read-only ({e}). Import validated in memory.")
+                return {
+                    'status': 'success',
+                    'dry_run': True,
+                    'read_only_environment': True,
+                    'message': 'Dataset successfully validated! Note: On serverless environments (Vercel/Lambda), the file system is read-only. To persist new seasons, add them to data/seasons/ in Git.',
+                    'season': season,
+                    'records_count': len(norm_df),
+                    'columns_count': len(norm_df.columns),
+                    'competitions': manifest['competitions'],
+                    'totals': summary_totals,
+                    'preview': preview,
+                    'manifest': manifest,
+                    'warnings': validation['warnings'] + ['Serverless filesystem is read-only; persistent disk write was skipped.']
+                }
 
         return {
             'status': 'success',

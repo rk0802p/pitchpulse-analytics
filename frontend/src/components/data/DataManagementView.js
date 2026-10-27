@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Database, 
-  Shield, 
   CheckCircle2, 
   AlertTriangle, 
-  Upload, 
   FileSpreadsheet, 
   RefreshCw, 
   Layers, 
@@ -13,11 +11,9 @@ import {
   ChevronDown, 
   ChevronUp, 
   Lock,
-  ArrowRight,
   FileCheck,
   Globe,
-  Download,
-  ExternalLink
+  Download
 } from 'lucide-react';
 import api from '../../services/api';
 
