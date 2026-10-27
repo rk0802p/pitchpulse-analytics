@@ -51,8 +51,8 @@ function App() {
   });
 
   // Season Management State & Authoritative Sequence Tracking
-  const [activeSeason, setActiveSeason] = useState('2024-2025');
-  const [availableSeasons, setAvailableSeasons] = useState([{ id: '2024-2025', name: '2024/25 Regular Season' }]);
+  const [activeSeason, setActiveSeason] = useState('2025-2026');
+  const [availableSeasons, setAvailableSeasons] = useState([{ id: '2025-2026', name: '2025/26 Historical Season' }]);
   const [isSwitchingSeason, setIsSwitchingSeason] = useState(false);
   const [seasonSwitchError, setSeasonSwitchError] = useState(null);
   const activeSeasonRef = useRef(activeSeason);
@@ -62,12 +62,12 @@ function App() {
   }, [activeSeason]);
 
   const formatSeasonName = useCallback((id) => {
-    if (!id) return '2024/25';
+    if (!id) return '2025/26';
     return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
   }, []);
 
   const formatSeasonShort = useCallback((id) => {
-    if (!id) return '24/25';
+    if (!id) return '25/26';
     const m = id.match(/\d{2}(\d{2})[/-]\d{2}(\d{2})/);
     if (m) return `${m[1]}/${m[2]}`;
     return id;

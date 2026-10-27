@@ -1,0 +1,138 @@
+{
+  "season": "2012-2013",
+  "canonical_id": "2012-2013",
+  "display_name": "2012/13 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2749,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 625,
+    "fr Ligue 1": 562,
+    "es La Liga": 548,
+    "eng Premier League": 536,
+    "de Bundesliga": 478
+  },
+  "totals": {
+    "goals": 4863,
+    "assists": 4127,
+    "minutes": 3598699,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7873,
+    "red_cards": 252,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 46,
+        "Ast": 13,
+        "xG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 34,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Zlatan Ibrahimovi\u0107",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 10,
+        "xG": 0.0
+      },
+      {
+        "Player": "Edinson Cavani",
+        "Squad": "SSC Napoli",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 3,
+        "xG": 0.0
+      },
+      {
+        "Player": "Radamel Falcao",
+        "Squad": "Atl\u00e9tico de Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 1,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Dimitri Payet",
+        "Squad": "LOSC Lille",
+        "Comp": "fr Ligue 1",
+        "Pos": "MF",
+        "Ast": 18,
+        "Gls": 12,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Marek Hamsik",
+        "Squad": "SSC Napoli",
+        "Comp": "it Serie A",
+        "Pos": "MF",
+        "Ast": 17,
+        "Gls": 11,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Juan Mata",
+        "Squad": "Chelsea FC",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 12,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Andr\u00e9s Iniesta",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 3,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Mesut \u00d6zil",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 9,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2012-2013.xlsx",
+    "csv": "top5-players-2012-2013.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2012/13 Completed European Regular Season",
+  "content_hash": "d4204c81814dd04b8907cba7f09608a452f84b1224732eaf64a066953f967e7b",
+  "sha256": "d4204c81814dd04b8907cba7f09608a452f84b1224732eaf64a066953f967e7b",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2012/13 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

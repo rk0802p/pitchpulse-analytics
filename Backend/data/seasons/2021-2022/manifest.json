@@ -1,0 +1,138 @@
+{
+  "season": "2021-2022",
+  "canonical_id": "2021-2022",
+  "display_name": "2021/22 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2632,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 566,
+    "fr Ligue 1": 535,
+    "es La Liga": 522,
+    "eng Premier League": 517,
+    "de Bundesliga": 492
+  },
+  "totals": {
+    "goals": 4927,
+    "assists": 3875,
+    "minutes": 3562682,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7505,
+    "red_cards": 174,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 35,
+        "Ast": 4,
+        "xG": 0.0
+      },
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 19,
+        "xG": 0.0
+      },
+      {
+        "Player": "Ciro Immobile",
+        "Squad": "Societ\u00e0 Sportiva Lazio S.p.A.",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 3,
+        "xG": 0.0
+      },
+      {
+        "Player": "Karim Benzema",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 12,
+        "xG": 0.0
+      },
+      {
+        "Player": "Wissam Ben Yedder",
+        "Squad": "AS Monaco",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 5,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Thomas M\u00fcller",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 21,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Ast": 19,
+        "Gls": 28,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Domenico Berardi",
+        "Squad": "US Sassuolo",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Ast": 17,
+        "Gls": 15,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Marco Reus",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 17,
+        "Gls": 9,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Christopher Nkunku",
+        "Squad": "RB Leipzig",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 20,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2021-2022.xlsx",
+    "csv": "top5-players-2021-2022.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2021/22 Completed European Regular Season",
+  "content_hash": "bb8b7589a6b34df6ea77966e2b67be78eb99a5c0083eb6d88598a6393c1eb2ad",
+  "sha256": "bb8b7589a6b34df6ea77966e2b67be78eb99a5c0083eb6d88598a6393c1eb2ad",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2021/22 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

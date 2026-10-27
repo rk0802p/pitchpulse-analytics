@@ -1,0 +1,138 @@
+{
+  "season": "2013-2014",
+  "canonical_id": "2013-2014",
+  "display_name": "2013/14 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2745,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 610,
+    "eng Premier League": 559,
+    "fr Ligue 1": 556,
+    "es La Liga": 544,
+    "de Bundesliga": 476
+  },
+  "totals": {
+    "goals": 4885,
+    "assists": 4072,
+    "minutes": 3605435,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7506,
+    "red_cards": 208,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Luis Su\u00e1rez",
+        "Squad": "Liverpool FC",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 31,
+        "Ast": 17,
+        "xG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 31,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Diego Costa",
+        "Squad": "Atl\u00e9tico de Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 3,
+        "xG": 0.0
+      },
+      {
+        "Player": "Zlatan Ibrahimovi\u0107",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 15,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "\u00c1ngel Di Mar\u00eda",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 18,
+        "Gls": 4,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Luis Su\u00e1rez",
+        "Squad": "Liverpool FC",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 17,
+        "Gls": 31,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Steven Gerrard",
+        "Squad": "Liverpool FC",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 15,
+        "Gls": 13,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Zlatan Ibrahimovi\u0107",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 26,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Koke",
+        "Squad": "Atl\u00e9tico de Madrid",
+        "Comp": "es La Liga",
+        "Pos": "MF",
+        "Ast": 14,
+        "Gls": 6,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2013-2014.xlsx",
+    "csv": "top5-players-2013-2014.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2013/14 Completed European Regular Season",
+  "content_hash": "bb3144641920c6303eef07519f3903714f2e4d5b74168c21b363c668be18fc1c",
+  "sha256": "bb3144641920c6303eef07519f3903714f2e4d5b74168c21b363c668be18fc1c",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2013/14 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

@@ -263,7 +263,7 @@ test('renders DataManagementView with baseline status and season registry', asyn
   render(<DataManagementView activeSeason="2024-2025" onSeasonChange={jest.fn()} />);
 
   expect(screen.getByText(/Dataset Registry & Versioned Storage/i)).toBeInTheDocument();
-  expect(screen.getByText(/Reference 2024\/25 Baseline/i)).toBeInTheDocument();
+  expect(screen.getByText(/Dataset Integrity & Invariant Verification/i)).toBeInTheDocument();
   expect(screen.getByText(/Verify Baseline Integrity/i)).toBeInTheDocument();
   expect(screen.getByText(/Import & Verify Season Dataset/i)).toBeInTheDocument();
   await waitFor(() => {
@@ -274,9 +274,9 @@ test('renders DataManagementView with baseline status and season registry', asyn
 test('renders AppLayout season selector with badges and opens options on mobile pill click', async () => {
   const mockOnSelectSeason = jest.fn();
   const sampleSeasons = [
-    { id: '2023-2024', name: '2023/24 Historical Season', is_baseline: false, dataset_status: 'verified_historical' },
-    { id: '2024-2025', name: '2024/25 Regular Season', is_baseline: true, dataset_status: 'verified_historical' },
-    { id: '2025-2026', name: '2025/26 Algorithmic Projection', is_projection: true, dataset_status: 'projection' }
+    { id: '2023-2024', name: '2023/24 Historical Season', status_label: 'Historical Season', dataset_status: 'verified_historical' },
+    { id: '2024-2025', name: '2024/25 Historical Season', status_label: 'Historical Season', dataset_status: 'verified_historical' },
+    { id: '2025-2026', name: '2025/26 Completed Season', status_label: 'Completed Season', dataset_status: 'verified_historical' }
   ];
 
   render(
@@ -296,9 +296,8 @@ test('renders AppLayout season selector with badges and opens options on mobile 
   // Clicking mobile pill opens modal
   fireEvent.click(mobilePill);
   expect(screen.getByText(/Select Season/i)).toBeInTheDocument();
-  expect(screen.getAllByText(/Baseline/i).length).toBeGreaterThan(0);
-  expect(screen.getAllByText(/Projection/i).length).toBeGreaterThan(0);
-  expect(screen.getAllByText(/Historical/i).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Historical Season/i).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Completed Season/i).length).toBeGreaterThan(0);
 
   // Click a season option from matching list
   const historicalOptions = screen.getAllByRole('option', { name: /2023\/24 Historical Season/i });

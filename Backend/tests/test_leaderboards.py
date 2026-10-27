@@ -64,7 +64,7 @@ class TestLeaderboardsEndpoints(unittest.TestCase):
         self.assertEqual(len(leaders['goals']), 10)
 
     def test_dashboard_analytics(self):
-        res = self.client.get('/api/dashboard')
+        res = self.client.get('/api/dashboard?season=2024-2025')
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertTrue(data['success'])
@@ -79,7 +79,7 @@ class TestLeaderboardsEndpoints(unittest.TestCase):
         self.assertEqual(analytics['kpis']['total_clubs'], 96)
 
     def test_dashboard_analytics_filtered(self):
-        res = self.client.get('/api/dashboard?competition=premier-league')
+        res = self.client.get('/api/dashboard?competition=premier-league&season=2024-2025')
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertTrue(data['success'])

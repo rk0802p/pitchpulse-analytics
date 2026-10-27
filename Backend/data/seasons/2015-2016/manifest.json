@@ -1,0 +1,138 @@
+{
+  "season": "2015-2016",
+  "canonical_id": "2015-2016",
+  "display_name": "2015/16 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2770,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "fr Ligue 1": 589,
+    "it Serie A": 584,
+    "eng Premier League": 560,
+    "es La Liga": 545,
+    "de Bundesliga": 492
+  },
+  "totals": {
+    "goals": 4717,
+    "assists": 3683,
+    "minutes": 3603000,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 8098,
+    "red_cards": 204,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Luis Su\u00e1rez",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 40,
+        "Ast": 18,
+        "xG": 0.0
+      },
+      {
+        "Player": "Zlatan Ibrahimovi\u0107",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 38,
+        "Ast": 13,
+        "xG": 0.0
+      },
+      {
+        "Player": "Gonzalo Higua\u00edn",
+        "Squad": "SSC Napoli",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 36,
+        "Ast": 2,
+        "xG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 35,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 5,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Henrikh Mkhitaryan",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 20,
+        "Gls": 11,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Mesut \u00d6zil",
+        "Squad": "Arsenal FC",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 19,
+        "Gls": 6,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Luis Su\u00e1rez",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 18,
+        "Gls": 40,
+        "xAG": 0.0
+      },
+      {
+        "Player": "\u00c1ngel Di Mar\u00eda",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Ast": 18,
+        "Gls": 10,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Neymar",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 24,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2015-2016.xlsx",
+    "csv": "top5-players-2015-2016.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2015/16 Completed European Regular Season",
+  "content_hash": "9b91b9f0b6bc36ed9754280db20675637b6c4a9d4b4da48c9e36bd8581e18df5",
+  "sha256": "9b91b9f0b6bc36ed9754280db20675637b6c4a9d4b4da48c9e36bd8581e18df5",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2015/16 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

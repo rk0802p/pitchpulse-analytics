@@ -10,7 +10,7 @@ class TestPlayersEndpoints(unittest.TestCase):
         self.client = app.test_client()
 
     def test_get_players_paginated_default(self):
-        res = self.client.get('/api/players')
+        res = self.client.get('/api/players?season=2024-2025')
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertTrue(data['success'])

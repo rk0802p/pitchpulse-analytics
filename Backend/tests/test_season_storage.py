@@ -63,7 +63,7 @@ class TestSeasonStorage(unittest.TestCase):
 
         # Baseline season check
         b24 = next(s for s in seasons if s['id'] == '2024-2025')
-        self.assertTrue(b24['is_baseline'])
+        self.assertFalse(b24['is_baseline'])
         self.assertEqual(b24['records_count'], 2854)
 
         # Test season check
@@ -128,7 +128,7 @@ class TestSeasonStorage(unittest.TestCase):
         """Ensure 2024-2025 baseline files were completely untouched by 2025-2026 import."""
         b24_manifest = season_service.get_season_manifest('2024-2025')
         self.assertEqual(b24_manifest['records_count'], 2854)
-        self.assertTrue(b24_manifest.get('is_baseline', True))
+        self.assertFalse(b24_manifest.get('is_baseline', False))
 
         # Check file still exists in 2024-2025 folder
         csv_24 = os.path.join(self.seasons_dir, '2024-2025', 'top5-players24-25.csv')

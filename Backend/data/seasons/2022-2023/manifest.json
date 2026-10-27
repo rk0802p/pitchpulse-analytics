@@ -1,0 +1,138 @@
+{
+  "season": "2022-2023",
+  "canonical_id": "2022-2023",
+  "display_name": "2022/23 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2885,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "fr Ligue 1": 605,
+    "it Serie A": 603,
+    "es La Liga": 596,
+    "eng Premier League": 569,
+    "de Bundesliga": 512
+  },
+  "totals": {
+    "goals": 4882,
+    "assists": 3745,
+    "minutes": 3600361,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7511,
+    "red_cards": 220,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 36,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Harry Kane",
+        "Squad": "Tottenham Hotspur",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 3,
+        "xG": 0.0
+      },
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 6,
+        "xG": 0.0
+      },
+      {
+        "Player": "Alexandre Lacazette",
+        "Squad": "Olympique Lyon",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 5,
+        "xG": 0.0
+      },
+      {
+        "Player": "Victor Osimhen",
+        "Squad": "SSC Napoli",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 5,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Kevin De Bruyne",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 18,
+        "Gls": 7,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Antoine Griezmann",
+        "Squad": "Atl\u00e9tico de Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 17,
+        "Gls": 15,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Ast": 16,
+        "Gls": 16,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Randal Kolo Muani",
+        "Squad": "Eintracht Frankfurt",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 14,
+        "Gls": 15,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Khvicha Kvaratskhelia",
+        "Squad": "SSC Napoli",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Ast": 13,
+        "Gls": 12,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2022-2023.xlsx",
+    "csv": "top5-players-2022-2023.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2022/23 Completed European Regular Season",
+  "content_hash": "86563dee488acda7acd5d8092eb281237879b35f8072193138bfee76166eb5f6",
+  "sha256": "86563dee488acda7acd5d8092eb281237879b35f8072193138bfee76166eb5f6",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2022/23 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

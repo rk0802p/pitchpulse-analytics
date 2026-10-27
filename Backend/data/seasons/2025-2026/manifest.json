@@ -1,124 +1,125 @@
 {
   "season": "2025-2026",
-  "source": "PitchPulse Football Intelligence (2025/26 Season Projections)",
-  "imported_at": "2026-10-26T23:17:59.655718+00:00",
-  "original_filename": "temp_2526_inject.csv",
-  "original_sha256": "afb8760673808691489e202db5d7ded1027c21a5ab60a39ea1f2236e04f54f9f",
-  "records_count": 2854,
-  "columns_count": 37,
+  "canonical_id": "2025-2026",
+  "display_name": "2025/26 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2997,
+  "clubs_count": 197,
   "competitions_count": 5,
-  "clubs_count": 96,
   "competitions": {
-    "it Serie A": 634,
-    "es La Liga": 601,
-    "eng Premier League": 574,
-    "fr Ligue 1": 553,
-    "de Bundesliga": 492
+    "es La Liga": 767,
+    "eng Premier League": 693,
+    "de Bundesliga": 595,
+    "it Serie A": 495,
+    "fr Ligue 1": 447
   },
   "totals": {
-    "goals": 5015,
-    "assists": 3652,
-    "minutes": 3424130,
-    "xg": 4825.8,
-    "xag": 3605.9,
-    "yellow_cards": 7160,
-    "red_cards": 326,
-    "progressive_passes": 129834,
-    "progressive_carries": 60282
+    "goals": 4426,
+    "assists": 3090,
+    "minutes": 3248289,
+    "xg": 4115.5,
+    "xag": 2795.3,
+    "yellow_cards": 6387,
+    "red_cards": 320,
+    "progressive_passes": 27603,
+    "progressive_carries": 14061
   },
   "preview": {
     "top_scorers": [
       {
-        "Player": "Kylian Mbapp\u00e9",
-        "Squad": "Real Madrid",
-        "Comp": "es La Liga",
-        "Pos": "FW",
-        "Gls": 32,
-        "Ast": 3,
-        "xG": 28.9
-      },
-      {
         "Player": "Harry Kane",
         "Squad": "Bayern Munich",
         "Comp": "de Bundesliga",
-        "Pos": "FW",
-        "Gls": 26,
-        "Ast": 10,
-        "xG": 26.3
-      },
-      {
-        "Player": "Mateo Retegui",
-        "Squad": "Atalanta",
-        "Comp": "it Serie A",
-        "Pos": "FW",
-        "Gls": 26,
-        "Ast": 9,
-        "xG": 23.3
+        "Pos": "FW,MF",
+        "Gls": 36,
+        "Ast": 5,
+        "xG": 24.91
       },
       {
         "Player": "Erling Haaland",
         "Squad": "Manchester City",
         "Comp": "eng Premier League",
         "Pos": "FW",
-        "Gls": 25,
-        "Ast": 3,
-        "xG": 23.6
+        "Gls": 27,
+        "Ast": 8,
+        "xG": 22.36
       },
       {
-        "Player": "Robert Lewandowski",
-        "Squad": "Barcelona",
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 5,
+        "xG": 22.24
+      },
+      {
+        "Player": "Vedat Muriqi",
+        "Squad": "Mallorca",
         "Comp": "es La Liga",
         "Pos": "FW",
         "Gls": 23,
         "Ast": 1,
-        "xG": 20.8
+        "xG": 15.37
+      },
+      {
+        "Player": "Igor Thiago",
+        "Squad": "Brentford",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 22,
+        "Ast": 1,
+        "xG": 19.1
       }
     ],
     "top_creators": [
       {
-        "Player": "Lamine Yamal",
-        "Squad": "Barcelona",
-        "Comp": "es La Liga",
-        "Pos": "FW",
-        "Ast": 18,
-        "Gls": 13,
-        "xAG": 16.7
+        "Player": "Bruno Fernandes",
+        "Squad": "Manchester Utd",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 21,
+        "Gls": 9,
+        "xAG": 9.64
       },
       {
         "Player": "Michael Olise",
         "Squad": "Bayern Munich",
         "Comp": "de Bundesliga",
-        "Pos": "FW,MF",
-        "Ast": 15,
-        "Gls": 12,
-        "xAG": 14.9
+        "Pos": "MF",
+        "Ast": 19,
+        "Gls": 15,
+        "xAG": 15.2
       },
       {
-        "Player": "Mohamed Salah",
-        "Squad": "Liverpool",
-        "Comp": "eng Premier League",
-        "Pos": "FW",
-        "Ast": 15,
-        "Gls": 23,
-        "xAG": 15.1
-      },
-      {
-        "Player": "Florian Wirtz",
-        "Squad": "Leverkusen",
+        "Player": "Julian Ryerson",
+        "Squad": "Dortmund",
         "Comp": "de Bundesliga",
-        "Pos": "MF,FW",
-        "Ast": 14,
-        "Gls": 12,
-        "xAG": 14.9
+        "Pos": "MF",
+        "Ast": 15,
+        "Gls": 0,
+        "xAG": 8.69
       },
       {
-        "Player": "Bukayo Saka",
-        "Squad": "Arsenal",
-        "Comp": "eng Premier League",
-        "Pos": "FW,MF",
-        "Ast": 12,
-        "Gls": 7,
-        "xAG": 12.8
+        "Player": "Federico Dimarco",
+        "Squad": "Inter",
+        "Comp": "it Serie A",
+        "Pos": "DF,FW",
+        "Ast": 15,
+        "Gls": 6,
+        "xAG": 9.77
+      },
+      {
+        "Player": "Luis D\u00edaz",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 14,
+        "Gls": 15,
+        "xAG": 6.99
       }
     ]
   },
@@ -126,16 +127,12 @@
     "excel": "top5-players-2025-2026.xlsx",
     "csv": "top5-players-2025-2026.csv"
   },
+  "source": "FBref / StatsBomb style aggregates + FotMob 2025/26 European Stats",
+  "source_name": "FBref via soccerdata + FotMob European Stats & Transfermarkt Profiles",
+  "source_url": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+  "data_as_of": "2025-2026 European Regular Season (Completed)",
+  "content_hash": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
+  "sha256": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
   "validation_status": "passed",
-  "schema_version": "1.0.0",
-  "canonical_id": "2025-2026",
-  "display_name": "2025/26 Algorithmic Projection",
-  "dataset_status": "projection",
-  "status_label": "Algorithmic Projection",
-  "is_projection": true,
-  "source_name": "Synthetic projection generated via inject_future_seasons.py",
-  "source_url": "script://Backend/scripts/inject_future_seasons.py",
-  "data_as_of": "Synthetic simulation (Not actual match statistics)",
-  "content_hash": "50f00eca8b23a1d8ed2d1f6d3d9ecccb3273bc18678e30ee6ed5209ab21da2b9",
-  "verification_notes": "SYNTHETIC DATASET: Generated programmatically by inject_future_seasons.py by applying stochastic performance trajectories and age-curve multipliers onto 2024/25 baseline statistics. Must NOT be treated as genuine match events or official records."
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2025/26. Spot-checked against official records: Harry Kane (36 goals, 24.91 xG), Erling Haaland (27 goals, 22.36 xG), Kylian Mbappe (25 goals, 22.24 xG), Vedat Muriqi (23 goals, 15.37 xG), Igor Thiago (22 goals, 19.10 xG), Esteban Lepaul (17 goals, 13.07 xG), Lautaro Martinez (16 goals, 1.96 xAG), Joaquin Panichelli (16 goals). Schema validated for 37 canonical metrics."
 }

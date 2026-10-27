@@ -265,14 +265,14 @@ export const DataManagementView = ({
             <h1 className="text-2xl font-bold text-white tracking-tight">Dataset Registry & Versioned Storage</h1>
           </div>
           <p className="text-xs text-slate-400 font-mono">
-            Immutable 2024/25 baseline preservation, multi-season isolation, and automated validation pipeline.
+            Multi-season isolation, dataset integrity verification, and automated validation pipeline.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pitch-card border border-pitch-border text-xs">
             <span className="text-slate-400">Active Season:</span>
-            <span className="font-mono font-bold text-emerald-400">{activeSeason || '2024-2025'}</span>
+            <span className="font-mono font-bold text-emerald-400">{activeSeason || '2025-2026'}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pitch-card border border-pitch-border text-xs">
             <span className="text-slate-400">Stored Seasons:</span>
@@ -292,14 +292,14 @@ export const DataManagementView = ({
                 <Lock className="w-4 h-4" />
               </div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                Reference 2024/25 Baseline
+                Dataset Integrity & Invariant Verification
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-normal">
-                  Read-Only & Immutable
+                  Verified Historical
                 </span>
               </h2>
             </div>
             <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-              Preserved as the gold standard baseline for PitchPulse. Every future season import and regression test validates against these cryptographic and statistical invariants.
+              Validates cryptographic SHA-256 fingerprints, 37 canonical schema metrics, and mathematical invariants across versioned European football seasons.
             </p>
 
             {/* SHA-256 Fingerprint */}

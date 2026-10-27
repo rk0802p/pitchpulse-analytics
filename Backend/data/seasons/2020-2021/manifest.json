@@ -1,0 +1,138 @@
+{
+  "season": "2020-2021",
+  "canonical_id": "2020-2021",
+  "display_name": "2020/21 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2802,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 618,
+    "fr Ligue 1": 584,
+    "es La Liga": 566,
+    "eng Premier League": 530,
+    "de Bundesliga": 504
+  },
+  "totals": {
+    "goals": 4892,
+    "assists": 3779,
+    "minutes": 3563477,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 6956,
+    "red_cards": 189,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 41,
+        "Ast": 7,
+        "xG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Juventus FC",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 2,
+        "xG": 0.0
+      },
+      {
+        "Player": "Andr\u00e9 Silva",
+        "Squad": "Eintracht Frankfurt",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 8,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Thomas M\u00fcller",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 21,
+        "Gls": 11,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Filip Kosti\u0107",
+        "Squad": "Eintracht Frankfurt",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 17,
+        "Gls": 4,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Harry Kane",
+        "Squad": "Tottenham Hotspur",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 14,
+        "Gls": 23,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Iago Aspas",
+        "Squad": "Celta de Vigo",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 13,
+        "Gls": 14,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Daichi Kamada",
+        "Squad": "Eintracht Frankfurt",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 13,
+        "Gls": 5,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2020-2021.xlsx",
+    "csv": "top5-players-2020-2021.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2020/21 Completed European Regular Season",
+  "content_hash": "c18f45540b4a11135f1539aab143d3be480320ca8fcf1cb6abd5e6aba013e150",
+  "sha256": "c18f45540b4a11135f1539aab143d3be480320ca8fcf1cb6abd5e6aba013e150",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2020/21 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

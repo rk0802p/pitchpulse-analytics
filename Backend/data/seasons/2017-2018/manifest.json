@@ -1,0 +1,138 @@
+{
+  "season": "2017-2018",
+  "canonical_id": "2017-2018",
+  "display_name": "2017/18 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2690,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "es La Liga": 573,
+    "fr Ligue 1": 553,
+    "it Serie A": 552,
+    "eng Premier League": 528,
+    "de Bundesliga": 484
+  },
+  "totals": {
+    "goals": 4796,
+    "assists": 3686,
+    "minutes": 3606962,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7180,
+    "red_cards": 163,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 34,
+        "Ast": 14,
+        "xG": 0.0
+      },
+      {
+        "Player": "Mohamed Salah",
+        "Squad": "Liverpool FC",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 32,
+        "Ast": 11,
+        "xG": 0.0
+      },
+      {
+        "Player": "Harry Kane",
+        "Squad": "Tottenham Hotspur",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 3,
+        "xG": 0.0
+      },
+      {
+        "Player": "Mauro Icardi",
+        "Squad": "Inter Milan",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 1,
+        "xG": 0.0
+      },
+      {
+        "Player": "Ciro Immobile",
+        "Squad": "Societ\u00e0 Sportiva Lazio S.p.A.",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 8,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Kevin De Bruyne",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Thomas M\u00fcller",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 16,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Raheem Sterling",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 18,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Leroy San\u00e9",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 10,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 14,
+        "Gls": 34,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2017-2018.xlsx",
+    "csv": "top5-players-2017-2018.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2017/18 Completed European Regular Season",
+  "content_hash": "f2a71124d1f787451f60465ee5221507c5cb3dc307a1386a5dc9958993e3b5dd",
+  "sha256": "f2a71124d1f787451f60465ee5221507c5cb3dc307a1386a5dc9958993e3b5dd",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2017/18 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

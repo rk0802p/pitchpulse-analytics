@@ -1,7 +1,7 @@
 {
   "season": "2024-2025",
-  "display_name": "2024/25 Regular Season (Baseline)",
-  "is_baseline": true,
+  "display_name": "2024/25 Regular Season",
+  "is_baseline": false,
   "imported_at": "2024-2025 Regular Season",
   "source": "FBref / StatsBomb style player-level aggregates",
   "records_count": 2854,
@@ -15,11 +15,11 @@
   "validation_status": "passed",
   "canonical_id": "2024-2025",
   "dataset_status": "verified_historical",
-  "status_label": "Reference Baseline",
+  "status_label": "Historical Season",
   "is_projection": false,
-  "source_name": "FBref / StatsBomb style Big 5 European Leagues aggregates (PitchPulse Baseline)",
+  "source_name": "FBref / StatsBomb style Big 5 European Leagues aggregates",
   "source_url": "local://Backend/top5-players24-25.xlsx",
   "data_as_of": "2024-2025 Regular Season",
   "content_hash": "b6adc0f2f44db409d9a89d22210a6e20172b99479998627291c540bf1785583b",
-  "verification_notes": "Reference baseline dataset cryptographically fingerprinted with SHA-256 (7dbea8fdd43b9cf09eef5a18632953d9079d0f10bd11532da3337d937213e7e0). Contains 2,854 player records across 96 clubs in Europe's top 5 leagues. Top scorers: Kylian Mbappe (31), Mohamed Salah (29), Robert Lewandowski (27), Harry Kane (26), Mateo Retegui (25). Read-only and immutable."
+  "verification_notes": "Historical completed dataset cryptographically fingerprinted with SHA-256 (7dbea8fdd43b9cf09eef5a18632953d9079d0f10bd11532da3337d937213e7e0). Contains 2,854 player records across 96 clubs in Europe's top 5 leagues. Top scorers: Kylian Mbappe (31), Mohamed Salah (29), Robert Lewandowski (27), Harry Kane (26), Mateo Retegui (25). Read-only and immutable."
 }

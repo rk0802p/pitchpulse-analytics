@@ -55,7 +55,7 @@ export const LeaderboardsView = ({
   onPlayerClick,
   onCompareToggle,
   isCompared,
-  season = "2024/25"
+  season = ""
 }) => {
   const topThree = leaders.slice(0, 3);
   const remainingLeaders = leaders.slice(3);
@@ -113,7 +113,7 @@ export const LeaderboardsView = ({
                 : 'bg-pitch-surface text-slate-400 border border-pitch-border hover:text-slate-200'
             }`}
           >
-            All 5 Leagues
+            {competitions.length > 0 ? `All ${competitions.length} Leagues` : "All Leagues"}
           </button>
           {competitions.map((comp) => (
             <button

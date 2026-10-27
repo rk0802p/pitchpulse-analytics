@@ -1,0 +1,138 @@
+{
+  "season": "2018-2019",
+  "canonical_id": "2018-2019",
+  "display_name": "2018/19 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2706,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "fr Ligue 1": 577,
+    "es La Liga": 572,
+    "it Serie A": 557,
+    "eng Premier League": 506,
+    "de Bundesliga": 494
+  },
+  "totals": {
+    "goals": 4876,
+    "assists": 3721,
+    "minutes": 3603082,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7449,
+    "red_cards": 189,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 36,
+        "Ast": 14,
+        "xG": 0.0
+      },
+      {
+        "Player": "Kylian Mbapp\u00e9",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 33,
+        "Ast": 9,
+        "xG": 0.0
+      },
+      {
+        "Player": "Fabio Quagliarella",
+        "Squad": "UC Sampdoria",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 7,
+        "xG": 0.0
+      },
+      {
+        "Player": "Duv\u00e1n Zapata",
+        "Squad": "Atalanta BC",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 23,
+        "Ast": 7,
+        "xG": 0.0
+      },
+      {
+        "Player": "Nicolas P\u00e9p\u00e9",
+        "Squad": "LOSC Lille",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 22,
+        "Ast": 11,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Jadon Sancho",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 18,
+        "Gls": 12,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Eden Hazard",
+        "Squad": "Chelsea FC",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 16,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Ryan Fraser",
+        "Squad": "AFC Bournemouth",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Ast": 14,
+        "Gls": 7,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Joshua Kimmich",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 14,
+        "Gls": 2,
+        "xAG": 0.0
+      },
+      {
+        "Player": "T\u00e9ji Savanier",
+        "Squad": "N\u00eemes Olympique",
+        "Comp": "fr Ligue 1",
+        "Pos": "MF",
+        "Ast": 14,
+        "Gls": 6,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2018-2019.xlsx",
+    "csv": "top5-players-2018-2019.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2018/19 Completed European Regular Season",
+  "content_hash": "c2d9d3af08d6d17d5d078ae93f74eb650d4e076c8ac6b32d69687964dd746e9d",
+  "sha256": "c2d9d3af08d6d17d5d078ae93f74eb650d4e076c8ac6b32d69687964dd746e9d",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2018/19 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

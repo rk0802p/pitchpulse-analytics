@@ -5,7 +5,7 @@ import SeasonSelector from './SeasonSelector';
 export const PageHeader = ({
   title,
   subtitle,
-  season = "2024/25",
+  season = "",
   competition = null,
   actions = null,
   badge = null,
@@ -22,6 +22,7 @@ export const PageHeader = ({
           {onSelectSeason && availableSeasons.length > 0 ? (
             <SeasonSelector
               variant="header"
+              align="left"
               activeSeason={activeSeason || season}
               availableSeasons={availableSeasons}
               onSelectSeason={onSelectSeason}
@@ -30,7 +31,7 @@ export const PageHeader = ({
           ) : (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <Calendar className="w-3.5 h-3.5" />
-              Season {season}
+              {season ? `Season ${season}` : "Selected Season"}
             </span>
           )}
 

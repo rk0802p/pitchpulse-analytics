@@ -1,0 +1,138 @@
+{
+  "season": "2016-2017",
+  "canonical_id": "2016-2017",
+  "display_name": "2016/17 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2731,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 582,
+    "fr Ligue 1": 575,
+    "es La Liga": 555,
+    "eng Premier League": 543,
+    "de Bundesliga": 476
+  },
+  "totals": {
+    "goals": 5042,
+    "assists": 3963,
+    "minutes": 3606129,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7709,
+    "red_cards": 198,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 37,
+        "Ast": 12,
+        "xG": 0.0
+      },
+      {
+        "Player": "Edinson Cavani",
+        "Squad": "Paris Saint-Germain",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 35,
+        "Ast": 4,
+        "xG": 0.0
+      },
+      {
+        "Player": "Pierre-Emerick Aubameyang",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 31,
+        "Ast": 2,
+        "xG": 0.0
+      },
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 30,
+        "Ast": 6,
+        "xG": 0.0
+      },
+      {
+        "Player": "Edin Dzeko",
+        "Squad": "Associazione Sportiva Roma",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 29,
+        "Ast": 12,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Emil Forsberg",
+        "Squad": "RB Leipzig",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 22,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Kevin De Bruyne",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 19,
+        "Gls": 6,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Christian Eriksen",
+        "Squad": "Tottenham Hotspur",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Luis Su\u00e1rez",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 28,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Thomas M\u00fcller",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 15,
+        "Gls": 5,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2016-2017.xlsx",
+    "csv": "top5-players-2016-2017.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2016/17 Completed European Regular Season",
+  "content_hash": "5da212f704eac8e7afa20a811a2094edd8d47ce280b3683dd98006e7bb6acd53",
+  "sha256": "5da212f704eac8e7afa20a811a2094edd8d47ce280b3683dd98006e7bb6acd53",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2016/17 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

@@ -32,7 +32,9 @@ def get_leagues_legacy():
     season = request.args.get('season')
     if season and not season_service.season_exists(season):
         return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
-    raw_leagues = list(COMPETITIONS.keys())
+    from services.data_loader import data_loader
+    df = data_loader.get_dataframe(season=season)
+    raw_leagues = sorted(df['Comp'].dropna().unique().tolist())
     return jsonify(raw_leagues)
 
 @competitions_bp.route('/teams/<path:league>', methods=['GET'])

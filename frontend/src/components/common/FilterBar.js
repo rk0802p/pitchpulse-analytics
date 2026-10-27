@@ -61,7 +61,7 @@ export const FilterBar = ({
             onChange={(e) => onCompetitionChange(e.target.value)}
             className="w-full bg-pitch-surface border border-pitch-border focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none cursor-pointer"
           >
-            <option value="">All Competitions (5 Leagues)</option>
+            <option value="">{competitions.length > 0 ? `All Competitions (${competitions.length} Leagues)` : "All Competitions"}</option>
             {competitions.map((comp) => (
               <option key={comp.id || comp.raw_name} value={comp.id || comp.raw_name}>
                 {comp.name || comp.raw_name}

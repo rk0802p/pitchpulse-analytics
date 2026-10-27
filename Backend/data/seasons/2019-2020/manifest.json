@@ -1,0 +1,138 @@
+{
+  "season": "2019-2020",
+  "canonical_id": "2019-2020",
+  "display_name": "2019/20 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2727,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 600,
+    "es La Liga": 569,
+    "fr Ligue 1": 541,
+    "eng Premier League": 519,
+    "de Bundesliga": 498
+  },
+  "totals": {
+    "goals": 4671,
+    "assists": 3685,
+    "minutes": 3399769,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7426,
+    "red_cards": 170,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Ciro Immobile",
+        "Squad": "Societ\u00e0 Sportiva Lazio S.p.A.",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 36,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Robert Lewandowski",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 34,
+        "Ast": 4,
+        "xG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Juventus FC",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 31,
+        "Ast": 6,
+        "xG": 0.0
+      },
+      {
+        "Player": "Timo Werner",
+        "Squad": "RB Leipzig",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Gls": 28,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 22,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 22,
+        "Gls": 25,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Thomas M\u00fcller",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 21,
+        "Gls": 8,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Kevin De Bruyne",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 20,
+        "Gls": 13,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Jadon Sancho",
+        "Squad": "Borussia Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "FW",
+        "Ast": 17,
+        "Gls": 17,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Luis Alberto",
+        "Squad": "Societ\u00e0 Sportiva Lazio S.p.A.",
+        "Comp": "it Serie A",
+        "Pos": "MF",
+        "Ast": 16,
+        "Gls": 6,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2019-2020.xlsx",
+    "csv": "top5-players-2019-2020.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2019/20 Completed European Regular Season",
+  "content_hash": "82044d62388fb97b3ec6014137c98c00a40c0bf47aabef3debd022d15e6c0c46",
+  "sha256": "82044d62388fb97b3ec6014137c98c00a40c0bf47aabef3debd022d15e6c0c46",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2019/20 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}

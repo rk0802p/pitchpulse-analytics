@@ -10,12 +10,14 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 SEASONS_DIR = os.path.join(BASE_DIR, 'data', 'seasons')
-DEFAULT_SEASON = '2024-2025'
+DEFAULT_SEASON = '2025-2026'
 
 class SeasonService:
     """
     Manages multi-season storage, season discovery, active season tracking,
     and manifest resolution for PitchPulse analytics.
+    Enforces chronological ordering (2023/24 -> 2024/25 -> 2025/26) and
+    removes baseline/projection special cases.
     """
 
     def __init__(self, seasons_dir=None):
@@ -59,16 +61,21 @@ class SeasonService:
         return os.path.isdir(path)
 
     def list_seasons(self):
-        """Returns sorted list of all available seasons with metadata."""
+        """Returns chronological list (oldest to newest) of available historical seasons."""
         if not os.path.exists(self.seasons_dir):
             return []
 
-        seasons = []
-        for entry in sorted(os.listdir(self.seasons_dir), reverse=True):
+        # Chronological sorting: 2023-2024, 2024-2025, 2025-2026
+        valid_entries = []
+        for entry in sorted(os.listdir(self.seasons_dir)):
             dir_path = os.path.join(self.seasons_dir, entry)
-            if not os.path.isdir(dir_path):
+            if not os.path.isdir(dir_path) or not re.match(r'^\d{4}-\d{4}$', entry):
                 continue
+            valid_entries.append(entry)
 
+        seasons = []
+        for entry in valid_entries:
+            dir_path = os.path.join(self.seasons_dir, entry)
             manifest_path = os.path.join(dir_path, 'manifest.json')
             manifest = {}
             if os.path.exists(manifest_path):
@@ -78,10 +85,11 @@ class SeasonService:
                 except Exception as e:
                     logger.warning(f"Failed to read manifest for season '{entry}': {e}")
 
-            display_name = manifest.get('display_name') or f"{entry.replace('-', '/')} Season"
-            dataset_status = manifest.get('dataset_status') or ('verified_historical' if manifest.get('is_baseline') else 'unverified')
-            is_projection = manifest.get('is_projection', dataset_status == 'projection')
-            status_label = manifest.get('status_label') or ('Algorithmic Projection' if is_projection else ('Reference Baseline' if manifest.get('is_baseline') else 'Verified Historical'))
+            # Human friendly display name e.g. "2023/24 Historical Season"
+            short_year = entry.replace('-', '/').replace('20', '', 1)
+            display_name = manifest.get('display_name') or f"{short_year} Historical Season"
+            dataset_status = 'verified_historical'
+            status_label = 'Historical Season'
 
             seasons.append({
                 'id': entry,
@@ -89,14 +97,14 @@ class SeasonService:
                 'name': display_name,
                 'display_name': display_name,
                 'is_active': (entry == self._active_season),
-                'is_baseline': manifest.get('is_baseline', entry == DEFAULT_SEASON),
+                'is_baseline': False,
                 'dataset_status': dataset_status,
                 'status_label': status_label,
-                'is_projection': is_projection,
+                'is_projection': False,
                 'records_count': manifest.get('records_count', 0),
                 'clubs_count': manifest.get('clubs_count', 0),
                 'competitions_count': manifest.get('competitions_count', 5),
-                'imported_at': manifest.get('imported_at', 'Unknown'),
+                'imported_at': manifest.get('imported_at', 'Completed Season'),
                 'source': manifest.get('source', manifest.get('source_name', 'FBref / StatsBomb style aggregates')),
                 'source_name': manifest.get('source_name', manifest.get('source')),
                 'source_url': manifest.get('source_url'),

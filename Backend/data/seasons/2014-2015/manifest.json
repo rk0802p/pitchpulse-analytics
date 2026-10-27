@@ -1,0 +1,138 @@
+{
+  "season": "2014-2015",
+  "canonical_id": "2014-2015",
+  "display_name": "2014/15 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "records_count": 2580,
+  "clubs_count": 98,
+  "competitions_count": 5,
+  "competitions": {
+    "it Serie A": 582,
+    "fr Ligue 1": 538,
+    "eng Premier League": 527,
+    "es La Liga": 473,
+    "de Bundesliga": 460
+  },
+  "totals": {
+    "goals": 4397,
+    "assists": 3595,
+    "minutes": 3441435,
+    "xg": 0.0,
+    "xag": 0.0,
+    "yellow_cards": 7609,
+    "red_cards": 190,
+    "progressive_passes": 0,
+    "progressive_carries": 0
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 48,
+        "Ast": 17,
+        "xG": 0.0
+      },
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 43,
+        "Ast": 21,
+        "xG": 0.0
+      },
+      {
+        "Player": "Alexandre Lacazette",
+        "Squad": "Olympique Lyon",
+        "Comp": "fr Ligue 1",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Sergio Ag\u00fcero",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 26,
+        "Ast": 8,
+        "xG": 0.0
+      },
+      {
+        "Player": "Luca Toni",
+        "Squad": "Hellas Verona",
+        "Comp": "it Serie A",
+        "Pos": "FW",
+        "Gls": 22,
+        "Ast": 3,
+        "xG": 0.0
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Lionel Messi",
+        "Squad": "FC Barcelona",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 21,
+        "Gls": 43,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Dimitri Payet",
+        "Squad": "Olympique Marseille",
+        "Comp": "fr Ligue 1",
+        "Pos": "MF",
+        "Ast": 21,
+        "Gls": 7,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Kevin De Bruyne",
+        "Squad": "VfL Wolfsburg",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 21,
+        "Gls": 10,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Cesc F\u00e0bregas",
+        "Squad": "Chelsea FC",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 19,
+        "Gls": 3,
+        "xAG": 0.0
+      },
+      {
+        "Player": "Cristiano Ronaldo",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Ast": 17,
+        "Gls": 48,
+        "xAG": 0.0
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2014-2015.xlsx",
+    "csv": "top5-players-2014-2015.csv"
+  },
+  "source": "Transfermarkt Comprehensive Match Appearances Datalake",
+  "source_name": "Transfermarkt Official Match Logs via archive datalake",
+  "source_url": "Transfermarkt Big 5 appearances",
+  "data_as_of": "2014/15 Completed European Regular Season",
+  "content_hash": "89f63f7bf4af757d061dfdfde53bb520cc8d0ccef7793d2d2dee4f5c7105e28f",
+  "sha256": "89f63f7bf4af757d061dfdfde53bb520cc8d0ccef7793d2d2dee4f5c7105e28f",
+  "validation_status": "passed",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2014/15 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+}
