@@ -11,6 +11,7 @@ import LeaderboardsView from './components/leaderboards/LeaderboardsView';
 import PlayerProfileView from './components/profile/PlayerProfileView';
 import DataManagementView from './components/data/DataManagementView';
 import ProgressionMatrixChart from './components/dashboard/ProgressionMatrixChart';
+import PageHeader from './components/common/PageHeader';
 
 beforeEach(() => {
   global.fetch = jest.fn((url) => {
@@ -337,4 +338,155 @@ test('renders dynamic season labels in LeaderboardsView and ProgressionMatrixCha
     />
   );
   expect(screen.getByText(/2023\/24 Regular Season/i)).toBeInTheDocument();
+});
+
+test('renders interactive SeasonSelector in PageHeader and triggers onSelectSeason', () => {
+  const mockSelect = jest.fn();
+  const sampleSeasons = [
+    { id: '2023-2024', name: '2023/24 Historical Season', is_baseline: false, dataset_status: 'verified_historical' },
+    { id: '2024-2025', name: '2024/25 Regular Season', is_baseline: true, dataset_status: 'verified_historical' },
+    { id: '2025-2026', name: '2025/26 Algorithmic Projection', is_projection: true, dataset_status: 'projection' }
+  ];
+
+  render(
+    <PageHeader
+      title="Test European Intelligence"
+      activeSeason="2024-2025"
+      availableSeasons={sampleSeasons}
+      onSelectSeason={mockSelect}
+    />
+  );
+
+  // The SeasonSelector button in PageHeader
+  const seasonBtn = screen.getByRole('button', { name: /Select season/i });
+  expect(seasonBtn).toBeInTheDocument();
+  expect(seasonBtn).toHaveTextContent(/Season 24\/25/i);
+
+  // Click to open dropdown
+  fireEvent.click(seasonBtn);
+  expect(screen.getByText(/Switch Season \/ Year/i)).toBeInTheDocument();
+
+  // Select 2023/24 option
+  const opt2324 = screen.getByRole('option', { name: /2023\/24 Historical Season/i });
+  expect(opt2324).toBeInTheDocument();
+  fireEvent.click(opt2324);
+
+  expect(mockSelect).toHaveBeenCalledWith('2023-2024');
+});
+
+test('renders PlayerProfileView with complete stats and no undefined values in KPI cards', () => {
+  const sampleProfile = {
+    identity: {
+      id: 1965,
+      rk: 1965,
+      name: 'Dani Olmo',
+      position: 'MF,FW',
+      nation: 'es ESP',
+      squad: 'Barcelona',
+      competition: 'La Liga',
+      age: 26,
+      born: 1998
+    },
+    playing_time: {
+      matches_played: 25,
+      starts: 13,
+      minutes: 1212,
+      nineties: 13.5
+    },
+    scoring: {
+      goals: 10,
+      xg: 7.2,
+      goals_minus_xg: 2.8,
+      npxg: 7.2
+    },
+    playmaking: {
+      assists: 3,
+      xag: 4.1,
+      goals_plus_assists: 13
+    },
+    progression: {
+      progressive_carries: 33,
+      progressive_passes: 81,
+      progressive_receptions: 55
+    },
+    discipline: {
+      yellow_cards: 1,
+      red_cards: 0
+    },
+    per_90_rates: {
+      goals_per_90: 0.74,
+      xg_per_90: 0.48,
+      assists_per_90: 0.22,
+      xag_per_90: 0.28
+    },
+    percentiles: {
+      peer_sample_size: 1018,
+      comparison_position: 'MF',
+      goals_per_90: { value: 0.74, percentile: 99 },
+      xg_per_90: { value: 0.48, percentile: 97 },
+      assists_per_90: { value: 0.22, percentile: 81 },
+      xag_per_90: { value: 0.28, percentile: 85 },
+      progressive_carries: { value: 33, percentile: 65 },
+      progressive_passes: { value: 81, percentile: 68 },
+      progressive_receptions: { value: 55, percentile: 72 }
+    }
+  };
+
+  render(
+    <PlayerProfileView
+      profile={sampleProfile}
+      onBack={jest.fn()}
+      onCompare={jest.fn()}
+    />
+  );
+
+  // Check name & identity
+  expect(screen.getByText('Dani Olmo')).toBeInTheDocument();
+  expect(screen.getByText('Barcelona')).toBeInTheDocument();
+
+  // Verify KPI cards contain real calculated values, NOT 'undefined'
+  expect(screen.queryByText(/undefined Diff/i)).toBeNull();
+  expect(screen.queryByText(/Expected \(xG\): undefined/i)).toBeNull();
+  expect(screen.queryByText(/Expected Assists \(xAG\): undefined/i)).toBeNull();
+  expect(screen.queryByText(/undefined total 90s played/i)).toBeNull();
+
+  // Verify positive values are rendered
+  expect(screen.getByText(/\+2.8 Over xG/i)).toBeInTheDocument();
+  expect(screen.getByText(/Expected \(xG\): 7.2/i)).toBeInTheDocument();
+  expect(screen.getByText(/Expected Assists \(xAG\): 4.1/i)).toBeInTheDocument();
+  expect(screen.getByText(/13.5 total 90s played/i)).toBeInTheDocument();
+});
+
+test('full App season-switching integration: updates displayed data and does not accept fake seasons', async () => {
+  render(<App />);
+
+  // Wait for initial dashboard load
+  await waitFor(() => {
+    expect(screen.getByText(/European Football Intelligence/i)).toBeInTheDocument();
+  });
+
+  // Verify SeasonSelector exists in PageHeader
+  const seasonSelectors = screen.getAllByRole('button', { name: /Select season/i });
+  expect(seasonSelectors.length).toBeGreaterThan(0);
+  const headerSelector = seasonSelectors[0];
+
+  // Open dropdown
+  fireEvent.click(headerSelector);
+  expect(screen.getAllByText(/Switch.*Season/i).length).toBeGreaterThan(0);
+
+  // Verify only genuine registered seasons appear, not arbitrary years
+  expect(screen.getAllByRole('option', { name: /2024\/25 Regular Season/i })[0]).toBeInTheDocument();
+  expect(screen.getAllByRole('option', { name: /2023\/24 Historical Season/i })[0]).toBeInTheDocument();
+  expect(screen.queryByText(/1990\/91/i)).toBeNull();
+
+  // Click 2023/24
+  fireEvent.click(screen.getAllByRole('option', { name: /2023\/24 Historical Season/i })[0]);
+
+  // Verify backend active season activation was requested
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/seasons/active'),
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
 });

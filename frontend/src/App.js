@@ -586,6 +586,10 @@ function App() {
             title="European Football Intelligence"
             subtitle={`${formatSeasonName(activeSeason)} Big 5 league metrics, expected outputs, progression dynamics, and player ratings.`}
             season={formatSeasonName(activeSeason)}
+            activeSeason={activeSeason}
+            availableSeasons={availableSeasons}
+            onSelectSeason={handleSeasonChange}
+            isSwitchingSeason={isSwitchingSeason}
             actions={
               <button
                 onClick={() => navigateTo('explorer')}
@@ -770,6 +774,10 @@ function App() {
             title="Player Explorer"
             subtitle={`Search, filter, and inspect ${metadata?.total_records ? Number(metadata.total_records).toLocaleString() : '2,854'} player records. Filter by role, minutes threshold, and sorting metric.`}
             season={formatSeasonName(activeSeason)}
+            activeSeason={activeSeason}
+            availableSeasons={availableSeasons}
+            onSelectSeason={handleSeasonChange}
+            isSwitchingSeason={isSwitchingSeason}
             actions={
               <div className="flex items-center gap-2">
                 <div className="flex items-center p-0.5 rounded-lg bg-pitch-card border border-pitch-border">
@@ -874,6 +882,10 @@ function App() {
             title="Statistical Leaderboards"
             subtitle="Rank players across scoring, expected values, playmaking, and progression actions."
             season={formatSeasonName(activeSeason)}
+            activeSeason={activeSeason}
+            availableSeasons={availableSeasons}
+            onSelectSeason={handleSeasonChange}
+            isSwitchingSeason={isSwitchingSeason}
           />
 
           <LeaderboardsView
@@ -903,6 +915,10 @@ function App() {
             title="Player Comparison Workspace"
             subtitle="Side-by-side performance benchmarks, scoring, progression, and rates."
             season={formatSeasonName(activeSeason)}
+            activeSeason={activeSeason}
+            availableSeasons={availableSeasons}
+            onSelectSeason={handleSeasonChange}
+            isSwitchingSeason={isSwitchingSeason}
             actions={
               <div className="flex items-center gap-2">
                 {compareList.length > 0 && (
@@ -1032,6 +1048,10 @@ function App() {
             title="Club Squad Roster Browser"
             subtitle="Explore clubs and players through interactive 3D analytics cards and scouting tables."
             season={formatSeasonName(activeSeason)}
+            activeSeason={activeSeason}
+            availableSeasons={availableSeasons}
+            onSelectSeason={handleSeasonChange}
+            isSwitchingSeason={isSwitchingSeason}
             actions={
               selectedLegacyLeague && (
                 <button

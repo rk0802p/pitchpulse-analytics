@@ -130,16 +130,16 @@ export const PlayerProfileView = ({
         <StatCard
           title="Goals Scored"
           value={scoring.goals}
-          subtext={`Expected (xG): ${scoring.expected_goals}`}
-          badge={scoring.finishing_differential > 0 ? `+${scoring.finishing_differential} Over xG` : `${scoring.finishing_differential} Diff`}
-          badgeType={scoring.finishing_differential > 0 ? "positive" : "negative"}
+          subtext={`Expected (xG): ${scoring.expected_goals ?? scoring.xg ?? 0}`}
+          badge={(scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? `+${scoring.finishing_differential ?? scoring.goals_minus_xg} Over xG` : `${scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0} Diff`}
+          badgeType={(scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? "positive" : "negative"}
           icon={Target}
           accentColor="rose"
         />
         <StatCard
           title="Chance Creation"
           value={playmaking.assists}
-          subtext={`Expected Assists (xAG): ${playmaking.expected_assisted_goals}`}
+          subtext={`Expected Assists (xAG): ${playmaking.expected_assisted_goals ?? playmaking.xag ?? 0}`}
           badge={`${playmaking.goals_plus_assists} G+A`}
           badgeType="accent"
           icon={Sparkles}
@@ -157,7 +157,7 @@ export const PlayerProfileView = ({
         <StatCard
           title="Disciplinary Record"
           value={`${discipline.yellow_cards} Y / ${discipline.red_cards} R`}
-          subtext={`${playing_time.ninetys} total 90s played`}
+          subtext={`${playing_time.ninetys ?? playing_time.nineties ?? 0} total 90s played`}
           badge={discipline.red_cards > 0 ? "Red Card Received" : "Clean Record"}
           badgeType={discipline.red_cards > 0 ? "negative" : "neutral"}
           icon={AlertTriangle}
