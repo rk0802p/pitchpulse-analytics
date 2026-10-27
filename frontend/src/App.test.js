@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import App from './App';
+import AppLayout from './components/layout/AppLayout';
 import LeagueBanner from './components/LeagueBanner';
 import PlayerCard from './components/PlayerCard';
 import TeamBadge from './components/TeamBadge';
@@ -9,6 +10,7 @@ import ComparisonMatrix from './components/compare/ComparisonMatrix';
 import LeaderboardsView from './components/leaderboards/LeaderboardsView';
 import PlayerProfileView from './components/profile/PlayerProfileView';
 import DataManagementView from './components/data/DataManagementView';
+import ProgressionMatrixChart from './components/dashboard/ProgressionMatrixChart';
 
 beforeEach(() => {
   global.fetch = jest.fn((url) => {
@@ -16,6 +18,19 @@ beforeEach(() => {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ success: true, data: { status: 'healthy', dataset_ready: true } })
+      });
+    }
+    if (url.includes('/api/seasons')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: [
+            { id: '2023-2024', name: '2023/24 Historical Season', is_active: false, is_baseline: false, dataset_status: 'verified_historical', status_label: 'Verified Historical', records_count: 2852 },
+            { id: '2024-2025', name: '2024/25 Regular Season (Baseline)', is_active: true, is_baseline: true, dataset_status: 'verified_historical', status_label: 'Reference Baseline', records_count: 2854 },
+            { id: '2025-2026', name: '2025/26 Algorithmic Projection', is_active: false, is_baseline: false, is_projection: true, dataset_status: 'projection', status_label: 'Algorithmic Projection', records_count: 2854 }
+          ]
+        })
       });
     }
     if (url.includes('/api/metadata')) {
@@ -253,4 +268,73 @@ test('renders DataManagementView with baseline status and season registry', asyn
   await waitFor(() => {
     expect(screen.getByText(/7dbea8fdd43b9cf09eef5a18632953d9079d0f10bd11532da3337d937213e7e0/i)).toBeInTheDocument();
   });
+});
+
+test('renders AppLayout season selector with badges and opens options on mobile pill click', async () => {
+  const mockOnSelectSeason = jest.fn();
+  const sampleSeasons = [
+    { id: '2023-2024', name: '2023/24 Historical Season', is_baseline: false, dataset_status: 'verified_historical' },
+    { id: '2024-2025', name: '2024/25 Regular Season', is_baseline: true, dataset_status: 'verified_historical' },
+    { id: '2025-2026', name: '2025/26 Algorithmic Projection', is_projection: true, dataset_status: 'projection' }
+  ];
+
+  render(
+    <AppLayout
+      activeSeason="2024-2025"
+      availableSeasons={sampleSeasons}
+      onSelectSeason={mockOnSelectSeason}
+    >
+      <div>Content</div>
+    </AppLayout>
+  );
+
+  // Check mobile season pill exists
+  const mobilePill = screen.getByRole('button', { name: /Select active football season/i });
+  expect(mobilePill).toBeInTheDocument();
+
+  // Clicking mobile pill opens modal
+  fireEvent.click(mobilePill);
+  expect(screen.getByText(/Select Season/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/Baseline/i).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Projection/i).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Historical/i).length).toBeGreaterThan(0);
+
+  // Click a season option from matching list
+  const historicalOptions = screen.getAllByRole('option', { name: /2023\/24 Historical Season/i });
+  expect(historicalOptions.length).toBeGreaterThan(0);
+  fireEvent.click(historicalOptions[0]);
+  expect(mockOnSelectSeason).toHaveBeenCalledWith('2023-2024');
+
+  await waitFor(() => {
+    expect(screen.getByText(/ONLINE/i)).toBeInTheDocument();
+  });
+});
+
+test('renders dynamic season labels in LeaderboardsView and ProgressionMatrixChart', () => {
+  const dummyLeaders = [
+    { id: 1, rank: 1, player: 'Kane', squad: 'Bayern', value: 36 },
+    { id: 2, rank: 2, player: 'Guirassy', squad: 'Stuttgart', value: 28 },
+    { id: 3, rank: 3, player: 'Haaland', squad: 'Man City', value: 27 },
+    { id: 4, rank: 4, player: 'Mbappe', squad: 'PSG', value: 27 }
+  ];
+
+  render(
+    <LeaderboardsView
+      leaders={dummyLeaders}
+      season="2023/24"
+      onSelectMetric={jest.fn()}
+      onSelectComp={jest.fn()}
+      onSelectPosition={jest.fn()}
+      onSelectMinMinutes={jest.fn()}
+    />
+  );
+  expect(screen.getByText(/2023\/24 European Regular Season/i)).toBeInTheDocument();
+
+  render(
+    <ProgressionMatrixChart
+      progressionLeaders={[]}
+      season="2023/24"
+    />
+  );
+  expect(screen.getByText(/2023\/24 Regular Season/i)).toBeInTheDocument();
 });

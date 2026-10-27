@@ -48,7 +48,15 @@ class DataLoader:
     def load_season(self, season_id, force_reload=False):
         """Loads and normalizes a specific season dataset into memory."""
         s_id = season_service.resolve_season(season_id)
+        if not season_service.season_exists(s_id):
+            raise FileNotFoundError(f"Season data file not found for season '{s_id}'.")
+
         if s_id in self._seasons_df and not force_reload:
+            # FIX: When switching to an already-cached season, ensure primary active references update
+            if s_id == season_service.get_active_season() or self._df is None:
+                self._df = self._seasons_df[s_id]
+                self._records = self._seasons_records[s_id]
+                self._by_id = self._seasons_by_id[s_id]
             return self._seasons_df[s_id]
 
         file_path = season_service.get_season_file_path(s_id, preferred_format='csv')
@@ -154,7 +162,7 @@ class DataLoader:
             return self._seasons_df[s_id]
         if season_service.season_exists(s_id):
             return self.load_season(s_id)
-        return self._df
+        raise FileNotFoundError(f"Season '{season}' not found.")
 
     def get_records(self, season=None):
         if not self._is_initialized:
@@ -167,12 +175,18 @@ class DataLoader:
         if season_service.season_exists(s_id):
             self.load_season(s_id)
             return self._seasons_records.get(s_id, self._records)
-        return self._records
+        raise FileNotFoundError(f"Season '{season}' not found.")
 
     def get_by_id(self, record_id, season=None):
         if not self._is_initialized:
             self.initialize()
-        s_id = season_service.resolve_season(season) if season else season_service.get_active_season()
+        if season:
+            s_id = season_service.resolve_season(season)
+            if not season_service.season_exists(s_id):
+                raise FileNotFoundError(f"Season '{season}' not found.")
+        else:
+            s_id = season_service.get_active_season()
+
         if s_id not in self._seasons_by_id and season_service.season_exists(s_id):
             self.load_season(s_id)
 

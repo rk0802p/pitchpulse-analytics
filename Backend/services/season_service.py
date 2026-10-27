@@ -33,18 +33,23 @@ class SeasonService:
         return self._active_season
 
     def resolve_season(self, season_str):
-        """Normalizes various season representations (e.g. '2024/25', '2024-2025') to canonical format."""
+        """Normalizes various season representations (e.g. '2024/25', '24/25', '2024-2025', '2024-25') to canonical format."""
         if not season_str:
             return self._active_season
         cleaned = str(season_str).strip()
         if re.match(r'^\d{4}-\d{4}$', cleaned):
             return cleaned
-        match_slash = re.match(r'^(\d{4})/(\d{2,4})$', cleaned)
+        match_slash = re.match(r'^(\d{4})[/-](\d{2,4})$', cleaned)
         if match_slash:
             start = match_slash.group(1)
             end = match_slash.group(2)
             if len(end) == 2:
                 end = start[:2] + end
+            return f"{start}-{end}"
+        match_short = re.match(r'^(\d{2})[/-](\d{2})$', cleaned)
+        if match_short:
+            start = "20" + match_short.group(1)
+            end = "20" + match_short.group(2)
             return f"{start}-{end}"
         return cleaned
 
@@ -74,16 +79,30 @@ class SeasonService:
                     logger.warning(f"Failed to read manifest for season '{entry}': {e}")
 
             display_name = manifest.get('display_name') or f"{entry.replace('-', '/')} Season"
+            dataset_status = manifest.get('dataset_status') or ('verified_historical' if manifest.get('is_baseline') else 'unverified')
+            is_projection = manifest.get('is_projection', dataset_status == 'projection')
+            status_label = manifest.get('status_label') or ('Algorithmic Projection' if is_projection else ('Reference Baseline' if manifest.get('is_baseline') else 'Verified Historical'))
+
             seasons.append({
                 'id': entry,
+                'canonical_id': entry,
                 'name': display_name,
+                'display_name': display_name,
                 'is_active': (entry == self._active_season),
                 'is_baseline': manifest.get('is_baseline', entry == DEFAULT_SEASON),
+                'dataset_status': dataset_status,
+                'status_label': status_label,
+                'is_projection': is_projection,
                 'records_count': manifest.get('records_count', 0),
                 'clubs_count': manifest.get('clubs_count', 0),
                 'competitions_count': manifest.get('competitions_count', 5),
                 'imported_at': manifest.get('imported_at', 'Unknown'),
-                'source': manifest.get('source', 'FBref / StatsBomb style aggregates'),
+                'source': manifest.get('source', manifest.get('source_name', 'FBref / StatsBomb style aggregates')),
+                'source_name': manifest.get('source_name', manifest.get('source')),
+                'source_url': manifest.get('source_url'),
+                'data_as_of': manifest.get('data_as_of'),
+                'verification_notes': manifest.get('verification_notes'),
+                'content_hash': manifest.get('content_hash', manifest.get('sha256')),
                 'validation_status': manifest.get('validation_status', 'passed'),
                 'files': manifest.get('files', {})
             })

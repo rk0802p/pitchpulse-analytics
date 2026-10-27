@@ -428,11 +428,18 @@ class DatasetImporter:
         }
 
         manifest = {
+            'canonical_id': season,
             'season': season,
+            'display_name': f"{season.replace('-', '/')} Season",
+            'dataset_status': 'unverified',
+            'status_label': 'Unverified Import',
+            'is_projection': False,
             'source': source_name or "FBref / StatsBomb style player-level aggregates",
+            'source_name': source_name or "FBref / StatsBomb style player-level aggregates",
             'imported_at': datetime.now(timezone.utc).isoformat(),
             'original_filename': os.path.basename(file_path),
             'original_sha256': raw_sha256,
+            'content_hash': raw_sha256,
             'records_count': len(norm_df),
             'columns_count': len(norm_df.columns),
             'competitions_count': int(norm_df['Comp'].nunique()),
@@ -445,7 +452,8 @@ class DatasetImporter:
                 'csv': csv_filename
             },
             'validation_status': 'passed',
-            'schema_version': '1.0.0'
+            'schema_version': '1.1.0',
+            'verification_notes': 'Dataset passed 37-column canonical schema and rate-derivation checks. Awaiting factual domain verification.'
         }
 
         if not dry_run:

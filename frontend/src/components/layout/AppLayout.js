@@ -6,11 +6,15 @@ import {
   GitCompare, 
   Layers, 
   Menu, 
-  X,
-  Search,
-  Database,
-  ChevronDown,
-  Check
+  X, 
+  Search, 
+  Database, 
+  ChevronDown, 
+  Check,
+  RefreshCw,
+  AlertTriangle,
+  Lock,
+  Calendar
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -20,7 +24,8 @@ export const AppLayout = ({
   onNavigate,
   activeSeason = "2024-2025",
   availableSeasons = [],
-  onSelectSeason
+  onSelectSeason,
+  isSwitchingSeason = false
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
@@ -38,15 +43,24 @@ export const AppLayout = ({
       });
   }, []);
 
-  // Close season dropdown on click outside
+  // Close season dropdown on click outside or Escape key
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setSeasonDropdownOpen(false);
       }
     };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setSeasonDropdownOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const navItems = [
@@ -66,6 +80,7 @@ export const AppLayout = ({
   };
 
   const handleSeasonSelect = (seasonId) => {
+    if (isSwitchingSeason) return;
     if (onSelectSeason) {
       onSelectSeason(seasonId);
     }
@@ -75,6 +90,59 @@ export const AppLayout = ({
   const formatSeasonName = (id) => {
     if (!id) return '2024/25';
     return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
+  };
+
+  const activeSeasonMeta = availableSeasons.find(s => (s.id || s) === activeSeason) || {};
+  const isActiveProjection = activeSeasonMeta.is_projection || activeSeasonMeta.dataset_status === 'projection';
+  const isActiveBaseline = activeSeasonMeta.is_baseline;
+
+  const renderSeasonOption = (s) => {
+    const sId = s.id || s;
+    const sName = s.name || s.display_name || sId;
+    const isSelected = sId === activeSeason;
+    const isProj = s.is_projection || s.dataset_status === 'projection';
+    const isBaseline = s.is_baseline;
+
+    return (
+      <button
+        key={sId}
+        role="option"
+        aria-selected={isSelected}
+        disabled={isSwitchingSeason}
+        onClick={() => handleSeasonSelect(sId)}
+        className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-xs transition-colors border-b border-pitch-border/30 last:border-b-0 ${
+          isSelected 
+            ? 'text-emerald-400 font-bold bg-emerald-500/10' 
+            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+        } ${isSwitchingSeason ? 'opacity-60 cursor-not-allowed' : ''}`}
+      >
+        <div className="flex-1 min-w-0 pr-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="truncate font-medium">{sName}</span>
+            {isBaseline && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5">
+                <Lock className="w-2.5 h-2.5 inline" /> Baseline
+              </span>
+            )}
+            {isProj && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5">
+                <AlertTriangle className="w-2.5 h-2.5 inline" /> Projection
+              </span>
+            )}
+            {!isBaseline && !isProj && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Historical
+              </span>
+            )}
+          </div>
+          <div className="text-[10px] text-slate-500 font-mono mt-0.5 flex items-center gap-2">
+            <span>{sId}</span>
+            {s.records_count ? <span>• {Number(s.records_count).toLocaleString()} players</span> : null}
+          </div>
+        </div>
+        {isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+      </button>
+    );
   };
 
   return (
@@ -91,23 +159,75 @@ export const AppLayout = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Mobile Season Pill */}
+          {/* Mobile Season Pill - Opens season selector */}
           <button
-            onClick={() => handleNavClick("data")}
-            className="px-2 py-1 bg-pitch-card border border-pitch-border rounded text-[11px] font-mono text-emerald-400"
+            onClick={() => setSeasonDropdownOpen(!seasonDropdownOpen)}
+            disabled={isSwitchingSeason}
+            aria-label="Select active football season"
+            aria-expanded={seasonDropdownOpen}
+            className={`px-2.5 py-1 bg-pitch-card hover:bg-slate-800 border border-pitch-border rounded-lg text-xs font-mono flex items-center gap-1.5 transition-colors ${
+              isActiveProjection ? 'text-amber-400 border-amber-500/40' : 'text-emerald-400'
+            } ${isSwitchingSeason ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {formatSeasonName(activeSeason)}
+            {isSwitchingSeason ? (
+              <RefreshCw className="w-3 h-3 text-emerald-400 animate-spin" />
+            ) : (
+              <Database className="w-3 h-3 text-emerald-400" />
+            )}
+            <span>{formatSeasonName(activeSeason)}</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
           </button>
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
-            aria-label="Toggle menu"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </header>
+
+      {/* Mobile Season Selector Modal Backdrop */}
+      {seasonDropdownOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:hidden">
+          <div className="w-full max-w-sm bg-pitch-surface border border-pitch-border rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div className="p-4 border-b border-pitch-border flex items-center justify-between bg-pitch-card">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-emerald-400" />
+                <h3 className="font-bold text-sm text-white">Select Season</h3>
+              </div>
+              <button
+                onClick={() => setSeasonDropdownOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                aria-label="Close season modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-72 overflow-y-auto divide-y divide-pitch-border/30">
+              {availableSeasons.map(renderSeasonOption)}
+            </div>
+            <div className="p-3 border-t border-pitch-border/60 bg-pitch-surface flex items-center justify-between">
+              <button
+                onClick={() => {
+                  handleNavClick("data");
+                  setSeasonDropdownOpen(false);
+                }}
+                className="text-xs text-slate-400 hover:text-emerald-400 font-mono"
+              >
+                Dataset Registry &rarr;
+              </button>
+              <button
+                onClick={() => setSeasonDropdownOpen(false)}
+                className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar Navigation */}
       <aside className={`
@@ -169,14 +289,26 @@ export const AppLayout = ({
               </span>
             </div>
           </div>
-          <div className="p-2.5 rounded-lg bg-pitch-card border border-pitch-border text-[11px] text-slate-400 space-y-1">
+          <div className="p-2.5 rounded-lg bg-pitch-card border border-pitch-border text-[11px] text-slate-400 space-y-1.5">
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Active Season</span>
               <span className="text-emerald-400 font-mono font-semibold">{activeSeason}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Storage Mode</span>
-              <span className="text-slate-300 font-mono">Versioned Local</span>
+              <span className="text-slate-500">Status</span>
+              {isActiveBaseline ? (
+                <span className="text-emerald-300 font-mono text-[10px] bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                  Baseline Locked
+                </span>
+              ) : isActiveProjection ? (
+                <span className="text-amber-300 font-mono text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
+                  Projection
+                </span>
+              ) : (
+                <span className="text-cyan-300 font-mono text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-500/30">
+                  Verified Historical
+                </span>
+              )}
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Coverage</span>
@@ -205,52 +337,60 @@ export const AppLayout = ({
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setSeasonDropdownOpen(!seasonDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pitch-card hover:bg-slate-800 border border-pitch-border hover:border-emerald-500/40 text-xs transition-colors"
+                disabled={isSwitchingSeason}
+                aria-label="Select season"
+                aria-haspopup="listbox"
+                aria-expanded={seasonDropdownOpen}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pitch-card hover:bg-slate-800 border border-pitch-border hover:border-emerald-500/40 text-xs transition-colors ${
+                  isSwitchingSeason ? 'opacity-60 cursor-not-allowed' : ''
+                }`}
               >
-                <Database className="w-3.5 h-3.5 text-emerald-400" />
+                {isSwitchingSeason ? (
+                  <RefreshCw className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
+                ) : (
+                  <Database className="w-3.5 h-3.5 text-emerald-400" />
+                )}
                 <span className="text-slate-400">Season:</span>
                 <span className="font-mono font-bold text-white">{activeSeason}</span>
+                {isActiveProjection && (
+                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Proj
+                  </span>
+                )}
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-0.5" />
               </button>
 
               {/* Dropdown Menu */}
               {seasonDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-60 bg-pitch-card border border-pitch-border rounded-xl shadow-xl py-1.5 z-50 animate-fadeIn">
-                  <div className="px-3 py-1.5 border-b border-pitch-border/60 text-[10px] font-mono uppercase tracking-wider text-slate-500">
-                    Switch Active Season
+                <div 
+                  role="listbox" 
+                  aria-label="Available football seasons"
+                  className="absolute right-0 mt-1.5 w-72 bg-pitch-card border border-pitch-border rounded-xl shadow-2xl py-1.5 z-50 animate-fadeIn"
+                >
+                  <div className="px-3 py-1.5 border-b border-pitch-border/60 text-[10px] font-mono uppercase tracking-wider text-slate-500 flex justify-between items-center">
+                    <span>Switch Active Season</span>
+                    {isSwitchingSeason && (
+                      <span className="text-emerald-400 flex items-center gap-1 normal-case font-sans text-xs">
+                        <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
+                      </span>
+                    )}
                   </div>
-                  <div className="max-h-60 overflow-y-auto py-1">
-                    {availableSeasons.map((s) => {
-                      const isSelected = (s.id || s) === activeSeason;
-                      const sId = s.id || s;
-                      const sName = s.name || sId;
-                      return (
-                        <button
-                          key={sId}
-                          onClick={() => handleSeasonSelect(sId)}
-                          className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors hover:bg-slate-800/80 ${
-                            isSelected ? 'text-emerald-400 font-bold bg-emerald-500/10' : 'text-slate-300'
-                          }`}
-                        >
-                          <div>
-                            <div>{sName}</div>
-                            <span className="text-[10px] text-slate-500 font-mono">{sId}</span>
-                          </div>
-                          {isSelected && <Check className="w-4 h-4 text-emerald-400" />}
-                        </button>
-                      );
-                    })}
+                  <div className="max-h-72 overflow-y-auto py-1">
+                    {availableSeasons.map(renderSeasonOption)}
                   </div>
-                  <div className="border-t border-pitch-border/60 px-3 py-1.5 bg-pitch-surface/40">
+                  <div className="border-t border-pitch-border/60 px-3 py-1.5 bg-pitch-surface/40 flex justify-between items-center">
                     <button
                       onClick={() => {
                         handleNavClick("data");
                         setSeasonDropdownOpen(false);
                       }}
-                      className="text-[11px] text-slate-400 hover:text-emerald-400 font-mono transition-colors block w-full text-left"
+                      className="text-[11px] text-slate-400 hover:text-emerald-400 font-mono transition-colors"
                     >
                       Manage Datasets &rarr;
                     </button>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {availableSeasons.length} seasons
+                    </span>
                   </div>
                 </div>
               )}

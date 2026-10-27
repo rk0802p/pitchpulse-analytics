@@ -127,5 +127,15 @@
     "csv": "top5-players-2026-2027.csv"
   },
   "validation_status": "passed",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "canonical_id": "2026-2027",
+  "display_name": "2026/27 Algorithmic Projection",
+  "dataset_status": "projection",
+  "status_label": "Algorithmic Projection",
+  "is_projection": true,
+  "source_name": "Synthetic projection generated via inject_future_seasons.py",
+  "source_url": "script://Backend/scripts/inject_future_seasons.py",
+  "data_as_of": "Synthetic simulation (Not actual match statistics)",
+  "content_hash": "56954702359431472d3292d33b2fe2e0f0d4ab442c6d14821453019cfcc00c0a",
+  "verification_notes": "SYNTHETIC DATASET: Generated programmatically by inject_future_seasons.py by applying two-year stochastic performance trajectories onto 2024/25 baseline statistics. Must NOT be treated as genuine match events or official records."
 }

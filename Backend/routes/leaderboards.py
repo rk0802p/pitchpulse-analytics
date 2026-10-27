@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.analytics_service import get_leaderboard, get_dashboard_analytics
+from services.season_service import season_service
 from schemas.responses import success_response, error_response
 
 leaderboards_bp = Blueprint('leaderboards', __name__)
@@ -8,6 +9,8 @@ leaderboards_bp = Blueprint('leaderboards', __name__)
 def dashboard_analytics():
     comp = request.args.get('competition') or request.args.get('comp')
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return error_response(f"Season '{season}' not found", status_code=404)
     data = get_dashboard_analytics(comp, season=season)
     if data is None and comp:
         return error_response(f"Competition '{comp}' not recognized", status_code=404)
@@ -19,6 +22,8 @@ def leaderboards():
     competition = request.args.get('competition') or request.args.get('comp')
     position = request.args.get('position') or request.args.get('pos')
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return error_response(f"Season '{season}' not found", status_code=404)
 
     min_minutes_raw = request.args.get('min_minutes')
     try:
@@ -57,6 +62,8 @@ def leaderboards():
 def get_league_leaders_legacy():
     """Legacy endpoint returning leaders for goals, assists, matches, minutes."""
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
     leaders = {
         'goals': [{'Player': r['player'], 'Squad': r['squad'], 'Gls': r['value'], 'Pos': r['position']}
                   for r in get_leaderboard(metric='Gls', limit=10, season=season)],

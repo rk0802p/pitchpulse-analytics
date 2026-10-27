@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.player_service import search_players, get_player_profile
 from services.data_loader import data_loader
+from services.season_service import season_service
 from services.validation_service import validate_pagination
 from schemas.responses import success_response, error_response, paginated_response
 
@@ -15,6 +16,8 @@ def get_players():
     sort_by = request.args.get('sort_by') or request.args.get('sort') or 'Gls'
     order = request.args.get('order', 'desc')
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return error_response(f"Season '{season}' not found", status_code=404)
 
     min_minutes_raw = request.args.get('min_minutes') or request.args.get('min_mins')
     try:
@@ -44,6 +47,8 @@ def get_players():
 @players_bp.route('/players/<player_id>', methods=['GET'])
 def get_player(player_id):
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return error_response(f"Season '{season}' not found", status_code=404)
     profile = get_player_profile(player_id, season=season)
     if not profile:
         return error_response(f"Player with ID '{player_id}' not found", status_code=404)
@@ -55,6 +60,8 @@ def get_player(player_id):
 def get_players_by_team_legacy(league, team):
     """Legacy endpoint returning list of players for team and league."""
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
     items, _ = search_players(competition=league, squad=team, limit=100, season=season)
     return jsonify(items)
 
@@ -62,6 +69,8 @@ def get_players_by_team_legacy(league, team):
 def get_player_legacy(player_id):
     """Legacy endpoint returning original format."""
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
     player = data_loader.get_by_id(player_id, season=season)
     if not player:
         return jsonify({'success': False, 'error': 'Player not found'}), 404

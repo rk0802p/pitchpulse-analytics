@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from config import METADATA, METRIC_DEFINITIONS, DATASET_PATH
-from schemas.responses import success_response
+from schemas.responses import success_response, error_response
 from services.season_service import season_service
 import os
 
@@ -19,6 +19,8 @@ def health():
 @meta_bp.route('/metadata', methods=['GET'])
 def metadata():
     season = request.args.get('season')
+    if season and not season_service.season_exists(season):
+        return error_response(f"Season '{season}' not found", status_code=404)
     meta = dict(METADATA)
     if season:
         manifest = season_service.get_season_manifest(season)

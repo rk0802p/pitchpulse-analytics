@@ -3,7 +3,8 @@ import { Zap } from 'lucide-react';
 
 export const ProgressionMatrixChart = ({
   progressionLeaders = [],
-  onPlayerClick
+  onPlayerClick,
+  season = "2024/25"
 }) => {
   const maxCarries = Math.max(...progressionLeaders.map(p => p.PrgC || 0), 100);
 
@@ -72,7 +73,7 @@ export const ProgressionMatrixChart = ({
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Progressive Passes (PrgP)
           </span>
         </div>
-        <span className="text-slate-500">2024/25 Regular Season</span>
+        <span className="text-slate-500">{season} Regular Season</span>
       </div>
     </div>
   );

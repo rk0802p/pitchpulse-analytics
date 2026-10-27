@@ -54,7 +54,8 @@ export const LeaderboardsView = ({
   competitions = [],
   onPlayerClick,
   onCompareToggle,
-  isCompared
+  isCompared,
+  season = "2024/25"
 }) => {
   const topThree = leaders.slice(0, 3);
   const remainingLeaders = leaders.slice(3);
@@ -276,7 +277,7 @@ export const LeaderboardsView = ({
                 <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 font-mono">
                   Rankings 4 – {leaders.length}
                 </h4>
-                <span className="text-xs text-slate-400 font-mono">2024/25 European Regular Season</span>
+                <span className="text-xs text-slate-400 font-mono">{season} European Regular Season</span>
               </div>
 
               <div className="divide-y divide-pitch-border/60">

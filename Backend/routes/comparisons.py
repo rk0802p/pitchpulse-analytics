@@ -12,6 +12,9 @@ def compare():
     data = request.get_json() or {}
     player_ids = data.get('player_ids') or data.get('ids') or []
     season = data.get('season') or request.args.get('season')
+    from services.season_service import season_service
+    if season and not season_service.season_exists(season):
+        return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
 
     if not isinstance(player_ids, list):
         return jsonify({'success': False, 'error': 'player_ids must be a list'}), 400

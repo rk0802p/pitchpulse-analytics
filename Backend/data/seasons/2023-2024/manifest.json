@@ -127,5 +127,15 @@
     "csv": "top5-players-2023-2024.csv"
   },
   "validation_status": "passed",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "canonical_id": "2023-2024",
+  "display_name": "2023/24 Historical Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Verified Historical",
+  "is_projection": false,
+  "source_name": "FBref / StatsBomb via JSzamik FootballDataAnalysis archive",
+  "source_url": "https://raw.githubusercontent.com/JSzamik/FootballDataAnalysis-R-Visualisations/main/top5-players.csv",
+  "data_as_of": "2023-2024 European Regular Season (Completed)",
+  "content_hash": "a211a93938a2afef8e69bb2714b82d0de87e8d4fe9fd043cd684276387893b16",
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2023/24. Spot-checked against official FBref & competition records: Harry Kane (36 goals, European Golden Shoe winner), Serhou Guirassy (28 goals), Erling Haaland (27 goals, PL Golden Boot), Kylian Mbappe (27 goals), Artem Dovbyk (24 goals, Pichichi winner), Alex Baena (14 assists). Schema validated for 37 canonical metrics."
 }

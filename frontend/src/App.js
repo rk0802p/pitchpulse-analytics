@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AppLayout from './components/layout/AppLayout';
 import PageHeader from './components/common/PageHeader';
 import StatCard from './components/common/StatCard';
@@ -50,9 +50,28 @@ function App() {
       : 'dashboard';
   });
 
-  // Season Management State
+  // Season Management State & Authoritative Sequence Tracking
   const [activeSeason, setActiveSeason] = useState('2024-2025');
   const [availableSeasons, setAvailableSeasons] = useState([{ id: '2024-2025', name: '2024/25 Regular Season' }]);
+  const [isSwitchingSeason, setIsSwitchingSeason] = useState(false);
+  const [seasonSwitchError, setSeasonSwitchError] = useState(null);
+  const activeSeasonRef = useRef(activeSeason);
+
+  useEffect(() => {
+    activeSeasonRef.current = activeSeason;
+  }, [activeSeason]);
+
+  const formatSeasonName = useCallback((id) => {
+    if (!id) return '2024/25';
+    return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
+  }, []);
+
+  const formatSeasonShort = useCallback((id) => {
+    if (!id) return '24/25';
+    const m = id.match(/\d{2}(\d{2})[/-]\d{2}(\d{2})/);
+    if (m) return `${m[1]}/${m[2]}`;
+    return id;
+  }, []);
 
   // Global Metadata & Competitions
   const [competitions, setCompetitions] = useState([]);
@@ -146,48 +165,85 @@ function App() {
   }, []);
 
   const handleSeasonChange = async (seasonId) => {
-    setActiveSeason(seasonId);
+    if (!seasonId || seasonId === activeSeason || isSwitchingSeason) return;
+    const previousSeason = activeSeason;
+    setIsSwitchingSeason(true);
+    setSeasonSwitchError(null);
+
     try {
-      await api.setActiveSeason(seasonId);
+      const res = await api.setActiveSeason(seasonId);
+      if (!res?.success) {
+        throw new Error(res?.error || `Failed to activate season ${seasonId}`);
+      }
+
+      // Update authoritative state only after backend confirms success
+      setActiveSeason(seasonId);
+
+      // Reset incompatible season-dependent state
+      setExplorerPagination(prev => ({ ...prev, page: 1 }));
+      setCompareList([]);
+      setComparisonData(null);
+      setSelectedLegacyTeam(null);
+      setLegacyTeams([]);
+      setLegacyPlayers([]);
+      setClubSearchQuery('');
+      setPlayerSquadSearchQuery('');
+
+      // Refresh seasons registry list
+      const seasonsRes = await api.getSeasons().catch(() => null);
+      if (seasonsRes?.success && Array.isArray(seasonsRes.data)) {
+        setAvailableSeasons(seasonsRes.data);
+      }
     } catch (err) {
       console.error("Error setting active season:", err);
+      setSeasonSwitchError({
+        failedSeason: seasonId,
+        previousSeason,
+        message: err.message || `Failed to activate season ${seasonId}. Reverted to previous season.`
+      });
+      // State remains previousSeason (rollback guaranteed)
+    } finally {
+      setIsSwitchingSeason(false);
     }
-    api.getSeasons().then(res => {
-      if (res?.success && Array.isArray(res.data)) {
-        setAvailableSeasons(res.data);
-      }
-    }).catch(() => {});
   };
 
-  // Fetch initial metadata and competitions
+  // Fetch initial metadata and competitions with activeSeason
   const fetchInitialData = useCallback(async () => {
     setGlobalError(null);
+    const reqSeason = activeSeason;
     try {
       const [compRes, metaRes] = await Promise.all([
-        api.getCompetitions().catch(() => ({ success: false, data: [] })),
-        api.getMetadata().catch(() => ({ success: false, data: null }))
+        api.getCompetitions(reqSeason).catch(() => ({ success: false, data: [] })),
+        api.getMetadata(reqSeason).catch(() => ({ success: false, data: null }))
       ]);
 
-      if (compRes?.success) setCompetitions(compRes.data);
-      if (metaRes?.success) setMetadata(metaRes.data);
+      if (activeSeasonRef.current === reqSeason) {
+        if (compRes?.success) setCompetitions(compRes.data);
+        if (metaRes?.success) setMetadata(metaRes.data);
+      }
     } catch (err) {
-      setGlobalError(err.message);
+      if (activeSeasonRef.current === reqSeason) {
+        setGlobalError(err.message);
+      }
     }
-  }, []);
+  }, [activeSeason]);
 
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  // Fetch Dashboard Analytics
+  // Fetch Dashboard Analytics with request sequencing
   const fetchDashboardData = useCallback(async () => {
+    const reqSeason = activeSeason;
     try {
-      const res = await api.getDashboard(dashboardComp, activeSeason);
-      if (res?.success) {
+      const res = await api.getDashboard(dashboardComp, reqSeason);
+      if (res?.success && activeSeasonRef.current === reqSeason) {
         setDashboardData(res.data);
       }
     } catch (err) {
-      console.error("Error fetching dashboard analytics:", err);
+      if (activeSeasonRef.current === reqSeason) {
+        console.error("Error fetching dashboard analytics:", err);
+      }
     }
   }, [dashboardComp, activeSeason]);
 
@@ -197,9 +253,10 @@ function App() {
     }
   }, [currentTab, fetchDashboardData]);
 
-  // Fetch Explorer Players
+  // Fetch Explorer Players with request sequencing
   const fetchExplorerPlayers = useCallback(async () => {
     setLoadingExplorer(true);
+    const reqSeason = activeSeason;
     try {
       const res = await api.getPlayers({
         search: searchQuery,
@@ -210,18 +267,22 @@ function App() {
         order: sortOrder,
         page: explorerPagination.page,
         limit: explorerPagination.limit,
-        season: activeSeason
+        season: reqSeason
       });
-      if (res?.success) {
+      if (res?.success && activeSeasonRef.current === reqSeason) {
         setExplorerPlayers(res.data);
         if (res.pagination) {
           setExplorerPagination(res.pagination);
         }
       }
     } catch (err) {
-      console.error("Error fetching explorer players:", err);
+      if (activeSeasonRef.current === reqSeason) {
+        console.error("Error fetching explorer players:", err);
+      }
     } finally {
-      setLoadingExplorer(false);
+      if (activeSeasonRef.current === reqSeason) {
+        setLoadingExplorer(false);
+      }
     }
   }, [searchQuery, selectedComp, selectedPos, minMinutes, sortBy, sortOrder, explorerPagination.page, explorerPagination.limit, activeSeason]);
 
@@ -231,9 +292,10 @@ function App() {
     }
   }, [currentTab, fetchExplorerPlayers]);
 
-  // Fetch Leaderboards
+  // Fetch Leaderboards with request sequencing
   const fetchLeaderboards = useCallback(async () => {
     setLoadingLeaders(true);
+    const reqSeason = activeSeason;
     try {
       const res = await api.getLeaderboards({
         metric: leaderboardMetric,
@@ -241,15 +303,19 @@ function App() {
         position: leaderboardPos,
         min_minutes: leaderboardMinMin,
         limit: 20,
-        season: activeSeason
+        season: reqSeason
       });
-      if (res?.success) {
+      if (res?.success && activeSeasonRef.current === reqSeason) {
         setLeaderboardLeaders(res.data);
       }
     } catch (err) {
-      console.error("Error fetching leaderboards:", err);
+      if (activeSeasonRef.current === reqSeason) {
+        console.error("Error fetching leaderboards:", err);
+      }
     } finally {
-      setLoadingLeaders(false);
+      if (activeSeasonRef.current === reqSeason) {
+        setLoadingLeaders(false);
+      }
     }
   }, [leaderboardMetric, leaderboardComp, leaderboardPos, leaderboardMinMin, activeSeason]);
 
@@ -259,47 +325,65 @@ function App() {
     }
   }, [currentTab, fetchLeaderboards]);
 
-  // Fetch Comparison Data
+  // Fetch Comparison Data with activeSeason
   useEffect(() => {
     if (currentTab === 'compare' && compareList.length > 0) {
       setLoadingCompare(true);
+      const reqSeason = activeSeason;
       const ids = compareList.map(p => p.id || p.Rk);
-      api.comparePlayers(ids)
+      api.comparePlayers(ids, reqSeason)
         .then(res => {
-          if (res?.success) setComparisonData(res);
+          if (res?.success && activeSeasonRef.current === reqSeason) {
+            setComparisonData(res);
+          }
         })
         .catch(err => {
-          console.error("Error comparing players:", err);
+          if (activeSeasonRef.current === reqSeason) {
+            console.error("Error comparing players:", err);
+          }
         })
-        .finally(() => setLoadingCompare(false));
+        .finally(() => {
+          if (activeSeasonRef.current === reqSeason) {
+            setLoadingCompare(false);
+          }
+        });
     }
-  }, [currentTab, compareList]);
+  }, [currentTab, compareList, activeSeason]);
 
-  // Fetch Player Profile
+  // Fetch Player Profile with activeSeason
   useEffect(() => {
     if (currentTab === 'profile' && profilePlayerId) {
       setLoadingProfile(true);
-      api.getPlayer(profilePlayerId)
+      const reqSeason = activeSeason;
+      api.getPlayer(profilePlayerId, reqSeason)
         .then(res => {
-          if (res?.success) setPlayerProfile(res.data);
+          if (res?.success && activeSeasonRef.current === reqSeason) {
+            setPlayerProfile(res.data);
+          }
         })
         .catch(err => {
-          console.error("Error loading profile:", err);
+          if (activeSeasonRef.current === reqSeason) {
+            console.error("Error loading profile:", err);
+          }
         })
-        .finally(() => setLoadingProfile(false));
+        .finally(() => {
+          if (activeSeasonRef.current === reqSeason) {
+            setLoadingProfile(false);
+          }
+        });
     }
-  }, [currentTab, profilePlayerId]);
+  }, [currentTab, profilePlayerId, activeSeason]);
 
-  // Classic Browser Handlers
+  // Classic Browser Handlers with activeSeason
   useEffect(() => {
-    if (currentTab === 'browse' && legacyLeagues.length === 0) {
-      api.getLegacyLeagues()
+    if (currentTab === 'browse') {
+      api.getLegacyLeagues(activeSeason)
         .then(data => {
           setLegacyLeagues(unwrapList(data));
         })
         .catch(err => setGlobalError(err.message));
     }
-  }, [currentTab, legacyLeagues.length]);
+  }, [currentTab, activeSeason]);
 
   const handleLegacyLeagueSelect = async (league) => {
     setSelectedLegacyLeague(league);
@@ -308,13 +392,20 @@ function App() {
     setLegacyPlayers([]);
     setClubSearchQuery('');
     setLoadingLegacyTeams(true);
+    const reqSeason = activeSeason;
     try {
-      const response = await api.getLegacyTeams(league);
-      setLegacyTeams(unwrapList(response));
+      const response = await api.getLegacyTeams(league, reqSeason);
+      if (activeSeasonRef.current === reqSeason) {
+        setLegacyTeams(unwrapList(response));
+      }
     } catch (err) {
-      setGlobalError(err.message);
+      if (activeSeasonRef.current === reqSeason) {
+        setGlobalError(err.message);
+      }
     } finally {
-      setLoadingLegacyTeams(false);
+      if (activeSeasonRef.current === reqSeason) {
+        setLoadingLegacyTeams(false);
+      }
     }
   };
 
@@ -324,13 +415,20 @@ function App() {
     setPlayerSquadSearchQuery('');
     setSelectedSquadPos('ALL');
     setLoadingLegacyPlayers(true);
+    const reqSeason = activeSeason;
     try {
-      const response = await api.getLegacyPlayersByTeam(selectedLegacyLeague, team);
-      setLegacyPlayers(unwrapList(response));
+      const response = await api.getLegacyPlayersByTeam(selectedLegacyLeague, team, reqSeason);
+      if (activeSeasonRef.current === reqSeason) {
+        setLegacyPlayers(unwrapList(response));
+      }
     } catch (err) {
-      setGlobalError(err.message);
+      if (activeSeasonRef.current === reqSeason) {
+        setGlobalError(err.message);
+      }
     } finally {
-      setLoadingLegacyPlayers(false);
+      if (activeSeasonRef.current === reqSeason) {
+        setLoadingLegacyPlayers(false);
+      }
     }
   };
 
@@ -409,7 +507,37 @@ function App() {
         activeSeason={activeSeason}
         availableSeasons={availableSeasons}
         onSelectSeason={handleSeasonChange}
+        isSwitchingSeason={isSwitchingSeason}
       >
+      {/* Season Switch Error Notification */}
+      {seasonSwitchError && (
+        <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-4 animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+              <X className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="font-bold text-sm text-white">Season Switch Failed</div>
+              <div className="text-xs text-rose-300 font-mono mt-0.5">{seasonSwitchError.message}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleSeasonChange(seasonSwitchError.failedSeason)}
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold transition-colors"
+            >
+              Retry Switch
+            </button>
+            <button
+              onClick={() => setSeasonSwitchError(null)}
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg"
+              aria-label="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {globalError && (
         <ErrorBanner
           message="Analytics API Connection Notice"
@@ -456,8 +584,8 @@ function App() {
         <div>
           <PageHeader
             title="European Football Intelligence"
-            subtitle="2024/25 Big 5 league metrics, expected outputs, progression dynamics, and player ratings."
-            season="2024/25"
+            subtitle={`${formatSeasonName(activeSeason)} Big 5 league metrics, expected outputs, progression dynamics, and player ratings.`}
+            season={formatSeasonName(activeSeason)}
             actions={
               <button
                 onClick={() => navigateTo('explorer')}
@@ -527,7 +655,7 @@ function App() {
               value={dashboardData?.kpis?.total_goals?.toLocaleString() || "4,806"}
               subtext={`Assists: ${dashboardData?.kpis?.total_assists?.toLocaleString() || "3,200+"}`}
               icon={Target}
-              badge="Full 24/25"
+              badge={`Full ${formatSeasonShort(activeSeason)}`}
               accentColor="rose"
             />
             <StatCard
@@ -621,7 +749,7 @@ function App() {
                 <Shield className="w-4 h-4 text-emerald-400" /> Data Provenance & Model Notes
               </span>
               <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                2024/25 Regular Season Coverage
+                {formatSeasonName(activeSeason)} Regular Season Coverage
               </span>
             </div>
             <p>
@@ -640,8 +768,8 @@ function App() {
         <div>
           <PageHeader
             title="Player Explorer"
-            subtitle="Search, filter, and inspect 2,854 player records. Filter by role, minutes threshold, and sorting metric."
-            season="2024/25"
+            subtitle={`Search, filter, and inspect ${metadata?.total_records ? Number(metadata.total_records).toLocaleString() : '2,854'} player records. Filter by role, minutes threshold, and sorting metric.`}
+            season={formatSeasonName(activeSeason)}
             actions={
               <div className="flex items-center gap-2">
                 <div className="flex items-center p-0.5 rounded-lg bg-pitch-card border border-pitch-border">
@@ -745,7 +873,7 @@ function App() {
           <PageHeader
             title="Statistical Leaderboards"
             subtitle="Rank players across scoring, expected values, playmaking, and progression actions."
-            season="2024/25"
+            season={formatSeasonName(activeSeason)}
           />
 
           <LeaderboardsView
@@ -763,6 +891,7 @@ function App() {
             onPlayerClick={(id) => navigateTo('profile', id)}
             onCompareToggle={toggleComparePlayer}
             isCompared={(id) => compareList.some(p => (p.id || p.Rk) === id)}
+            season={formatSeasonName(activeSeason)}
           />
         </div>
       )}
@@ -773,7 +902,7 @@ function App() {
           <PageHeader
             title="Player Comparison Workspace"
             subtitle="Side-by-side performance benchmarks, scoring, progression, and rates."
-            season="2024/25"
+            season={formatSeasonName(activeSeason)}
             actions={
               <div className="flex items-center gap-2">
                 {compareList.length > 0 && (
@@ -902,7 +1031,7 @@ function App() {
           <PageHeader
             title="Club Squad Roster Browser"
             subtitle="Explore clubs and players through interactive 3D analytics cards and scouting tables."
-            season="2024/25"
+            season={formatSeasonName(activeSeason)}
             actions={
               selectedLegacyLeague && (
                 <button
@@ -949,7 +1078,7 @@ function App() {
                         </span>
                       </div>
                       <p className="text-xs text-slate-400 mt-0.5 font-mono">
-                        {loadingLegacyTeams ? 'Loading club registry...' : `${legacyTeams.length} Clubs Competing in 2024/25 Season`}
+                        {loadingLegacyTeams ? 'Loading club registry...' : `${legacyTeams.length} Clubs Competing in ${formatSeasonName(activeSeason)} Season`}
                       </p>
                     </div>
                   </div>
@@ -1242,7 +1371,7 @@ function App() {
           ) : (
             <EmptyState
               title="Player not found"
-              message="Could not locate the requested player record in the 2024/25 dataset."
+              message={`Could not locate the requested player record in the ${formatSeasonName(activeSeason)} dataset.`}
               onReset={() => navigateTo('explorer')}
               resetText="Return to Explorer"
             />

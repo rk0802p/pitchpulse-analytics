@@ -143,8 +143,9 @@ export const api = {
   },
 
   // Backward compatibility methods with smart envelope unwrapping & serverless query fallback
-  getLegacyLeagues: async () => {
-    const res = await request('/leagues');
+  getLegacyLeagues: async (season) => {
+    const query = season ? `?season=${encodeURIComponent(season)}` : '';
+    const res = await request(`/leagues${query}`);
     if (Array.isArray(res)) return res;
     if (res?.success && Array.isArray(res.data)) return res.data;
     return [];
