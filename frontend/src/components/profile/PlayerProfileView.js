@@ -130,16 +130,16 @@ export const PlayerProfileView = ({
         <StatCard
           title="Goals Scored"
           value={scoring.goals}
-          subtext={`Expected (xG): ${scoring.expected_goals ?? scoring.xg ?? 0}`}
-          badge={(scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? `+${scoring.finishing_differential ?? scoring.goals_minus_xg} Over xG` : `${scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0} Diff`}
-          badgeType={(scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? "positive" : "negative"}
+          subtext={(scoring.expected_goals ?? scoring.xg) > 0 ? `Expected (xG): ${scoring.expected_goals ?? scoring.xg}` : 'Standard Goals Output'}
+          badge={(scoring.expected_goals ?? scoring.xg) > 0 ? ((scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? `+${scoring.finishing_differential ?? scoring.goals_minus_xg} Over xG` : `${scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0} Diff`) : 'Goals Scored'}
+          badgeType={(scoring.expected_goals ?? scoring.xg) > 0 ? ((scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? "positive" : "negative") : "neutral"}
           icon={Target}
           accentColor="rose"
         />
         <StatCard
           title="Chance Creation"
           value={playmaking.assists}
-          subtext={`Expected Assists (xAG): ${playmaking.expected_assisted_goals ?? playmaking.xag ?? 0}`}
+          subtext={(playmaking.expected_assisted_goals ?? playmaking.xag) > 0 ? `Expected Assists (xAG): ${playmaking.expected_assisted_goals ?? playmaking.xag}` : `${playmaking.goals_plus_assists} Total G+A`}
           badge={`${playmaking.goals_plus_assists} G+A`}
           badgeType="accent"
           icon={Sparkles}
@@ -147,10 +147,10 @@ export const PlayerProfileView = ({
         />
         <StatCard
           title="Ball Progression"
-          value={progression.progressive_carries}
-          subtext={`Progressive Passes: ${progression.progressive_passes}`}
-          badge="PrgC & PrgP"
-          badgeType="accent"
+          value={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? progression.progressive_carries : "N/A"}
+          subtext={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? `Progressive Passes: ${progression.progressive_passes}` : "Spatial tracking unrecorded in this era"}
+          badge={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? "PrgC & PrgP" : "Untracked"}
+          badgeType={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? "accent" : "neutral"}
           icon={Zap}
           accentColor="purple"
         />
@@ -189,25 +189,26 @@ export const PlayerProfileView = ({
             {percentileMetrics.map((item) => {
               const metricData = percentiles[item.key];
               if (!metricData) return null;
-              const pct = metricData.percentile;
-              const barClass = getPercentileColor(pct);
+              const isUntracked = metricData.is_tracked === false || metricData.percentile === null || metricData.percentile === undefined;
+              const pct = isUntracked ? 0 : metricData.percentile;
+              const barClass = isUntracked ? 'bg-slate-700 text-slate-500' : getPercentileColor(pct);
 
               return (
                 <div key={item.key} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="text-slate-300 font-medium">{item.label}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-bold">{metricData.value}</span>
-                      <span className={`text-[11px] font-bold px-1.5 py-0.2 rounded ${barClass.split(' ')[1]}`}>
-                        {pct}th percentile
+                      <span className="text-white font-bold">{isUntracked ? '-' : metricData.value}</span>
+                      <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${isUntracked ? 'bg-slate-800 text-slate-400 border border-slate-700/60' : barClass.split(' ')[1]}`}>
+                        {isUntracked ? 'Untracked in era' : `${pct}th percentile`}
                       </span>
                     </div>
                   </div>
                   {/* Percentile bar */}
                   <div className="w-full bg-pitch-surface rounded-full h-2 overflow-hidden border border-pitch-border/50">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${barClass.split(' ')[0]}`}
-                      style={{ width: `${pct}%` }}
+                      className={`h-full rounded-full transition-all duration-700 ${isUntracked ? 'bg-slate-800/40' : barClass.split(' ')[0]}`}
+                      style={{ width: isUntracked ? '0%' : `${pct}%` }}
                     />
                   </div>
                 </div>

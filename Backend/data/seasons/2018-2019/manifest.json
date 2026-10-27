@@ -128,11 +128,21 @@
     "csv": "top5-players-2018-2019.csv"
   },
   "source": "Transfermarkt Comprehensive Match Appearances Datalake",
-  "source_name": "Transfermarkt Official Match Logs via archive datalake",
-  "source_url": "Transfermarkt Big 5 appearances",
+  "source_name": "Transfermarkt & Understat",
+  "source_url": "https://understat.com & https://github.com/vibedatascience/understat_players_aggregated",
   "data_as_of": "2018/19 Completed European Regular Season",
   "content_hash": "c2d9d3af08d6d17d5d078ae93f74eb650d4e076c8ac6b32d69687964dd746e9d",
-  "sha256": "c2d9d3af08d6d17d5d078ae93f74eb650d4e076c8ac6b32d69687964dd746e9d",
+  "sha256": "11897e26c3fdcaf43cb6861e1920e8dd0bd73ff6fbf18d72f3bf3bfcaf171a34",
   "validation_status": "passed",
-  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2018/19 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2018/19 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
+  "data_source": "Transfermarkt Match Appearances + Understat Expected Metrics (xG, xA, npxG)",
+  "metrics_available": [
+    "standard_stats",
+    "expected_goals",
+    "expected_assists",
+    "non_penalty_xg",
+    "per_90_rates"
+  ],
+  "tracking_notes": "xG, xA, and npxG verified against Understat match data. Ball progression (PrgC/PrgP) was not recorded in this era.",
+  "verified": true
 }

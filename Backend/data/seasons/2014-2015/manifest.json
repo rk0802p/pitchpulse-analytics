@@ -128,11 +128,21 @@
     "csv": "top5-players-2014-2015.csv"
   },
   "source": "Transfermarkt Comprehensive Match Appearances Datalake",
-  "source_name": "Transfermarkt Official Match Logs via archive datalake",
-  "source_url": "Transfermarkt Big 5 appearances",
+  "source_name": "Transfermarkt & Understat",
+  "source_url": "https://understat.com & https://github.com/vibedatascience/understat_players_aggregated",
   "data_as_of": "2014/15 Completed European Regular Season",
   "content_hash": "89f63f7bf4af757d061dfdfde53bb520cc8d0ccef7793d2d2dee4f5c7105e28f",
-  "sha256": "89f63f7bf4af757d061dfdfde53bb520cc8d0ccef7793d2d2dee4f5c7105e28f",
+  "sha256": "343cc00f63948a13d2a1eba624c1abb63620e6c13cade8669064df31d804c4bf",
   "validation_status": "passed",
-  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2014/15 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2014/15 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
+  "data_source": "Transfermarkt Match Appearances + Understat Expected Metrics (xG, xA, npxG)",
+  "metrics_available": [
+    "standard_stats",
+    "expected_goals",
+    "expected_assists",
+    "non_penalty_xg",
+    "per_90_rates"
+  ],
+  "tracking_notes": "xG, xA, and npxG verified against Understat match data. Ball progression (PrgC/PrgP) was not recorded in this era.",
+  "verified": true
 }
