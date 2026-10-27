@@ -23,12 +23,15 @@ import {
   Trophy,
   Users,
   Target,
-Zap,
-ArrowRight,
+  Zap,
+  ArrowRight,
   Shield,
-ArrowLeft,
+  ArrowLeft,
   X,
-  Plus
+  Plus,
+  Search,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 
 const unwrapList = (response) => {
