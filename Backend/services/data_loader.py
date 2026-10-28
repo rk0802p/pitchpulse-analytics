@@ -84,6 +84,8 @@ class DataLoader:
 
         self._validate_schema(raw_df)
         norm_df = self._normalize_dataset(raw_df)
+        norm_df['season'] = s_id
+        norm_df['comparison_key'] = norm_df['Rk'].astype(str) + '@' + s_id
         records = norm_df.to_dict(orient='records')
         by_id = {r['Rk']: r for r in records}
 

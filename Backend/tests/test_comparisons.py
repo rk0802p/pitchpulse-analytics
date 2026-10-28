@@ -58,5 +58,43 @@ class TestComparisonsEndpoints(unittest.TestCase):
         data = res.get_json()
         self.assertFalse(data['success'])
 
+    def test_compare_cross_season_dict_payload(self):
+        payload = json.dumps({
+            'player_ids': [
+                {'id': 1, 'season': '2018-2019'},
+                {'id': 2, 'season': '2023-2024'}
+            ]
+        })
+        res = self.client.post('/api/players/compare', data=payload, content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['players']), 2)
+        
+        # Check season tagging
+        seasons = [p['season'] for p in data['players']]
+        self.assertEqual(seasons, ['2018-2019', '2023-2024'])
+        
+        # Check comparison_key
+        keys = [p['comparison_key'] for p in data['players']]
+        self.assertEqual(keys, ['1@2018-2019', '2@2023-2024'])
+        
+        # Metrics indexed by comparison_key
+        for m in data['metrics']:
+            self.assertIn('1@2018-2019', m['values'])
+            self.assertIn('2@2023-2024', m['values'])
+
+    def test_compare_cross_season_string_payload(self):
+        payload = json.dumps({
+            'player_ids': ['1@2017-2018', '1@2022-2023']
+        })
+        res = self.client.post('/api/players/compare', data=payload, content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['players']), 2)
+        self.assertEqual(data['players'][0]['season'], '2017-2018')
+        self.assertEqual(data['players'][1]['season'], '2022-2023')
+
 if __name__ == '__main__':
     unittest.main()

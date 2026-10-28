@@ -101,5 +101,25 @@ class TestPlayersEndpoints(unittest.TestCase):
         self.assertGreater(len(players), 0)
         self.assertEqual(players[0]['Squad'], 'Real Madrid')
 
+    def test_historical_player_profile_untracked_metrics(self):
+        # In 2018-2019, progression metrics (PrgC, PrgP, PrgR) were untracked in historical Understat datasets
+        res = self.client.get('/api/players/1?season=2018-2019')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        profile = data['data']
+        self.assertEqual(profile['season'], '2018-2019')
+        
+        # Check progression untracked flags in percentiles
+        pcts = profile['percentiles']
+        self.assertFalse(pcts['progressive_carries']['is_tracked'])
+        self.assertIsNone(pcts['progressive_carries']['percentile'])
+        self.assertFalse(pcts['progressive_passes']['is_tracked'])
+        self.assertIsNone(pcts['progressive_passes']['percentile'])
+        
+        # Check scoring has genuine Understat xG metrics
+        self.assertTrue(pcts['xg_per_90']['is_tracked'])
+        self.assertIsNotNone(pcts['xg_per_90']['percentile'])
+
 if __name__ == '__main__':
     unittest.main()

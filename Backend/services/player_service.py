@@ -312,7 +312,8 @@ def get_player_profile(record_id, season=None):
 
         },
 
-        "raw_record": player
+        "raw_record": player,
+        "season": player.get("season", season)
 
     }
 

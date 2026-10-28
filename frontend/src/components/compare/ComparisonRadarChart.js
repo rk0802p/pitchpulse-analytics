@@ -131,10 +131,11 @@ export const ComparisonRadarChart = ({
           {/* Player Radar Polygons */}
           {players.map((p, pIdx) => {
             const color = PLAYER_COLORS[pIdx % PLAYER_COLORS.length];
+            const pKey = p.comparison_key || String(p.id);
             const pIdStr = String(p.id);
 
             const polygonPoints = radarData.map((dim, i) => {
-              const score = dim.scores?.[pIdStr] ?? 50;
+              const score = dim.scores?.[pKey] ?? dim.scores?.[pIdStr] ?? 50;
               // Minimum radius of 8 so polygon vertices don't collapse to invisible zero
               const clampedDist = (Math.max(6, Math.min(100, score)) / 100) * radius;
               const { x, y } = getCoordinates(i * angleStep, clampedDist);
@@ -142,7 +143,7 @@ export const ComparisonRadarChart = ({
             }).join(' ');
 
             return (
-              <g key={`polygon-${pIdStr}`}>
+              <g key={`polygon-${pKey}`}>
                 <polygon
                   points={polygonPoints}
                   fill={color.fill}
@@ -153,14 +154,14 @@ export const ComparisonRadarChart = ({
 
                 {/* Vertex Dots */}
                 {radarData.map((dim, i) => {
-                  const score = dim.scores?.[pIdStr] ?? 50;
-                  const rawVal = dim.values?.[pIdStr] ?? 0;
+                  const score = dim.scores?.[pKey] ?? dim.scores?.[pIdStr] ?? 50;
+                  const rawVal = dim.values?.[pKey] ?? dim.values?.[pIdStr] ?? 0;
                   const clampedDist = (Math.max(6, Math.min(100, score)) / 100) * radius;
                   const { x, y } = getCoordinates(i * angleStep, clampedDist);
 
                   return (
                     <circle
-                      key={`vertex-${pIdStr}-${dim.key}`}
+                      key={`vertex-${pKey}-${dim.key}`}
                       cx={x}
                       cy={y}
                       r={4.5}
@@ -203,10 +204,10 @@ export const ComparisonRadarChart = ({
         {players.map((p, pIdx) => {
           const color = PLAYER_COLORS[pIdx % PLAYER_COLORS.length];
           return (
-            <div key={p.id} className="flex items-center gap-2">
+            <div key={p.comparison_key || p.id} className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${color.dot} shadow-xs`}></span>
               <span className="text-xs font-semibold text-slate-200">{p.Player}</span>
-              <span className="text-[10px] text-slate-400 font-mono">({p.Squad})</span>
+              <span className="text-[10px] text-slate-400 font-mono">({p.Squad}{p.season ? ` · ${p.season}` : ''})</span>
             </div>
           );
         })}

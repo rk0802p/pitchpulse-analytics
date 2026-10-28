@@ -179,10 +179,8 @@ function App() {
       // Update authoritative state only after backend confirms success
       setActiveSeason(seasonId);
 
-      // Reset incompatible season-dependent state
+      // Reset incompatible season-dependent state (keep compareList for cross-season comparison)
       setExplorerPagination(prev => ({ ...prev, page: 1 }));
-      setCompareList([]);
-      setComparisonData(null);
       setSelectedLegacyTeam(null);
       setLegacyTeams([]);
       setLegacyPlayers([]);
@@ -325,27 +323,25 @@ function App() {
     }
   }, [currentTab, fetchLeaderboards]);
 
-  // Fetch Comparison Data with activeSeason
+  // Fetch Comparison Data with cross-season support
   useEffect(() => {
     if (currentTab === 'compare' && compareList.length > 0) {
       setLoadingCompare(true);
-      const reqSeason = activeSeason;
-      const ids = compareList.map(p => p.id || p.Rk);
-      api.comparePlayers(ids, reqSeason)
+      const items = compareList.map(p => ({
+        id: p.id || p.Rk,
+        season: p.season || activeSeason
+      }));
+      api.comparePlayers(items, activeSeason)
         .then(res => {
-          if (res?.success && activeSeasonRef.current === reqSeason) {
+          if (res?.success) {
             setComparisonData(res);
           }
         })
         .catch(err => {
-          if (activeSeasonRef.current === reqSeason) {
-            console.error("Error comparing players:", err);
-          }
+          console.error("Error comparing players:", err);
         })
         .finally(() => {
-          if (activeSeasonRef.current === reqSeason) {
-            setLoadingCompare(false);
-          }
+          setLoadingCompare(false);
         });
     }
   }, [currentTab, compareList, activeSeason]);
@@ -447,19 +443,21 @@ function App() {
     });
   }, [legacyPlayers, selectedSquadPos, playerSquadSearchQuery]);
 
-  // Compare actions
+  // Compare actions (supports cross-season comparison)
   const toggleComparePlayer = (player) => {
     const pId = player.id || player.Rk;
+    const pSeason = player.season || activeSeason;
+    const matchKey = `${pId}@${pSeason}`;
     setCompareList(prev => {
-      const exists = prev.some(p => (p.id || p.Rk) === pId);
+      const exists = prev.some(p => `${p.id || p.Rk}@${p.season || activeSeason}` === matchKey);
       if (exists) {
-        return prev.filter(p => (p.id || p.Rk) !== pId);
+        return prev.filter(p => `${p.id || p.Rk}@${p.season || activeSeason}` !== matchKey);
       }
       if (prev.length >= 5) {
         alert("Maximum 5 players can be compared at once.");
         return prev;
       }
-      return [...prev, player];
+      return [...prev, { ...player, season: pSeason, comparison_key: matchKey }];
     });
   };
 
@@ -902,7 +900,7 @@ function App() {
             competitions={competitions}
             onPlayerClick={(id) => navigateTo('profile', id)}
             onCompareToggle={toggleComparePlayer}
-            isCompared={(id) => compareList.some(p => (p.id || p.Rk) === id)}
+            isCompared={(id) => compareList.some(p => (p.id || p.Rk) === id && (p.season || activeSeason) === activeSeason)}
             season={formatSeasonName(activeSeason)}
           />
         </div>
@@ -993,7 +991,7 @@ function App() {
                           className="pr-6 cursor-pointer hover:text-emerald-400"
                         >
                           <h4 className="font-bold text-white text-sm truncate">{p.Player}</h4>
-                          <p className="text-xs text-slate-400 truncate">{p.Squad} · <span className="text-slate-500 font-mono">{p.Pos}</span></p>
+                          <p className="text-xs text-slate-400 truncate">{p.Squad} · <span className="text-slate-500 font-mono">{p.Pos}</span> · <span className="text-emerald-400 font-mono font-semibold">{p.season || activeSeason}</span></p>
                         </div>
                       </div>
 

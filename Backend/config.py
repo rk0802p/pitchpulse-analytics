@@ -1,7 +1,10 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATASET_PATH = os.environ.get('DATASET_PATH', os.path.join(BASE_DIR, 'top5-players24-25.xlsx'))
+DEFAULT_DATASET = os.path.join(BASE_DIR, 'data', 'seasons', '2024-2025', 'top5-players24-25.xlsx')
+if not os.path.exists(DEFAULT_DATASET):
+    DEFAULT_DATASET = os.path.join(BASE_DIR, 'top5-players24-25.xlsx')
+DATASET_PATH = os.environ.get('DATASET_PATH', DEFAULT_DATASET)
 
 METADATA = {
     "season": "2024-2025",

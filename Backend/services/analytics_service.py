@@ -1,6 +1,7 @@
 import pandas as pd
 from services.data_loader import data_loader
 from services.validation_service import resolve_competition, validate_metric
+from services.season_service import season_service
 
 def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0, limit=10, season=None):
     df = data_loader.get_dataframe(season=season)
@@ -69,31 +70,58 @@ def compare_players(record_ids, season=None):
     clean_ids = record_ids[:5]
     players = []
     for rid in clean_ids:
-        p = data_loader.get_by_id(rid, season=season)
+        p_id = rid
+        p_season = season
+        if isinstance(rid, dict):
+            p_id = rid.get('id') or rid.get('player_id') or rid.get('Rk')
+            p_season = rid.get('season') or season
+        elif isinstance(rid, str) and (':' in rid or '@' in rid):
+            delimiter = ':' if ':' in rid else '@'
+            parts = rid.split(delimiter)
+            p_id = parts[0]
+            p_season = parts[1]
+
+        p = data_loader.get_by_id(p_id, season=p_season)
         if p:
-            players.append(p)
+            p_copy = dict(p)
+            p_copy['season'] = p_season or season or season_service.get_active_season()
+            p_copy['comparison_key'] = f"{p_copy['id']}@{p_copy['season']}"
+            players.append(p_copy)
 
     if not players:
         return None
 
-    # Aligned comparison matrix
+    # Aligned comparison matrix (aligned with FBref standard and advanced breakdowns)
     metrics_to_compare = [
+        # Playing Time & Volume
         {"key": "MP", "label": "Matches Played", "type": "total"},
+        {"key": "Starts", "label": "Games Started", "type": "total"},
         {"key": "Min", "label": "Minutes Played", "type": "total"},
+        {"key": "90s", "label": "90s Completed", "type": "total"},
+        # Scoring & Shooting
         {"key": "Gls", "label": "Goals", "type": "total"},
+        {"key": "G-PK", "label": "Non-Penalty Goals", "type": "total"},
+        {"key": "PK", "label": "Penalty Goals", "type": "total"},
+        {"key": "PKatt", "label": "Penalties Attempted", "type": "total"},
+        {"key": "xG", "label": "Expected Goals (xG)", "type": "expected"},
+        {"key": "npxG", "label": "Non-Penalty xG (npxG)", "type": "expected"},
+        {"key": "Gls_minus_xG", "label": "Finishing Differential (Gls - xG)", "type": "differential"},
+        # Playmaking & Creation
         {"key": "Ast", "label": "Assists", "type": "total"},
         {"key": "G+A", "label": "Goals + Assists", "type": "total"},
-        {"key": "xG", "label": "Expected Goals (xG)", "type": "expected"},
         {"key": "xAG", "label": "Expected Assisted Goals (xAG)", "type": "expected"},
-        {"key": "Gls_minus_xG", "label": "Finishing Differential (Gls - xG)", "type": "differential"},
-        {"key": "PrgC", "label": "Progressive Carries", "type": "progression"},
-        {"key": "PrgP", "label": "Progressive Passes", "type": "progression"},
-        {"key": "PrgR", "label": "Progressive Receptions", "type": "progression"},
+        # Standardized Rates (Per 90 Minutes)
         {"key": "Gls_90", "label": "Goals / 90", "type": "rate"},
         {"key": "Ast_90", "label": "Assists / 90", "type": "rate"},
+        {"key": "G+A_90", "label": "Goals + Assists / 90", "type": "rate"},
         {"key": "xG_90", "label": "xG / 90", "type": "rate"},
         {"key": "xAG_90", "label": "xAG / 90", "type": "rate"},
         {"key": "npxG_90", "label": "npxG / 90", "type": "rate"},
+        # Ball Progression & Spatial Coordinates
+        {"key": "PrgC", "label": "Progressive Carries", "type": "progression"},
+        {"key": "PrgP", "label": "Progressive Passes", "type": "progression"},
+        {"key": "PrgR", "label": "Progressive Receptions", "type": "progression"},
+        # Disciplinary Record
         {"key": "CrdY", "label": "Yellow Cards", "type": "discipline"},
         {"key": "CrdR", "label": "Red Cards", "type": "discipline"}
     ]
@@ -111,7 +139,11 @@ def compare_players(record_ids, season=None):
     aligned_matrix = []
     for metric_meta in metrics_to_compare:
         key = metric_meta["key"]
-        values = {str(p["id"]): p.get(key, 0) for p in players}
+        values = {}
+        for p in players:
+            val = p.get(key, 0)
+            values[str(p["id"])] = val
+            values[p["comparison_key"]] = val
         
         # Determine best/leader value
         raw_vals = [p.get(key, 0) or 0 for p in players]
@@ -121,7 +153,21 @@ def compare_players(record_ids, season=None):
         else:
             best_val = max(raw_vals) if raw_vals else 0
 
-        leaders = [str(p["id"]) for p in players if (p.get(key, 0) or 0) == best_val and best_val > 0]
+        leaders = []
+        for p in players:
+            if (p.get(key, 0) or 0) == best_val and best_val > 0:
+                leaders.append(str(p["id"]))
+                leaders.append(p["comparison_key"])
+
+        # Detect untracked metrics per player (e.g. historical spatial progression)
+        untracked = []
+        if key in ["PrgC", "PrgP", "PrgR"]:
+            for p in players:
+                p_season = p.get('season')
+                df_season = data_loader.get_dataframe(season=p_season)
+                if df_season is not None and key in df_season.columns and df_season[key].max() == 0:
+                    untracked.append(p["comparison_key"])
+                    untracked.append(str(p["id"]))
 
         aligned_matrix.append({
             "metric": metric_meta["label"],
@@ -130,23 +176,27 @@ def compare_players(record_ids, season=None):
             "category": metric_meta["type"],
             "values": values,
             "leaders": leaders,
-            "best_value": best_val
+            "best_value": best_val,
+            "untracked": untracked
         })
-
-    df = data_loader.get_dataframe(season=season)
-    # Compute percentile rank against European players with at least 270 mins
-    qualified_peers = df[df['Min'] >= 270] if len(df) > 0 else df
 
     radar_data = []
     for dim in radar_dimensions:
         key = dim["key"]
-        dim_values = {str(p["id"]): p.get(key, 0) for p in players}
+        dim_values = {}
         dim_scores = {}
         
-        series = qualified_peers[key] if key in qualified_peers.columns else None
         for p in players:
+            p_season = p.get("season") or season or data_loader.get_active_season()
+            p_df = data_loader.get_dataframe(season=p_season)
+            p_peers = p_df[p_df['Min'] >= 270] if len(p_df) > 0 else p_df
+            
             raw_val = p.get(key, 0) or 0
-            if series is not None and len(series) > 0:
+            dim_values[str(p["id"])] = raw_val
+            dim_values[p["comparison_key"]] = raw_val
+            
+            series = p_peers[key] if key in p_peers.columns else None
+            if series is not None and len(series) > 0 and series.max() > 0:
                 try:
                     pct = round(float((series < float(raw_val)).mean() * 100), 1)
                 except (ValueError, TypeError):
@@ -154,6 +204,7 @@ def compare_players(record_ids, season=None):
             else:
                 pct = 50.0
             dim_scores[str(p["id"])] = pct
+            dim_scores[p["comparison_key"]] = pct
 
         radar_data.append({
             "dimension": dim["label"],

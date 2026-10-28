@@ -25,7 +25,7 @@ class TestDatasetImporter(unittest.TestCase):
     def setUpClass(cls):
         cls.importer = DatasetImporter(strict=True, allow_unknown=False, min_records=5)
         cls.backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        cls.baseline_excel = os.path.join(cls.backend_dir, 'top5-players24-25.xlsx')
+        cls.baseline_excel = os.path.join(cls.backend_dir, 'data', 'seasons', '2024-2025', 'top5-players24-25.xlsx')
         cls.baseline_csv = os.path.join(cls.backend_dir, 'data', 'seasons', '2024-2025', 'top5-players24-25.csv')
         cls.temp_dir = tempfile.mkdtemp()
 
