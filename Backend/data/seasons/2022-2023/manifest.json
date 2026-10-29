@@ -132,7 +132,7 @@
   "source_url": "https://understat.com & https://github.com/vibedatascience/understat_players_aggregated",
   "data_as_of": "2022/23 Completed European Regular Season",
   "content_hash": "86563dee488acda7acd5d8092eb281237879b35f8072193138bfee76166eb5f6",
-  "sha256": "2f06ffada05755ae1c936972cef2586018962078d2923633ba65c1ae77188e1e",
+  "sha256": "c69cf80797940d842f91a29402c235ec10134923699df250564fceddb0bb5f07",
   "validation_status": "passed",
   "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2022/23 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
   "data_source": "Transfermarkt Match Appearances + Understat Expected Metrics (xG, xA, npxG)",
@@ -144,5 +144,9 @@
     "per_90_rates"
   ],
   "tracking_notes": "xG, xA, and npxG verified against Understat match data. Ball progression (PrgC/PrgP) was not recorded in this era.",
-  "verified": true
+  "verified": true,
+  "repair_status": "repaired_understat_deterministic_matching",
+  "repaired_zero_xg_records": 15,
+  "intra_league_spells_nullified": 168,
+  "matched_players_count": 2845
 }

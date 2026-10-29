@@ -1,8 +1,8 @@
 {
   "summary": {
     "total_audited": 27,
-    "matches": 12,
-    "mismatches": 15,
+    "matches": 13,
+    "mismatches": 14,
     "unverifiable": 0
   },
   "seasons": {
@@ -385,21 +385,20 @@
         "expected_squad": "Tottenham Hotspur",
         "category": "Joint Golden Boot Winner (FW, High Min)",
         "source_ref": "https://understat.com/player/453 (Understat 2021/22)",
-        "status": "mismatch",
-        "matches_count": 6,
-        "mismatches_count": 1,
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
         "unverifiable_count": 0,
         "matches": [
           "Gls: 23.0 matches 23.0",
           "Ast: 9.0 matches 9.0",
           "Min: 3022.0 matches 3051.0",
           "MP: 35.0 matches 35.0",
+          "xG: 16.99 matches 16.99",
           "PrgC: confirmed untracked/zero",
           "Squad: Tottenham Hotspur matches Tottenham Hotspur"
         ],
-        "mismatches": [
-          "xG: expected 16.99, observed 0.0 (diff=-16.99)"
-        ],
+        "mismatches": [],
         "unverifiable": [],
         "notes": "23 goals from 16.99 Understat xG (magnificent finishing overperformance +6.01)."
       }

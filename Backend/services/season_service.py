@@ -59,13 +59,45 @@ class SeasonService:
         path = os.path.join(self.seasons_dir, s_id)
         return os.path.isdir(path)
 
+    def get_quarantine_policy(self, season_id):
+        """
+        Centralized governance policy evaluation for datasets.
+        Returns quarantine state, reason, status label, and authorization flags.
+        """
+        s_id = self.resolve_season(season_id) if season_id else self._active_season
+        manifest = self.get_season_manifest(s_id) or {}
+        is_quarantined = (
+            manifest.get('is_quarantined') is True or
+            manifest.get('dataset_status') == 'quarantined' or
+            s_id == '2025-2026'
+        )
+        quarantine_reason = manifest.get('quarantine_reason')
+        if is_quarantined and not quarantine_reason:
+            quarantine_reason = (
+                "Composite dataset contains squad attribution anomalies (197 clubs) "
+                "and unverified projections. Quarantined from authoritative rankings."
+            )
+
+        status = 'quarantined' if is_quarantined else 'verified_historical'
+        status_label = manifest.get('status_label') or ('Quarantined / Provisional' if is_quarantined else 'Historical Season')
+
+        return {
+            'season_id': s_id,
+            'is_quarantined': is_quarantined,
+            'status': status,
+            'dataset_status': status,
+            'status_label': status_label,
+            'quarantine_reason': quarantine_reason if is_quarantined else None,
+            'warning_title': 'Quarantined / Provisional Dataset' if is_quarantined else None,
+            'warning_message': quarantine_reason if is_quarantined else None,
+            'allow_authoritative_rankings': not is_quarantined,
+            'exclude_from_global_benchmarks': is_quarantined,
+            'badge_variant': 'warning' if is_quarantined else 'success'
+        }
+
     def is_season_quarantined(self, season_id):
         """Returns True if the season has been quarantined from authoritative rankings."""
-        manifest = self.get_season_manifest(season_id) or {}
-        if manifest.get('is_quarantined') is True or manifest.get('dataset_status') == 'quarantined':
-            return True
-        resolved = self.resolve_season(season_id)
-        return resolved == '2025-2026'
+        return self.get_quarantine_policy(season_id)['is_quarantined']
 
     def list_seasons(self):
         """Returns chronological list (oldest to newest) of available historical seasons with quarantine metadata."""
@@ -93,20 +125,12 @@ class SeasonService:
                     logger.warning(f"Failed to read manifest for season '{entry}': {e}")
 
             # Quarantine & governance resolution
-            is_quarantined = manifest.get('is_quarantined', (entry == '2025-2026'))
-            if is_quarantined:
-                dataset_status = 'quarantined'
-                status_label = manifest.get('status_label', 'Quarantined / Provisional')
-                quarantine_reason = manifest.get(
-                    'quarantine_reason',
-                    'Composite dataset contains squad attribution anomalies (197 clubs) and unverified projections. Quarantined from authoritative rankings.'
-                )
-                is_projection = True
-            else:
-                dataset_status = manifest.get('dataset_status', 'verified_historical')
-                status_label = manifest.get('status_label', 'Historical Season')
-                quarantine_reason = None
-                is_projection = False
+            policy = self.get_quarantine_policy(entry)
+            is_quarantined = policy['is_quarantined']
+            dataset_status = policy['dataset_status']
+            status_label = policy['status_label']
+            quarantine_reason = policy['quarantine_reason']
+            is_projection = is_quarantined
 
             # Human friendly display name e.g. "2023/24 Historical Season"
             short_year = entry.replace('-', '/').replace('20', '', 1)

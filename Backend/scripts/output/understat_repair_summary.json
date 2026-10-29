@@ -1,0 +1,56 @@
+{
+  "2014-2015": {
+    "matched": 2544,
+    "total": 2580,
+    "repaired_zeros": 19,
+    "intra_league_spells": 148
+  },
+  "2015-2016": {
+    "matched": 2732,
+    "total": 2770,
+    "repaired_zeros": 17,
+    "intra_league_spells": 157
+  },
+  "2016-2017": {
+    "matched": 2700,
+    "total": 2731,
+    "repaired_zeros": 16,
+    "intra_league_spells": 152
+  },
+  "2017-2018": {
+    "matched": 2665,
+    "total": 2690,
+    "repaired_zeros": 15,
+    "intra_league_spells": 148
+  },
+  "2018-2019": {
+    "matched": 2661,
+    "total": 2706,
+    "repaired_zeros": 73,
+    "intra_league_spells": 120
+  },
+  "2019-2020": {
+    "matched": 2678,
+    "total": 2727,
+    "repaired_zeros": 19,
+    "intra_league_spells": 136
+  },
+  "2020-2021": {
+    "matched": 2754,
+    "total": 2802,
+    "repaired_zeros": 20,
+    "intra_league_spells": 126
+  },
+  "2021-2022": {
+    "matched": 2600,
+    "total": 2632,
+    "repaired_zeros": 14,
+    "intra_league_spells": 146
+  },
+  "2022-2023": {
+    "matched": 2845,
+    "total": 2885,
+    "repaired_zeros": 15,
+    "intra_league_spells": 168
+  }
+}

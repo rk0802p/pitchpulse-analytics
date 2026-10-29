@@ -2,10 +2,17 @@ import pandas as pd
 from services.data_loader import data_loader
 from services.validation_service import resolve_competition, validate_metric
 from services.season_service import season_service
+from services.metric_registry import is_metric_tracked_in_era
 
 def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0, limit=10, season=None):
     df = data_loader.get_dataframe(season=season)
     metric_key = validate_metric(metric, default="Gls")
+
+    # Filter out missing / untracked records for this metric
+    if metric_key in df.columns:
+        df = df[df[metric_key].notna()]
+    else:
+        return []
 
     # Filter competition
     if competition:
@@ -28,37 +35,52 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
 
     sorted_df = df.sort_values(by=metric_key, ascending=False).head(limit)
 
+    target_season = season or season_service.get_active_season()
     results = []
     for rank, (_, row) in enumerate(sorted_df.iterrows(), start=1):
         raw_val = row[metric_key]
         clean_val = round(float(raw_val), 2) if isinstance(raw_val, (float, int)) and not pd.isna(raw_val) else raw_val
+        row_season = row.get("season", target_season)
+        player_id = int(row["id"])
         results.append({
             "rank": rank,
-            "id": int(row["id"]),
+            "id": player_id,
+            "Rk": player_id,
             "player": row["Player"],
+            "Player": row["Player"],
             "slug": row["player_slug"],
             "squad": row["Squad"],
+            "Squad": row["Squad"],
             "competition": row["competition_name"],
             "competition_id": row.get("competition_id", ""),
             "country": row["country"],
             "position": row["Pos"],
+            "Pos": row["Pos"],
             "age": row.get("Age"),
             "minutes": int(row["Min"]),
+            "Min": int(row["Min"]),
             "matches": int(row["MP"]),
+            "MP": int(row["MP"]),
             "starts": int(row.get("Starts", 0)),
             "value": clean_val,
             "metric": metric_key,
             "goals": int(row["Gls"]),
+            "Gls": int(row["Gls"]),
             "assists": int(row["Ast"]),
+            "Ast": int(row["Ast"]),
             "xg": float(row["xG"]) if pd.notna(row.get("xG")) else None,
+            "xG": float(row["xG"]) if pd.notna(row.get("xG")) else None,
             "xag": float(row["xAG"]) if pd.notna(row.get("xAG")) else None,
+            "xAG": float(row["xAG"]) if pd.notna(row.get("xAG")) else None,
             "goals_per_90": float(row.get("Gls_90", 0.0)) if pd.notna(row.get("Gls_90")) else 0.0,
             "assists_per_90": float(row.get("Ast_90", 0.0)) if pd.notna(row.get("Ast_90")) else 0.0,
             "xg_per_90": float(row.get("xG_90")) if pd.notna(row.get("xG_90")) else None,
             "xag_per_90": float(row.get("xAG_90")) if pd.notna(row.get("xAG_90")) else None,
             "progressive_passes": int(row["PrgP"]) if pd.notna(row.get("PrgP")) else None,
             "progressive_carries": int(row["PrgC"]) if pd.notna(row.get("PrgC")) else None,
-            "finishing_differential": float(row.get("Gls_minus_xG")) if pd.notna(row.get("Gls_minus_xG")) else None
+            "finishing_differential": float(row.get("Gls_minus_xG")) if pd.notna(row.get("Gls_minus_xG")) else None,
+            "season": row_season,
+            "comparison_key": f"{player_id}@{row_season}"
         })
     return results
 
@@ -140,34 +162,42 @@ def compare_players(record_ids, season=None):
     for metric_meta in metrics_to_compare:
         key = metric_meta["key"]
         values = {}
+        untracked = []
+        valid_vals = []
+
         for p in players:
-            val = p.get(key, 0)
-            values[str(p["id"])] = val
-            values[p["comparison_key"]] = val
-        
-        # Determine best/leader value
-        raw_vals = [p.get(key, 0) or 0 for p in players]
-        # For cards, lower is better; for others, higher is better
-        if key in ["CrdY", "CrdR"]:
-            best_val = min(raw_vals) if raw_vals else 0
+            p_season = p.get('season') or season or season_service.get_active_season()
+            p_comp = p.get('Comp')
+            val = p.get(key)
+            is_tracked = is_metric_tracked_in_era(key, p_season, p_comp) and val is not None and not pd.isna(val)
+
+            clean_val = val if is_tracked else None
+            values[str(p["id"])] = clean_val
+            values[p["comparison_key"]] = clean_val
+
+            if not is_tracked:
+                untracked.append(p["comparison_key"])
+                untracked.append(str(p["id"]))
+            else:
+                valid_vals.append(val)
+
+        # Determine best/leader value among players where metric is tracked
+        if valid_vals:
+            if key in ["CrdY", "CrdR"]:
+                best_val = min(valid_vals)
+            else:
+                best_val = max(valid_vals)
         else:
-            best_val = max(raw_vals) if raw_vals else 0
+            best_val = None
 
         leaders = []
-        for p in players:
-            if (p.get(key, 0) or 0) == best_val and best_val > 0:
-                leaders.append(str(p["id"]))
-                leaders.append(p["comparison_key"])
-
-        # Detect untracked metrics per player (e.g. historical spatial progression)
-        untracked = []
-        if key in ["PrgC", "PrgP", "PrgR"]:
+        if best_val is not None:
             for p in players:
-                p_season = p.get('season')
-                df_season = data_loader.get_dataframe(season=p_season)
-                if df_season is not None and key in df_season.columns and df_season[key].max() == 0:
-                    untracked.append(p["comparison_key"])
-                    untracked.append(str(p["id"]))
+                val = p.get(key)
+                if val is not None and not pd.isna(val) and val == best_val:
+                    if key in ["CrdY", "CrdR"] or best_val > 0:
+                        leaders.append(str(p["id"]))
+                        leaders.append(p["comparison_key"])
 
         aligned_matrix.append({
             "metric": metric_meta["label"],
@@ -185,32 +215,51 @@ def compare_players(record_ids, season=None):
         key = dim["key"]
         dim_values = {}
         dim_scores = {}
-        
+        dim_tracked = {}
+
         for p in players:
-            p_season = p.get("season") or season or data_loader.get_active_season()
+            p_season = p.get("season") or season or season_service.get_active_season()
+            p_comp = p.get("Comp")
             p_df = data_loader.get_dataframe(season=p_season)
-            p_peers = p_df[p_df['Min'] >= 270] if len(p_df) > 0 else p_df
-            
-            raw_val = p.get(key, 0) or 0
-            dim_values[str(p["id"])] = raw_val
-            dim_values[p["comparison_key"]] = raw_val
-            
-            series = p_peers[key] if key in p_peers.columns else None
-            if series is not None and len(series) > 0 and series.max() > 0:
-                try:
-                    pct = round(float((series < float(raw_val)).mean() * 100), 1)
-                except (ValueError, TypeError):
-                    pct = 50.0
+
+            raw_val = p.get(key)
+            is_tracked = is_metric_tracked_in_era(key, p_season, p_comp) and raw_val is not None and not pd.isna(raw_val)
+
+            p_id_str = str(p["id"])
+            p_cmp_key = p["comparison_key"]
+
+            dim_values[p_id_str] = raw_val if is_tracked else None
+            dim_values[p_cmp_key] = raw_val if is_tracked else None
+            dim_tracked[p_id_str] = is_tracked
+            dim_tracked[p_cmp_key] = is_tracked
+
+            if not is_tracked or raw_val is None:
+                dim_scores[p_id_str] = None
+                dim_scores[p_cmp_key] = None
             else:
-                pct = 50.0
-            dim_scores[str(p["id"])] = pct
-            dim_scores[p["comparison_key"]] = pct
+                p_peers = p_df[p_df['Min'] >= 270] if len(p_df) > 0 else p_df
+                if key in p_peers.columns:
+                    valid_series = p_peers[p_peers[key].notna()][key]
+                    if len(valid_series) >= 10:
+                        strictly_lower = (valid_series < float(raw_val)).sum()
+                        strictly_equal = (valid_series == float(raw_val)).sum()
+                        pct = round(float(((strictly_lower + 0.5 * strictly_equal) / len(valid_series)) * 100), 1)
+                        pct = max(0.0, min(100.0, pct))
+                        dim_scores[p_id_str] = pct
+                        dim_scores[p_cmp_key] = pct
+                    else:
+                        dim_scores[p_id_str] = None
+                        dim_scores[p_cmp_key] = None
+                else:
+                    dim_scores[p_id_str] = None
+                    dim_scores[p_cmp_key] = None
 
         radar_data.append({
             "dimension": dim["label"],
             "key": key,
             "values": dim_values,
-            "scores": dim_scores
+            "scores": dim_scores,
+            "is_tracked": dim_tracked
         })
 
     return {
@@ -277,18 +326,19 @@ def get_dashboard_analytics(competition=None, season=None):
         ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'xG', 'xAG', 'Gls', 'Ast', 'Min']
     ].to_dict(orient='records')
 
-    is_quarantined = season_service.is_season_quarantined(season)
+    quar_policy = season_service.get_quarantine_policy(season)
     quarantine_notice = None
-    if is_quarantined:
+    if quar_policy["is_quarantined"]:
         quarantine_notice = {
             "status": "quarantined",
-            "title": "Quarantined / Provisional Dataset",
-            "message": "This dataset was generated from composite projections and contains squad attribution anomalies (197 clubs). Statistics are shown for inspection only and excluded from authoritative rankings."
+            "title": quar_policy["warning_title"],
+            "message": quar_policy["warning_message"]
         }
 
     return {
-        "is_quarantined": is_quarantined,
+        "is_quarantined": quar_policy["is_quarantined"],
         "quarantine_notice": quarantine_notice,
+        "quarantine_policy": quar_policy,
         "kpis": {
             "total_players": total_players,
             "total_clubs": total_clubs,

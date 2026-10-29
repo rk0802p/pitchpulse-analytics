@@ -330,9 +330,9 @@ function App() {
       setLoadingCompare(true);
       const items = compareList.map(p => ({
         id: p.id || p.Rk,
-        season: p.season || activeSeason
+        season: p.season || activeSeasonRef.current
       }));
-      api.comparePlayers(items, activeSeason)
+      api.comparePlayers(items, activeSeasonRef.current)
         .then(res => {
           if (res?.success) {
             setComparisonData(res);
@@ -345,7 +345,7 @@ function App() {
           setLoadingCompare(false);
         });
     }
-  }, [currentTab, compareList, activeSeason]);
+  }, [currentTab, compareList]);
 
   // Fetch Player Profile with activeSeason
   useEffect(() => {
@@ -446,19 +446,45 @@ function App() {
 
   // Compare actions (supports cross-season comparison)
   const toggleComparePlayer = (player) => {
+    if (!player) return;
     const pId = player.id || player.Rk;
     const pSeason = player.season || activeSeason;
     const matchKey = `${pId}@${pSeason}`;
+    const pName = player.Player || player.player || 'Player';
+    const pSquad = player.Squad || player.squad || '';
+    const pPos = player.Pos || player.position || '';
+    const pGls = player.Gls !== undefined ? player.Gls : (player.goals !== undefined ? player.goals : 0);
+    const pAst = player.Ast !== undefined ? player.Ast : (player.assists !== undefined ? player.assists : 0);
+    const pXG = player.xG !== undefined ? player.xG : (player.xg !== undefined ? player.xg : '—');
+
     setCompareList(prev => {
-      const exists = prev.some(p => `${p.id || p.Rk}@${p.season || activeSeason}` === matchKey);
+      const exists = prev.some(p => (p.comparison_key || `${p.id || p.Rk}@${p.season}`) === matchKey);
       if (exists) {
-        return prev.filter(p => `${p.id || p.Rk}@${p.season || activeSeason}` !== matchKey);
+        return prev.filter(p => (p.comparison_key || `${p.id || p.Rk}@${p.season}`) !== matchKey);
       }
       if (prev.length >= 5) {
         alert("Maximum 5 players can be compared at once.");
         return prev;
       }
-      return [...prev, { ...player, season: pSeason, comparison_key: matchKey }];
+      return [...prev, {
+        ...player,
+        id: pId,
+        Rk: pId,
+        Player: pName,
+        player: pName,
+        Squad: pSquad,
+        squad: pSquad,
+        Pos: pPos,
+        position: pPos,
+        Gls: pGls,
+        goals: pGls,
+        Ast: pAst,
+        assists: pAst,
+        xG: pXG,
+        xg: pXG,
+        season: pSeason,
+        comparison_key: matchKey
+      }];
     });
   };
 
@@ -992,7 +1018,7 @@ function App() {
 
                   return (
                     <div
-                      key={p.id || p.Rk}
+                      key={p.comparison_key || `${p.id || p.Rk}@${p.season || activeSeason}`}
                       className={`bg-pitch-card border rounded-xl p-4 relative shadow-sm transition-all ${borderColors[idx % borderColors.length]}`}
                     >
                       <button
@@ -1304,7 +1330,7 @@ function App() {
                       player={player}
                       onSelectProfile={(p) => navigateTo('profile', p.id || p.Rk)}
                       onCompare={(p) => toggleComparePlayer(p)}
-                      isCompared={compareList.some(c => (c.id || c.Rk) === (player.id || player.Rk))}
+                      isCompared={compareList.some(c => (c.id || c.Rk) === (player.id || player.Rk) && (c.season || activeSeason) === (player.season || activeSeason))}
                     />
                   ))}
                 </div>
@@ -1331,7 +1357,7 @@ function App() {
                       <tbody className="divide-y divide-pitch-border/40">
                         {filteredSquadPlayers.map((p) => {
                           const pId = p.id || p.Rk;
-                          const isComp = compareList.some(c => (c.id || c.Rk) === pId);
+                          const isComp = compareList.some(c => (c.id || c.Rk) === pId && (c.season || activeSeason) === (p.season || activeSeason));
                           return (
                             <tr key={pId} className="hover:bg-slate-800/40 transition-colors">
                               <td className="py-3 px-4 font-medium text-white">
@@ -1408,7 +1434,7 @@ function App() {
               profile={playerProfile}
               onBack={() => navigateTo('explorer')}
               onCompare={() => toggleComparePlayer(playerProfile.raw_record)}
-              isCompared={compareList.some(p => (p.id || p.Rk) === playerProfile.identity.id)}
+              isCompared={compareList.some(p => (p.id || p.Rk) === playerProfile.identity.id && (p.season || activeSeason) === (playerProfile.season || activeSeason))}
             />
           ) : (
             <EmptyState

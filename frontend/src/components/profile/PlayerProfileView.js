@@ -220,9 +220,9 @@ export const PlayerProfileView = ({
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-bold">{isUntracked ? '-' : metricData.value}</span>
+                      <span className="text-white font-bold">{isUntracked ? '—' : metricData.value}</span>
                       <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${isUntracked ? 'bg-slate-800 text-slate-400 border border-slate-700/60' : barClass.split(' ')[1]}`}>
-                        {isUntracked ? 'Untracked in era' : `${pct}th percentile`}
+                        {metricData.insufficient_sample ? 'Sample < 10' : (isUntracked ? 'Untracked in era' : `${pct}th percentile`)}
                       </span>
                     </div>
                   </div>

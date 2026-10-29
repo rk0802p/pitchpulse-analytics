@@ -135,9 +135,9 @@ export const ComparisonRadarChart = ({
             const pIdStr = String(p.id);
 
             const polygonPoints = radarData.map((dim, i) => {
-              const score = dim.scores?.[pKey] ?? dim.scores?.[pIdStr] ?? 50;
-              // Minimum radius of 8 so polygon vertices don't collapse to invisible zero
-              const clampedDist = (Math.max(6, Math.min(100, score)) / 100) * radius;
+              const isTracked = dim.is_tracked?.[pKey] ?? dim.is_tracked?.[pIdStr] ?? (dim.values?.[pKey] !== null && dim.values?.[pKey] !== undefined);
+              const score = isTracked ? (dim.scores?.[pKey] ?? dim.scores?.[pIdStr] ?? 0) : 0;
+              const clampedDist = isTracked ? ((Math.max(6, Math.min(100, score)) / 100) * radius) : (radius * 0.04);
               const { x, y } = getCoordinates(i * angleStep, clampedDist);
               return `${x},${y}`;
             }).join(' ');
@@ -154,9 +154,10 @@ export const ComparisonRadarChart = ({
 
                 {/* Vertex Dots */}
                 {radarData.map((dim, i) => {
-                  const score = dim.scores?.[pKey] ?? dim.scores?.[pIdStr] ?? 50;
-                  const rawVal = dim.values?.[pKey] ?? dim.values?.[pIdStr] ?? 0;
-                  const clampedDist = (Math.max(6, Math.min(100, score)) / 100) * radius;
+                  const isTracked = dim.is_tracked?.[pKey] ?? dim.is_tracked?.[pIdStr] ?? (dim.values?.[pKey] !== null && dim.values?.[pKey] !== undefined);
+                  const score = isTracked ? (dim.scores?.[pKey] ?? dim.scores?.[pIdStr]) : null;
+                  const rawVal = isTracked ? (dim.values?.[pKey] ?? dim.values?.[pIdStr] ?? 0) : 'Untracked';
+                  const clampedDist = isTracked ? ((Math.max(6, Math.min(100, score ?? 0)) / 100) * radius) : (radius * 0.04);
                   const { x, y } = getCoordinates(i * angleStep, clampedDist);
 
                   return (
@@ -164,17 +165,18 @@ export const ComparisonRadarChart = ({
                       key={`vertex-${pKey}-${dim.key}`}
                       cx={x}
                       cy={y}
-                      r={4.5}
-                      fill={color.stroke}
-                      stroke="#0f172a"
+                      r={isTracked ? 4.5 : 3.5}
+                      fill={isTracked ? color.stroke : '#334155'}
+                      stroke={isTracked ? '#0f172a' : '#64748b'}
                       strokeWidth="1.5"
                       className="cursor-pointer transition-transform hover:scale-150"
                       onMouseEnter={() => setHoveredVertex({
                         player: p.Player,
                         dimension: dim.dimension,
                         rawVal,
-                        score,
-                        color: color.stroke
+                        score: score !== null && score !== undefined ? `${score}th percentile` : 'Untracked in this era',
+                        isTracked,
+                        color: isTracked ? color.stroke : '#64748b'
                       })}
                       onMouseLeave={() => setHoveredVertex(null)}
                     />
@@ -193,7 +195,7 @@ export const ComparisonRadarChart = ({
               <span className="text-xs font-bold text-white">{hoveredVertex.player}</span>
             </div>
             <div className="text-[11px] text-slate-300 font-mono">
-              {hoveredVertex.dimension}: <strong className="text-emerald-400">{hoveredVertex.rawVal}</strong> ({hoveredVertex.score}th percentile)
+              {hoveredVertex.dimension}: <strong className="text-emerald-400">{hoveredVertex.rawVal}</strong> ({hoveredVertex.score})
             </div>
           </div>
         )}

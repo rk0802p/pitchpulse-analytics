@@ -29,12 +29,13 @@ def compare():
     # Provide both legacy keys and modern rich comparison matrix
     selected_players = result['players']
     target_season = season or season_service.get_active_season()
-    is_quar = season_service.is_season_quarantined(target_season)
-    any_quarantined = is_quar or any(season_service.is_season_quarantined(p.get("season", target_season)) for p in selected_players)
+    base_policy = season_service.get_quarantine_policy(target_season)
+    player_policies = [season_service.get_quarantine_policy(p.get("season", target_season)) for p in selected_players]
+    any_quarantined = base_policy["is_quarantined"] or any(pol["is_quarantined"] for pol in player_policies)
     quar_reason = None
     if any_quarantined:
-        m = season_service.get_season_manifest("2025-2026") or {}
-        quar_reason = m.get("quarantine_reason")
+        quar_reasons = [pol["quarantine_reason"] for pol in ([base_policy] + player_policies) if pol["quarantine_reason"]]
+        quar_reason = quar_reasons[0] if quar_reasons else "Dataset contains unverified data and is quarantined."
 
     return jsonify({
         'success': True,
@@ -44,6 +45,7 @@ def compare():
         'is_quarantined': any_quarantined,
         'dataset_status': 'quarantined' if any_quarantined else 'verified_historical',
         'quarantine_notice': quar_reason if any_quarantined else None,
+        'quarantine_policy': base_policy if not any_quarantined else next((p for p in player_policies if p["is_quarantined"]), base_policy),
         'comparison_data': {
             'goals': [p.get('Gls', 0) for p in selected_players],
             'assists': [p.get('Ast', 0) for p in selected_players],

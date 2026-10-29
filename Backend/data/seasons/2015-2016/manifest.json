@@ -132,7 +132,7 @@
   "source_url": "https://understat.com & https://github.com/vibedatascience/understat_players_aggregated",
   "data_as_of": "2015/16 Completed European Regular Season",
   "content_hash": "9b91b9f0b6bc36ed9754280db20675637b6c4a9d4b4da48c9e36bd8581e18df5",
-  "sha256": "3dc4978abe6a6586a1a9dc7600af9a4d58247c9c9ec2d6660cd6d8460b3f7853",
+  "sha256": "5709670f8f548e0ecadef6470b08c875401a08bfd202d0ebb9c35babb5fc61eb",
   "validation_status": "passed",
   "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2015/16 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
   "data_source": "Transfermarkt Match Appearances + Understat Expected Metrics (xG, xA, npxG)",
@@ -144,5 +144,9 @@
     "per_90_rates"
   ],
   "tracking_notes": "xG, xA, and npxG verified against Understat match data. Ball progression (PrgC/PrgP) was not recorded in this era.",
-  "verified": true
+  "verified": true,
+  "repair_status": "repaired_understat_deterministic_matching",
+  "repaired_zero_xg_records": 17,
+  "intra_league_spells_nullified": 157,
+  "matched_players_count": 2732
 }

@@ -138,6 +138,9 @@ def get_player_profile(record_id, season=None):
     prgp_90 = round((float(prgp_val) / min_val) * 90.0, 2) if min_val > 0 and is_prgp_tracked and prgp_val is not None and not pd.isna(prgp_val) else None
     prgr_90 = round((float(prgr_val) / min_val) * 90.0, 2) if min_val > 0 and is_prgr_tracked and prgr_val is not None and not pd.isna(prgr_val) else None
 
+    player_season = player.get("season", active_season)
+    quar_policy = season_service.get_quarantine_policy(player_season)
+
     # Structured profile breakdown
     profile = {
         "identity": {
@@ -222,10 +225,11 @@ def get_player_profile(record_id, season=None):
             "progressive_receptions_per_90": prgr_90
         },
         "raw_record": player,
-        "season": player.get("season", active_season),
-        "is_quarantined": season_service.is_season_quarantined(player.get("season", active_season)),
-        "dataset_status": "quarantined" if season_service.is_season_quarantined(player.get("season", active_season)) else "verified_historical",
-        "quarantine_reason": (season_service.get_season_manifest(player.get("season", active_season)) or {}).get("quarantine_reason") if season_service.is_season_quarantined(player.get("season", active_season)) else None
+        "season": player_season,
+        "is_quarantined": quar_policy["is_quarantined"],
+        "dataset_status": quar_policy["dataset_status"],
+        "quarantine_reason": quar_policy["quarantine_reason"],
+        "quarantine_policy": quar_policy
     }
 
     # Positional peer percentile benchmarks (min 270 mins threshold)
@@ -237,7 +241,7 @@ def get_player_profile(record_id, season=None):
     def get_pct(col, base_metric=None):
         check_col = base_metric or col
         if not is_metric_tracked(check_col):
-            return None, False, 0
+            return None, False, 0, False
 
         # Filter peers to competitions that tracked this metric in this era
         tracked_comps = [c for c in df_all['Comp'].unique() if is_metric_tracked_in_era(check_col, active_season, c)]
@@ -245,35 +249,37 @@ def get_player_profile(record_id, season=None):
         valid_peers = valid_peers[valid_peers[col].notna()]
         n_peers = len(valid_peers)
         if n_peers == 0:
-            return None, False, 0
+            return None, False, 0, False
+        if n_peers < 10:
+            return None, True, int(n_peers), True
 
         val = player.get(col)
         if val is None or pd.isna(val):
-            return None, False, n_peers
+            return None, False, int(n_peers), False
 
         # Empirical mid-rank percentile CDF
         strictly_lower = (valid_peers[col] < val).sum()
         strictly_equal = (valid_peers[col] == val).sum()
         pct = int(round(((strictly_lower + 0.5 * strictly_equal) / n_peers) * 100))
         pct = max(0, min(100, pct))
-        return pct, True, int(n_peers)
+        return pct, True, int(n_peers), False
 
-    pct_gls, trk_gls, n_gls = get_pct("Gls_90", "Gls")
-    pct_xg, trk_xg, n_xg = get_pct("xG_90", "xG")
-    pct_ast, trk_ast, n_ast = get_pct("Ast_90", "Ast")
-    pct_xag, trk_xag, n_xag = get_pct("xAG_90", "xAG")
-    pct_prgc, trk_prgc, n_prgc = get_pct("PrgC", "PrgC")
-    pct_prgp, trk_prgp, n_prgp = get_pct("PrgP", "PrgP")
-    pct_prgr, trk_prgr, n_prgr = get_pct("PrgR", "PrgR")
+    pct_gls, trk_gls, n_gls, ins_gls = get_pct("Gls_90", "Gls")
+    pct_xg, trk_xg, n_xg, ins_xg = get_pct("xG_90", "xG")
+    pct_ast, trk_ast, n_ast, ins_ast = get_pct("Ast_90", "Ast")
+    pct_xag, trk_xag, n_xag, ins_xag = get_pct("xAG_90", "xAG")
+    pct_prgc, trk_prgc, n_prgc, ins_prgc = get_pct("PrgC", "PrgC")
+    pct_prgp, trk_prgp, n_prgp, ins_prgp = get_pct("PrgP", "PrgP")
+    pct_prgr, trk_prgr, n_prgr, ins_prgr = get_pct("PrgR", "PrgR")
 
     profile["percentiles"] = {
-        "goals_per_90": {"value": player["Gls_90"], "percentile": pct_gls, "is_tracked": trk_gls, "label": "Goals / 90", "sample_size": n_gls},
-        "xg_per_90": {"value": player["xG_90"] if trk_xg else None, "percentile": pct_xg, "is_tracked": trk_xg, "label": "Shot Threat (xG/90)", "sample_size": n_xg},
-        "assists_per_90": {"value": player["Ast_90"], "percentile": pct_ast, "is_tracked": trk_ast, "label": "Assists / 90", "sample_size": n_ast},
-        "xag_per_90": {"value": player["xAG_90"] if trk_xag else None, "percentile": pct_xag, "is_tracked": trk_xag, "label": "Creation Quality (xAG/90)", "sample_size": n_xag},
-        "progressive_carries": {"value": player["PrgC"] if trk_prgc else None, "percentile": pct_prgc, "is_tracked": trk_prgc, "label": "Prog. Carries", "sample_size": n_prgc},
-        "progressive_passes": {"value": player["PrgP"] if trk_prgp else None, "percentile": pct_prgp, "is_tracked": trk_prgp, "label": "Prog. Passes", "sample_size": n_prgp},
-        "progressive_receptions": {"value": player["PrgR"] if trk_prgr else None, "percentile": pct_prgr, "is_tracked": trk_prgr, "label": "Prog. Receptions", "sample_size": n_prgr},
+        "goals_per_90": {"value": player["Gls_90"], "percentile": pct_gls, "is_tracked": trk_gls, "insufficient_sample": ins_gls, "label": "Goals / 90", "sample_size": n_gls},
+        "xg_per_90": {"value": player["xG_90"] if trk_xg else None, "percentile": pct_xg, "is_tracked": trk_xg, "insufficient_sample": ins_xg, "label": "Shot Threat (xG/90)", "sample_size": n_xg},
+        "assists_per_90": {"value": player["Ast_90"], "percentile": pct_ast, "is_tracked": trk_ast, "insufficient_sample": ins_ast, "label": "Assists / 90", "sample_size": n_ast},
+        "xag_per_90": {"value": player["xAG_90"] if trk_xag else None, "percentile": pct_xag, "is_tracked": trk_xag, "insufficient_sample": ins_xag, "label": "Creation Quality (xAG/90)", "sample_size": n_xag},
+        "progressive_carries": {"value": player["PrgC"] if trk_prgc else None, "percentile": pct_prgc, "is_tracked": trk_prgc, "insufficient_sample": ins_prgc, "label": "Prog. Carries", "sample_size": n_prgc},
+        "progressive_passes": {"value": player["PrgP"] if trk_prgp else None, "percentile": pct_prgp, "is_tracked": trk_prgp, "insufficient_sample": ins_prgp, "label": "Prog. Passes", "sample_size": n_prgp},
+        "progressive_receptions": {"value": player["PrgR"] if trk_prgr else None, "percentile": pct_prgr, "is_tracked": trk_prgr, "insufficient_sample": ins_prgr, "label": "Prog. Receptions", "sample_size": n_prgr},
         "peer_sample_size": int(len(peers)),
         "comparison_position": pos_clean
     }

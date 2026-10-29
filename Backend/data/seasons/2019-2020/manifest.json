@@ -132,7 +132,7 @@
   "source_url": "https://understat.com & https://github.com/vibedatascience/understat_players_aggregated",
   "data_as_of": "2019/20 Completed European Regular Season",
   "content_hash": "82044d62388fb97b3ec6014137c98c00a40c0bf47aabef3debd022d15e6c0c46",
-  "sha256": "820ac15ded39a58ba88a79a53e4dd47aa1effed8c39330152593cf2b57e7645b",
+  "sha256": "991dfbf4f53e92cb65ec42cf5bb6ca50b3271872bb2a8ccb7d973c545d9014fa",
   "validation_status": "passed",
   "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2019/20 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
   "data_source": "Transfermarkt Match Appearances + Understat Expected Metrics (xG, xA, npxG)",
@@ -144,5 +144,9 @@
     "per_90_rates"
   ],
   "tracking_notes": "xG, xA, and npxG verified against Understat match data. Ball progression (PrgC/PrgP) was not recorded in this era.",
-  "verified": true
+  "verified": true,
+  "repair_status": "repaired_understat_deterministic_matching",
+  "repaired_zero_xg_records": 19,
+  "intra_league_spells_nullified": 136,
+  "matched_players_count": 2678
 }

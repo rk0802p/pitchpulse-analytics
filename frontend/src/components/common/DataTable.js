@@ -66,7 +66,14 @@ export const DataTable = ({
           </thead>
           <tbody className="divide-y divide-pitch-border/60">
             {data.map((row, idx) => {
-              const isCompared = compareList.some((p) => (p.id || p.Rk) === (row.id || row.Rk));
+              const isCompared = compareList.some((p) => {
+                const matchId = (p.id || p.Rk) === (row.id || row.Rk);
+                if (!matchId) return false;
+                if (p.season && row.season) {
+                  return p.season === row.season;
+                }
+                return true;
+              });
               return (
                 <tr
                   key={row.id || row.Rk || idx}

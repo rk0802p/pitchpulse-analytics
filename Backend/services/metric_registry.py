@@ -335,7 +335,7 @@ ERA_METRIC_COVERAGE: Dict[str, Any] = {
         "tracked_metrics": [
             "Min", "MP", "Starts", "90s", "Gls", "Ast", "G+A", 
             "G-PK", "PK", "PKatt", "CrdY", "CrdR", "Gls_90", "Ast_90", "G+A_90",
-            "xG", "npxG", "xG_90", "npxG_90", "Gls_minus_xG"
+            "xG", "npxG", "xAG", "xG_90", "xAG_90", "npxG_90", "Gls_minus_xG"
         ],
         "untracked_metrics": [
             "PrgC", "PrgP", "PrgR"
