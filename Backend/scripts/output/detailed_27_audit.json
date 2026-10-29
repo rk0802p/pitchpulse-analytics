@@ -1,0 +1,1045 @@
+[
+  {
+    "index": 1,
+    "player": "Lionel Messi",
+    "season": "2012-2013",
+    "comp": "es La Liga",
+    "local_squad": "FC Barcelona",
+    "expected_squad": "FC Barcelona",
+    "source_ref": "https://www.transfermarkt.com/laliga/torschuetzenliste/wettbewerb/ES1/saison_id/2012",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "European Golden Shoe winner 2012/13. xG/PrgC were untracked in 2012/13.",
+    "metrics": {
+      "Gls": {
+        "local": 46,
+        "ref": 46
+      },
+      "Ast": {
+        "local": 13,
+        "ref": 13
+      },
+      "Min": {
+        "local": 2626,
+        "ref": 2649
+      },
+      "MP": {
+        "local": 32,
+        "ref": 32
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 2,
+    "player": "Cristiano Ronaldo",
+    "season": "2012-2013",
+    "comp": "es La Liga",
+    "local_squad": "Real Madrid",
+    "expected_squad": "Real Madrid",
+    "source_ref": "https://www.transfermarkt.com/laliga/torschuetzenliste/wettbewerb/ES1/saison_id/2012",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "La Liga runner-up top scorer.",
+    "metrics": {
+      "Gls": {
+        "local": 34,
+        "ref": 34
+      },
+      "Ast": {
+        "local": 11,
+        "ref": 11
+      },
+      "Min": {
+        "local": 2717,
+        "ref": 2715
+      },
+      "MP": {
+        "local": 34,
+        "ref": 34
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 3,
+    "player": "Robin van Persie",
+    "season": "2012-2013",
+    "comp": "eng Premier League",
+    "local_squad": "Manchester United",
+    "expected_squad": "Manchester United",
+    "source_ref": "https://www.premierleague.com/stats/top/players/goals?se=12",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Premier League Golden Boot winner 2012/13.",
+    "metrics": {
+      "Gls": {
+        "local": 26,
+        "ref": 26
+      },
+      "Ast": {
+        "local": 15,
+        "ref": 15
+      },
+      "Min": {
+        "local": 3124,
+        "ref": 3123
+      },
+      "MP": {
+        "local": 38,
+        "ref": 38
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 4,
+    "player": "Leonardo Bonucci",
+    "season": "2012-2013",
+    "comp": "it Serie A",
+    "local_squad": "Juventus FC",
+    "expected_squad": "Juventus FC",
+    "source_ref": "https://www.transfermarkt.com/leonardo-bonucci/leistungsdatendetails/spieler/39983/plus/0?saison=2012&verein=506",
+    "category": "Genuine Zero Scorer (DF, High Min)",
+    "notes": "Juventus title-winning center back; 0 goals in 2862 mins is a genuine zero.",
+    "metrics": {
+      "Gls": {
+        "local": 0,
+        "ref": 0
+      },
+      "Ast": {
+        "local": 0,
+        "ref": 1
+      },
+      "Min": {
+        "local": 2961,
+        "ref": 2862
+      },
+      "MP": {
+        "local": 33,
+        "ref": 33
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 5,
+    "player": "Manuel Neuer",
+    "season": "2012-2013",
+    "comp": "de Bundesliga",
+    "local_squad": "Bayern Munich",
+    "expected_squad": "Bayern Munich",
+    "source_ref": "https://www.bundesliga.com/en/bundesliga/stats/players/2012-2013",
+    "category": "Goalkeeper (GK, Genuine Zero)",
+    "notes": "Treble-winning Bayern goalkeeper. Clean sheets: 18.",
+    "metrics": {
+      "Gls": {
+        "local": 0,
+        "ref": 0
+      },
+      "Ast": {
+        "local": 0,
+        "ref": 0
+      },
+      "Min": {
+        "local": 2790,
+        "ref": 2790
+      },
+      "MP": {
+        "local": 31,
+        "ref": 31
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 6,
+    "player": "Luis Su\u00e1rez",
+    "season": "2013-2014",
+    "comp": "eng Premier League",
+    "local_squad": "Liverpool FC",
+    "expected_squad": "Liverpool FC",
+    "source_ref": "https://www.premierleague.com/stats/top/players/goals?se=20",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Premier League Golden Boot winner & European Golden Shoe joint-winner.",
+    "metrics": {
+      "Gls": {
+        "local": 31,
+        "ref": 31
+      },
+      "Ast": {
+        "local": 17,
+        "ref": 17
+      },
+      "Min": {
+        "local": 2965,
+        "ref": 2960
+      },
+      "MP": {
+        "local": 33,
+        "ref": 33
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 7,
+    "player": "Carlos Tevez",
+    "season": "2013-2014",
+    "comp": "it Serie A",
+    "local_squad": "Juventus FC",
+    "expected_squad": "Juventus FC",
+    "source_ref": "https://www.transfermarkt.com/serie-a/torschuetzenliste/wettbewerb/IT1/saison_id/2013",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Scored 19 league goals for Juventus 102-point championship season.",
+    "metrics": {
+      "Gls": {
+        "local": 19,
+        "ref": 19
+      },
+      "Ast": {
+        "local": 7,
+        "ref": 8
+      },
+      "Min": {
+        "local": 2600,
+        "ref": 2600
+      },
+      "MP": {
+        "local": 34,
+        "ref": 34
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 8,
+    "player": "Diego God\u00edn",
+    "season": "2013-2014",
+    "comp": "es La Liga",
+    "local_squad": "Atl\u00e9tico de Madrid",
+    "expected_squad": "Atl\u00e9tico de Madrid",
+    "source_ref": "https://www.transfermarkt.com/diego-godin/leistungsdatendetails/spieler/54928/plus/0?saison=2013",
+    "category": "Defensive Anchor (DF, High Min)",
+    "notes": "La Liga champion title decider at Camp Nou.",
+    "metrics": {
+      "Gls": {
+        "local": 4,
+        "ref": 4
+      },
+      "Ast": {
+        "local": 0,
+        "ref": 1
+      },
+      "Min": {
+        "local": 3060,
+        "ref": 3060
+      },
+      "MP": {
+        "local": 34,
+        "ref": 34
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 9,
+    "player": "Jamie Vardy",
+    "season": "2015-2016",
+    "comp": "eng Premier League",
+    "local_squad": "Leicester City",
+    "expected_squad": "Leicester City",
+    "source_ref": "https://understat.com/player/755 (Understat 2015/16) and Premier League archives",
+    "category": "Historic Title Scorer (FW, High Min)",
+    "notes": "24 goals on 22.14 Understat xG; spatial progression untracked in 2015/16.",
+    "metrics": {
+      "Gls": {
+        "local": 24,
+        "ref": 24
+      },
+      "Ast": {
+        "local": 8,
+        "ref": 8
+      },
+      "Min": {
+        "local": 3139,
+        "ref": 3133
+      },
+      "MP": {
+        "local": 36,
+        "ref": 36
+      },
+      "xG": {
+        "local": 22.14,
+        "ref": 22.14
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 10,
+    "player": "Riyad Mahrez",
+    "season": "2015-2016",
+    "comp": "eng Premier League",
+    "local_squad": "Leicester City",
+    "expected_squad": "Leicester City",
+    "source_ref": "https://understat.com/player/750 (Understat 2015/16)",
+    "category": "PFA Player of the Year (MF/FW)",
+    "notes": "Double-double: 17 goals, 10 assists, 11.88 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 17,
+        "ref": 17
+      },
+      "Ast": {
+        "local": 10,
+        "ref": 10
+      },
+      "Min": {
+        "local": 3055,
+        "ref": 3055
+      },
+      "MP": {
+        "local": 37,
+        "ref": 37
+      },
+      "xG": {
+        "local": 11.88,
+        "ref": 11.88
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 11,
+    "player": "N'Golo Kant\u00e9",
+    "season": "2015-2016",
+    "comp": "eng Premier League",
+    "local_squad": "Leicester City",
+    "expected_squad": "Leicester City",
+    "source_ref": "https://understat.com/player/751 (Understat 2015/16)",
+    "category": "Defensive Midfielder (MF, High Min)",
+    "notes": "Tackles and interceptions leader; 0.56 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 1,
+        "ref": 1
+      },
+      "Ast": {
+        "local": 4,
+        "ref": 4
+      },
+      "Min": {
+        "local": 3020,
+        "ref": 3019
+      },
+      "MP": {
+        "local": 37,
+        "ref": 37
+      },
+      "xG": {
+        "local": 0.56,
+        "ref": 0.56
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 12,
+    "player": "Mohamed Salah",
+    "season": "2017-2018",
+    "comp": "eng Premier League",
+    "local_squad": "Liverpool FC",
+    "expected_squad": "Liverpool FC",
+    "source_ref": "https://understat.com/player/1250 (Understat 2017/18) and Premier League archives",
+    "category": "Record Breaker (FW, High Min)",
+    "notes": "38-game Premier League record (32 goals) on 25.14 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 32,
+        "ref": 32
+      },
+      "Ast": {
+        "local": 11,
+        "ref": 11
+      },
+      "Min": {
+        "local": 2920,
+        "ref": 2920
+      },
+      "MP": {
+        "local": 36,
+        "ref": 36
+      },
+      "xG": {
+        "local": 25.14,
+        "ref": 25.14
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 13,
+    "player": "Lionel Messi",
+    "season": "2017-2018",
+    "comp": "es La Liga",
+    "local_squad": "FC Barcelona",
+    "expected_squad": "FC Barcelona",
+    "source_ref": "https://understat.com/player/2097 (Understat 2017/18)",
+    "category": "Pichichi Winner (FW, High Min)",
+    "notes": "European Golden Shoe winner: 34 goals, 14 assists, 28.95 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 34,
+        "ref": 34
+      },
+      "Ast": {
+        "local": 14,
+        "ref": 14
+      },
+      "Min": {
+        "local": 2996,
+        "ref": 2997
+      },
+      "MP": {
+        "local": 36,
+        "ref": 36
+      },
+      "xG": {
+        "local": 28.95,
+        "ref": 28.95
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 14,
+    "player": "Pierre-Emerick Aubameyang",
+    "season": "2021-2022",
+    "comp": "eng Premier League",
+    "local_squad": "Arsenal FC",
+    "expected_squad": "Arsenal FC",
+    "source_ref": "https://understat.com/player/318 (Understat 2021/22)",
+    "category": "Mid-Season Transfer Spell 1 (Arsenal)",
+    "notes": "Arsenal spell: 4 goals on 6.89 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 4,
+        "ref": 4
+      },
+      "Ast": {
+        "local": 1,
+        "ref": 1
+      },
+      "Min": {
+        "local": 1040,
+        "ref": 1037
+      },
+      "MP": {
+        "local": 14,
+        "ref": 14
+      },
+      "xG": {
+        "local": 6.89,
+        "ref": 6.89
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 15,
+    "player": "Pierre-Emerick Aubameyang",
+    "season": "2021-2022",
+    "comp": "es La Liga",
+    "local_squad": "FC Barcelona",
+    "expected_squad": "FC Barcelona",
+    "source_ref": "https://understat.com/player/318 (Understat 2021/22)",
+    "category": "Mid-Season Transfer Spell 2 (Barcelona)",
+    "notes": "Barcelona spell: 11 goals on 8.83 Understat xG.",
+    "metrics": {
+      "Gls": {
+        "local": 11,
+        "ref": 11
+      },
+      "Ast": {
+        "local": 1,
+        "ref": 1
+      },
+      "Min": {
+        "local": 1092,
+        "ref": 1092
+      },
+      "MP": {
+        "local": 17,
+        "ref": 17
+      },
+      "xG": {
+        "local": 8.83,
+        "ref": 8.83
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 16,
+    "player": "Son Heung-min",
+    "season": "2021-2022",
+    "comp": "eng Premier League",
+    "local_squad": "Tottenham Hotspur",
+    "expected_squad": "Tottenham Hotspur",
+    "source_ref": "https://understat.com/player/453 (Understat 2021/22)",
+    "category": "Joint Golden Boot Winner (FW, High Min)",
+    "notes": "23 goals from 16.99 Understat xG (magnificent finishing overperformance +6.01).",
+    "metrics": {
+      "Gls": {
+        "local": 23,
+        "ref": 23
+      },
+      "Ast": {
+        "local": 9,
+        "ref": 9
+      },
+      "Min": {
+        "local": 3022,
+        "ref": 3051
+      },
+      "MP": {
+        "local": 35,
+        "ref": 35
+      },
+      "xG": {
+        "local": 0.0,
+        "ref": 16.99
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 17,
+    "player": "Harry Kane",
+    "season": "2023-2024",
+    "comp": "de Bundesliga",
+    "local_squad": "Bayern Munich",
+    "expected_squad": "Bayern Munich",
+    "source_ref": "https://fbref.com/en/players/21a665be/matchlogs/2023-2024/summary/Harry-Kane-Match-Logs",
+    "category": "European Golden Shoe (FW, High Min, Advanced Metrics)",
+    "notes": "36 goals in debut Bundesliga season. Authentic StatsBomb event metrics.",
+    "metrics": {
+      "Gls": {
+        "local": 36,
+        "ref": 36
+      },
+      "Ast": {
+        "local": 8,
+        "ref": 8
+      },
+      "Min": {
+        "local": 2839,
+        "ref": 2842
+      },
+      "MP": {
+        "local": 32,
+        "ref": 32
+      },
+      "xG": {
+        "local": 30.6,
+        "ref": 30.6
+      },
+      "PrgC": {
+        "local": 36,
+        "ref": 48
+      },
+      "PrgP": {
+        "local": 102,
+        "ref": 115
+      }
+    }
+  },
+  {
+    "index": 18,
+    "player": "Erling Haaland",
+    "season": "2023-2024",
+    "comp": "eng Premier League",
+    "local_squad": "Manchester City",
+    "expected_squad": "Manchester City",
+    "source_ref": "https://fbref.com/en/players/1f444c2b/matchlogs/2023-2024/summary/Erling-Haaland-Match-Logs",
+    "category": "Premier League Golden Boot (FW, Advanced Metrics)",
+    "notes": "Premier League top scorer. 29.2 xG.",
+    "metrics": {
+      "Gls": {
+        "local": 27,
+        "ref": 27
+      },
+      "Ast": {
+        "local": 5,
+        "ref": 5
+      },
+      "Min": {
+        "local": 2552,
+        "ref": 2558
+      },
+      "MP": {
+        "local": 31,
+        "ref": 31
+      },
+      "xG": {
+        "local": 29.2,
+        "ref": 29.2
+      },
+      "PrgC": {
+        "local": 35,
+        "ref": 26
+      },
+      "PrgP": {
+        "local": 26,
+        "ref": 36
+      }
+    }
+  },
+  {
+    "index": 19,
+    "player": "Cole Palmer",
+    "season": "2023-2024",
+    "comp": "eng Premier League",
+    "local_squad": "Chelsea",
+    "expected_squad": "Chelsea",
+    "source_ref": "https://fbref.com/en/players/dc7f8a28/matchlogs/2023-2024/summary/Cole-Palmer-Match-Logs",
+    "category": "Breakout Star (MF/FW, Double-Double)",
+    "notes": "22 goals, 11 assists; 78 progressive carries, 172 progressive passes.",
+    "metrics": {
+      "Gls": {
+        "local": 22,
+        "ref": 22
+      },
+      "Ast": {
+        "local": 11,
+        "ref": 11
+      },
+      "Min": {
+        "local": 2607,
+        "ref": 2623
+      },
+      "MP": {
+        "local": 33,
+        "ref": 33
+      },
+      "xG": {
+        "local": 18.2,
+        "ref": 18.2
+      },
+      "PrgC": {
+        "local": 117,
+        "ref": 78
+      },
+      "PrgP": {
+        "local": 197,
+        "ref": 172
+      }
+    }
+  },
+  {
+    "index": 20,
+    "player": "Virgil van Dijk",
+    "season": "2023-2024",
+    "comp": "eng Premier League",
+    "local_squad": "Liverpool",
+    "expected_squad": "Liverpool",
+    "source_ref": "https://fbref.com/en/players/e0668372/matchlogs/2023-2024/summary/Virgil-van-Dijk-Match-Logs",
+    "category": "Elite Defender (DF, High Min)",
+    "notes": "Liverpool captain; 147 progressive passes from center-back.",
+    "metrics": {
+      "Gls": {
+        "local": 2,
+        "ref": 2
+      },
+      "Ast": {
+        "local": 2,
+        "ref": 2
+      },
+      "Min": {
+        "local": 3177,
+        "ref": 3163
+      },
+      "MP": {
+        "local": 36,
+        "ref": 36
+      },
+      "xG": {
+        "local": 2.8,
+        "ref": 2.8
+      },
+      "PrgC": {
+        "local": 32,
+        "ref": 15
+      },
+      "PrgP": {
+        "local": 200,
+        "ref": 147
+      }
+    }
+  },
+  {
+    "index": 21,
+    "player": "Kylian Mbapp\u00e9",
+    "season": "2024-2025",
+    "comp": "es La Liga",
+    "local_squad": "Real Madrid",
+    "expected_squad": "Real Madrid",
+    "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Authentic 2024/25 baseline record.",
+    "metrics": {
+      "Gls": {
+        "local": 31,
+        "ref": 31
+      },
+      "Ast": {
+        "local": 3,
+        "ref": 4
+      },
+      "Min": {
+        "local": 2907,
+        "ref": 2786
+      },
+      "MP": {
+        "local": 34,
+        "ref": 34
+      },
+      "xG": {
+        "local": 25.9,
+        "ref": 25.9
+      },
+      "PrgC": {
+        "local": 150,
+        "ref": 150
+      },
+      "PrgP": {
+        "local": 140,
+        "ref": 140
+      }
+    }
+  },
+  {
+    "index": 22,
+    "player": "Mohamed Salah",
+    "season": "2024-2025",
+    "comp": "eng Premier League",
+    "local_squad": "Liverpool",
+    "expected_squad": "Liverpool",
+    "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+    "category": "High Scorer & Creator (FW, High Min)",
+    "notes": "Authentic 2024/25 baseline record.",
+    "metrics": {
+      "Gls": {
+        "local": 29,
+        "ref": 29
+      },
+      "Ast": {
+        "local": 18,
+        "ref": 18
+      },
+      "Min": {
+        "local": 3371,
+        "ref": 3120
+      },
+      "MP": {
+        "local": 38,
+        "ref": 38
+      },
+      "xG": {
+        "local": 25.2,
+        "ref": 25.2
+      },
+      "PrgC": {
+        "local": 154,
+        "ref": 154
+      },
+      "PrgP": {
+        "local": 144,
+        "ref": 144
+      }
+    }
+  },
+  {
+    "index": 23,
+    "player": "Robert Lewandowski",
+    "season": "2024-2025",
+    "comp": "es La Liga",
+    "local_squad": "Barcelona",
+    "expected_squad": "Barcelona",
+    "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Authentic 2024/25 baseline record.",
+    "metrics": {
+      "Gls": {
+        "local": 27,
+        "ref": 27
+      },
+      "Ast": {
+        "local": 2,
+        "ref": 3
+      },
+      "Min": {
+        "local": 2667,
+        "ref": 2680
+      },
+      "MP": {
+        "local": 34,
+        "ref": 34
+      },
+      "xG": {
+        "local": 27.1,
+        "ref": 27.1
+      },
+      "PrgC": {
+        "local": 27,
+        "ref": 27
+      },
+      "PrgP": {
+        "local": 48,
+        "ref": 48
+      }
+    }
+  },
+  {
+    "index": 24,
+    "player": "Harry Kane",
+    "season": "2024-2025",
+    "comp": "de Bundesliga",
+    "local_squad": "Bayern Munich",
+    "expected_squad": "Bayern Munich",
+    "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+    "category": "High Scorer (FW, High Min)",
+    "notes": "Authentic 2024/25 baseline record.",
+    "metrics": {
+      "Gls": {
+        "local": 26,
+        "ref": 26
+      },
+      "Ast": {
+        "local": 9,
+        "ref": 10
+      },
+      "Min": {
+        "local": 2381,
+        "ref": 2420
+      },
+      "MP": {
+        "local": 31,
+        "ref": 31
+      },
+      "xG": {
+        "local": 20.3,
+        "ref": 20.3
+      },
+      "PrgC": {
+        "local": 29,
+        "ref": 29
+      },
+      "PrgP": {
+        "local": 97,
+        "ref": 97
+      }
+    }
+  },
+  {
+    "index": 25,
+    "player": "Mateo Retegui",
+    "season": "2024-2025",
+    "comp": "it Serie A",
+    "local_squad": "Atalanta",
+    "expected_squad": "Atalanta",
+    "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+    "category": "Serie A Top Scorer (FW, High Min)",
+    "notes": "Authentic 2024/25 baseline record.",
+    "metrics": {
+      "Gls": {
+        "local": 25,
+        "ref": 25
+      },
+      "Ast": {
+        "local": 8,
+        "ref": 8
+      },
+      "Min": {
+        "local": 2383,
+        "ref": 2510
+      },
+      "MP": {
+        "local": 36,
+        "ref": 36
+      },
+      "xG": {
+        "local": 18.9,
+        "ref": 18.9
+      },
+      "PrgC": {
+        "local": 21,
+        "ref": 21
+      },
+      "PrgP": {
+        "local": 46,
+        "ref": 46
+      }
+    }
+  },
+  {
+    "index": 26,
+    "player": "Harry Kane",
+    "season": "2025-2026",
+    "comp": "de Bundesliga",
+    "local_squad": "Bayern Munich",
+    "expected_squad": "Bayern Munich",
+    "source_ref": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+    "category": "Quarantined Composite Record",
+    "notes": "Composite projection: Gls (36) copied from 2023/24; PrgC/PrgP untracked in German data.",
+    "metrics": {
+      "Gls": {
+        "local": 36,
+        "ref": 36
+      },
+      "Ast": {
+        "local": 5,
+        "ref": 5
+      },
+      "Min": {
+        "local": 2377,
+        "ref": 2640
+      },
+      "MP": {
+        "local": 31,
+        "ref": 32
+      },
+      "xG": {
+        "local": 24.91,
+        "ref": 24.91
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      },
+      "PrgP": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  },
+  {
+    "index": 27,
+    "player": "Luis D\u00edaz",
+    "season": "2025-2026",
+    "comp": "de Bundesliga",
+    "local_squad": "Bayern Munich",
+    "expected_squad": "Bayern Munich",
+    "source_ref": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+    "category": "Club Misattribution Anomaly (Bayern Munich)",
+    "notes": "PROVEN ANOMALY: Player was at Liverpool, but composite script placed him at Bayern Munich.",
+    "metrics": {
+      "Gls": {
+        "local": 15,
+        "ref": 15
+      },
+      "Ast": {
+        "local": 14,
+        "ref": 14
+      },
+      "Min": {
+        "local": 2447,
+        "ref": 2100
+      },
+      "MP": {
+        "local": 32,
+        "ref": 28
+      },
+      "xG": {
+        "local": 14.17,
+        "ref": null
+      },
+      "PrgC": {
+        "local": 0,
+        "ref": null
+      },
+      "PrgP": {
+        "local": 0,
+        "ref": null
+      }
+    }
+  }
+]

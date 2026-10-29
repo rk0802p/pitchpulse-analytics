@@ -119,5 +119,43 @@ class TestPhase12DataGovernance(unittest.TestCase):
         self.assertIsNone(prof['percentiles']['progressive_carries']['percentile'])
         self.assertEqual(prof['percentiles']['progressive_carries']['sample_size'], 0)
 
+    def test_quarantine_metadata_across_all_endpoints(self):
+        """Phase 12.1: Verifies that player profile, leaderboards, comparisons, and player list endpoints all expose quarantine metadata."""
+        # 1. Player Profile endpoint
+        res = self.client.get('/api/players/1?season=2025-2026')
+        self.assertEqual(res.status_code, 200)
+        p = res.get_json()['data']
+        self.assertTrue(p['is_quarantined'])
+        self.assertEqual(p['dataset_status'], 'quarantined')
+        self.assertIsNotNone(p['quarantine_reason'])
+
+        # Profile in authentic 2024-2025 baseline must be clean
+        res_auth = self.client.get('/api/players/1?season=2024-2025')
+        self.assertEqual(res_auth.status_code, 200)
+        p_auth = res_auth.get_json()['data']
+        self.assertFalse(p_auth['is_quarantined'])
+        self.assertEqual(p_auth['dataset_status'], 'verified_historical')
+
+        # 2. Leaderboards endpoint
+        res_lead = self.client.get('/api/leaderboards?season=2025-2026')
+        self.assertEqual(res_lead.status_code, 200)
+        lead_meta = res_lead.get_json()['metadata']
+        self.assertTrue(lead_meta['is_quarantined'])
+        self.assertEqual(lead_meta['dataset_status'], 'quarantined')
+
+        # 3. Comparison endpoint
+        res_comp = self.client.post('/api/players/compare', json={'player_ids': [1, 2], 'season': '2025-2026'})
+        self.assertEqual(res_comp.status_code, 200)
+        comp_data = res_comp.get_json()
+        self.assertTrue(comp_data['is_quarantined'])
+        self.assertEqual(comp_data['dataset_status'], 'quarantined')
+
+        # 4. Players List endpoint
+        res_list = self.client.get('/api/players?season=2025-2026')
+        self.assertEqual(res_list.status_code, 200)
+        list_meta = res_list.get_json()['metadata']
+        self.assertTrue(list_meta['is_quarantined'])
+        self.assertEqual(list_meta['dataset_status'], 'quarantined')
+
 if __name__ == '__main__':
     unittest.main()

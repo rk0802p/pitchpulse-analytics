@@ -47,13 +47,20 @@ def leaderboards():
         season=season
     )
 
+    target_season = season or season_service.get_active_season()
+    is_quar = season_service.is_season_quarantined(target_season)
+    manifest = season_service.get_season_manifest(target_season) or {}
+
     return success_response(results, metadata={
         "metric": metric,
         "competition": competition or "All Competitions",
         "position": position or "All Positions",
         "min_minutes": min_minutes,
         "limit": limit,
-        "season": season
+        "season": target_season,
+        "is_quarantined": is_quar,
+        "dataset_status": "quarantined" if is_quar else "verified_historical",
+        "quarantine_reason": manifest.get("quarantine_reason") if is_quar else None
     })
 
 # --- Backward compatibility endpoint for existing frontend ---

@@ -2137,7 +2137,7 @@
       }
     },
     "anomalies": [],
-    "manifest_status": "verified_historical",
+    "manifest_status": "quarantined",
     "manifest_clubs": 197,
     "manifest_source": "FBref / StatsBomb style aggregates + FotMob 2025/26 European Stats"
   }

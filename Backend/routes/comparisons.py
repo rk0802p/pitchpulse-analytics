@@ -28,11 +28,22 @@ def compare():
 
     # Provide both legacy keys and modern rich comparison matrix
     selected_players = result['players']
+    target_season = season or season_service.get_active_season()
+    is_quar = season_service.is_season_quarantined(target_season)
+    any_quarantined = is_quar or any(season_service.is_season_quarantined(p.get("season", target_season)) for p in selected_players)
+    quar_reason = None
+    if any_quarantined:
+        m = season_service.get_season_manifest("2025-2026") or {}
+        quar_reason = m.get("quarantine_reason")
+
     return jsonify({
         'success': True,
         'players': selected_players,
         'metrics': result['metrics'],
         'radar': result['radar'],
+        'is_quarantined': any_quarantined,
+        'dataset_status': 'quarantined' if any_quarantined else 'verified_historical',
+        'quarantine_notice': quar_reason if any_quarantined else None,
         'comparison_data': {
             'goals': [p.get('Gls', 0) for p in selected_players],
             'assists': [p.get('Ast', 0) for p in selected_players],

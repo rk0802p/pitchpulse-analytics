@@ -25,6 +25,16 @@ def get_players():
     except (ValueError, TypeError):
         min_minutes = 0
 
+    target_season = season or season_service.get_active_season()
+    is_quar = season_service.is_season_quarantined(target_season)
+    manifest = season_service.get_season_manifest(target_season) or {}
+    meta = {
+        "season": target_season,
+        "is_quarantined": is_quar,
+        "dataset_status": "quarantined" if is_quar else "verified_historical",
+        "quarantine_reason": manifest.get("quarantine_reason") if is_quar else None
+    }
+
     # Support all=true or raw=true to get unpaginated list
     all_records = request.args.get('all', '').lower() in ['true', '1']
     if all_records:
@@ -33,7 +43,8 @@ def get_players():
             min_minutes=min_minutes, sort_by=sort_by, order=order, page=1, limit=3000,
             season=season
         )
-        return success_response(items, metadata={"total": total, "season": season})
+        meta["total"] = total
+        return success_response(items, metadata=meta)
 
     page, limit = validate_pagination(request.args.get('page'), request.args.get('limit'))
     items, total = search_players(
@@ -42,7 +53,7 @@ def get_players():
         season=season
     )
 
-    return paginated_response(items, total, page, limit)
+    return paginated_response(items, total, page, limit, metadata=meta)
 
 @players_bp.route('/players/<player_id>', methods=['GET'])
 def get_player(player_id):

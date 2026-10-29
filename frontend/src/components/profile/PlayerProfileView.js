@@ -69,6 +69,21 @@ export const PlayerProfileView = ({
         </button>
       </div>
 
+      {/* Quarantined Dataset Record Notice */}
+      {profile.is_quarantined && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
+          <div className="text-xs">
+            <span className="font-semibold text-amber-200 block">
+              Quarantined / Provisional Dataset Record ({profile.season})
+            </span>
+            <p className="text-amber-300/80 mt-1 leading-relaxed">
+              {profile.quarantine_reason || 'This player record belongs to a provisional/composite dataset and is isolated from authoritative historical benchmarks.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Hero Dossier Card */}
       <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

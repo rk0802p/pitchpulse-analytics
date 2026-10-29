@@ -1,6 +1,7 @@
 import urllib.parse
 import pandas as pd
 from services.data_loader import data_loader
+from services.season_service import season_service
 from services.validation_service import resolve_competition, validate_position, validate_metric, validate_pagination
 from services.metric_registry import is_metric_tracked_in_era
 from config import COMPETITIONS
@@ -221,7 +222,10 @@ def get_player_profile(record_id, season=None):
             "progressive_receptions_per_90": prgr_90
         },
         "raw_record": player,
-        "season": player.get("season", active_season)
+        "season": player.get("season", active_season),
+        "is_quarantined": season_service.is_season_quarantined(player.get("season", active_season)),
+        "dataset_status": "quarantined" if season_service.is_season_quarantined(player.get("season", active_season)) else "verified_historical",
+        "quarantine_reason": (season_service.get_season_manifest(player.get("season", active_season)) or {}).get("quarantine_reason") if season_service.is_season_quarantined(player.get("season", active_season)) else None
     }
 
     # Positional peer percentile benchmarks (min 270 mins threshold)
