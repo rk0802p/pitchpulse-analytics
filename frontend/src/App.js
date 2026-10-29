@@ -31,7 +31,8 @@ import {
   Plus,
   Search,
   LayoutGrid,
-  List
+  List,
+  AlertTriangle
 } from 'lucide-react';
 
 const unwrapList = (response) => {
@@ -536,6 +537,29 @@ function App() {
           </div>
         </div>
       )}
+      {/* Quarantine / Provisional Dataset Advisory Banner */}
+      {(() => {
+        const activeMeta = availableSeasons.find(s => (s.id || s) === activeSeason);
+        const isQuarantined = activeMeta?.is_quarantined || activeMeta?.dataset_status === 'quarantined' || activeSeason === '2025-2026';
+        if (!isQuarantined) return null;
+        return (
+          <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-amber-300">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5" />
+            <div className="flex-1 text-xs">
+              <span className="font-bold text-sm block text-amber-200 mb-0.5">
+                Provisional / Quarantined Season Dataset ({formatSeasonName(activeSeason)})
+              </span>
+              <p className="text-amber-300/90 leading-relaxed">
+                {activeMeta?.quarantine_reason || "This dataset is unverified and contains squad attribution anomalies (197 clubs across 5 leagues). Statistics are presented for experimental inspection only and quarantined from authoritative rankings."}
+              </p>
+            </div>
+            <span className="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+              Quarantined
+            </span>
+          </div>
+        );
+      })()}
+
       {globalError && (
         <ErrorBanner
           message="Analytics API Connection Notice"
@@ -1333,11 +1357,11 @@ function App() {
                               <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.MP || 0}</td>
                               <td className="py-3 px-3 text-right text-slate-300 font-mono font-medium">{p.Min?.toLocaleString() || 0}</td>
                               <td className="py-3 px-3 text-right text-emerald-400 font-mono font-bold">{p.Gls || 0}</td>
-                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{Number(p.xG || 0).toFixed(1)}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.xG !== null && p.xG !== undefined ? Number(p.xG).toFixed(1) : '—'}</td>
                               <td className="py-3 px-3 text-right text-cyan-400 font-mono font-bold">{p.Ast || 0}</td>
-                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{Number(p.xAG || 0).toFixed(1)}</td>
-                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgC || 0}</td>
-                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgP || 0}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.xAG !== null && p.xAG !== undefined ? Number(p.xAG).toFixed(1) : '—'}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgC !== null && p.PrgC !== undefined ? p.PrgC : '—'}</td>
+                              <td className="py-3 px-3 text-right text-slate-300 font-mono">{p.PrgP !== null && p.PrgP !== undefined ? p.PrgP : '—'}</td>
                               <td className="py-3 px-4 text-center">
                                 <div className="inline-flex items-center gap-1.5">
                                   <button

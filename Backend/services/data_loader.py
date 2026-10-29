@@ -2,6 +2,7 @@ import os
 import re
 import logging
 import pandas as pd
+import numpy as np
 from config import DATASET_PATH, COMPETITIONS, COMPETITION_LOOKUP, METRIC_DEFINITIONS
 from services.season_service import season_service
 
@@ -86,7 +87,8 @@ class DataLoader:
         norm_df = self._normalize_dataset(raw_df)
         norm_df['season'] = s_id
         norm_df['comparison_key'] = norm_df['Rk'].astype(str) + '@' + s_id
-        records = norm_df.to_dict(orient='records')
+        raw_records = norm_df.to_dict(orient='records')
+        records = [{k: (None if pd.isna(v) else (int(v) if k in ['PrgC', 'PrgP', 'PrgR'] and not pd.isna(v) else v)) for k, v in r.items()} for r in raw_records]
         by_id = {r['Rk']: r for r in records}
 
         self._seasons_df[s_id] = norm_df
@@ -119,21 +121,67 @@ class DataLoader:
         df['Age'] = df['Age'].apply(lambda x: None if pd.isna(x) else float(x))
         df['Born'] = df['Born'].apply(lambda x: None if pd.isna(x) else int(x))
 
-        # Ensure numeric metrics are clean floats or ints
-        int_cols = ['Rk', 'MP', 'Starts', 'Min', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'CrdY', 'CrdR', 'PrgC', 'PrgP', 'PrgR']
+        # Ensure standard match counts are clean ints (0 if missing/NA)
+        int_cols = ['Rk', 'MP', 'Starts', 'Min', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'CrdY', 'CrdR']
         for col in int_cols:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
 
+        # Progression metrics preserve nulls/missingness
+        for col in ['PrgC', 'PrgP', 'PrgR']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
         float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']
         for col in float_cols:
             if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float).round(2)
+                # Do not fillna(0.0) on advanced metrics to preserve raw missingness/nulls
+                if col in ['xG', 'npxG', 'xAG', 'npxG+xAG', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').round(2)
+                else:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float).round(2)
 
-        # Derived metrics
-        df['Gls_minus_xG'] = (df['Gls'] - df['xG']).round(2)
-        df['Ast_minus_xAG'] = (df['Ast'] - df['xAG']).round(2)
-        df['xG_minus_Gls'] = (df['xG'] - df['Gls']).round(2)
+        # Phase 4: Standardize and calculate rate metrics dynamically from count totals whenever Min > 0
+        # Rate per 90 = (Total metric / Minutes played) * 90
+        has_minutes = df['Min'] > 0
+        rate_derivations = [
+            ('Gls', 'Gls_90'),
+            ('Ast', 'Ast_90'),
+            ('G+A', 'G+A_90'),
+            ('G-PK', 'G-PK_90'),
+            ('G+A-PK', 'G+A-PK_90'),
+            ('xG', 'xG_90'),
+            ('xAG', 'xAG_90'),
+            ('npxG', 'npxG_90'),
+            ('npxG+xAG', 'npxG+xAG_90')
+        ]
+        for total_col, rate_col in rate_derivations:
+            if total_col in df.columns and rate_col in df.columns:
+                # If total is NA/missing, rate must also be NA (cannot fabricate 0.0)
+                df.loc[df[total_col].isna(), rate_col] = np.nan
+                # If total > 0 and Min > 0, derive rate if rate is 0.0 or NA
+                recalc_mask = has_minutes & (df[total_col] > 0) & ((df[rate_col] == 0.0) | df[rate_col].isna())
+                df.loc[recalc_mask, rate_col] = ((df.loc[recalc_mask, total_col] / df.loc[recalc_mask, 'Min']) * 90.0).round(2)
+
+        # Also recalculate 90s if zero while Min > 0
+        if '90s' in df.columns:
+            recalc_90s = has_minutes & ((df['90s'] == 0.0) | df['90s'].isna())
+            df.loc[recalc_90s, '90s'] = (df.loc[recalc_90s, 'Min'] / 90.0).round(1)
+        else:
+            df['90s'] = 0.0
+            df.loc[has_minutes, '90s'] = (df.loc[has_minutes, 'Min'] / 90.0).round(1)
+
+        # Derived composite rate: xG+xAG_90
+        if 'xG_90' in df.columns and 'xAG_90' in df.columns and 'xG+xAG_90' in df.columns:
+            recalc_xg_xag = has_minutes & ((df['xG_90'] > 0) | (df['xAG_90'] > 0)) & ((df['xG+xAG_90'] == 0.0) | df['xG+xAG_90'].isna())
+            df.loc[recalc_xg_xag, 'xG+xAG_90'] = (df.loc[recalc_xg_xag, 'xG_90'].fillna(0) + df.loc[recalc_xg_xag, 'xAG_90'].fillna(0)).round(2)
+
+        # Derived metrics (safe guards for column existence)
+        if 'Gls' in df.columns and 'xG' in df.columns:
+            df['Gls_minus_xG'] = (df['Gls'] - df['xG']).round(2)
+            df['xG_minus_Gls'] = (df['xG'] - df['Gls']).round(2)
+        if 'Ast' in df.columns and 'xAG' in df.columns:
+            df['Ast_minus_xAG'] = (df['Ast'] - df['xAG']).round(2)
 
         # Stable identifiers and metadata
         df['id'] = df['Rk']

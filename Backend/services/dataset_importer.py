@@ -300,17 +300,25 @@ class DatasetImporter:
         ndf['Age'] = pd.to_numeric(ndf['Age'], errors='coerce')
         ndf['Born'] = pd.to_numeric(ndf['Born'], errors='coerce')
 
-        # Integer metric columns
-        int_cols = ['Rk', 'MP', 'Starts', 'Min', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'CrdY', 'CrdR', 'PrgC', 'PrgP', 'PrgR']
+        # Standard match count integer columns (0 if missing)
+        int_cols = ['Rk', 'MP', 'Starts', 'Min', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'CrdY', 'CrdR']
         for col in int_cols:
             if col in ndf.columns:
                 ndf[col] = pd.to_numeric(ndf[col], errors='coerce').fillna(0).astype(int)
 
-        # Float metric columns
+        # Progression metrics can be null or integers
+        for col in ['PrgC', 'PrgP', 'PrgR']:
+            if col in ndf.columns:
+                ndf[col] = pd.to_numeric(ndf[col], errors='coerce')
+
+        # Float metric columns: preserve missingness for advanced stats
         float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']
         for col in float_cols:
             if col in ndf.columns:
-                ndf[col] = pd.to_numeric(ndf[col], errors='coerce').fillna(0.0).astype(float).round(2)
+                if col in ['xG', 'npxG', 'xAG', 'npxG+xAG', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']:
+                    ndf[col] = pd.to_numeric(ndf[col], errors='coerce').round(2)
+                else:
+                    ndf[col] = pd.to_numeric(ndf[col], errors='coerce').fillna(0.0).astype(float).round(2)
 
         # Auto-compute 90s if missing or 0
         if '90s' not in ndf.columns or (ndf['90s'] == 0).all():

@@ -1,0 +1,2144 @@
+{
+  "2012-2013": {
+    "season_id": "2012-2013",
+    "csv_file": "top5-players-2012-2013.csv",
+    "total_rows": 2749,
+    "unique_players": 2611,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 138,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 1455,
+        "min": 0.0,
+        "max": 46.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 1392,
+        "min": 0.0,
+        "max": 18.0
+      },
+      "xG": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "xAG": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 1455,
+        "min": 0.0,
+        "max": 7.14
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 1392,
+        "min": 0.0,
+        "max": 6.25
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2749,
+        "null_count": 0,
+        "genuine_zeros": 2749,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2013-2014": {
+    "season_id": "2013-2014",
+    "csv_file": "top5-players-2013-2014.csv",
+    "total_rows": 2745,
+    "unique_players": 2609,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 136,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 1446,
+        "min": 0.0,
+        "max": 31.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 1366,
+        "min": 0.0,
+        "max": 18.0
+      },
+      "xG": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "xAG": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 1446,
+        "min": 0.0,
+        "max": 33.33
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 1366,
+        "min": 0.0,
+        "max": 20.0
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2745,
+        "null_count": 0,
+        "genuine_zeros": 2745,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2014-2015": {
+    "season_id": "2014-2015",
+    "csv_file": "top5-players-2014-2015.csv",
+    "total_rows": 2580,
+    "unique_players": 2467,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 112,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 1356,
+        "min": 0.0,
+        "max": 48.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 1315,
+        "min": 0.0,
+        "max": 21.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 506,
+        "min": 0.0,
+        "max": 39.31
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 517,
+        "min": 0.0,
+        "max": 17.61
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 506,
+        "min": 0.0,
+        "max": 31.43
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 2580,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 2580,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 2580,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 1356,
+        "min": 0.0,
+        "max": 2.44
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 1315,
+        "min": 0.0,
+        "max": 3.33
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 575,
+        "min": 0.0,
+        "max": 9.9
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2580,
+        "null_count": 0,
+        "genuine_zeros": 655,
+        "min": 0.0,
+        "max": 10.8
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2015-2016": {
+    "season_id": "2015-2016",
+    "csv_file": "top5-players-2015-2016.csv",
+    "total_rows": 2770,
+    "unique_players": 2629,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 139,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 1472,
+        "min": 0.0,
+        "max": 40.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 1447,
+        "min": 0.0,
+        "max": 20.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 567,
+        "min": 0.0,
+        "max": 35.83
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 550,
+        "min": 0.0,
+        "max": 18.07
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 567,
+        "min": 0.0,
+        "max": 32.12
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 2770,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 2770,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 2770,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 1472,
+        "min": 0.0,
+        "max": 3.57
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 1447,
+        "min": 0.0,
+        "max": 7.14
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 641,
+        "min": 0.0,
+        "max": 23.4
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2770,
+        "null_count": 0,
+        "genuine_zeros": 699,
+        "min": 0.0,
+        "max": 5.61
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2016-2017": {
+    "season_id": "2016-2017",
+    "csv_file": "top5-players-2016-2017.csv",
+    "total_rows": 2731,
+    "unique_players": 2601,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 130,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 1420,
+        "min": 0.0,
+        "max": 37.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 1328,
+        "min": 0.0,
+        "max": 22.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 532,
+        "min": 0.0,
+        "max": 36.87
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 518,
+        "min": 0.0,
+        "max": 15.89
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 532,
+        "min": 0.0,
+        "max": 30.79
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 2731,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 2731,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 2731,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 1420,
+        "min": 0.0,
+        "max": 5.0
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 1328,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 607,
+        "min": 0.0,
+        "max": 10.8
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2731,
+        "null_count": 0,
+        "genuine_zeros": 654,
+        "min": 0.0,
+        "max": 4.0
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2017-2018": {
+    "season_id": "2017-2018",
+    "csv_file": "top5-players-2017-2018.csv",
+    "total_rows": 2690,
+    "unique_players": 2559,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 131,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 1418,
+        "min": 0.0,
+        "max": 34.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 1413,
+        "min": 0.0,
+        "max": 16.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 541,
+        "min": 0.0,
+        "max": 28.95
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 550,
+        "min": 0.0,
+        "max": 15.51
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 541,
+        "min": 0.0,
+        "max": 25.97
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 2690,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 2690,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 2690,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 1418,
+        "min": 0.0,
+        "max": 33.33
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 1413,
+        "min": 0.0,
+        "max": 3.12
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 631,
+        "min": 0.0,
+        "max": 9.3
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2690,
+        "null_count": 0,
+        "genuine_zeros": 685,
+        "min": 0.0,
+        "max": 12.1
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2018-2019": {
+    "season_id": "2018-2019",
+    "csv_file": "top5-players-2018-2019.csv",
+    "total_rows": 2706,
+    "unique_players": 2511,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 151,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 1401,
+        "min": 0.0,
+        "max": 36.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 1370,
+        "min": 0.0,
+        "max": 18.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 596,
+        "min": 0.0,
+        "max": 33.14
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 594,
+        "min": 0.0,
+        "max": 16.18
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 596,
+        "min": 0.0,
+        "max": 30.11
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 2706,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 2706,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 2706,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 1401,
+        "min": 0.0,
+        "max": 7.69
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 1370,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 653,
+        "min": 0.0,
+        "max": 8.51
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2706,
+        "null_count": 0,
+        "genuine_zeros": 709,
+        "min": 0.0,
+        "max": 7.02
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2019-2020": {
+    "season_id": "2019-2020",
+    "csv_file": "top5-players-2019-2020.csv",
+    "total_rows": 2727,
+    "unique_players": 2594,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 132,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 1437,
+        "min": 0.0,
+        "max": 36.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 1403,
+        "min": 0.0,
+        "max": 22.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 567,
+        "min": 0.0,
+        "max": 31.2
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 596,
+        "min": 0.0,
+        "max": 20.62
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 567,
+        "min": 0.0,
+        "max": 27.41
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 2727,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 2727,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 2727,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 1437,
+        "min": 0.0,
+        "max": 11.11
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 1403,
+        "min": 0.0,
+        "max": 3.33
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 636,
+        "min": 0.0,
+        "max": 7.2
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2727,
+        "null_count": 0,
+        "genuine_zeros": 715,
+        "min": 0.0,
+        "max": 12.6
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2020-2021": {
+    "season_id": "2020-2021",
+    "csv_file": "top5-players-2020-2021.csv",
+    "total_rows": 2802,
+    "unique_players": 2681,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 119,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 1463,
+        "min": 0.0,
+        "max": 41.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 1480,
+        "min": 0.0,
+        "max": 21.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 612,
+        "min": 0.0,
+        "max": 32.08
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 641,
+        "min": 0.0,
+        "max": 14.13
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 613,
+        "min": 0.0,
+        "max": 25.26
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 2802,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 2802,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 2802,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 1463,
+        "min": 0.0,
+        "max": 2.17
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 1480,
+        "min": 0.0,
+        "max": 9.09
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 667,
+        "min": 0.0,
+        "max": 8.28
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2802,
+        "null_count": 0,
+        "genuine_zeros": 760,
+        "min": 0.0,
+        "max": 10.8
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2021-2022": {
+    "season_id": "2021-2022",
+    "csv_file": "top5-players-2021-2022.csv",
+    "total_rows": 2632,
+    "unique_players": 2498,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 133,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 1275,
+        "min": 0.0,
+        "max": 35.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 1258,
+        "min": 0.0,
+        "max": 21.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 474,
+        "min": 0.0,
+        "max": 37.92
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 491,
+        "min": 0.0,
+        "max": 13.41
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 476,
+        "min": 0.0,
+        "max": 34.14
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 2632,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 2632,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 2632,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 1275,
+        "min": 0.0,
+        "max": 4.35
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 1258,
+        "min": 0.0,
+        "max": 12.5
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 513,
+        "min": 0.0,
+        "max": 15.3
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2632,
+        "null_count": 0,
+        "genuine_zeros": 601,
+        "min": 0.0,
+        "max": 7.71
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2022-2023": {
+    "season_id": "2022-2023",
+    "csv_file": "top5-players-2022-2023.csv",
+    "total_rows": 2885,
+    "unique_players": 2713,
+    "total_observed_clubs": 98,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 172,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 1512,
+        "min": 0.0,
+        "max": 36.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 1494,
+        "min": 0.0,
+        "max": 18.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 618,
+        "min": 0.0,
+        "max": 32.76
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 617,
+        "min": 0.0,
+        "max": 17.27
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 618,
+        "min": 0.0,
+        "max": 27.43
+      },
+      "PrgC": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 2885,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgP": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 2885,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 2885,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 1512,
+        "min": 0.0,
+        "max": 11.11
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 1494,
+        "min": 0.0,
+        "max": 11.11
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 664,
+        "min": 0.0,
+        "max": 5.53
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2885,
+        "null_count": 0,
+        "genuine_zeros": 728,
+        "min": 0.0,
+        "max": 5.51
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 98,
+    "manifest_source": "Transfermarkt Comprehensive Match Appearances Datalake"
+  },
+  "2023-2024": {
+    "season_id": "2023-2024",
+    "csv_file": "top5-players-2023-2024.csv",
+    "total_rows": 2852,
+    "unique_players": 2703,
+    "total_observed_clubs": 96,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 148,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 1467,
+        "min": 0.0,
+        "max": 36.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 1526,
+        "min": 0.0,
+        "max": 14.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 633,
+        "min": 0.0,
+        "max": 30.6
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 665,
+        "min": 0.0,
+        "max": 11.8
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 634,
+        "min": 0.0,
+        "max": 26.7
+      },
+      "PrgC": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 491,
+        "min": 0.0,
+        "max": 218.0
+      },
+      "PrgP": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 330,
+        "min": 0.0,
+        "max": 392.0
+      },
+      "PrgR": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 426,
+        "min": 0.0,
+        "max": 508.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 1467,
+        "min": 0.0,
+        "max": 6.0
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 1526,
+        "min": 0.0,
+        "max": 11.25
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 568,
+        "min": 0.0,
+        "max": 4.55
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2852,
+        "null_count": 0,
+        "genuine_zeros": 628,
+        "min": 0.0,
+        "max": 6.85
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 96,
+    "manifest_source": "FBref / StatsBomb style player-level aggregates"
+  },
+  "2024-2025": {
+    "season_id": "2024-2025",
+    "csv_file": "top5-players24-25.csv",
+    "total_rows": 2854,
+    "unique_players": 2702,
+    "total_observed_clubs": 96,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "it Serie A": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 152,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 0,
+        "min": 1.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 1495,
+        "min": 0.0,
+        "max": 31.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 1548,
+        "min": 0.0,
+        "max": 18.0
+      },
+      "xG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 643,
+        "min": 0.0,
+        "max": 27.1
+      },
+      "xAG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 711,
+        "min": 0.0,
+        "max": 14.2
+      },
+      "npxG": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 646,
+        "min": 0.0,
+        "max": 24.0
+      },
+      "PrgC": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 484,
+        "min": 0.0,
+        "max": 213.0
+      },
+      "PrgP": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 333,
+        "min": 0.0,
+        "max": 362.0
+      },
+      "PrgR": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 439,
+        "min": 0.0,
+        "max": 488.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 1495,
+        "min": 0.0,
+        "max": 2.43
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 1548,
+        "min": 0.0,
+        "max": 2.65
+      },
+      "xG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 559,
+        "min": 0.0,
+        "max": 5.06
+      },
+      "xAG_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2854,
+        "null_count": 0,
+        "genuine_zeros": 648,
+        "min": 0.0,
+        "max": 2.47
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 96,
+    "manifest_source": "FBref / StatsBomb style player-level aggregates"
+  },
+  "2025-2026": {
+    "season_id": "2025-2026",
+    "csv_file": "top5-players-2025-2026.csv",
+    "total_rows": 2997,
+    "unique_players": 2902,
+    "total_observed_clubs": 197,
+    "comp_squad_report": {
+      "de Bundesliga": {
+        "observed": 18,
+        "expected": 18,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "eng Premier League": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "es La Liga": {
+        "observed": 20,
+        "expected": 20,
+        "discrepancy": 0,
+        "status": "MATCH"
+      },
+      "fr Ligue 1": {
+        "observed": 97,
+        "expected": 18,
+        "discrepancy": 79,
+        "status": "MISMATCH (+79)"
+      },
+      "it Serie A": {
+        "observed": 96,
+        "expected": 20,
+        "discrepancy": 76,
+        "status": "MISMATCH (+76)"
+      }
+    },
+    "duplicates_count": 0,
+    "multi_club_players": 84,
+    "has_source_rates": true,
+    "has_source_xg_rates": true,
+    "metrics_summary": {
+      "Min": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 386,
+        "min": 0.0,
+        "max": 3420.0
+      },
+      "Gls": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 1653,
+        "min": 0.0,
+        "max": 36.0
+      },
+      "Ast": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 1722,
+        "min": 0.0,
+        "max": 21.0
+      },
+      "xG": {
+        "status": "PARTIALLY_TRACKED (2738/2997 valid)",
+        "non_null_count": 2738,
+        "null_count": 259,
+        "genuine_zeros": 688,
+        "min": 0.0,
+        "max": 24.91
+      },
+      "xAG": {
+        "status": "PARTIALLY_TRACKED (2993/2997 valid)",
+        "non_null_count": 2993,
+        "null_count": 4,
+        "genuine_zeros": 749,
+        "min": 0.0,
+        "max": 15.2
+      },
+      "npxG": {
+        "status": "PARTIALLY_TRACKED (2864/2997 valid)",
+        "non_null_count": 2864,
+        "null_count": 133,
+        "genuine_zeros": 2056,
+        "min": 0.0,
+        "max": 15.06
+      },
+      "PrgC": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 2188,
+        "min": 0.0,
+        "max": 116.0
+      },
+      "PrgP": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 2142,
+        "min": 0.0,
+        "max": 125.0
+      },
+      "PrgR": {
+        "status": "UNTRACKED_IN_ERA",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 2997,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Gls_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 1653,
+        "min": 0.0,
+        "max": 10.0
+      },
+      "Ast_90": {
+        "status": "FULLY_TRACKED",
+        "non_null_count": 2997,
+        "null_count": 0,
+        "genuine_zeros": 1722,
+        "min": 0.0,
+        "max": 10.0
+      },
+      "xG_90": {
+        "status": "PARTIALLY_TRACKED (2864/2997 valid)",
+        "non_null_count": 2864,
+        "null_count": 133,
+        "genuine_zeros": 2064,
+        "min": 0.0,
+        "max": 1.24
+      },
+      "xAG_90": {
+        "status": "PARTIALLY_TRACKED (2993/2997 valid)",
+        "non_null_count": 2993,
+        "null_count": 4,
+        "genuine_zeros": 2161,
+        "min": 0.0,
+        "max": 0.79
+      }
+    },
+    "anomalies": [],
+    "manifest_status": "verified_historical",
+    "manifest_clubs": 197,
+    "manifest_source": "FBref / StatsBomb style aggregates + FotMob 2025/26 European Stats"
+  }
+}

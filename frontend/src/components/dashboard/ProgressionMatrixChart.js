@@ -31,36 +31,42 @@ export const ProgressionMatrixChart = ({
 
       {/* List */}
       <div className="space-y-3 my-1">
-        {progressionLeaders.map((player) => {
-          const carryPct = Math.min(100, Math.round((player.PrgC / maxCarries) * 100));
+        {progressionLeaders.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-500 font-mono">
+            Progressive action metrics (PrgC &amp; PrgP) were untracked during this era.
+          </div>
+        ) : (
+          progressionLeaders.map((player) => {
+            const carryPct = Math.min(100, Math.round((player.PrgC / maxCarries) * 100));
 
-          return (
-            <div
-              key={player.id}
-              onClick={() => onPlayerClick && onPlayerClick(player.id)}
-              className="p-2.5 rounded-lg bg-pitch-surface/60 hover:bg-slate-800/60 border border-pitch-border/50 cursor-pointer transition-colors group"
-            >
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1">
-                  {player.Player}
-                  <span className="text-slate-500 text-[10px]">({player.Squad})</span>
-                </span>
-                <div className="flex items-center gap-3 font-mono text-[11px]">
-                  <span className="text-purple-400 font-bold">{player.PrgC} Carries</span>
-                  <span className="text-blue-400 font-bold">{player.PrgP} Passes</span>
+            return (
+              <div
+                key={player.id}
+                onClick={() => onPlayerClick && onPlayerClick(player.id)}
+                className="p-2.5 rounded-lg bg-pitch-surface/60 hover:bg-slate-800/60 border border-pitch-border/50 cursor-pointer transition-colors group"
+              >
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="font-semibold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1">
+                    {player.Player}
+                    <span className="text-slate-500 text-[10px]">({player.Squad})</span>
+                  </span>
+                  <div className="flex items-center gap-3 font-mono text-[11px]">
+                    <span className="text-purple-400 font-bold">{player.PrgC} Carries</span>
+                    <span className="text-blue-400 font-bold">{player.PrgP} Passes</span>
+                  </div>
+                </div>
+
+                {/* Dual Progress Bar */}
+                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden flex">
+                  <div
+                    className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                    style={{ width: `${carryPct}%` }}
+                  />
                 </div>
               </div>
-
-              {/* Dual Progress Bar */}
-              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden flex">
-                <div
-                  className="h-full bg-purple-500 rounded-full transition-all duration-500"
-                  style={{ width: `${carryPct}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Footer */}

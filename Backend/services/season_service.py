@@ -10,14 +10,13 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 SEASONS_DIR = os.path.join(BASE_DIR, 'data', 'seasons')
-DEFAULT_SEASON = '2025-2026'
+DEFAULT_SEASON = '2024-2025'
 
 class SeasonService:
     """
     Manages multi-season storage, season discovery, active season tracking,
-    and manifest resolution for PitchPulse analytics.
-    Enforces chronological ordering (2023/24 -> 2024/25 -> 2025/26) and
-    removes baseline/projection special cases.
+    manifest resolution, and quarantine governance for PitchPulse analytics.
+    Enforces chronological ordering and flags unverified/quarantined datasets.
     """
 
     def __init__(self, seasons_dir=None):
@@ -60,12 +59,20 @@ class SeasonService:
         path = os.path.join(self.seasons_dir, s_id)
         return os.path.isdir(path)
 
+    def is_season_quarantined(self, season_id):
+        """Returns True if the season has been quarantined from authoritative rankings."""
+        manifest = self.get_season_manifest(season_id) or {}
+        if manifest.get('is_quarantined') is True or manifest.get('dataset_status') == 'quarantined':
+            return True
+        resolved = self.resolve_season(season_id)
+        return resolved == '2025-2026'
+
     def list_seasons(self):
-        """Returns chronological list (oldest to newest) of available historical seasons."""
+        """Returns chronological list (oldest to newest) of available historical seasons with quarantine metadata."""
         if not os.path.exists(self.seasons_dir):
             return []
 
-        # Chronological sorting: 2023-2024, 2024-2025, 2025-2026
+        # Chronological sorting: 2012-2013 -> ... -> 2024-2025 -> 2025-2026
         valid_entries = []
         for entry in sorted(os.listdir(self.seasons_dir)):
             dir_path = os.path.join(self.seasons_dir, entry)
@@ -85,11 +92,27 @@ class SeasonService:
                 except Exception as e:
                     logger.warning(f"Failed to read manifest for season '{entry}': {e}")
 
+            # Quarantine & governance resolution
+            is_quarantined = manifest.get('is_quarantined', (entry == '2025-2026'))
+            if is_quarantined:
+                dataset_status = 'quarantined'
+                status_label = manifest.get('status_label', 'Quarantined / Provisional')
+                quarantine_reason = manifest.get(
+                    'quarantine_reason',
+                    'Composite dataset contains squad attribution anomalies (197 clubs) and unverified projections. Quarantined from authoritative rankings.'
+                )
+                is_projection = True
+            else:
+                dataset_status = manifest.get('dataset_status', 'verified_historical')
+                status_label = manifest.get('status_label', 'Historical Season')
+                quarantine_reason = None
+                is_projection = False
+
             # Human friendly display name e.g. "2023/24 Historical Season"
             short_year = entry.replace('-', '/').replace('20', '', 1)
-            display_name = manifest.get('display_name') or f"{short_year} Historical Season"
-            dataset_status = 'verified_historical'
-            status_label = 'Historical Season'
+            display_name = manifest.get('display_name') or (
+                f"{short_year} Provisional Season" if is_quarantined else f"{short_year} Historical Season"
+            )
 
             seasons.append({
                 'id': entry,
@@ -98,9 +121,11 @@ class SeasonService:
                 'display_name': display_name,
                 'is_active': (entry == self._active_season),
                 'is_baseline': False,
+                'is_quarantined': is_quarantined,
+                'quarantine_reason': quarantine_reason,
                 'dataset_status': dataset_status,
                 'status_label': status_label,
-                'is_projection': False,
+                'is_projection': is_projection,
                 'records_count': manifest.get('records_count', 0),
                 'clubs_count': manifest.get('clubs_count', 0),
                 'competitions_count': manifest.get('competitions_count', 5),

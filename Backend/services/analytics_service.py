@@ -50,15 +50,15 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
             "metric": metric_key,
             "goals": int(row["Gls"]),
             "assists": int(row["Ast"]),
-            "xg": float(row["xG"]),
-            "xag": float(row["xAG"]),
-            "goals_per_90": float(row.get("Gls_90", 0.0)),
-            "assists_per_90": float(row.get("Ast_90", 0.0)),
-            "xg_per_90": float(row.get("xG_90", 0.0)),
-            "xag_per_90": float(row.get("xAG_90", 0.0)),
-            "progressive_passes": int(row["PrgP"]),
-            "progressive_carries": int(row["PrgC"]),
-            "finishing_differential": float(row.get("Gls_minus_xG", 0.0))
+            "xg": float(row["xG"]) if pd.notna(row.get("xG")) else None,
+            "xag": float(row["xAG"]) if pd.notna(row.get("xAG")) else None,
+            "goals_per_90": float(row.get("Gls_90", 0.0)) if pd.notna(row.get("Gls_90")) else 0.0,
+            "assists_per_90": float(row.get("Ast_90", 0.0)) if pd.notna(row.get("Ast_90")) else 0.0,
+            "xg_per_90": float(row.get("xG_90")) if pd.notna(row.get("xG_90")) else None,
+            "xag_per_90": float(row.get("xAG_90")) if pd.notna(row.get("xAG_90")) else None,
+            "progressive_passes": int(row["PrgP"]) if pd.notna(row.get("PrgP")) else None,
+            "progressive_carries": int(row["PrgC"]) if pd.notna(row.get("PrgC")) else None,
+            "finishing_differential": float(row.get("Gls_minus_xG")) if pd.notna(row.get("Gls_minus_xG")) else None
         })
     return results
 
@@ -244,26 +244,51 @@ def get_dashboard_analytics(competition=None, season=None):
         ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Ast', 'xAG', 'Ast_minus_xAG', 'Min']
     ].to_dict(orient='records')
 
+    has_xg = bool(df['xG'].dropna().max() > 0) if 'xG' in df.columns else False
+    has_prgc = bool(df['PrgC'].dropna().max() > 0) if 'PrgC' in df.columns else False
+
     min_500 = df[df['Min'] >= 500].copy()
-    overperformers = min_500.sort_values(by='Gls_minus_xG', ascending=False).head(5)[
-        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
-    ].to_dict(orient='records')
+    if has_xg and 'Gls_minus_xG' in min_500.columns:
+        overperformers = min_500.sort_values(by='Gls_minus_xG', ascending=False).head(5)[
+            ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
+        ].to_dict(orient='records')
 
-    underperformers = min_500.sort_values(by='Gls_minus_xG', ascending=True).head(5)[
-        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
-    ].to_dict(orient='records')
+        underperformers = min_500.sort_values(by='Gls_minus_xG', ascending=True).head(5)[
+            ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min']
+        ].to_dict(orient='records')
+    else:
+        overperformers = []
+        underperformers = []
 
-    progression_leaders = df.sort_values(by='PrgC', ascending=False).head(8)[
-        ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'PrgC', 'PrgP', 'Min']
-    ].to_dict(orient='records')
+    if has_prgc:
+        progression_leaders = df.sort_values(by='PrgC', ascending=False).head(8)[
+            ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'PrgC', 'PrgP', 'Min']
+        ].to_dict(orient='records')
+    else:
+        progression_leaders = []
 
     min_450 = df[df['Min'] >= 450].copy()
-    min_450['production_sum'] = min_450['xG'] + min_450['xAG']
+    if has_xg:
+        min_450['production_sum'] = min_450['xG'].fillna(0) + min_450['xAG'].fillna(0)
+    else:
+        min_450['production_sum'] = min_450['Gls'].fillna(0) + min_450['Ast'].fillna(0)
+
     scatter_data = min_450.sort_values(by='production_sum', ascending=False).head(25)[
         ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'xG', 'xAG', 'Gls', 'Ast', 'Min']
     ].to_dict(orient='records')
 
+    is_quarantined = season_service.is_season_quarantined(season)
+    quarantine_notice = None
+    if is_quarantined:
+        quarantine_notice = {
+            "status": "quarantined",
+            "title": "Quarantined / Provisional Dataset",
+            "message": "This dataset was generated from composite projections and contains squad attribution anomalies (197 clubs). Statistics are shown for inspection only and excluded from authoritative rankings."
+        }
+
     return {
+        "is_quarantined": is_quarantined,
+        "quarantine_notice": quarantine_notice,
         "kpis": {
             "total_players": total_players,
             "total_clubs": total_clubs,

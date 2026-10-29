@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Database, ChevronDown, Check, RefreshCw, Calendar } from 'lucide-react';
+import { Database, ChevronDown, Check, RefreshCw, Calendar, AlertTriangle } from 'lucide-react';
+
 /**
  * Reusable, accessible Season / Year Selector component.
  * Can be rendered in headers, navbars, sidebars, or filter bars.
+ * Includes quarantine and governance badging for unverified datasets.
  */
 export const SeasonSelector = ({
-  activeSeason = "2025-2026",
+  activeSeason = "2024-2025",
   availableSeasons = [],
   onSelectSeason,
   isSwitchingSeason = false,
@@ -15,6 +17,7 @@ export const SeasonSelector = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+
   // Close dropdown on click outside or Escape key
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -34,10 +37,12 @@ export const SeasonSelector = ({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
   const formatSeasonShort = (id) => {
-    if (!id) return '2025/26';
+    if (!id) return '2024/25';
     return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
   };
+
   const handleSelect = (seasonId) => {
     if (isSwitchingSeason) return;
     if (onSelectSeason && seasonId !== activeSeason) {
@@ -45,11 +50,15 @@ export const SeasonSelector = ({
     }
     setIsOpen(false);
   };
+
   const activeMeta = availableSeasons.find(s => (s.id || s) === activeSeason) || {};
-  const isProjection = activeMeta.is_projection || activeMeta.dataset_status === 'projection';
+  const isQuarantined = activeMeta.is_quarantined || activeMeta.dataset_status === 'quarantined' || activeSeason === '2025-2026';
+  const isProjection = activeMeta.is_projection || activeMeta.dataset_status === 'projection' || isQuarantined;
+
   // Resolved dropdown horizontal alignment
   const resolvedAlign = align || (variant === 'navbar' ? 'right' : 'left');
   const alignClass = resolvedAlign === 'right' ? 'right-0' : 'left-0';
+
   // Variants styling
   const buttonStyles = {
     header: `inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border transition-all cursor-pointer shadow-sm ${
@@ -69,6 +78,7 @@ export const SeasonSelector = ({
         : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
     } ${isOpen ? 'ring-2 ring-emerald-500/30' : ''}`
   };
+
   return (
     <div className={`relative inline-block ${className}`} ref={dropdownRef}>
       <button
@@ -84,6 +94,8 @@ export const SeasonSelector = ({
       >
         {isSwitchingSeason ? (
           <RefreshCw className="w-3.5 h-3.5 text-emerald-400 animate-spin shrink-0" />
+        ) : isQuarantined ? (
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
         ) : variant === 'header' || variant === 'badge' ? (
           <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
         ) : (
@@ -92,8 +104,14 @@ export const SeasonSelector = ({
         <span className="font-mono font-bold">
           {variant === 'header' ? `Season ${formatSeasonShort(activeSeason)}` : formatSeasonShort(activeSeason)}
         </span>
+        {isQuarantined && (
+          <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/25 text-amber-300 font-mono">
+            Quarantine
+          </span>
+        )}
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
+
       {/* Floating Dropdown Menu */}
       {isOpen && (
         <div 
@@ -112,13 +130,16 @@ export const SeasonSelector = ({
               </span>
             )}
           </div>
+
           {/* Season Options List */}
           <div className="max-h-[min(520px,75vh)] overflow-y-auto py-1 divide-y divide-pitch-border/20">
             {availableSeasons.map((s) => {
               const sId = s.id || s;
               const sName = s.name || s.display_name || sId;
               const isSelected = sId === activeSeason;
-                                          return (
+              const isItemQuarantined = s.is_quarantined || s.dataset_status === 'quarantined' || sId === '2025-2026';
+
+              return (
                 <button
                   key={sId}
                   role="option"
@@ -128,17 +149,21 @@ export const SeasonSelector = ({
                   onClick={() => handleSelect(sId)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
                     isSelected
-                      ? 'bg-emerald-500/15 text-emerald-400 font-bold border-l-2 border-emerald-400 pl-3'
+                      ? (isItemQuarantined ? 'bg-amber-500/15 text-amber-300 font-bold border-l-2 border-amber-400 pl-3' : 'bg-emerald-500/15 text-emerald-400 font-bold border-l-2 border-emerald-400 pl-3')
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white border-l-2 border-transparent pl-3'
                   }`}
                 >
                   <div className="flex-1 min-w-0 pr-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`font-semibold text-xs ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
+                      <span className={`font-semibold text-xs ${isSelected ? (isItemQuarantined ? 'text-amber-300' : 'text-emerald-400') : 'text-slate-200'}`}>
                         {sName}
                       </span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
-                        {s.status_label || (s.dataset_status === 'verified_historical' ? 'Historical Season' : 'Completed Season')}
+                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded shrink-0 border ${
+                        isItemQuarantined
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                      }`}>
+                        {s.status_label || (isItemQuarantined ? 'Quarantined / Provisional' : 'Historical Season')}
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-2">
@@ -146,11 +171,12 @@ export const SeasonSelector = ({
                       {s.records_count ? <span>• {Number(s.records_count).toLocaleString()} players</span> : null}
                     </div>
                   </div>
-                  {isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0 ml-1" />}
+                  {isSelected && <Check className={`w-4 h-4 shrink-0 ml-1 ${isItemQuarantined ? 'text-amber-400' : 'text-emerald-400'}`} />}
                 </button>
               );
             })}
           </div>
+
           {/* Dropdown Footer */}
           <div className="px-3.5 py-2 bg-pitch-card/60 border-t border-pitch-border/60 flex items-center justify-between text-[10px] text-slate-400 font-mono">
             <span className="flex items-center gap-1.5">
@@ -164,4 +190,5 @@ export const SeasonSelector = ({
     </div>
   );
 };
+
 export default SeasonSelector;

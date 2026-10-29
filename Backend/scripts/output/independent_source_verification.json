@@ -1,0 +1,700 @@
+{
+  "summary": {
+    "total_audited": 27,
+    "matches": 12,
+    "mismatches": 15,
+    "unverifiable": 0
+  },
+  "seasons": {
+    "2012-2013": [
+      {
+        "player": "Lionel Messi",
+        "season": "2012-2013",
+        "observed_squad": "FC Barcelona",
+        "expected_squad": "FC Barcelona",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://www.transfermarkt.com/laliga/torschuetzenliste/wettbewerb/ES1/saison_id/2012",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 46.0 matches 46.0",
+          "Ast: 13.0 matches 13.0",
+          "Min: 2626.0 matches 2649.0",
+          "MP: 32.0 matches 32.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: FC Barcelona matches FC Barcelona"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "European Golden Shoe winner 2012/13. xG/PrgC were untracked in 2012/13."
+      },
+      {
+        "player": "Cristiano Ronaldo",
+        "season": "2012-2013",
+        "observed_squad": "Real Madrid",
+        "expected_squad": "Real Madrid",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://www.transfermarkt.com/laliga/torschuetzenliste/wettbewerb/ES1/saison_id/2012",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 34.0 matches 34.0",
+          "Ast: 11.0 matches 11.0",
+          "Min: 2717.0 matches 2715.0",
+          "MP: 34.0 matches 34.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Real Madrid matches Real Madrid"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "La Liga runner-up top scorer."
+      },
+      {
+        "player": "Robin van Persie",
+        "season": "2012-2013",
+        "observed_squad": "Manchester United",
+        "expected_squad": "Manchester United",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://www.premierleague.com/stats/top/players/goals?se=12",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 26.0 matches 26.0",
+          "Ast: 15.0 matches 15.0",
+          "Min: 3124.0 matches 3123.0",
+          "MP: 38.0 matches 38.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Manchester United matches Manchester United"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Premier League Golden Boot winner 2012/13."
+      },
+      {
+        "player": "Leonardo Bonucci",
+        "season": "2012-2013",
+        "observed_squad": "Juventus FC",
+        "expected_squad": "Juventus FC",
+        "category": "Genuine Zero Scorer (DF, High Min)",
+        "source_ref": "https://www.transfermarkt.com/leonardo-bonucci/leistungsdatendetails/spieler/39983/plus/0?saison=2012&verein=506",
+        "status": "mismatch",
+        "matches_count": 5,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 0.0 matches 0.0",
+          "MP: 33.0 matches 33.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Juventus FC matches Juventus FC"
+        ],
+        "mismatches": [
+          "Ast: expected 1.0, observed 0.0 (diff=-1.00)",
+          "Min: expected 2862.0, observed 2961.0 (diff=+99.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Juventus title-winning center back; 0 goals in 2862 mins is a genuine zero."
+      },
+      {
+        "player": "Manuel Neuer",
+        "season": "2012-2013",
+        "observed_squad": "Bayern Munich",
+        "expected_squad": "Bayern Munich",
+        "category": "Goalkeeper (GK, Genuine Zero)",
+        "source_ref": "https://www.bundesliga.com/en/bundesliga/stats/players/2012-2013",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 0.0 matches 0.0",
+          "Ast: 0.0 matches 0.0",
+          "Min: 2790.0 matches 2790.0",
+          "MP: 31.0 matches 31.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Bayern Munich matches Bayern Munich"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Treble-winning Bayern goalkeeper. Clean sheets: 18."
+      }
+    ],
+    "2013-2014": [
+      {
+        "player": "Luis Su\u00e1rez",
+        "season": "2013-2014",
+        "observed_squad": "Liverpool FC",
+        "expected_squad": "Liverpool FC",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://www.premierleague.com/stats/top/players/goals?se=20",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 31.0 matches 31.0",
+          "Ast: 17.0 matches 17.0",
+          "Min: 2965.0 matches 2960.0",
+          "MP: 33.0 matches 33.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Liverpool FC matches Liverpool FC"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Premier League Golden Boot winner & European Golden Shoe joint-winner."
+      },
+      {
+        "player": "Carlos Tevez",
+        "season": "2013-2014",
+        "observed_squad": "Juventus FC",
+        "expected_squad": "Juventus FC",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://www.transfermarkt.com/serie-a/torschuetzenliste/wettbewerb/IT1/saison_id/2013",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 19.0 matches 19.0",
+          "Min: 2600.0 matches 2600.0",
+          "MP: 34.0 matches 34.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Juventus FC matches Juventus FC"
+        ],
+        "mismatches": [
+          "Ast: expected 8.0, observed 7.0 (diff=-1.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Scored 19 league goals for Juventus 102-point championship season."
+      },
+      {
+        "player": "Diego God\u00edn",
+        "season": "2013-2014",
+        "observed_squad": "Atl\u00e9tico de Madrid",
+        "expected_squad": "Atl\u00e9tico de Madrid",
+        "category": "Defensive Anchor (DF, High Min)",
+        "source_ref": "https://www.transfermarkt.com/diego-godin/leistungsdatendetails/spieler/54928/plus/0?saison=2013",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 4.0 matches 4.0",
+          "Min: 3060.0 matches 3060.0",
+          "MP: 34.0 matches 34.0",
+          "xG: confirmed untracked/zero",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Atl\u00e9tico de Madrid matches Atl\u00e9tico de Madrid"
+        ],
+        "mismatches": [
+          "Ast: expected 1.0, observed 0.0 (diff=-1.00)"
+        ],
+        "unverifiable": [],
+        "notes": "La Liga champion title decider at Camp Nou."
+      }
+    ],
+    "2015-2016": [
+      {
+        "player": "Jamie Vardy",
+        "season": "2015-2016",
+        "observed_squad": "Leicester City",
+        "expected_squad": "Leicester City",
+        "category": "Historic Title Scorer (FW, High Min)",
+        "source_ref": "https://understat.com/player/755 (Understat 2015/16) and Premier League archives",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 24.0 matches 24.0",
+          "Ast: 8.0 matches 8.0",
+          "Min: 3139.0 matches 3133.0",
+          "MP: 36.0 matches 36.0",
+          "xG: 22.14 matches 22.14",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Leicester City matches Leicester City"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "24 goals on 22.14 Understat xG; spatial progression untracked in 2015/16."
+      },
+      {
+        "player": "Riyad Mahrez",
+        "season": "2015-2016",
+        "observed_squad": "Leicester City",
+        "expected_squad": "Leicester City",
+        "category": "PFA Player of the Year (MF/FW)",
+        "source_ref": "https://understat.com/player/750 (Understat 2015/16)",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 17.0 matches 17.0",
+          "Ast: 10.0 matches 10.0",
+          "Min: 3055.0 matches 3055.0",
+          "MP: 37.0 matches 37.0",
+          "xG: 11.88 matches 11.88",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Leicester City matches Leicester City"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Double-double: 17 goals, 10 assists, 11.88 Understat xG."
+      },
+      {
+        "player": "N'Golo Kant\u00e9",
+        "season": "2015-2016",
+        "observed_squad": "Leicester City",
+        "expected_squad": "Leicester City",
+        "category": "Defensive Midfielder (MF, High Min)",
+        "source_ref": "https://understat.com/player/751 (Understat 2015/16)",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 1.0 matches 1.0",
+          "Ast: 4.0 matches 4.0",
+          "Min: 3020.0 matches 3019.0",
+          "MP: 37.0 matches 37.0",
+          "xG: 0.56 matches 0.56",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Leicester City matches Leicester City"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Tackles and interceptions leader; 0.56 Understat xG."
+      }
+    ],
+    "2017-2018": [
+      {
+        "player": "Mohamed Salah",
+        "season": "2017-2018",
+        "observed_squad": "Liverpool FC",
+        "expected_squad": "Liverpool FC",
+        "category": "Record Breaker (FW, High Min)",
+        "source_ref": "https://understat.com/player/1250 (Understat 2017/18) and Premier League archives",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 32.0 matches 32.0",
+          "Ast: 11.0 matches 11.0",
+          "Min: 2920.0 matches 2920.0",
+          "MP: 36.0 matches 36.0",
+          "xG: 25.14 matches 25.14",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Liverpool FC matches Liverpool FC"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "38-game Premier League record (32 goals) on 25.14 Understat xG."
+      },
+      {
+        "player": "Lionel Messi",
+        "season": "2017-2018",
+        "observed_squad": "FC Barcelona",
+        "expected_squad": "FC Barcelona",
+        "category": "Pichichi Winner (FW, High Min)",
+        "source_ref": "https://understat.com/player/2097 (Understat 2017/18)",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 34.0 matches 34.0",
+          "Ast: 14.0 matches 14.0",
+          "Min: 2996.0 matches 2997.0",
+          "MP: 36.0 matches 36.0",
+          "xG: 28.95 matches 28.95",
+          "PrgC: confirmed untracked/zero",
+          "Squad: FC Barcelona matches FC Barcelona"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "European Golden Shoe winner: 34 goals, 14 assists, 28.95 Understat xG."
+      }
+    ],
+    "2021-2022": [
+      {
+        "player": "Pierre-Emerick Aubameyang",
+        "season": "2021-2022",
+        "observed_squad": "Arsenal FC",
+        "expected_squad": "Arsenal FC",
+        "category": "Mid-Season Transfer Spell 1 (Arsenal)",
+        "source_ref": "https://understat.com/player/318 (Understat 2021/22)",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 4.0 matches 4.0",
+          "Ast: 1.0 matches 1.0",
+          "Min: 1040.0 matches 1037.0",
+          "MP: 14.0 matches 14.0",
+          "xG: 6.89 matches 6.89",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Arsenal FC matches Arsenal FC"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Arsenal spell: 4 goals on 6.89 Understat xG."
+      },
+      {
+        "player": "Pierre-Emerick Aubameyang",
+        "season": "2021-2022",
+        "observed_squad": "FC Barcelona",
+        "expected_squad": "FC Barcelona",
+        "category": "Mid-Season Transfer Spell 2 (Barcelona)",
+        "source_ref": "https://understat.com/player/318 (Understat 2021/22)",
+        "status": "match",
+        "matches_count": 7,
+        "mismatches_count": 0,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 11.0 matches 11.0",
+          "Ast: 1.0 matches 1.0",
+          "Min: 1092.0 matches 1092.0",
+          "MP: 17.0 matches 17.0",
+          "xG: 8.83 matches 8.83",
+          "PrgC: confirmed untracked/zero",
+          "Squad: FC Barcelona matches FC Barcelona"
+        ],
+        "mismatches": [],
+        "unverifiable": [],
+        "notes": "Barcelona spell: 11 goals on 8.83 Understat xG."
+      },
+      {
+        "player": "Son Heung-min",
+        "season": "2021-2022",
+        "observed_squad": "Tottenham Hotspur",
+        "expected_squad": "Tottenham Hotspur",
+        "category": "Joint Golden Boot Winner (FW, High Min)",
+        "source_ref": "https://understat.com/player/453 (Understat 2021/22)",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 23.0 matches 23.0",
+          "Ast: 9.0 matches 9.0",
+          "Min: 3022.0 matches 3051.0",
+          "MP: 35.0 matches 35.0",
+          "PrgC: confirmed untracked/zero",
+          "Squad: Tottenham Hotspur matches Tottenham Hotspur"
+        ],
+        "mismatches": [
+          "xG: expected 16.99, observed 0.0 (diff=-16.99)"
+        ],
+        "unverifiable": [],
+        "notes": "23 goals from 16.99 Understat xG (magnificent finishing overperformance +6.01)."
+      }
+    ],
+    "2023-2024": [
+      {
+        "player": "Harry Kane",
+        "season": "2023-2024",
+        "observed_squad": "Bayern Munich",
+        "expected_squad": "Bayern Munich",
+        "category": "European Golden Shoe (FW, High Min, Advanced Metrics)",
+        "source_ref": "https://fbref.com/en/players/21a665be/matchlogs/2023-2024/summary/Harry-Kane-Match-Logs",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 36.0 matches 36.0",
+          "Ast: 8.0 matches 8.0",
+          "Min: 2839.0 matches 2842.0",
+          "MP: 32.0 matches 32.0",
+          "xG: 30.6 matches 30.6",
+          "Squad: Bayern Munich matches Bayern Munich"
+        ],
+        "mismatches": [
+          "PrgC: expected 48.0, observed 36.0 (diff=-12.00)",
+          "PrgP: expected 115.0, observed 102.0 (diff=-13.00)"
+        ],
+        "unverifiable": [],
+        "notes": "36 goals in debut Bundesliga season. Authentic StatsBomb event metrics."
+      },
+      {
+        "player": "Erling Haaland",
+        "season": "2023-2024",
+        "observed_squad": "Manchester City",
+        "expected_squad": "Manchester City",
+        "category": "Premier League Golden Boot (FW, Advanced Metrics)",
+        "source_ref": "https://fbref.com/en/players/1f444c2b/matchlogs/2023-2024/summary/Erling-Haaland-Match-Logs",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 27.0 matches 27.0",
+          "Ast: 5.0 matches 5.0",
+          "Min: 2552.0 matches 2558.0",
+          "MP: 31.0 matches 31.0",
+          "xG: 29.2 matches 29.2",
+          "Squad: Manchester City matches Manchester City"
+        ],
+        "mismatches": [
+          "PrgC: expected 26.0, observed 35.0 (diff=+9.00)",
+          "PrgP: expected 36.0, observed 26.0 (diff=-10.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Premier League top scorer. 29.2 xG."
+      },
+      {
+        "player": "Cole Palmer",
+        "season": "2023-2024",
+        "observed_squad": "Chelsea",
+        "expected_squad": "Chelsea",
+        "category": "Breakout Star (MF/FW, Double-Double)",
+        "source_ref": "https://fbref.com/en/players/dc7f8a28/matchlogs/2023-2024/summary/Cole-Palmer-Match-Logs",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 22.0 matches 22.0",
+          "Ast: 11.0 matches 11.0",
+          "Min: 2607.0 matches 2623.0",
+          "MP: 33.0 matches 33.0",
+          "xG: 18.2 matches 18.2",
+          "Squad: Chelsea matches Chelsea"
+        ],
+        "mismatches": [
+          "PrgC: expected 78.0, observed 117.0 (diff=+39.00)",
+          "PrgP: expected 172.0, observed 197.0 (diff=+25.00)"
+        ],
+        "unverifiable": [],
+        "notes": "22 goals, 11 assists; 78 progressive carries, 172 progressive passes."
+      },
+      {
+        "player": "Virgil van Dijk",
+        "season": "2023-2024",
+        "observed_squad": "Liverpool",
+        "expected_squad": "Liverpool",
+        "category": "Elite Defender (DF, High Min)",
+        "source_ref": "https://fbref.com/en/players/e0668372/matchlogs/2023-2024/summary/Virgil-van-Dijk-Match-Logs",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 2.0 matches 2.0",
+          "Ast: 2.0 matches 2.0",
+          "Min: 3177.0 matches 3163.0",
+          "MP: 36.0 matches 36.0",
+          "xG: 2.8 matches 2.8",
+          "Squad: Liverpool matches Liverpool"
+        ],
+        "mismatches": [
+          "PrgC: expected 15.0, observed 32.0 (diff=+17.00)",
+          "PrgP: expected 147.0, observed 200.0 (diff=+53.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Liverpool captain; 147 progressive passes from center-back."
+      }
+    ],
+    "2024-2025": [
+      {
+        "player": "Kylian Mbapp\u00e9",
+        "season": "2024-2025",
+        "observed_squad": "Real Madrid",
+        "expected_squad": "Real Madrid",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 31.0 matches 31.0",
+          "MP: 34.0 matches 34.0",
+          "xG: 25.9 matches 25.9",
+          "PrgC: 150.0 matches 150.0",
+          "PrgP: 140.0 matches 140.0",
+          "Squad: Real Madrid matches Real Madrid"
+        ],
+        "mismatches": [
+          "Ast: expected 4.0, observed 3.0 (diff=-1.00)",
+          "Min: expected 2786.0, observed 2907.0 (diff=+121.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Authentic 2024/25 baseline record."
+      },
+      {
+        "player": "Mohamed Salah",
+        "season": "2024-2025",
+        "observed_squad": "Liverpool",
+        "expected_squad": "Liverpool",
+        "category": "High Scorer & Creator (FW, High Min)",
+        "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+        "status": "mismatch",
+        "matches_count": 7,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 29.0 matches 29.0",
+          "Ast: 18.0 matches 18.0",
+          "MP: 38.0 matches 38.0",
+          "xG: 25.2 matches 25.2",
+          "PrgC: 154.0 matches 154.0",
+          "PrgP: 144.0 matches 144.0",
+          "Squad: Liverpool matches Liverpool"
+        ],
+        "mismatches": [
+          "Min: expected 3120.0, observed 3371.0 (diff=+251.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Authentic 2024/25 baseline record."
+      },
+      {
+        "player": "Robert Lewandowski",
+        "season": "2024-2025",
+        "observed_squad": "Barcelona",
+        "expected_squad": "Barcelona",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+        "status": "mismatch",
+        "matches_count": 7,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 27.0 matches 27.0",
+          "Min: 2667.0 matches 2680.0",
+          "MP: 34.0 matches 34.0",
+          "xG: 27.1 matches 27.1",
+          "PrgC: 27.0 matches 27.0",
+          "PrgP: 48.0 matches 48.0",
+          "Squad: Barcelona matches Barcelona"
+        ],
+        "mismatches": [
+          "Ast: expected 3.0, observed 2.0 (diff=-1.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Authentic 2024/25 baseline record."
+      },
+      {
+        "player": "Harry Kane",
+        "season": "2024-2025",
+        "observed_squad": "Bayern Munich",
+        "expected_squad": "Bayern Munich",
+        "category": "High Scorer (FW, High Min)",
+        "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+        "status": "mismatch",
+        "matches_count": 7,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 26.0 matches 26.0",
+          "Min: 2381.0 matches 2420.0",
+          "MP: 31.0 matches 31.0",
+          "xG: 20.3 matches 20.3",
+          "PrgC: 29.0 matches 29.0",
+          "PrgP: 97.0 matches 97.0",
+          "Squad: Bayern Munich matches Bayern Munich"
+        ],
+        "mismatches": [
+          "Ast: expected 10.0, observed 9.0 (diff=-1.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Authentic 2024/25 baseline record."
+      },
+      {
+        "player": "Mateo Retegui",
+        "season": "2024-2025",
+        "observed_squad": "Atalanta",
+        "expected_squad": "Atalanta",
+        "category": "Serie A Top Scorer (FW, High Min)",
+        "source_ref": "https://fbref.com/en/comps/Big5/2024-2025/stats/players_report",
+        "status": "mismatch",
+        "matches_count": 7,
+        "mismatches_count": 1,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 25.0 matches 25.0",
+          "Ast: 8.0 matches 8.0",
+          "MP: 36.0 matches 36.0",
+          "xG: 18.9 matches 18.9",
+          "PrgC: 21.0 matches 21.0",
+          "PrgP: 46.0 matches 46.0",
+          "Squad: Atalanta matches Atalanta"
+        ],
+        "mismatches": [
+          "Min: expected 2510.0, observed 2383.0 (diff=-127.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Authentic 2024/25 baseline record."
+      }
+    ],
+    "2025-2026": [
+      {
+        "player": "Harry Kane",
+        "season": "2025-2026",
+        "observed_squad": "Bayern Munich",
+        "expected_squad": "Bayern Munich",
+        "category": "Quarantined Composite Record",
+        "source_ref": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+        "status": "mismatch",
+        "matches_count": 6,
+        "mismatches_count": 2,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 36.0 matches 36.0",
+          "Ast: 5.0 matches 5.0",
+          "xG: 24.91 matches 24.91",
+          "PrgC: confirmed untracked/zero",
+          "PrgP: confirmed untracked/zero",
+          "Squad: Bayern Munich matches Bayern Munich"
+        ],
+        "mismatches": [
+          "Min: expected 2640.0, observed 2377.0 (diff=-263.00)",
+          "MP: expected 32.0, observed 31.0 (diff=-1.00)"
+        ],
+        "unverifiable": [],
+        "notes": "Composite projection: Gls (36) copied from 2023/24; PrgC/PrgP untracked in German data."
+      },
+      {
+        "player": "Luis D\u00edaz",
+        "season": "2025-2026",
+        "observed_squad": "Bayern Munich",
+        "expected_squad": "Bayern Munich",
+        "category": "Club Misattribution Anomaly (Bayern Munich)",
+        "source_ref": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+        "status": "mismatch",
+        "matches_count": 5,
+        "mismatches_count": 3,
+        "unverifiable_count": 0,
+        "matches": [
+          "Gls: 15.0 matches 15.0",
+          "Ast: 14.0 matches 14.0",
+          "PrgC: confirmed untracked/zero",
+          "PrgP: confirmed untracked/zero",
+          "Squad: Bayern Munich matches Bayern Munich"
+        ],
+        "mismatches": [
+          "Min: expected 2100.0, observed 2447.0 (diff=+347.00)",
+          "MP: expected 28.0, observed 32.0 (diff=+4.00)",
+          "xG: expected untracked/None, observed 14.17"
+        ],
+        "unverifiable": [],
+        "notes": "PROVEN ANOMALY: Player was at Liverpool, but composite script placed him at Bayern Munich."
+      }
+    ]
+  }
+}

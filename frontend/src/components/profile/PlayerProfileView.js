@@ -196,7 +196,14 @@ export const PlayerProfileView = ({
               return (
                 <div key={item.key} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-300 font-medium">{item.label}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-300 font-medium">{item.label}</span>
+                      {!isUntracked && metricData.sample_size && metricData.sample_size < percentiles.peer_sample_size && (
+                        <span className="text-[10px] text-slate-500 font-mono" title={`Evaluated against ${metricData.sample_size} peers with tracking`}>
+                          (N={metricData.sample_size})
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white font-bold">{isUntracked ? '-' : metricData.value}</span>
                       <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${isUntracked ? 'bg-slate-800 text-slate-400 border border-slate-700/60' : barClass.split(' ')[1]}`}>
@@ -228,19 +235,37 @@ export const PlayerProfileView = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
             <span className="text-xs text-slate-400 block mb-1">Goals / 90</span>
-            <span className="text-2xl font-bold font-mono text-emerald-400">{per_90_rates.goals_per_90}</span>
+            <span className="text-2xl font-bold font-mono text-emerald-400">
+              {per_90_rates.goals_per_90 !== null && per_90_rates.goals_per_90 !== undefined ? per_90_rates.goals_per_90 : 'N/A'}
+            </span>
           </div>
           <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
             <span className="text-xs text-slate-400 block mb-1">xG / 90</span>
-            <span className="text-2xl font-bold font-mono text-cyan-400">{per_90_rates.xg_per_90}</span>
+            {per_90_rates.xg_per_90 !== null && per_90_rates.xg_per_90 !== undefined ? (
+              <span className="text-2xl font-bold font-mono text-cyan-400">{per_90_rates.xg_per_90}</span>
+            ) : (
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold font-mono text-slate-500">N/A</span>
+                <span className="text-[10px] text-slate-500 font-mono">untracked</span>
+              </div>
+            )}
           </div>
           <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
             <span className="text-xs text-slate-400 block mb-1">Assists / 90</span>
-            <span className="text-2xl font-bold font-mono text-blue-400">{per_90_rates.assists_per_90}</span>
+            <span className="text-2xl font-bold font-mono text-blue-400">
+              {per_90_rates.assists_per_90 !== null && per_90_rates.assists_per_90 !== undefined ? per_90_rates.assists_per_90 : 'N/A'}
+            </span>
           </div>
           <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
             <span className="text-xs text-slate-400 block mb-1">xAG / 90</span>
-            <span className="text-2xl font-bold font-mono text-purple-400">{per_90_rates.xag_per_90}</span>
+            {per_90_rates.xag_per_90 !== null && per_90_rates.xag_per_90 !== undefined ? (
+              <span className="text-2xl font-bold font-mono text-purple-400">{per_90_rates.xag_per_90}</span>
+            ) : (
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold font-mono text-slate-500">N/A</span>
+                <span className="text-[10px] text-slate-500 font-mono">untracked</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

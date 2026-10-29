@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from config import METADATA, METRIC_DEFINITIONS, DATASET_PATH
 from schemas.responses import success_response, error_response
 from services.season_service import season_service
+from services.metric_registry import get_metric_registry, get_metric_info
 import os
 
 meta_bp = Blueprint('meta', __name__)
@@ -35,6 +36,16 @@ def metadata():
 @meta_bp.route('/metrics', methods=['GET'])
 def metrics():
     return success_response(METRIC_DEFINITIONS)
+
+@meta_bp.route('/metrics/registry', methods=['GET'])
+def metric_registry():
+    metric_id = request.args.get('metric_id')
+    if metric_id:
+        info = get_metric_info(metric_id)
+        if not info or info.get("validation_rules") == "Unknown":
+            return error_response(f"Metric '{metric_id}' not found in registry", status_code=404)
+        return success_response(info)
+    return success_response(get_metric_registry())
 
 @meta_bp.route('/debug', methods=['GET'])
 def debug_info():
