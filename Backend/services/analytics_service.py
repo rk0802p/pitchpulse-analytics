@@ -310,7 +310,7 @@ def get_dashboard_analytics(competition=None, season=None):
         underperformers = []
 
     if has_prgc:
-        progression_leaders = df.sort_values(by='PrgC', ascending=False).head(8)[
+        progression_leaders = df.assign(prog_total=df['PrgC'].fillna(0) + df['PrgP'].fillna(0)).sort_values(by='prog_total', ascending=False).head(8)[
             ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'PrgC', 'PrgP', 'Min']
         ].to_dict(orient='records')
     else:

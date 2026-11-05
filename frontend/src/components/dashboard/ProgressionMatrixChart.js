@@ -6,7 +6,7 @@ export const ProgressionMatrixChart = ({
   onPlayerClick,
   season = ""
 }) => {
-  const maxCarries = Math.max(...progressionLeaders.map(p => p.PrgC || 0), 100);
+  const maxTotal = Math.max(...progressionLeaders.map(p => (p.PrgC || 0) + (p.PrgP || 0)), 100);
 
   return (
     <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
@@ -37,7 +37,10 @@ export const ProgressionMatrixChart = ({
           </div>
         ) : (
           progressionLeaders.map((player) => {
-            const carryPct = Math.min(100, Math.round((player.PrgC / maxCarries) * 100));
+            const carry = player.PrgC || 0;
+            const pass = player.PrgP || 0;
+            const carryPct = Math.min(100, Math.round((carry / maxTotal) * 100));
+            const passPct = Math.min(100 - carryPct, Math.round((pass / maxTotal) * 100));
 
             return (
               <div
@@ -51,16 +54,22 @@ export const ProgressionMatrixChart = ({
                     <span className="text-slate-500 text-[10px]">({player.Squad})</span>
                   </span>
                   <div className="flex items-center gap-3 font-mono text-[11px]">
-                    <span className="text-purple-400 font-bold">{player.PrgC} Carries</span>
-                    <span className="text-blue-400 font-bold">{player.PrgP} Passes</span>
+                    <span className="text-purple-400 font-bold">{carry} Carries</span>
+                    <span className="text-blue-400 font-bold">{pass} Passes</span>
                   </div>
                 </div>
 
-                {/* Dual Progress Bar */}
-                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden flex">
+                {/* Dual Stacked Progress Bar */}
+                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden flex gap-0.5">
                   <div
-                    className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                    className="h-full bg-purple-500 rounded-l-full transition-all duration-500"
                     style={{ width: `${carryPct}%` }}
+                    title={`${carry} Progressive Carries`}
+                  />
+                  <div
+                    className="h-full bg-blue-500 rounded-r-full transition-all duration-500"
+                    style={{ width: `${passPct}%` }}
+                    title={`${pass} Progressive Passes`}
                   />
                 </div>
               </div>

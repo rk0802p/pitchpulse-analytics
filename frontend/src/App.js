@@ -52,8 +52,8 @@ function App() {
   });
 
   // Season Management State & Authoritative Sequence Tracking
-  const [activeSeason, setActiveSeason] = useState('2025-2026');
-  const [availableSeasons, setAvailableSeasons] = useState([{ id: '2025-2026', name: '2025/26 Historical Season' }]);
+  const [activeSeason, setActiveSeason] = useState('2024-2025');
+  const [availableSeasons, setAvailableSeasons] = useState([{ id: '2024-2025', name: '2024/25 Regular Season' }]);
   const [isSwitchingSeason, setIsSwitchingSeason] = useState(false);
   const [seasonSwitchError, setSeasonSwitchError] = useState(null);
   const activeSeasonRef = useRef(activeSeason);
