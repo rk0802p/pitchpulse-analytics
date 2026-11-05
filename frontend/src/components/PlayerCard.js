@@ -97,6 +97,10 @@ export const PlayerCard = ({ player, onSelectProfile, onCompare }) => {
                 <span className="text-slate-400">Prog. Passes (PrgP)</span>
                 <span className="font-mono text-blue-400 font-semibold">{player.PrgP ?? '—'}</span>
               </div>
+              <div className="flex justify-between py-1 border-b border-pitch-border/40">
+                <span className="text-slate-400">Prog. Receptions (PrgR)</span>
+                <span className="font-mono text-emerald-400 font-semibold">{player.PrgR ?? '—'}</span>
+              </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-400">Yellow / Red Cards</span>
                 <span className="font-mono text-amber-400 font-semibold">{player.CrdY} / {player.CrdR}</span>
