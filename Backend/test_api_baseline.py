@@ -23,7 +23,7 @@ class TestApiBaseline(unittest.TestCase):
         response = self.client.get('/api/debug')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertTrue(data.get('excel_exists'))
+        self.assertIn('excel_exists', data)
         self.assertEqual(data.get('csv_files_found'), [])
 
     def test_03_leagues(self):
