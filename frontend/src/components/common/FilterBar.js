@@ -39,7 +39,7 @@ export const FilterBar = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            value={search}
+            value={search ?? ''}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search player or squad (e.g. Saka, Real Madrid, Isak)..."
             className="w-full bg-pitch-surface border border-pitch-border focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 rounded-lg pl-10 pr-9 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none transition-colors"
@@ -57,7 +57,7 @@ export const FilterBar = ({
         {/* Competition Dropdown */}
         <div className="w-full md:w-56">
           <select
-            value={competition}
+            value={competition ?? ''}
             onChange={(e) => onCompetitionChange(e.target.value)}
             className="w-full bg-pitch-surface border border-pitch-border focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none cursor-pointer"
           >

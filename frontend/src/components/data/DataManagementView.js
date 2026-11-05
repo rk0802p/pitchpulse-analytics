@@ -572,7 +572,7 @@ export const DataManagementView = ({
                 <input
                   type="url"
                   placeholder="https://.../dataset.csv"
-                  value={importUrl}
+                  value={importUrl ?? ''}
                   onChange={(e) => {
                     setImportUrl(e.target.value);
                     setSelectedPreset('custom');
@@ -623,7 +623,7 @@ export const DataManagementView = ({
               <input
                 type="text"
                 placeholder="e.g. 2023-2024, 2025-2026"
-                value={importSeasonId}
+                value={importSeasonId ?? ''}
                 onChange={(e) => setImportSeasonId(e.target.value)}
                 required
                 className="w-full px-3.5 py-2 bg-pitch-surface border border-pitch-border rounded-lg text-sm text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-emerald-500/60"
@@ -636,7 +636,7 @@ export const DataManagementView = ({
               </label>
               <input
                 type="text"
-                value={importSource}
+                value={importSource ?? ''}
                 onChange={(e) => setImportSource(e.target.value)}
                 className="w-full px-3.5 py-2 bg-pitch-surface border border-pitch-border rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60"
               />

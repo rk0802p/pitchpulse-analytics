@@ -1158,7 +1158,7 @@ function App() {
                       <input
                         type="text"
                         placeholder="Search clubs (e.g. Madrid, Barca)..."
-                        value={clubSearchQuery}
+                        value={clubSearchQuery ?? ''}
                         onChange={(e) => setClubSearchQuery(e.target.value)}
                         className="w-full pl-9 pr-8 py-2 bg-pitch-surface border border-pitch-border rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60"
                       />
@@ -1259,7 +1259,7 @@ function App() {
                       <input
                         type="text"
                         placeholder="Search player..."
-                        value={playerSquadSearchQuery}
+                        value={playerSquadSearchQuery ?? ''}
                         onChange={(e) => setPlayerSquadSearchQuery(e.target.value)}
                         className="pl-8 pr-3 py-1.5 bg-pitch-surface border border-pitch-border rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 w-40"
                       />
