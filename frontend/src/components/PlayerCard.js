@@ -1,3 +1,4 @@
+import { formatMetricValue } from '../utils/metricFormatters';
 import React from 'react';
 import './PlayerCard.css';
 import { Sparkles } from 'lucide-react';
@@ -83,23 +84,23 @@ export const PlayerCard = ({ player, onSelectProfile, onCompare }) => {
             <div className="space-y-2 mt-3 text-xs">
               <div className="flex justify-between py-1 border-b border-pitch-border/40">
                 <span className="text-slate-400">Expected Goals (xG)</span>
-                <span className="font-mono text-white font-semibold">{player.xG ?? '—'}</span>
+                <span className="font-mono text-white font-semibold">{formatMetricValue(player.xG)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-pitch-border/40">
                 <span className="text-slate-400">Expected Assists (xAG)</span>
-                <span className="font-mono text-white font-semibold">{player.xAG ?? '—'}</span>
+                <span className="font-mono text-white font-semibold">{formatMetricValue(player.xAG)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-pitch-border/40">
                 <span className="text-slate-400">Prog. Carries (PrgC)</span>
-                <span className="font-mono text-purple-400 font-semibold">{player.PrgC ?? '—'}</span>
+                <span className="font-mono text-purple-400 font-semibold">{formatMetricValue(player.PrgC)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-pitch-border/40">
                 <span className="text-slate-400">Prog. Passes (PrgP)</span>
-                <span className="font-mono text-blue-400 font-semibold">{player.PrgP ?? '—'}</span>
+                <span className="font-mono text-blue-400 font-semibold">{formatMetricValue(player.PrgP)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-pitch-border/40">
                 <span className="text-slate-400">Prog. Receptions (PrgR)</span>
-                <span className="font-mono text-emerald-400 font-semibold">{player.PrgR ?? '—'}</span>
+                <span className="font-mono text-emerald-400 font-semibold">{formatMetricValue(player.PrgR)}</span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-400">Yellow / Red Cards</span>
