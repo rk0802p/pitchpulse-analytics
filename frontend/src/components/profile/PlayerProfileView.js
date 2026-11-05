@@ -162,10 +162,10 @@ export const PlayerProfileView = ({
         />
         <StatCard
           title="Ball Progression"
-          value={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? progression.progressive_carries : "N/A"}
-          subtext={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? `Progressive Passes: ${progression.progressive_passes}` : "Spatial tracking unrecorded in this era"}
-          badge={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? "PrgC & PrgP" : "Untracked"}
-          badgeType={(progression.progressive_carries > 0 || progression.progressive_passes > 0) ? "accent" : "neutral"}
+          value={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? progression.progressive_carries : "N/A"}
+          subtext={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? `Progressive Passes: ${progression.progressive_passes}` : "Spatial tracking unrecorded in this era"}
+          badge={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? "PrgC & PrgP" : "Untracked"}
+          badgeType={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? "accent" : "neutral"}
           icon={Zap}
           accentColor="purple"
         />
