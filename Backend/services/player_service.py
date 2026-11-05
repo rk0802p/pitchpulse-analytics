@@ -83,7 +83,7 @@ def search_players(search=None, competition=None, squad=None, position=None,
     metric = validate_metric(sort_by, default="Gls")
     ascending = (str(order).lower() == "asc")
     if metric in df.columns:
-        df = df.sort_values(by=metric, ascending=ascending)
+        df = df.sort_values(by=metric, ascending=ascending, na_position='last')
 
     # Pagination slice
     start_idx = (page - 1) * limit
