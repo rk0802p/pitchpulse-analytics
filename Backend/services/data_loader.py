@@ -84,7 +84,7 @@ class DataLoader:
             raise ValueError(f"Unsupported file format '{ext}' for season '{s_id}'.")
 
         self._validate_schema(raw_df)
-        norm_df = self._normalize_dataset(raw_df)
+        norm_df = self._normalize_dataset(raw_df, season_id=s_id)
         norm_df['season'] = s_id
         norm_df['comparison_key'] = norm_df['Rk'].astype(str) + '@' + s_id
         raw_records = norm_df.to_dict(orient='records')
@@ -113,7 +113,8 @@ class DataLoader:
         if len(df) == 0:
             raise ValueError("Dataset is empty.")
 
-    def _normalize_dataset(self, raw_df):
+    def _normalize_dataset(self, raw_df, season_id=None):
+        from services.metric_registry import is_metric_tracked_in_era
         df = raw_df.copy()
 
         # Handle missing demographic values
@@ -131,6 +132,15 @@ class DataLoader:
         for col in ['PrgC', 'PrgP', 'PrgR']:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        # DATA INTEGRITY: Enforce explicit NaN / null representation for metrics untracked in this season / competition era
+        if season_id:
+            for comp in df['Comp'].dropna().unique():
+                comp_mask = df['Comp'] == comp
+                for metric in ['PrgC', 'PrgP', 'PrgR', 'xG', 'xAG', 'npxG', 'npxG+xAG']:
+                    if metric in df.columns:
+                        if not is_metric_tracked_in_era(metric, season_id, comp):
+                            df.loc[comp_mask, metric] = np.nan
 
         float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']
         for col in float_cols:
