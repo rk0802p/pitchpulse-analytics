@@ -20,3 +20,21 @@ export const formatRateMetric = (rate, fallback = 'N/A') => {
 export const isMetricTracked = (value) => {
   return value !== null && value !== undefined && !Number.isNaN(value);
 };
+
+
+export const nullSafeComparator = (a, b, key, direction = 'desc') => {
+  const valA = a ? a[key] : null;
+  const valB = b ? b[key] : null;
+
+  const isANull = valA === null || valA === undefined || Number.isNaN(valA);
+  const isBNull = valB === null || valB === undefined || Number.isNaN(valB);
+
+  // Nulls always placed at the end regardless of direction
+  if (isANull && isBNull) return 0;
+  if (isANull) return 1;
+  if (isBNull) return -1;
+
+  if (valA < valB) return direction === 'asc' ? -1 : 1;
+  if (valA > valB) return direction === 'asc' ? 1 : -1;
+  return 0;
+};

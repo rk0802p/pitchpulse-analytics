@@ -1,4 +1,4 @@
-import { formatMetricValue, formatRateMetric, isMetricTracked } from './metricFormatters';
+import { formatMetricValue, formatRateMetric, isMetricTracked, nullSafeComparator } from './metricFormatters';
 
 describe('metricFormatters utility', () => {
   test('formatMetricValue returns fallback on null or undefined', () => {
@@ -23,5 +23,21 @@ describe('metricFormatters utility', () => {
     expect(isMetricTracked(NaN)).toBe(false);
     expect(isMetricTracked(0)).toBe(true);
     expect(isMetricTracked(12)).toBe(true);
+  });
+
+  test('nullSafeComparator places nulls and NaNs at the end in both asc and desc order', () => {
+    const list = [
+      { id: 1, PrgC: null },
+      { id: 2, PrgC: 50 },
+      { id: 3, PrgC: undefined },
+      { id: 4, PrgC: 120 },
+      { id: 5, PrgC: 10 }
+    ];
+
+    const sortedDesc = [...list].sort((a, b) => nullSafeComparator(a, b, 'PrgC', 'desc'));
+    expect(sortedDesc.map(x => x.id)).toEqual([4, 2, 5, 1, 3]);
+
+    const sortedAsc = [...list].sort((a, b) => nullSafeComparator(a, b, 'PrgC', 'asc'));
+    expect(sortedAsc.map(x => x.id)).toEqual([5, 2, 4, 1, 3]);
   });
 });

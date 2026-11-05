@@ -268,5 +268,22 @@ class TestPlayersEndpoints(unittest.TestCase):
         self.assertEqual(p3['xG_90'], 0.0)
         self.assertEqual(p3['90s'], 10.0)
 
+
+    def test_null_safe_sorting_places_nulls_last(self):
+        # 2025-2026 has mixture of tracked (Serie A) and untracked (EPL) PrgC
+        res_desc = self.client.get('/api/players?season=2025-2026&sort_by=PrgC&order=desc&limit=100')
+        self.assertEqual(res_desc.status_code, 200)
+        items_desc = res_desc.get_json()['data']
+        # Top entries should have valid numeric PrgC > 0
+        self.assertIsNotNone(items_desc[0]['PrgC'])
+        self.assertGreater(items_desc[0]['PrgC'], 0)
+        
+        # Test asc order: players with valid numbers should still precede nulls, or nulls at the end
+        res_asc = self.client.get('/api/players?season=2025-2026&sort_by=PrgC&order=asc&limit=100')
+        self.assertEqual(res_asc.status_code, 200)
+        items_asc = res_asc.get_json()['data']
+        # Valid numbers appear first
+        self.assertIsNotNone(items_asc[0]['PrgC'])
+
 if __name__ == '__main__':
     unittest.main()
