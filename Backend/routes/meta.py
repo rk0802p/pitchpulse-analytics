@@ -1,63 +1,76 @@
-from flask import Blueprint, request, jsonify
-from config import METADATA, METRIC_DEFINITIONS, DATASET_PATH
+import os
+from flask import Blueprint, request
+from config import METRIC_DEFINITIONS, DATASET_PATH
 from schemas.responses import success_response, error_response
 from services.season_service import season_service
 from services.metric_registry import get_metric_registry, get_metric_info
-import os
 
 meta_bp = Blueprint('meta', __name__)
 
 @meta_bp.route('/health', methods=['GET'])
 def health():
-    return success_response({
-        "status": "healthy",
-        "service": "Sports Analytics API",
-        "dataset_ready": os.path.exists(DATASET_PATH),
-        "active_season": season_service.get_active_season(),
+    """
+    Readiness and liveness probe.
+    Returns 200 when default reference dataset is ready in memory or storage.
+    Returns 503 if required baseline data is missing or inaccessible.
+    """
+    baseline_exists = os.path.exists(DATASET_PATH) or season_service.season_exists('2024-2025')
+    active_season = season_service.get_active_season()
+    active_exists = season_service.season_exists(active_season)
+    
+    is_ready = baseline_exists and active_exists
+    status_str = "healthy" if is_ready else "unhealthy"
+    status_code = 200 if is_ready else 503
+
+    payload = {
+        "status": status_str,
+        "service": "PitchPulse Analytics API",
+        "dataset_ready": baseline_exists,
+        "active_season": active_season,
         "available_seasons": [s['id'] for s in season_service.list_seasons()]
-    })
+    }
+    return success_response(payload, status_code=status_code)
 
 @meta_bp.route('/metadata', methods=['GET'])
 def metadata():
+    """Returns dataset metadata dynamically derived from the requested season manifest."""
     season = request.args.get('season')
+    target_season = season or season_service.get_active_season()
+    
     if season and not season_service.season_exists(season):
-        return error_response(f"Season '{season}' not found", status_code=404)
-    meta = dict(METADATA)
-    if season:
-        manifest = season_service.get_season_manifest(season)
-        if manifest:
-            meta["season"] = manifest.get("season", season)
-            meta["total_records"] = manifest.get("records_count", meta.get("total_records"))
-            meta["clubs_count"] = manifest.get("clubs_count", meta.get("clubs_count"))
-            meta["source"] = manifest.get("source", meta.get("source"))
-            meta["updated_at"] = manifest.get("imported_at", meta.get("updated_at"))
+        return error_response(f"Season '{season}' not found", status_code=404, code="ERR_SEASON_NOT_FOUND")
+
+    manifest = season_service.get_season_manifest(target_season) or {}
+    policy = season_service.get_quarantine_policy(target_season)
+
+    meta = {
+        "season": target_season,
+        "dataset_name": manifest.get("display_name") or f"Big 5 European Leagues Player Statistics {target_season.replace('-', '/')}",
+        "source": manifest.get("source") or manifest.get("source_name") or "FBref / StatsBomb style player-level aggregates",
+        "updated_at": manifest.get("imported_at") or manifest.get("data_as_of") or "Completed Season",
+        "total_records": manifest.get("records_count", 2854),
+        "competitions_count": manifest.get("competitions_count", 5),
+        "clubs_count": manifest.get("clubs_count", 96),
+        "is_baseline": (target_season == '2024-2025'),
+        "is_quarantined": policy["is_quarantined"],
+        "dataset_status": policy["dataset_status"],
+        "status_label": policy["status_label"],
+        "disclaimer": manifest.get("disclaimer") or "Player-level aggregates covering Europe's top 5 leagues. Records represent individual spells per club."
+    }
     return success_response(meta)
 
 @meta_bp.route('/metrics', methods=['GET'])
 def metrics():
+    """Returns canonical metric definitions, categories, and descriptions."""
     return success_response(METRIC_DEFINITIONS)
 
 @meta_bp.route('/metrics/registry', methods=['GET'])
 def metric_registry():
+    """Returns registry metadata for statistical metrics with era coverage and derivation rules."""
     metric_id = request.args.get('metric_id')
     if metric_id:
         info = get_metric_info(metric_id)
         if not info or info.get("validation_rules") == "Unknown":
-            return error_response(f"Metric '{metric_id}' not found in registry", status_code=404)
+            return error_response(f"Metric '{metric_id}' not found in registry", status_code=404, code="ERR_METRIC_NOT_FOUND")
         return success_response(info)
     return success_response(get_metric_registry())
-
-@meta_bp.route('/debug', methods=['GET'])
-def debug_info():
-    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
-    excel_path = os.path.join(dir_path, 'top5-players24-25.xlsx')
-
-    return jsonify({
-        'backend_directory': dir_path,
-        'csv_files_found': csv_files,
-        'excel_path': excel_path,
-        'excel_exists': os.path.exists(excel_path),
-        'all_files_in_backend': os.listdir(dir_path),
-        'current_working_directory': os.getcwd()
-    })

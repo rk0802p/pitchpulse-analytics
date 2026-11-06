@@ -63,7 +63,7 @@ def search_players(search=None, competition=None, squad=None, position=None,
     # Filter by position
     if position:
         pos_clean = position.strip().upper()
-        df = df[df['Pos'].str.contains(pos_clean, na=False, case=False)]
+        df = df[df['Pos'].str.contains(pos_clean, regex=False, na=False, case=False)]
 
     # Filter by minimum minutes
     if min_minutes and min_minutes > 0:
@@ -72,8 +72,8 @@ def search_players(search=None, competition=None, squad=None, position=None,
     # Search by player name or squad
     if search:
         search_term = str(search).strip().lower()
-        df = df[df['Player'].str.lower().str.contains(search_term, na=False) |
-                df['Squad'].str.lower().str.contains(search_term, na=False)]
+        df = df[df['Player'].str.lower().str.contains(search_term, regex=False, na=False) |
+                df['Squad'].str.lower().str.contains(search_term, regex=False, na=False)]
 
     total_count = len(df)
     if total_count == 0:
@@ -97,7 +97,7 @@ def get_player_profile(record_id, season=None):
     if not player:
         return None
 
-    active_season = season or player.get("season") or data_loader.get_active_season()
+    active_season = season or player.get("season") or season_service.get_active_season()
     df_all = data_loader.get_dataframe(season=active_season)
     player_comp = player.get("Comp")
     df_comp = df_all[df_all['Comp'] == player_comp] if player_comp else df_all
@@ -146,6 +146,7 @@ def get_player_profile(record_id, season=None):
         "identity": {
             "id": player["id"],
             "record_id": player["record_id"],
+            "player_id": player.get("player_id", player.get("player_slug")),
             "rk": player["Rk"],
             "name": player["Player"],
             "slug": player["player_slug"],
@@ -234,7 +235,7 @@ def get_player_profile(record_id, season=None):
 
     # Positional peer percentile benchmarks (min 270 mins threshold)
     pos_clean = player["Pos"].split(',')[0].strip() if player["Pos"] else "MF"
-    peers = df_all[(df_all['Pos'].str.contains(pos_clean, na=False)) & (df_all['Min'] >= 270)]
+    peers = df_all[(df_all['Pos'].str.contains(pos_clean, regex=False, na=False)) & (df_all['Min'] >= 270)]
     if len(peers) == 0:
         peers = df_all[df_all['Min'] >= 270]
 

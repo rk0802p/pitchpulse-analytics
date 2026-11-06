@@ -26,10 +26,13 @@ def leaderboards():
         return error_response(f"Season '{season}' not found", status_code=404)
 
     min_minutes_raw = request.args.get('min_minutes')
-    try:
-        min_minutes = int(min_minutes_raw) if min_minutes_raw else 0
-    except (ValueError, TypeError):
-        min_minutes = 0
+    if min_minutes_raw is not None:
+        try:
+            min_minutes = max(0, int(min_minutes_raw))
+        except (ValueError, TypeError):
+            min_minutes = 270 if str(metric).endswith('_90') else 0
+    else:
+        min_minutes = 270 if str(metric).endswith('_90') else 0
 
     limit_raw = request.args.get('limit', '10')
     try:

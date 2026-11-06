@@ -1,7 +1,68 @@
+import re
+import os
 import urllib.parse
 from config import COMPETITION_LOOKUP, METRIC_DEFINITIONS
 
 VALID_POSITIONS = {'GK', 'DF', 'MF', 'FW', 'DF,MF', 'MF,DF', 'MF,FW', 'FW,MF', 'DF,FW', 'FW,DF'}
+
+def validate_season_id(season_param, seasons_dir=None, must_exist=False):
+    """
+    Validates and canonicalizes a season identifier (e.g. '2024-2025', '2024/25', '24/25').
+    Rejects path traversal (.., /, \\) and malformed season formats.
+    Returns canonical 'YYYY-YYYY' string or None if invalid.
+    If must_exist=True and seasons_dir is provided, also checks directory existence.
+    """
+    if not season_param:
+        return None
+    cleaned = str(season_param).strip()
+    # Reject directory traversal attempts and null bytes early
+    if '..' in cleaned or '\\' in cleaned or '\0' in cleaned:
+        return None
+
+    # Handle forward slashes: only permitted as a year separator, e.g. 2024/2025 or 2024/25
+    if '/' in cleaned:
+        parts = cleaned.split('/')
+        if len(parts) != 2 or not parts[0].isdigit() or not parts[1].isdigit():
+            return None
+
+    canonical = None
+    m_full = re.match(r'^(\d{4})-(\d{4})$', cleaned)
+    if m_full:
+        start, end = int(m_full.group(1)), int(m_full.group(2))
+        if end == start + 1:
+            canonical = f"{start:04d}-{end:04d}"
+    else:
+        m_slash = re.match(r'^(\d{4})[/-](\d{2,4})$', cleaned)
+        if m_slash:
+            start_str, end_str = m_slash.group(1), m_slash.group(2)
+            start = int(start_str)
+            if len(end_str) == 2:
+                end = int(start_str[:2] + end_str)
+            else:
+                end = int(end_str)
+            if end == start + 1:
+                canonical = f"{start:04d}-{end:04d}"
+        else:
+            m_short = re.match(r'^(\d{2})[/-](\d{2})$', cleaned)
+            if m_short:
+                start = 2000 + int(m_short.group(1))
+                end = 2000 + int(m_short.group(2))
+                if end == start + 1:
+                    canonical = f"{start:04d}-{end:04d}"
+
+    if not canonical:
+        return None
+
+    if seasons_dir:
+        abs_base = os.path.abspath(seasons_dir)
+        target = os.path.abspath(os.path.join(abs_base, canonical))
+        # Ensure path containment strictly within seasons_dir
+        if not target.startswith(abs_base + os.sep) and target != abs_base:
+            return None
+        if must_exist and not os.path.isdir(target):
+            return None
+
+    return canonical
 
 def resolve_competition(comp_param):
     """Maps competition param (raw name, short name, or slug) to raw dataset name."""

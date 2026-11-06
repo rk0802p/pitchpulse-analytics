@@ -297,7 +297,18 @@ class DatasetImporter:
         ndf['Comp'] = ndf['Comp'].astype(str).str.strip()
 
         # Demographics
-        ndf['Age'] = pd.to_numeric(ndf['Age'], errors='coerce')
+        def parse_age_val(val):
+            if pd.isna(val):
+                return None
+            s = str(val).strip()
+            if '-' in s:
+                s = s.split('-')[0].strip()
+            try:
+                return float(s)
+            except (ValueError, TypeError):
+                return None
+
+        ndf['Age'] = ndf['Age'].apply(parse_age_val)
         ndf['Born'] = pd.to_numeric(ndf['Born'], errors='coerce')
 
         # Standard match count integer columns (0 if missing)
@@ -373,7 +384,7 @@ class DatasetImporter:
 
         return ndf
 
-    def import_file(self, file_path, season, source_name=None, output_format='both', dry_run=False):
+    def import_file(self, file_path, season, source_name=None, output_format='both', dry_run=False, allow_overwrite=False):
         """
         Full end-to-end import pipeline:
         1. Read source Excel/CSV.
@@ -384,6 +395,24 @@ class DatasetImporter:
         6. Write manifest.json with file hash, records, and totals.
         """
         logger.info(f"Starting import of file '{file_path}' for season '{season}' (dry_run={dry_run}).")
+
+        if season == '2024-2025':
+            raise DatasetValidationError("The 2024-2025 baseline dataset is immutable and cannot be overwritten.")
+
+        season_dir_check = os.path.join(SEASONS_DIR, season)
+        manifest_path_check = os.path.join(season_dir_check, "manifest.json")
+        if os.path.exists(manifest_path_check) and not allow_overwrite:
+            try:
+                with open(manifest_path_check, 'r', encoding='utf-8') as f:
+                    existing_manifest = json.load(f)
+                if existing_manifest.get('dataset_status') == 'verified_historical' or existing_manifest.get('is_baseline'):
+                    raise DatasetValidationError(
+                        f"Season '{season}' is an established verified dataset and cannot be overwritten without allow_overwrite=True."
+                    )
+            except DatasetValidationError:
+                raise
+            except Exception:
+                pass
 
         df = self.read_file(file_path)
         validation = self.validate_dataframe(df)
@@ -466,17 +495,30 @@ class DatasetImporter:
 
         if not dry_run:
             try:
-                os.makedirs(season_dir, exist_ok=True)
-                if output_format in ['excel', 'both']:
-                    norm_df.to_excel(excel_path, index=False)
-                    logger.info(f"Saved Excel dataset to: {excel_path}")
-                if output_format in ['csv', 'both']:
-                    norm_df.to_csv(csv_path, index=False, encoding='utf-8')
-                    logger.info(f"Saved CSV dataset to: {csv_path}")
+                import tempfile
+                import shutil
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    temp_excel = os.path.join(temp_dir, excel_filename)
+                    temp_csv = os.path.join(temp_dir, csv_filename)
+                    temp_manifest = os.path.join(temp_dir, "manifest.json")
 
-                with open(manifest_path, 'w', encoding='utf-8') as f:
-                    json.dump(manifest, f, indent=2)
-                logger.info(f"Saved season manifest to: {manifest_path}")
+                    if output_format in ['excel', 'both']:
+                        norm_df.to_excel(temp_excel, index=False)
+                    if output_format in ['csv', 'both']:
+                        norm_df.to_csv(temp_csv, index=False, encoding='utf-8')
+
+                    with open(temp_manifest, 'w', encoding='utf-8') as f:
+                        json.dump(manifest, f, indent=2)
+
+                    os.makedirs(season_dir, exist_ok=True)
+                    if os.path.exists(temp_excel):
+                        shutil.copy2(temp_excel, excel_path)
+                        logger.info(f"Saved Excel dataset to: {excel_path}")
+                    if os.path.exists(temp_csv):
+                        shutil.copy2(temp_csv, csv_path)
+                        logger.info(f"Saved CSV dataset to: {csv_path}")
+                    shutil.copy2(temp_manifest, manifest_path)
+                    logger.info(f"Saved season manifest to: {manifest_path}")
             except OSError as e:
                 logger.warning(f"Storage filesystem is read-only ({e}). Import validated in memory.")
                 return {

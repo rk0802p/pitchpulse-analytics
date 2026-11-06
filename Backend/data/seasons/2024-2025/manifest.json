@@ -1,7 +1,7 @@
 {
   "season": "2024-2025",
   "display_name": "2024/25 Regular Season",
-  "is_baseline": false,
+  "is_baseline": true,
   "imported_at": "2024-2025 Regular Season",
   "source": "FBref / StatsBomb style player-level aggregates",
   "records_count": 2854,

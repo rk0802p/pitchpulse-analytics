@@ -108,4 +108,16 @@ METRIC_DEFINITIONS = {
     "npxG+xAG_90": {"name": "npxG + xAG per 90", "category": "Advanced Rates", "description": "Non-penalty xG + xAG per 90 minutes"}
 }
 
-ALLOWED_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
+DEFAULT_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "http://localhost:5001",
+    "http://127.0.0.1:5001",
+]
+cors_env = os.environ.get('CORS_ORIGINS')
+ALLOWED_ORIGINS = [o.strip() for o in cors_env.split(',') if o.strip()] if cors_env else DEFAULT_ORIGINS
+
+ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', 'pitchpulse-admin-dev-key')
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB

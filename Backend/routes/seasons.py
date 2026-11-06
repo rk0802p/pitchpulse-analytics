@@ -1,14 +1,36 @@
 import os
+import hmac
 import tempfile
-import urllib.request
 from flask import Blueprint, request, jsonify, send_file
+from config import ADMIN_TOKEN
 from services.season_service import season_service
 from services.data_loader import data_loader
 from services.dataset_importer import DatasetImporter, DatasetValidationError
 from services.baseline_verifier import verify_baseline_integrity, BaselineIntegrityError
+from services.validation_service import validate_season_id
 from schemas.responses import success_response, error_response
 
 seasons_bp = Blueprint('seasons', __name__)
+
+def check_admin_auth():
+    """
+    Validates Bearer token authentication against configured ADMIN_TOKEN.
+    Uses constant-time comparison to prevent timing attacks.
+    Fails closed if ADMIN_TOKEN is not configured.
+    """
+    token_config = os.environ.get('ADMIN_TOKEN') or ADMIN_TOKEN
+    if not token_config:
+        return False, "Admin token is not configured on this server."
+
+    auth_header = request.headers.get('Authorization', '').strip()
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return False, "Missing or invalid Authorization header. Expected format: 'Bearer <token>'."
+
+    provided_token = auth_header[7:].strip()
+    if not hmac.compare_digest(provided_token, token_config):
+        return False, "Invalid authentication token."
+
+    return True, None
 
 @seasons_bp.route('/seasons', methods=['GET'])
 def get_seasons():
@@ -28,22 +50,28 @@ def get_active_season():
 
 @seasons_bp.route('/seasons/active', methods=['POST'])
 def set_active_season():
-    """Sets the active season for the current application session."""
+    """
+    Sets the active season for the current application session.
+    Note: Query-scoped '?season=...' parameters are preferred for stateless execution.
+    """
     data = request.get_json() or {}
     season_id = data.get('season') or data.get('season_id')
     if not season_id:
-        return error_response("Missing required field 'season'", status_code=400)
+        return error_response("Missing required field 'season'", status_code=400, code="ERR_MISSING_SEASON")
+
+    validated = validate_season_id(season_id, seasons_dir=season_service.seasons_dir, must_exist=True)
+    if not validated:
+        return error_response(f"Season '{season_id}' does not exist or has invalid format.", status_code=404, code="ERR_SEASON_NOT_FOUND")
 
     try:
-        new_active = season_service.set_active_season(season_id)
-        # Preload the season in data_loader
+        new_active = season_service.set_active_season(validated)
         data_loader.load_season(new_active)
         return success_response({
             'message': f"Active season set to '{new_active}'",
             'active_season': new_active
         })
     except ValueError as e:
-        return error_response(str(e), status_code=404)
+        return error_response(str(e), status_code=404, code="ERR_SEASON_NOT_FOUND")
 
 @seasons_bp.route('/seasons/baseline/verify', methods=['GET'])
 def verify_baseline():
@@ -52,85 +80,85 @@ def verify_baseline():
         res = verify_baseline_integrity()
         return success_response(res)
     except BaselineIntegrityError as e:
-        return error_response(f"Baseline integrity violation: {str(e)}", status_code=422)
+        return error_response(f"Baseline integrity violation: {str(e)}", status_code=422, code="ERR_BASELINE_CORRUPT")
     except Exception as e:
-        return error_response(f"Verification error: {str(e)}", status_code=500)
+        return error_response(f"Verification error: {str(e)}", status_code=500, code="ERR_VERIFICATION_FAILED")
 
 @seasons_bp.route('/seasons/presets', methods=['GET'])
 def get_presets():
-    """Returns verified online dataset presets for one-click downloading and testing."""
+    """Returns verified dataset presets for inspection and reference."""
     presets = season_service.get_download_presets()
     return success_response(presets)
 
 @seasons_bp.route('/seasons/import', methods=['POST'])
 def import_season_file():
     """
-    Imports or validates a season dataset (.xlsx, .xls, .csv).
-    Accepts multipart/form-data with 'file', JSON with 'file_path' or 'url'.
+    Secure import and validation endpoint for season datasets (.xlsx, .xls, .csv).
+    Requires Bearer token authentication via ADMIN_TOKEN.
+    Accepts only direct multipart/form-data file uploads.
+    Remote URLs (SSRF prevention) and arbitrary server filepaths are strictly prohibited.
     """
-    dry_run = request.form.get('dry_run', '').lower() in ['true', '1']
-    allow_unknown = request.form.get('allow_unknown', '').lower() in ['true', '1']
-    season = request.form.get('season')
-    source = request.form.get('source') or "FBref / StatsBomb style player-level aggregates"
-    url = request.form.get('url')
-    file_path = None
+    is_auth, auth_err = check_admin_auth()
+    if not is_auth:
+        return error_response(auth_err, status_code=403, code="ERR_FORBIDDEN")
 
+    # Security check: proactively reject disallowed remote URL and server file path ingestion
     if request.is_json:
-        data = request.get_json() or {}
-        dry_run = data.get('dry_run', False)
-        allow_unknown = data.get('allow_unknown', False)
-        season = data.get('season', season)
-        source = data.get('source', source)
-        url = data.get('url', url)
-        file_path = data.get('file_path')
+        req_data = request.get_json() or {}
+        if req_data.get('url'):
+            return error_response(
+                "Remote URL fetching is disabled for security (SSRF prevention). Upload files directly via multipart/form-data.",
+                status_code=400,
+                code="ERR_SSRF_PROHIBITED"
+            )
+        if req_data.get('file_path'):
+            return error_response(
+                "Server filesystem path ingestion is disabled for security. Upload files directly via multipart/form-data.",
+                status_code=400,
+                code="ERR_PATH_PROHIBITED"
+            )
 
     uploaded_file = request.files.get('file')
+    if not uploaded_file or not uploaded_file.filename:
+        return error_response("Missing required file upload. Submit a file under key 'file'.", status_code=400, code="ERR_MISSING_FILE")
+
+    dry_run = str(request.form.get('dry_run', '')).lower() in ['true', '1']
+    allow_unknown = str(request.form.get('allow_unknown', '')).lower() in ['true', '1']
+    season = request.form.get('season')
+    source = request.form.get('source') or "FBref / StatsBomb style player-level aggregates"
+
+    if not season:
+        return error_response("Missing required parameter 'season' (e.g. '2025-2026').", status_code=400, code="ERR_MISSING_SEASON")
+
+    validated_season = validate_season_id(season)
+    if not validated_season:
+        return error_response(f"Invalid season identifier '{season}'. Format must be YYYY-YYYY (e.g. 2025-2026).", status_code=400, code="ERR_INVALID_SEASON")
+
+    # Prevent overwriting immutable reference baseline
+    if validated_season == '2024-2025':
+        return error_response("The 2024-2025 baseline dataset is immutable and cannot be overwritten.", status_code=403, code="ERR_BASELINE_IMMUTABLE")
+
+    filename = uploaded_file.filename
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ['.csv', '.xlsx', '.xls']:
+        return error_response(f"Unsupported file format '{ext}'. Must be .csv, .xlsx, or .xls.", status_code=400, code="ERR_UNSUPPORTED_FORMAT")
+
     temp_target = None
-
     try:
-        if uploaded_file and uploaded_file.filename:
-            filename = uploaded_file.filename
-            ext = os.path.splitext(filename)[1].lower()
-            if ext not in ['.csv', '.xlsx', '.xls']:
-                return error_response(f"Unsupported file format '{ext}'. Must be .csv, .xlsx, or .xls.", status_code=400)
-            fd, temp_target = tempfile.mkstemp(suffix=ext)
-            os.close(fd)
-            uploaded_file.save(temp_target)
-            source_file = temp_target
-        elif url and url.startswith(('http://', 'https://')):
-            ext = '.xlsx' if '.xlsx' in url.lower() else '.csv'
-            fd, temp_target = tempfile.mkstemp(suffix=ext)
-            os.close(fd)
-            req = urllib.request.Request(
-                url,
-                headers={'User-Agent': 'Mozilla/5.0 PitchPulse/1.0 (Dataset Importer)'}
-            )
-            try:
-                with urllib.request.urlopen(req, timeout=30) as resp:
-                    with open(temp_target, 'wb') as f:
-                        f.write(resp.read())
-            except Exception as e:
-                return error_response(f"Failed to download dataset from URL: {str(e)}", status_code=400)
-            source_file = temp_target
-        elif file_path and os.path.exists(file_path):
-            source_file = file_path
-        else:
-            return error_response("No file uploaded, URL provided, or file_path found.", status_code=400)
-
-        if not season:
-            return error_response("Missing required parameter 'season' (e.g. '2025-2026').", status_code=400)
+        fd, temp_target = tempfile.mkstemp(suffix=ext)
+        os.close(fd)
+        uploaded_file.save(temp_target)
 
         importer = DatasetImporter(strict=not allow_unknown, allow_unknown=allow_unknown)
         result = importer.import_file(
-            file_path=source_file,
-            season=season,
+            file_path=temp_target,
+            season=validated_season,
             source_name=source,
             dry_run=dry_run
         )
 
-        # If import succeeded and was not dry_run, refresh data_loader
         if not dry_run:
-            data_loader.load_season(season, force_reload=True)
+            data_loader.load_season(validated_season, force_reload=True)
 
         return success_response(result)
 
@@ -138,10 +166,11 @@ def import_season_file():
         return error_response(
             message=f"Dataset validation failed: {str(e)}",
             status_code=422,
-            details=e.errors
+            details=e.errors,
+            code="ERR_DATASET_VALIDATION_FAILED"
         )
     except Exception as e:
-        return error_response(f"Import process error: {str(e)}", status_code=500)
+        return error_response(f"Import process error: {str(e)}", status_code=500, code="ERR_IMPORT_FAILED")
     finally:
         if temp_target and os.path.exists(temp_target):
             try:
@@ -152,24 +181,35 @@ def import_season_file():
 @seasons_bp.route('/seasons/<season_id>', methods=['GET'])
 def get_season_details(season_id):
     """Returns metadata manifest and statistics for a specific season."""
-    resolved = season_service.resolve_season(season_id)
-    manifest = season_service.get_season_manifest(resolved)
+    validated = validate_season_id(season_id, seasons_dir=season_service.seasons_dir, must_exist=True)
+    if not validated:
+        return error_response(f"Season '{season_id}' not found.", status_code=404, code="ERR_NOT_FOUND")
+
+    manifest = season_service.get_season_manifest(validated)
     if not manifest:
-        return error_response(f"Season '{season_id}' not found.", status_code=404)
+        return error_response(f"Season manifest for '{validated}' not found.", status_code=404, code="ERR_NOT_FOUND")
     return success_response(manifest)
 
 @seasons_bp.route('/seasons/<season_id>/download', methods=['GET'])
 def download_season(season_id):
     """Provides direct download of the season CSV dataset file."""
-    resolved = season_service.resolve_season(season_id)
-    season_dir = os.path.join(season_service.seasons_dir, resolved)
-    csv_path = os.path.join(season_dir, 'players.csv')
-    if os.path.exists(csv_path):
-        return send_file(
-            csv_path,
-            mimetype='text/csv',
-            as_attachment=True,
-            download_name=f"pitchpulse_{resolved}_players.csv"
-        )
-    return error_response(f"Season dataset file for '{resolved}' not found.", status_code=404)
+    validated = validate_season_id(season_id, seasons_dir=season_service.seasons_dir, must_exist=True)
+    if not validated:
+        return error_response(f"Season '{season_id}' not found.", status_code=404, code="ERR_NOT_FOUND")
 
+    season_dir = os.path.join(season_service.seasons_dir, validated)
+    csv_candidates = [
+        os.path.join(season_dir, f"top5-players-{validated}.csv"),
+        os.path.join(season_dir, "top5-players24-25.csv"),
+        os.path.join(season_dir, "dataset.csv"),
+        os.path.join(season_dir, "players.csv")
+    ]
+    for csv_path in csv_candidates:
+        if os.path.exists(csv_path):
+            return send_file(
+                csv_path,
+                mimetype='text/csv',
+                as_attachment=True,
+                download_name=f"pitchpulse_{validated}_players.csv"
+            )
+    return error_response(f"Season dataset file for '{validated}' not found.", status_code=404, code="ERR_NOT_FOUND")

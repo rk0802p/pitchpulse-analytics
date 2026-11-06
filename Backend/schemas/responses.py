@@ -22,13 +22,20 @@ def success_response(data, metadata=None, status_code=200):
         payload["metadata"] = clean_for_json(metadata)
     return jsonify(payload), status_code
 
-def error_response(message, details=None, status_code=400):
+def error_response(message, details=None, status_code=400, code=None):
+    err_code = code or f"ERR_{status_code}"
     payload = {
         "success": False,
-        "error": message
+        "error": message,
+        "error_detail": {
+            "code": err_code,
+            "message": message
+        }
     }
     if details is not None:
-        payload["details"] = clean_for_json(details)
+        cleaned_details = clean_for_json(details)
+        payload["details"] = cleaned_details
+        payload["error_detail"]["details"] = cleaned_details
     return jsonify(payload), status_code
 
 def paginated_response(items, total, page, limit, metadata=None):

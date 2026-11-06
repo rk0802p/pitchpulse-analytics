@@ -198,6 +198,18 @@ class DataLoader:
         df['record_id'] = df['Rk']
         df['player_slug'] = df['Player'].apply(slugify)
 
+        def make_player_id(row):
+            slug = slugify(row.get('Player', ''))
+            born = row.get('Born')
+            if pd.notna(born) and born:
+                try:
+                    return f"{slug}-{int(born)}"
+                except (ValueError, TypeError):
+                    pass
+            return slug
+
+        df['player_id'] = df.apply(make_player_id, axis=1)
+
         # Competition normalization
         def map_comp_info(comp_raw):
             info = COMPETITIONS.get(comp_raw, {})
@@ -257,8 +269,9 @@ class DataLoader:
             int_id = int(record_id)
             return target_by_id.get(int_id)
         except (ValueError, TypeError):
-            slug = slugify(str(record_id))
-            matches = [r for r in target_records if r.get('player_slug') == slug]
+            req_str = str(record_id).strip()
+            slug = slugify(req_str)
+            matches = [r for r in target_records if r.get('player_id') == req_str or r.get('player_slug') == slug]
             return matches[0] if matches else None
 
 # Global singleton accessor

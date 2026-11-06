@@ -20,11 +20,9 @@ class TestApiBaseline(unittest.TestCase):
         self.assertIn(b"Football Analytics API is running!", response.data)
 
     def test_02_debug(self):
+        # Security hardening: debug endpoint must not expose internal filesystem paths
         response = self.client.get('/api/debug')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertIn('excel_exists', data)
-        self.assertEqual(data.get('csv_files_found'), [])
+        self.assertEqual(response.status_code, 404)
 
     def test_03_leagues(self):
         response = self.client.get('/api/leagues')

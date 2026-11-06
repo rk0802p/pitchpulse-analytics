@@ -7,6 +7,8 @@ try:
 except ImportError:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+from services.validation_service import validate_season_id
+
 logger = logging.getLogger(__name__)
 
 SEASONS_DIR = os.path.join(BASE_DIR, 'data', 'seasons')
@@ -37,27 +39,21 @@ class SeasonService:
         """Normalizes various season representations (e.g. '2024/25', '24/25', '2024-2025', '2024-25') to canonical format."""
         if not season_str:
             return self._active_season
+        validated = validate_season_id(season_str, seasons_dir=self.seasons_dir)
+        if validated:
+            return validated
+        # If traversal or invalid chars were present, validate_season_id returns None
         cleaned = str(season_str).strip()
-        if re.match(r'^\d{4}-\d{4}$', cleaned):
-            return cleaned
-        match_slash = re.match(r'^(\d{4})[/-](\d{2,4})$', cleaned)
-        if match_slash:
-            start = match_slash.group(1)
-            end = match_slash.group(2)
-            if len(end) == 2:
-                end = start[:2] + end
-            return f"{start}-{end}"
-        match_short = re.match(r'^(\d{2})[/-](\d{2})$', cleaned)
-        if match_short:
-            start = "20" + match_short.group(1)
-            end = "20" + match_short.group(2)
-            return f"{start}-{end}"
+        if '..' in cleaned or '\\' in cleaned or '\0' in cleaned:
+            return self._active_season
         return cleaned
 
     def season_exists(self, season_id):
-        s_id = self.resolve_season(season_id)
-        path = os.path.join(self.seasons_dir, s_id)
-        return os.path.isdir(path)
+        if not season_id:
+            return False
+        # Strictly validate syntax and directory containment
+        validated = validate_season_id(season_id, seasons_dir=self.seasons_dir, must_exist=True)
+        return validated is not None
 
     def get_quarantine_policy(self, season_id):
         """
@@ -138,13 +134,16 @@ class SeasonService:
                 f"{short_year} Provisional Season" if is_quarantined else f"{short_year} Historical Season"
             )
 
+            # Baseline determination
+            is_baseline = (entry == '2024-2025')
+
             seasons.append({
                 'id': entry,
                 'canonical_id': entry,
                 'name': display_name,
                 'display_name': display_name,
                 'is_active': (entry == self._active_season),
-                'is_baseline': False,
+                'is_baseline': is_baseline,
                 'is_quarantined': is_quarantined,
                 'quarantine_reason': quarantine_reason,
                 'dataset_status': dataset_status,

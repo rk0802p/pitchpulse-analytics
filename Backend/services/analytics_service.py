@@ -4,7 +4,7 @@ from services.validation_service import resolve_competition, validate_metric
 from services.season_service import season_service
 from services.metric_registry import is_metric_tracked_in_era
 
-def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0, limit=10, season=None):
+def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=None, limit=10, season=None):
     df = data_loader.get_dataframe(season=season)
     metric_key = validate_metric(metric, default="Gls")
 
@@ -24,11 +24,16 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=0
 
     # Filter position
     if position:
-        df = df[df['Pos'].str.contains(position.strip().upper(), na=False, case=False)]
+        df = df[df['Pos'].str.contains(position.strip().upper(), regex=False, na=False, case=False)]
+
+    # If min_minutes is not specified, default to 270 minutes (3 full matches) for per-90 rate metrics
+    effective_min_minutes = min_minutes
+    if effective_min_minutes is None:
+        effective_min_minutes = 270 if metric_key.endswith('_90') else 0
 
     # Filter min minutes
-    if min_minutes and min_minutes > 0:
-        df = df[df['Min'] >= min_minutes]
+    if effective_min_minutes and effective_min_minutes > 0:
+        df = df[df['Min'] >= effective_min_minutes]
 
     if len(df) == 0:
         return []

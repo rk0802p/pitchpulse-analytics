@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import os
 import logging
-from config import ALLOWED_ORIGINS
+from config import ALLOWED_ORIGINS, MAX_CONTENT_LENGTH
 from services.data_loader import data_loader
 from routes.meta import meta_bp
 from routes.competitions import competitions_bp
@@ -17,9 +17,14 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
+    app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
-    # Enable CORS for frontend clients
-    CORS(app, resources={r'/*': {'origins': '*', 'methods': ['GET', 'POST', 'OPTIONS'], 'allow_headers': ['Content-Type', 'Authorization']}})
+    # Enable CORS with explicit allowed origins for secure frontend communication
+    CORS(app, resources={r'/*': {
+        'origins': ALLOWED_ORIGINS,
+        'methods': ['GET', 'POST', 'OPTIONS'],
+        'allow_headers': ['Content-Type', 'Authorization']
+    }})
 
     # Pre-load and validate dataset at application startup
     try:
@@ -41,15 +46,47 @@ def create_app():
     def home():
         return "Football Analytics API is running!"
 
-    # Global error handlers
+    # Global error handlers with standardized schema
+    @app.errorhandler(400)
+    def bad_request(e):
+        return jsonify({
+            "success": False,
+            "error": "Bad request",
+            "error_detail": {"code": "ERR_BAD_REQUEST", "message": "Bad request"}
+        }), 400
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        return jsonify({
+            "success": False,
+            "error": "Access forbidden",
+            "error_detail": {"code": "ERR_FORBIDDEN", "message": "Access forbidden"}
+        }), 403
+
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({"success": False, "error": "Endpoint not found"}), 404
+        return jsonify({
+            "success": False,
+            "error": "Endpoint not found",
+            "error_detail": {"code": "ERR_NOT_FOUND", "message": "Endpoint not found"}
+        }), 404
+
+    @app.errorhandler(413)
+    def request_entity_too_large(e):
+        return jsonify({
+            "success": False,
+            "error": "Payload exceeds maximum allowed size (16MB)",
+            "error_detail": {"code": "ERR_PAYLOAD_TOO_LARGE", "message": "Payload exceeds maximum allowed size (16MB)"}
+        }), 413
 
     @app.errorhandler(500)
     def internal_error(e):
         logger.error(f"Internal server error: {e}")
-        return jsonify({"success": False, "error": "Internal server error"}), 500
+        return jsonify({
+            "success": False,
+            "error": "Internal server error",
+            "error_detail": {"code": "ERR_INTERNAL_SERVER_ERROR", "message": "Internal server error"}
+        }), 500
 
     return app
 
