@@ -1,0 +1,57 @@
+/* Terrace Ledger Theme & Design Tokens */
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  /* Terrace Ledger light paper */
+  --paper: #E3E6DA;
+  --panel: #D7DCCE;
+  --ink: #14181F;
+  --mute: #5F665E;
+  --rule: #B5BBAC;
+  --blue: #27419C;
+  --red: #B3382A;
+  --amber: #F0B429;
+  --board: #123D2D;
+  --tile: #F4F1E6;
+
+  /* Typography */
+  --disp: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --ser: "Source Serif 4", Georgia, "Times New Roman", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14171C;
+    --panel: #1D2229;
+    --ink: #E7E4D6;
+    --mute: #9DA096;
+    --rule: #38404A;
+    --blue: #8FA8FF;
+    --red: #FF8E7C;
+    --board: #0E2A20;
+  }
+}
+
+:root[data-theme="dark"], html.dark {
+  --paper: #14171C;
+  --panel: #1D2229;
+  --ink: #E7E4D6;
+  --mute: #9DA096;
+  --rule: #38404A;
+  --blue: #8FA8FF;
+  --red: #FF8E7C;
+  --board: #0E2A20;
+}
+
+:root[data-theme="light"], html:not(.dark) {
+  --paper: #E3E6DA;
+  --panel: #D7DCCE;
+  --ink: #14181F;
+  --mute: #5F665E;
+  --rule: #B5BBAC;
+  --blue: #27419C;
+  --red: #B3382A;
+  --amber: #F0B429;
+  --board: #123D2D;
+  --tile: #F4F1E6;
+}

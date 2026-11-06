@@ -1,174 +1,232 @@
-import React from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  ArrowUpDown, 
+  ChevronLeft, 
+  ChevronRight, 
+  Download, 
+  SlidersHorizontal,
+  Info 
+} from 'lucide-react';
+import { formatMetricValue } from '../../utils/metricFormatters';
 
 export const DataTable = ({
   columns = [],
   data = [],
-  sortBy = "Gls",
-  order = "desc",
-  onSort,
   onRowClick,
-  onAddToCompare,
-  compareList = [],
-  pagination = null,
-  onPageChange
+  title = "Statistical Ledger",
+  subtitle,
+  tableId = "tbl-1",
+  sortBy,
+  sortOrder = 'desc',
+  onSort,
+  pagination,
+  onPageChange,
+  loading = false,
+  emptyMessage = "No match records found."
 }) => {
-  const getSortIcon = (columnKey) => {
-    if (sortBy !== columnKey) {
-      return <ArrowUpDown className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400" />;
-    }
-    return order === "asc" ? (
-      <ArrowUp className="w-3.5 h-3.5 text-emerald-400" />
-    ) : (
-      <ArrowDown className="w-3.5 h-3.5 text-emerald-400" />
+  const [density, setDensity] = useState('comfortable'); // 'comfortable' or 'compact'
+  const [hiddenCols, setHiddenCols] = useState([]);
+  const [showColPicker, setShowColPicker] = useState(false);
+
+  const toggleColumn = (key) => {
+    setHiddenCols(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
     );
   };
 
-  const getPositionBadge = (pos) => {
-    if (!pos) return null;
-    let colorClass = "bg-slate-700/60 text-slate-300 border-slate-600";
-    if (pos.includes("FW")) colorClass = "bg-rose-500/15 text-rose-400 border-rose-500/30";
-    else if (pos.includes("MF")) colorClass = "bg-blue-500/15 text-blue-400 border-blue-500/30";
-    else if (pos.includes("DF")) colorClass = "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
-    else if (pos.includes("GK")) colorClass = "bg-amber-500/15 text-amber-400 border-amber-500/30";
+  const visibleColumns = columns.filter(c => !hiddenCols.includes(c.key));
 
-    return (
-      <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded border ${colorClass}`}>
-        {pos}
-      </span>
+  const exportCSV = () => {
+    if (!data || data.length === 0) return;
+    const headers = visibleColumns.map(c => `"${c.label}"`).join(",");
+    const rows = data.map(row => 
+      visibleColumns.map(c => {
+        const val = row[c.key];
+        return `"${val !== undefined && val !== null ? val : ''}"`;
+      }).join(",")
     );
+    const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${title.toLowerCase().replace(/\s+/g, '_')}_ledger.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
-    <div className="bg-pitch-card border border-pitch-border rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-pitch-surface/90 border-b border-pitch-border text-xs uppercase text-slate-400 font-mono tracking-wider">
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className={`py-3.5 px-4 font-semibold ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable ? 'cursor-pointer select-none group' : ''}`}
-                  onClick={() => col.sortable && onSort && onSort(col.key)}
-                >
-                  <div className={`inline-flex items-center gap-1.5 ${col.align === 'right' ? 'justify-end' : 'justify-start'}`}>
-                    <span>{col.label}</span>
-                    {col.sortable && getSortIcon(col.key)}
-                  </div>
-                </th>
-              ))}
-              {onAddToCompare && (
-                <th className="py-3.5 px-4 text-center font-semibold w-16">
-                  Compare
-                </th>
-              )}
+    <div className="my-6">
+      {/* Table Header Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 border-t-2 border-[var(--ink)] pt-3 pb-2">
+        <div>
+          <h3 className="font-disp font-bold text-2xl text-[var(--ink)] tracking-tight">
+            {title}
+          </h3>
+          {subtitle && (
+            <p className="text-xs italic text-[var(--mute)] mt-0.5 max-w-xl">
+              {subtitle}
+            </p>
+          )}
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex items-center gap-2 self-start sm:self-auto text-xs">
+          <button
+            onClick={() => setDensity(d => d === 'comfortable' ? 'compact' : 'comfortable')}
+            className="border border-[var(--rule)] hover:border-[var(--ink)] bg-transparent px-2.5 py-1 rounded-sm text-[var(--ink)] italic"
+            title="Toggle Row Spacing"
+          >
+            {density === 'comfortable' ? 'Compact' : 'Comfortable'}
+          </button>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowColPicker(!showColPicker)}
+              className="border border-[var(--rule)] hover:border-[var(--ink)] bg-transparent px-2.5 py-1 rounded-sm text-[var(--ink)] italic flex items-center gap-1"
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>Columns</span>
+            </button>
+
+            {showColPicker && (
+              <div className="absolute right-0 mt-1 w-48 bg-[var(--paper)] border-2 border-[var(--ink)] shadow-lg p-2 z-50 text-xs">
+                <div className="font-disp font-bold uppercase text-[var(--mute)] pb-1 mb-1 border-b border-[var(--rule)]">
+                  Toggle Columns
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {columns.map(c => (
+                    <label key={c.key} className="flex items-center gap-2 cursor-pointer py-0.5 hover:bg-[var(--panel)] px-1">
+                      <input
+                        type="checkbox"
+                        checked={!hiddenCols.includes(c.key)}
+                        onChange={() => toggleColumn(c.key)}
+                        className="rounded accent-[var(--blue)]"
+                      />
+                      <span className="truncate">{c.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={exportCSV}
+            className="border border-[var(--rule)] hover:border-[var(--ink)] bg-transparent px-2.5 py-1 rounded-sm text-[var(--ink)] italic flex items-center gap-1"
+            title="Export CSV"
+          >
+            <Download className="w-3 h-3" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Table */}
+      <div className="overflow-x-auto border-t border-[var(--ink)]">
+        <table className="w-full min-w-[700px] border-collapse font-ser text-sm">
+          <thead>
+            <tr className="border-b border-[var(--ink)]">
+              {visibleColumns.map((col, idx) => {
+                const isSortActive = sortBy === col.key;
+                const isNumeric = col.isNumeric !== false && typeof data[0]?.[col.key] === 'number';
+                return (
+                  <th
+                    key={col.key || idx}
+                    onClick={() => col.sortable !== false && onSort && onSort(col.key)}
+                    title={col.tooltip || col.title || col.label}
+                    className={`py-2 px-2.5 font-semibold text-xs whitespace-nowrap select-none ${
+                      idx === 0 ? 'text-left sticky left-0 bg-[var(--paper)]' : isNumeric ? 'text-right' : 'text-left'
+                    } ${col.sortable !== false ? 'cursor-pointer hover:text-[var(--blue)]' : ''} ${
+                      isSortActive ? 'text-[var(--red)] underline decoration-2 underline-offset-4' : 'text-[var(--ink)]'
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.label}
+                      {isSortActive && (
+                        <span>{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                      )}
+                    </span>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-pitch-border/60">
-            {data.map((row, idx) => {
-              const isCompared = compareList.some((p) => {
-                const matchId = (p.id || p.Rk) === (row.id || row.Rk);
-                if (!matchId) return false;
-                if (p.season && row.season) {
-                  return p.season === row.season;
-                }
-                return true;
-              });
-              return (
-                <tr
-                  key={row.id || row.Rk || idx}
-                  className="hover:bg-slate-800/40 transition-colors group cursor-pointer"
-                  onClick={() => onRowClick && onRowClick(row)}
-                >
-                  {columns.map((col) => {
-                    let cellContent = row[col.key];
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={visibleColumns.length} className="text-center py-12 italic text-[var(--mute)]">
+                  Consulting ledger archive...
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={visibleColumns.length} className="text-center py-12 italic text-[var(--mute)]">
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              data.map((row, rIdx) => {
+                const paddingClass = density === 'compact' ? 'py-1 px-2 text-xs' : 'py-2 px-2.5 text-sm';
+                return (
+                  <tr 
+                    key={row.id || row.Player || rIdx}
+                    onClick={() => onRowClick && onRowClick(row)}
+                    className="hover:bg-[var(--panel)] transition-colors cursor-pointer group"
+                  >
+                    {visibleColumns.map((col, cIdx) => {
+                      const val = row[col.key];
+                      const isFirst = cIdx === 0;
+                      const isNumeric = col.isNumeric !== false && typeof val === 'number';
 
-                    if (col.key === 'Pos') {
-                      cellContent = getPositionBadge(row.Pos);
-                    } else if (col.key === 'Player') {
-                      cellContent = (
-                        <div>
-                          <div className="font-semibold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-                            {row.Player}
-                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 text-slate-500 transition-opacity" />
-                          </div>
-                          <div className="text-xs text-slate-400">
-                            {row.Squad} · <span className="text-slate-500">{row.Comp?.replace(/^[a-z]{2,3}\s/, '') || row.league}</span>
-                          </div>
-                        </div>
+                      return (
+                        <td
+                          key={col.key || cIdx}
+                          className={`${paddingClass} dotted-rule whitespace-nowrap ${
+                            isFirst ? 'text-left sticky left-0 bg-[var(--paper)] group-hover:bg-[var(--panel)] font-semibold' : isNumeric ? 'text-right' : 'text-left'
+                          }`}
+                        >
+                          {col.render ? (
+                            col.render(val, row)
+                          ) : (
+                            val !== undefined && val !== null ? String(val) : '—'
+                          )}
+                        </td>
                       );
-                    } else if (col.key === 'Gls_minus_xG') {
-                      const delta = row.Gls_minus_xG !== undefined ? row.Gls_minus_xG : (row.Gls - row.xG);
-                      const isPositive = delta > 0;
-                      cellContent = (
-                        <span className={`font-mono font-medium ${isPositive ? 'text-emerald-400' : delta < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-                          {isPositive ? `+${delta.toFixed(2)}` : delta?.toFixed(2)}
-                        </span>
-                      );
-                    } else if (typeof cellContent === 'number') {
-                      cellContent = <span className="font-mono">{cellContent}</span>;
-                    }
-
-                    return (
-                      <td
-                        key={col.key}
-                        className={`py-3.5 px-4 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
-                      >
-                        {cellContent !== undefined && cellContent !== null ? cellContent : '—'}
-                      </td>
-                    );
-                  })}
-
-                  {onAddToCompare && (
-                    <td
-                      className="py-3.5 px-4 text-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddToCompare(row);
-                      }}
-                    >
-                      <button
-                        className={`p-1.5 rounded-md border text-xs transition-colors ${
-                          isCompared
-                            ? 'bg-emerald-500 text-white border-emerald-500'
-                            : 'bg-pitch-surface hover:bg-slate-700 text-slate-400 hover:text-white border-pitch-border'
-                        }`}
-                        title={isCompared ? 'Selected for comparison' : 'Add to comparison'}
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
+                    })}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination Footer */}
-      {pagination && (
-        <div className="px-5 py-3.5 bg-pitch-surface/70 border-t border-pitch-border flex items-center justify-between flex-wrap gap-3">
-          <div className="text-xs text-slate-400 font-mono">
-            Showing Page <span className="text-white font-semibold">{pagination.page}</span> of{" "}
-            <span className="text-white font-semibold">{pagination.total_pages}</span> (
-            <span className="text-emerald-400">{pagination.total}</span> players)
+      {pagination && pagination.total_pages > 1 && (
+        <div className="flex items-center justify-between border-t border-[var(--ink)] pt-3 text-xs italic text-[var(--mute)]">
+          <div>
+            Showing page {pagination.page} of {pagination.total_pages} ({pagination.total} records recorded)
           </div>
-
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 not-italic">
             <button
-              onClick={() => onPageChange(pagination.page - 1)}
-              disabled={!pagination.has_prev}
-              className="px-3 py-1.5 rounded-lg border border-pitch-border text-xs font-medium bg-pitch-card hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none text-slate-300 transition-colors"
+              disabled={pagination.page <= 1}
+              onClick={() => onPageChange && onPageChange(pagination.page - 1)}
+              className="border border-[var(--rule)] hover:border-[var(--ink)] p-1 rounded-sm disabled:opacity-30 disabled:pointer-events-none"
+              aria-label="Previous page"
             >
-              Previous
+              <ChevronLeft className="w-4 h-4" />
             </button>
+            <span className="font-serif italic px-2">
+              Folio {pagination.page}
+            </span>
             <button
-              onClick={() => onPageChange(pagination.page + 1)}
-              disabled={!pagination.has_next}
-              className="px-3 py-1.5 rounded-lg border border-pitch-border text-xs font-medium bg-pitch-card hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none text-slate-300 transition-colors"
+              disabled={pagination.page >= pagination.total_pages}
+              onClick={() => onPageChange && onPageChange(pagination.page + 1)}
+              className="border border-[var(--rule)] hover:border-[var(--ink)] p-1 rounded-sm disabled:opacity-30 disabled:pointer-events-none"
+              aria-label="Next page"
             >
-              Next
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>

@@ -1,57 +1,76 @@
 import React from 'react';
+import { formatMetricValue } from '../../utils/metricFormatters';
 
 export const StatCard = ({
   title,
   value,
+  delta,
+  deltaType = "neutral", // positive, negative, neutral
   subtext,
-  icon: Icon,
-  badge = null,
-  badgeType = "neutral", // "positive", "negative", "neutral", "accent"
-  accentColor = "emerald"
+  sparklineData = [],
+  metricKey,
+  onClick
 }) => {
-  const badgeColors = {
-    positive: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-    negative: "bg-rose-500/15 text-rose-400 border-rose-500/30",
-    accent: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    neutral: "bg-slate-700/50 text-slate-300 border-slate-600/50"
-  };
+  const isPositive = deltaType === "positive" || (typeof delta === 'number' && delta > 0);
+  const isNegative = deltaType === "negative" || (typeof delta === 'number' && delta < 0);
 
-  const iconColors = {
-    emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-    blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
-    purple: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-    amber: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    rose: "text-rose-400 bg-rose-500/10 border-rose-500/20"
-  };
+  const formattedVal = metricKey && typeof value === 'number'
+    ? formatMetricValue(metricKey, value)
+    : value ?? '—';
 
   return (
-    <div className="bg-pitch-card border border-pitch-border rounded-xl p-5 hover:border-slate-700 transition-all duration-200 relative overflow-hidden group shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
+    <div 
+      onClick={onClick}
+      className={`border border-[var(--rule)] bg-[var(--paper)] hover:bg-[var(--panel)] p-3 sm:p-4 rounded-sm transition-all not-italic ${
+        onClick ? 'cursor-pointer hover:border-[var(--ink)]' : ''
+      }`}
+    >
+      <div className="flex items-baseline justify-between gap-2 mb-1">
+        <span className="font-disp font-bold text-xs uppercase tracking-wider text-[var(--mute)]">
           {title}
         </span>
-        {Icon && (
-          <div className={`w-8 h-8 rounded-lg border flex items-center justify-center ${iconColors[accentColor] || iconColors.emerald}`}>
-            <Icon className="w-4 h-4" />
-          </div>
-        )}
-      </div>
-
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold tracking-tight text-white font-sans">
-          {value !== undefined && value !== null ? value : "—"}
-        </span>
-        {badge && (
-          <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${badgeColors[badgeType] || badgeColors.neutral}`}>
-            {badge}
+        {delta !== undefined && (
+          <span className={`text-xs font-semibold flex items-center gap-0.5 ${
+            isPositive ? 'text-[var(--blue)]' : isNegative ? 'text-[var(--red)]' : 'text-[var(--mute)]'
+          }`}>
+            {isPositive ? '▲' : isNegative ? '▼' : '—'} {Math.abs(delta)}
           </span>
         )}
       </div>
 
+      <div className="flex items-baseline justify-between gap-3 mt-1">
+        <div className="font-disp font-extrabold text-3xl sm:text-4xl text-[var(--ink)] leading-none tracking-tight">
+          {formattedVal}
+        </div>
+
+        {/* Minimal inline sparkline */}
+        {sparklineData && sparklineData.length > 1 && (
+          <div className="w-16 h-6 shrink-0 opacity-80">
+            <svg viewBox="0 0 60 20" className="w-full h-full overflow-visible">
+              <polyline
+                fill="none"
+                stroke="var(--ink)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={sparklineData.map((val, idx) => {
+                  const min = Math.min(...sparklineData);
+                  const max = Math.max(...sparklineData);
+                  const range = max - min || 1;
+                  const x = (idx / (sparklineData.length - 1)) * 56 + 2;
+                  const y = 18 - ((val - min) / range) * 16;
+                  return `${x},${y}`;
+                }).join(" ")}
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+
       {subtext && (
-        <p className="text-xs text-slate-400 mt-1.5 font-normal">
+        <div className="text-xs italic text-[var(--mute)] mt-1.5 font-ser">
           {subtext}
-        </p>
+        </div>
       )}
     </div>
   );

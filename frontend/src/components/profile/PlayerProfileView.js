@@ -1,286 +1,185 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-  ArrowLeft,
-Target, 
-  Sparkles, 
+  ArrowLeft, 
+  Share2, 
+  GitCompare, 
+  Star, 
+  Shield, 
+  Target, 
   Zap, 
-  AlertTriangle,
-  GitCompare,
-  Check,
-Award
+  Activity 
 } from 'lucide-react';
-import StatCard from '../common/StatCard';
+import { formatMetricValue } from '../../utils/metricFormatters';
 
 export const PlayerProfileView = ({
-  profile,
+  player,
   onBack,
   onCompare,
-  isCompared = false
+  activeSeason = "2024-2025"
 }) => {
-  if (!profile) return null;
+  if (!player) {
+    return (
+      <div className="py-12 text-center text-[var(--mute)] italic font-ser">
+        <p>No player record selected in this ledger volume.</p>
+        {onBack && (
+          <button 
+            onClick={onBack}
+            className="mt-4 inline-flex items-center gap-1 border border-[var(--ink)] px-3 py-1 text-sm rounded-sm hover:bg-[var(--panel)]"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Return to Player Ledger
+          </button>
+        )}
+      </div>
+    );
+  }
 
-  const { identity, playing_time, scoring, playmaking, progression, discipline, per_90_rates, percentiles } = profile;
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const getInitials = (name) => {
-    if (!name) return 'PL';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  };
-
-  const getPercentileColor = (pct) => {
-    if (pct >= 85) return 'bg-emerald-500 text-emerald-400';
-    if (pct >= 65) return 'bg-cyan-500 text-cyan-400';
-    if (pct >= 40) return 'bg-blue-500 text-blue-400';
-    return 'bg-slate-500 text-slate-400';
-  };
-
-  const percentileMetrics = [
-    { key: 'goals_per_90', label: 'Goals / 90' },
-    { key: 'xg_per_90', label: 'Shot Threat (xG/90)' },
-    { key: 'assists_per_90', label: 'Assists / 90' },
-    { key: 'xag_per_90', label: 'Chance Quality (xAG/90)' },
-    { key: 'progressive_carries', label: 'Prog. Carries (PrgC)' },
-    { key: 'progressive_passes', label: 'Prog. Passes (PrgP)' },
-    { key: 'progressive_receptions', label: 'Prog. Receptions (PrgR)' }
+  // Key metrics breakdown
+  const statsList = [
+    { label: "Matches (90s)", value: player['90s'] ?? player.Matches ?? '—', key: '90s' },
+    { label: "Goals", value: player.Gls ?? 0, key: 'Gls' },
+    { label: "Assists", value: player.Ast ?? 0, key: 'Ast' },
+    { label: "Expected Goals (xG)", value: player.xG ?? 0, key: 'xG' },
+    { label: "Expected Assists (xAG)", value: player.xAG ?? 0, key: 'xAG' },
+    { label: "Prog. Carries (PrgC)", value: player.PrgC ?? 0, key: 'PrgC' },
+    { label: "Prog. Passes (PrgP)", value: player.PrgP ?? 0, key: 'PrgP' },
+    { label: "Prog. Receptions (PrgR)", value: player.PrgR ?? 0, key: 'PrgR' },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Back & Actions Navigation */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 font-ser not-italic">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between border-b border-[var(--ink)] pb-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pitch-card hover:bg-slate-800 border border-pitch-border text-xs font-medium text-slate-300 transition-colors"
+          className="flex items-center gap-1.5 text-xs italic text-[var(--ink)] hover:text-[var(--blue)] transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 text-emerald-400" /> Back to Player Explorer
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Player Ledger</span>
         </button>
 
-        <button
-          onClick={() => onCompare && onCompare(profile.raw_record)}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            isCompared
-              ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-              : 'bg-pitch-card hover:bg-slate-800 border border-pitch-border text-slate-200'
-          }`}
-        >
-          {isCompared ? <Check className="w-3.5 h-3.5" /> : <GitCompare className="w-3.5 h-3.5 text-emerald-400" />}
-          {isCompared ? 'In Comparison Workspace' : 'Add to Comparison'}
-        </button>
+        <div className="flex items-center gap-2">
+          {onCompare && (
+            <button
+              onClick={() => onCompare(player)}
+              className="border border-[var(--ink)] px-3 py-1 rounded-sm text-xs italic hover:bg-[var(--panel)] transition-colors flex items-center gap-1"
+            >
+              <GitCompare className="w-3.5 h-3.5" />
+              <span>Head-to-Head Compare</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Quarantined Dataset Record Notice */}
-      {profile.is_quarantined && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
-          <div className="text-xs">
-            <span className="font-semibold text-amber-200 block">
-              Quarantined / Provisional Dataset Record ({profile.season})
-            </span>
-            <p className="text-amber-300/80 mt-1 leading-relaxed">
-              {profile.quarantine_reason || 'This player record belongs to a provisional/composite dataset and is isolated from authoritative historical benchmarks.'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Hero Dossier Card */}
-      <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          {/* Identity info */}
-          <div className="flex items-start md:items-center gap-4">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-pitch-surface border-2 border-emerald-500/30 text-emerald-400 font-bold font-mono text-2xl flex items-center justify-center shadow-inner flex-shrink-0">
-              {getInitials(identity.name)}
+      {/* Editorial Player Dossier Header */}
+      <div className="border-b-2 border-[var(--ink)] pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="text-xs uppercase font-disp tracking-widest text-[var(--mute)] mb-1">
+              Player Folio • {player.Pos || "Midfielder"} • {player.Nation || "International"}
             </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  {identity.position}
-                </span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                  {identity.nation}
-                </span>
-                {identity.age && (
-                  <span className="text-xs text-slate-400 font-mono">
-                    Age {identity.age} {identity.born ? `(b. ${identity.born})` : ''}
-                  </span>
-                )}
-              </div>
-
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-                {identity.name}
-              </h1>
-
-              <div className="flex items-center gap-2 mt-1 text-sm text-slate-400 flex-wrap">
-                <span className="text-white font-medium">{identity.squad}</span>
-                <span>·</span>
-                <span className="text-emerald-400 font-medium">{identity.competition}</span>
-                <span>·</span>
-                <span className="text-slate-500">Record #{identity.rk}</span>
-              </div>
+            <h1 className="font-disp font-extrabold text-5xl sm:text-6xl text-[var(--ink)] leading-none">
+              {player.Player}
+            </h1>
+            <div className="flex items-center gap-3 text-sm italic text-[var(--mute)] mt-2">
+              <span className="font-semibold text-[var(--ink)] not-italic">
+                {player.Squad || player.Team || "Club Squad"}
+              </span>
+              <span>•</span>
+              <span>Age {player.Age || "—"}</span>
+              <span>•</span>
+              <span>Vol. {activeSeason}</span>
             </div>
           </div>
 
-          {/* Quick Context Pill */}
-          <div className="bg-pitch-surface/80 border border-pitch-border p-3.5 rounded-xl flex items-center gap-4 text-xs font-mono flex-shrink-0">
-            <div>
-              <span className="text-slate-500 block">PLAYING TIME</span>
-              <span className="text-white font-bold text-sm">{playing_time.minutes} mins</span>
-            </div>
-            <div className="border-l border-pitch-border pl-4">
-              <span className="text-slate-500 block">MATCHES</span>
-              <span className="text-white font-bold text-sm">{playing_time.matches_played} ({playing_time.starts} starts)</span>
-            </div>
-            <div className="border-l border-pitch-border pl-4">
-              <span className="text-slate-500 block">OUTPUT</span>
-              <span className="text-emerald-400 font-bold text-sm">{scoring.goals}G + {playmaking.assists}A</span>
-            </div>
+          {/* Quick Headshot or Monogram */}
+          <div className="w-20 h-20 rounded-full border-2 border-[var(--ink)] bg-[var(--panel)] flex items-center justify-center font-disp font-extrabold text-3xl text-[var(--ink)] self-start md:self-auto">
+            {player.Player?.split(' ').map(n => n[0]).join('').slice(0, 2) || "PL"}
           </div>
         </div>
       </div>
 
-      {/* KPI Cards Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Goals Scored"
-          value={scoring.goals}
-          subtext={(scoring.expected_goals ?? scoring.xg) > 0 ? `Expected (xG): ${scoring.expected_goals ?? scoring.xg}` : 'Standard Goals Output'}
-          badge={(scoring.expected_goals ?? scoring.xg) > 0 ? ((scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? `+${scoring.finishing_differential ?? scoring.goals_minus_xg} Over xG` : `${scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0} Diff`) : 'Goals Scored'}
-          badgeType={(scoring.expected_goals ?? scoring.xg) > 0 ? ((scoring.finishing_differential ?? scoring.goals_minus_xg ?? 0) > 0 ? "positive" : "negative") : "neutral"}
-          icon={Target}
-          accentColor="rose"
-        />
-        <StatCard
-          title="Chance Creation"
-          value={playmaking.assists}
-          subtext={(playmaking.expected_assisted_goals ?? playmaking.xag) > 0 ? `Expected Assists (xAG): ${playmaking.expected_assisted_goals ?? playmaking.xag}` : `${playmaking.goals_plus_assists} Total G+A`}
-          badge={`${playmaking.goals_plus_assists} G+A`}
-          badgeType="accent"
-          icon={Sparkles}
-          accentColor="blue"
-        />
-        <StatCard
-          title="Ball Progression"
-          value={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? progression.progressive_carries : "N/A"}
-          subtext={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? `Progressive Passes: ${progression.progressive_passes}` : "Spatial tracking unrecorded in this era"}
-          badge={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? "PrgC & PrgP" : "Untracked"}
-          badgeType={(progression.progressive_carries !== null && progression.progressive_carries !== undefined) ? "accent" : "neutral"}
-          icon={Zap}
-          accentColor="purple"
-        />
-        <StatCard
-          title="Disciplinary Record"
-          value={`${discipline.yellow_cards} Y / ${discipline.red_cards} R`}
-          subtext={`${playing_time.ninetys ?? playing_time.nineties ?? 0} total 90s played`}
-          badge={discipline.red_cards > 0 ? "Red Card Received" : "Clean Record"}
-          badgeType={discipline.red_cards > 0 ? "negative" : "neutral"}
-          icon={AlertTriangle}
-          accentColor="amber"
-        />
+      {/* Headline Metric Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {statsList.slice(0, 4).map((stat) => (
+          <div key={stat.label} className="border border-[var(--rule)] bg-[var(--paper)] p-3 rounded-sm">
+            <span className="font-disp font-bold text-xs uppercase tracking-wider text-[var(--mute)] block mb-1">
+              {stat.label}
+            </span>
+            <span className="font-disp font-extrabold text-3xl text-[var(--ink)]">
+              {typeof stat.value === 'number' ? formatMetricValue(stat.key, stat.value) : stat.value}
+            </span>
+          </div>
+        ))}
       </div>
 
-      {/* Positional Peer Percentile Benchmark */}
-      {percentiles && (
-        <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-pitch-border flex-wrap gap-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                  Positional Peer Percentile Benchmark
-                </h3>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Evaluated against {percentiles.peer_sample_size} {percentiles.comparison_position} peers across Europe (Min 270 mins)
-              </p>
-            </div>
-            <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-              Scouting Radar Metrics
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {percentileMetrics.map((item) => {
-              const metricData = percentiles[item.key];
-              if (!metricData) return null;
-              const isUntracked = metricData.is_tracked === false || metricData.percentile === null || metricData.percentile === undefined;
-              const pct = isUntracked ? 0 : metricData.percentile;
-              const barClass = isUntracked ? 'bg-slate-700 text-slate-500' : getPercentileColor(pct);
-
-              return (
-                <div key={item.key} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-300 font-medium">{item.label}</span>
-                      {!isUntracked && metricData.sample_size && metricData.sample_size < percentiles.peer_sample_size && (
-                        <span className="text-[10px] text-slate-500 font-mono" title={`Evaluated against ${metricData.sample_size} peers with tracking`}>
-                          (N={metricData.sample_size})
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-bold">{isUntracked ? '—' : metricData.value}</span>
-                      <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${isUntracked ? 'bg-slate-800 text-slate-400 border border-slate-700/60' : barClass.split(' ')[1]}`}>
-                        {metricData.insufficient_sample ? 'Sample < 10' : (isUntracked ? 'Untracked in era' : `${pct}th percentile`)}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Percentile bar */}
-                  <div className="w-full bg-pitch-surface rounded-full h-2 overflow-hidden border border-pitch-border/50">
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${isUntracked ? 'bg-slate-800/40' : barClass.split(' ')[0]}`}
-                      style={{ width: isUntracked ? '0%' : `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* In-depth Statistical Ledger */}
+      <div className="space-y-4">
+        <div className="border-b border-[var(--ink)] pb-2 flex items-baseline justify-between">
+          <h3 className="font-disp font-bold text-2xl text-[var(--ink)]">
+            Complete Match & Progression Register
+          </h3>
+          <span className="text-xs italic text-[var(--mute)]">
+            Per-90 and cumulative totals
+          </span>
         </div>
-      )}
 
-      {/* Standardized Per 90 Minutes Output */}
-      <div className="bg-pitch-card border border-pitch-border rounded-xl p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 pb-2 border-b border-pitch-border font-mono flex items-center justify-between">
-          <span>Standardized Output Rates (Per 90 Minutes)</span>
-          <span className="text-xs text-slate-400 lowercase font-normal">rates normalized by total minutes</span>
-        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border border-[var(--rule)] p-4 rounded-sm">
+            <h4 className="font-disp font-bold text-lg text-[var(--ink)] uppercase tracking-wider mb-3 border-b border-[var(--rule)] pb-1">
+              Attacking & Chance Creation
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Goals Scored (Gls)</span>
+                <span className="font-semibold">{player.Gls ?? 0}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Expected Goals (xG)</span>
+                <span className="font-semibold">{formatMetricValue('xG', player.xG)}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Assists (Ast)</span>
+                <span className="font-semibold">{player.Ast ?? 0}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Expected Assists (xAG)</span>
+                <span className="font-semibold">{formatMetricValue('xAG', player.xAG)}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Goals per 90 (G/90)</span>
+                <span className="font-semibold">{player.Gls_per90 ? Number(player.Gls_per90).toFixed(2) : '—'}</span>
+              </div>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
-            <span className="text-xs text-slate-400 block mb-1">Goals / 90</span>
-            <span className="text-2xl font-bold font-mono text-emerald-400">
-              {per_90_rates.goals_per_90 !== null && per_90_rates.goals_per_90 !== undefined ? per_90_rates.goals_per_90 : 'N/A'}
-            </span>
-          </div>
-          <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
-            <span className="text-xs text-slate-400 block mb-1">xG / 90</span>
-            {per_90_rates.xg_per_90 !== null && per_90_rates.xg_per_90 !== undefined ? (
-              <span className="text-2xl font-bold font-mono text-cyan-400">{per_90_rates.xg_per_90}</span>
-            ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold font-mono text-slate-500">N/A</span>
-                <span className="text-[10px] text-slate-500 font-mono">untracked</span>
+          <div className="border border-[var(--rule)] p-4 rounded-sm">
+            <h4 className="font-disp font-bold text-lg text-[var(--ink)] uppercase tracking-wider mb-3 border-b border-[var(--rule)] pb-1">
+              Possession, Progression & Spatial Influence
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Progressive Carries (PrgC)</span>
+                <span className="font-semibold">{player.PrgC ?? 0}</span>
               </div>
-            )}
-          </div>
-          <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
-            <span className="text-xs text-slate-400 block mb-1">Assists / 90</span>
-            <span className="text-2xl font-bold font-mono text-blue-400">
-              {per_90_rates.assists_per_90 !== null && per_90_rates.assists_per_90 !== undefined ? per_90_rates.assists_per_90 : 'N/A'}
-            </span>
-          </div>
-          <div className="p-3.5 rounded-xl bg-pitch-surface border border-pitch-border text-center">
-            <span className="text-xs text-slate-400 block mb-1">xAG / 90</span>
-            {per_90_rates.xag_per_90 !== null && per_90_rates.xag_per_90 !== undefined ? (
-              <span className="text-2xl font-bold font-mono text-purple-400">{per_90_rates.xag_per_90}</span>
-            ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold font-mono text-slate-500">N/A</span>
-                <span className="text-[10px] text-slate-500 font-mono">untracked</span>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Progressive Passes (PrgP)</span>
+                <span className="font-semibold">{player.PrgP ?? 0}</span>
               </div>
-            )}
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Progressive Passes Received (PrgR)</span>
+                <span className="font-semibold">{player.PrgR ?? 0}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>Total Minutes Played</span>
+                <span className="font-semibold">{player.Min ? Number(player.Min).toLocaleString() : '—'}</span>
+              </div>
+              <div className="flex justify-between dotted-rule py-1">
+                <span>90s Completed</span>
+                <span className="font-semibold">{player['90s'] ? Number(player['90s']).toFixed(1) : '—'}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
