@@ -10,6 +10,8 @@ import StatCard from './components/common/StatCard';
 import PlayerProfileView from './components/profile/PlayerProfileView';
 import ComparisonMatrix from './components/compare/ComparisonMatrix';
 import LeaderboardsView from './components/leaderboards/LeaderboardsView';
+import SquadBrowserView from './components/squad/SquadBrowserView';
+import DataManagementView from './components/data/DataManagementView';
 
 beforeEach(() => {
   global.fetch = jest.fn((url) => {
@@ -35,7 +37,7 @@ beforeEach(() => {
         ok: true,
         json: () => Promise.resolve({
           success: true,
-          data: { season: '2024-2025', total_players: 542, clubs_count: 20 }
+          data: { season: '2024-2025', total_players: 2854, clubs_count: 96, total_goals: 4806, total_assists: 3429, total_minutes: 3459684 }
         })
       });
     }
@@ -45,8 +47,8 @@ beforeEach(() => {
         json: () => Promise.resolve({
           success: true,
           data: [
-            { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90 },
-            { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120 }
+            { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90, Min: 2400, MP: 28 },
+            { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120, Min: 2200, MP: 26 }
           ],
           pagination: { page: 1, limit: 25, total: 2, total_pages: 1 }
         })
@@ -77,7 +79,7 @@ test('renders Terrace Ledger masthead, split-flap scoreboard, and almanac layout
 
   expect(screen.getAllByText(/Terrace Ledger/i).length).toBeGreaterThan(0);
   expect(screen.getAllByText(/PitchPulse Analytics/i).length).toBeGreaterThan(0);
-  expect(screen.getByText(/A running record of matches, shots/i)).toBeInTheDocument();
+  expect(screen.getByText(/Statistical ledger of Europe's top 5 leagues/i)).toBeInTheDocument();
 
   // Verify scoreboard and editorial figures
   await waitFor(() => {
@@ -152,7 +154,7 @@ test('renders StatCard with sparkline and delta indicators', () => {
   expect(screen.getByText(/Erling Haaland/i)).toBeInTheDocument();
 });
 
-test('renders PlayerProfileView with complete dossier', () => {
+test('renders PlayerProfileView with complete dossier and 3 percentile groups', () => {
   const dummyPlayer = {
     Player: 'Bukayo Saka',
     Squad: 'Arsenal',
@@ -167,29 +169,48 @@ test('renders PlayerProfileView with complete dossier', () => {
     PrgP: 95,
     PrgR: 120,
     Min: 2200,
+    MP: 26,
+    CrdY: 3,
+    CrdR: 0,
     '90s': 24.4
   };
 
   render(<PlayerProfileView player={dummyPlayer} />);
   expect(screen.getAllByText('Bukayo Saka').length).toBeGreaterThan(0);
-  expect(screen.getByText(/Attacking & Chance Creation/i)).toBeInTheDocument();
-  expect(screen.getByText(/Possession, Progression & Spatial Influence/i)).toBeInTheDocument();
+  expect(screen.getByText(/Scoring Output/i)).toBeInTheDocument();
+  expect(screen.getByText(/Chance Creation/i)).toBeInTheDocument();
+  expect(screen.getByText(/Ball Progression/i)).toBeInTheDocument();
 });
 
-test('renders ComparisonMatrix side by side', () => {
+test('renders ComparisonMatrix side by side with scouting verdict', () => {
   const dummyPlayers = [
-    { id: 1, Player: 'Erling Haaland', Squad: 'Man City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90 },
-    { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120 }
+    { id: 1, Player: 'Erling Haaland', Squad: 'Man City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90, Min: 2400 },
+    { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120, Min: 2200 }
   ];
 
   render(<ComparisonMatrix players={dummyPlayers} />);
-  expect(screen.getByText(/Head-to-Head Player Comparison/i)).toBeInTheDocument();
+  expect(screen.getByText(/Player Comparison/i)).toBeInTheDocument();
   expect(screen.getByText('Erling Haaland')).toBeInTheDocument();
   expect(screen.getByText('Bukayo Saka')).toBeInTheDocument();
+  expect(screen.getByText(/Scouting Verdict:/i)).toBeInTheDocument();
 });
 
-test('renders LeaderboardsView with tabs', async () => {
+test('renders LeaderboardsView with metric picker and podium', async () => {
   render(<LeaderboardsView activeSeason="2024-2025" />);
-  expect(screen.getByText(/League Leaderboards & Statistical Ranks/i)).toBeInTheDocument();
+  expect(screen.getByText(/Continental League Podiums & Leaderboards/i)).toBeInTheDocument();
   expect(screen.getAllByText(/Goals/i).length).toBeGreaterThan(0);
+});
+
+test('renders SquadBrowserView with league filter and club index', async () => {
+  render(<SquadBrowserView activeSeason="2024-2025" />);
+  expect(screen.getByText(/Squad Browser/i)).toBeInTheDocument();
+  expect(screen.getByText(/Club Registry & First-Team Almanac/i)).toBeInTheDocument();
+});
+
+test('renders DataManagementView with high-density archive table and validation checks', async () => {
+  render(<DataManagementView activeSeason="2024-2025" />);
+  expect(screen.getByText(/Dataset Registry/i)).toBeInTheDocument();
+  expect(screen.getByText(/Historical Season Ledger/i)).toBeInTheDocument();
+  expect(screen.getByText(/Validation Checks Explained/i)).toBeInTheDocument();
+  expect(screen.getByText(/Dataset Changelog/i)).toBeInTheDocument();
 });

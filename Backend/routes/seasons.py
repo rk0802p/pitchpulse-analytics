@@ -1,7 +1,7 @@
 import os
 import tempfile
 import urllib.request
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from services.season_service import season_service
 from services.data_loader import data_loader
 from services.dataset_importer import DatasetImporter, DatasetValidationError
@@ -157,3 +157,19 @@ def get_season_details(season_id):
     if not manifest:
         return error_response(f"Season '{season_id}' not found.", status_code=404)
     return success_response(manifest)
+
+@seasons_bp.route('/seasons/<season_id>/download', methods=['GET'])
+def download_season(season_id):
+    """Provides direct download of the season CSV dataset file."""
+    resolved = season_service.resolve_season(season_id)
+    season_dir = os.path.join(season_service.seasons_dir, resolved)
+    csv_path = os.path.join(season_dir, 'players.csv')
+    if os.path.exists(csv_path):
+        return send_file(
+            csv_path,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f"pitchpulse_{resolved}_players.csv"
+        )
+    return error_response(f"Season dataset file for '{resolved}' not found.", status_code=404)
+
