@@ -74,10 +74,10 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('renders Terrace Ledger masthead, split-flap scoreboard, and almanac layout', async () => {
+test('renders PitchPulse editorial masthead, split-flap scoreboard, and almanac layout', async () => {
   render(<App />);
 
-  expect(screen.getAllByText(/Terrace Ledger/i).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/PitchPulse/i).length).toBeGreaterThan(0);
   expect(screen.getAllByText(/PitchPulse Analytics/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/Statistical ledger of Europe's top 5 leagues/i)).toBeInTheDocument();
 

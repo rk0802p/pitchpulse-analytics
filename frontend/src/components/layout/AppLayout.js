@@ -133,7 +133,7 @@ export const AppLayout = ({
                 onClick={() => onNavigate && onNavigate("dashboard")}
                 className="font-disp font-extrabold text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none cursor-pointer hover:opacity-95 transition-opacity"
               >
-                PitchPulse <span className="text-xl sm:text-2xl md:text-3xl font-serif font-normal italic text-[var(--mute)] tracking-normal">Terrace Ledger</span>
+                PitchPulse
               </h1>
               <span className="font-disp font-bold text-xs uppercase px-2 py-0.5 border border-[var(--ink)] text-[var(--mute)]">
                 PitchPulse Analytics • European Big 5
