@@ -7,13 +7,14 @@ import PlayerProfileView from './components/profile/PlayerProfileView';
 import PlayerExplorerView from './components/explorer/PlayerExplorerView';
 import SquadBrowserView from './components/squad/SquadBrowserView';
 import DataManagementView from './components/data/DataManagementView';
+import PlotAnyMetricView from './components/charts/PlotAnyMetricView';
 import api from './services/api';
 
 function App() {
   // Navigation & View State
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace(/^#\/?/, '').split('/')[0];
-    return ['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(hash)
+    return ['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(hash)
       ? hash
       : 'dashboard';
   });
@@ -61,7 +62,7 @@ function App() {
     const handleHashChange = () => {
       const parts = window.location.hash.replace(/^#\/?/, '').split('/');
       const tab = parts[0];
-      if (['dashboard', 'explorer', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(tab)) {
+      if (['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(tab)) {
         setCurrentTab(tab);
       }
       if (tab === 'profile' && parts[1]) {
@@ -299,6 +300,14 @@ function App() {
           }}
           squadsList={squadsList}
           activeSeason={activeSeason}
+        />
+      )}
+
+      {/* 2.5 Scatter Plot Tool */}
+      {currentTab === 'plots' && (
+        <PlotAnyMetricView
+          activeSeason={activeSeason}
+          onSelectPlayer={handleSelectPlayer}
         />
       )}
 

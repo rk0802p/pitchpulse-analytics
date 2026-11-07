@@ -131,6 +131,51 @@ export const api = {
     });
   },
 
+  // Chart and Analytics Feature Endpoints
+  getScatterChart: (params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value);
+      }
+    });
+    const queryString = queryParams.toString();
+    return request(`/charts/scatter${queryString ? `?${queryString}` : ''}`);
+  },
+
+  getPlayerPercentiles: (playerId, params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value);
+      }
+    });
+    const queryString = queryParams.toString();
+    return request(`/players/${encodeURIComponent(playerId)}/percentiles${queryString ? `?${queryString}` : ''}`);
+  },
+
+  getSimilarPlayers: (playerId, params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value);
+      }
+    });
+    const queryString = queryParams.toString();
+    return request(`/players/${encodeURIComponent(playerId)}/similar${queryString ? `?${queryString}` : ''}`);
+  },
+
+  getPerformanceIndex: (params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value);
+      }
+    });
+    const queryString = queryParams.toString();
+    return request(`/leaderboards/index${queryString ? `?${queryString}` : ''}`);
+  },
+
   getLeaderboards: (params = {}) => {
     const queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

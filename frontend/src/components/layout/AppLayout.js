@@ -80,6 +80,7 @@ export const AppLayout = ({
   const navItems = [
     { id: "dashboard", label: "Overview" },
     { id: "explorer", label: "Player Explorer" },
+    { id: "plots", label: "Scatter Plots" },
     { id: "leaderboards", label: "Leaderboards" },
     { id: "compare", label: "Comparison" },
     { id: "browse", label: "Squad Browser" },

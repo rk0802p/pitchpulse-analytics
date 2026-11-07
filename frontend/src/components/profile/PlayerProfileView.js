@@ -4,23 +4,20 @@ import {
   GitCompare, 
   Share2, 
   Check, 
-  Target, 
-  Zap, 
-  Shield, 
-  Activity,
-  Award,
-  Info
+  Activity
 } from 'lucide-react';
 import api from '../../services/api';
-import MetricTooltip from '../common/MetricTooltip';
 import { 
   formatMinutes, 
   formatDecimal, 
   formatGoalsMinusXG, 
   formatDiscipline,
-  formatNumber,
   generateProfileSummary 
 } from '../../utils/metricFormatters';
+import PercentileTable from './PercentileTable';
+import RadarChart from '../charts/RadarChart';
+import SimilarPlayers from './SimilarPlayers';
+import ScatterPlot from '../charts/ScatterPlot';
 
 export const PlayerProfileView = ({
   player,
@@ -29,17 +26,22 @@ export const PlayerProfileView = ({
   activeSeason = "2024-2025"
 }) => {
   const [profileData, setProfileData] = useState(null);
+  const [percentilesList, setPercentilesList] = useState([]);
+  const [peerPoolInfo, setPeerPoolInfo] = useState({ size: 749, position: 'FW' });
+  const [scatterFinishingData, setScatterFinishingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [careerHistory, setCareerHistory] = useState([]);
   const [copiedLink, setCopiedLink] = useState(false);
 
   const playerName = player?.Player || player?.name || "Player Profile";
-  const playerId = player?.id || player?.record_id;
+  const playerId = player?.id || player?.record_id || player?.Player;
 
-  // Load detailed profile including percentiles from backend API
+  // Load detailed profile, percentiles, and finishing scatter plot
   useEffect(() => {
     if (!playerId) return;
     setLoading(true);
+
+    // 1. Core player profile
     api.getPlayer(playerId, activeSeason)
       .then(res => {
         if (res?.success && res.data) {
@@ -53,7 +55,37 @@ export const PlayerProfileView = ({
       })
       .finally(() => setLoading(false));
 
-    // Fetch multi-season career data for player across recent available seasons
+    // 2. Positional percentiles from dedicated endpoint
+    api.getPlayerPercentiles(playerId, { season: activeSeason })
+      .then(res => {
+        if (res?.percentiles) {
+          setPercentilesList(res.percentiles);
+          if (res.pool) {
+            setPeerPoolInfo({
+              size: res.pool.sample_size || 749,
+              position: res.pool.position || player?.Pos || 'FW'
+            });
+          }
+        }
+      })
+      .catch(err => {
+        console.warn("Could not fetch dedicated percentiles endpoint, fallback to profile stats:", err);
+      });
+
+    // 3. Finishing scatter plot with parity line for this player's position
+    api.getScatterChart({
+      season: activeSeason,
+      x: 'Gls_90',
+      y: 'xG_90',
+      position: player?.Pos?.split(',')[0] || undefined,
+      min_minutes: 500
+    }).then(res => {
+      if (res?.points) {
+        setScatterFinishingData(res);
+      }
+    }).catch(() => {});
+
+    // 4. Fetch multi-season career data for player across recent available seasons
     const seasonsToQuery = ['2024-2025', '2023-2024', '2022-2023', '2021-2022'];
     Promise.all(
       seasonsToQuery.map(s => 
@@ -72,7 +104,7 @@ export const PlayerProfileView = ({
       setCareerHistory(records.sort((a, b) => b.season.localeCompare(a.season)));
     });
 
-  }, [playerId, playerName, activeSeason]);
+  }, [playerId, playerName, activeSeason, player?.Pos]);
 
   if (!player && !profileData) {
     return (
@@ -98,7 +130,6 @@ export const PlayerProfileView = ({
 
   const safePlayer = player || profileData?.identity || {};
 
-  // Use rich profile response or fallback to passed player properties
   const identity = profileData?.identity || {
     name: safePlayer.Player || safePlayer.name || "Player Dossier",
     squad: safePlayer.Squad || safePlayer.Team || "European Club",
@@ -122,15 +153,11 @@ export const PlayerProfileView = ({
   };
 
   const per90 = profileData?.per_90_rates || {
-    goals_per_90: player.Gls_90 || (totals.minutes > 0 ? (totals.goals / totals.minutes) * 90 : 0),
-    xg_per_90: player.xG_90 || (totals.minutes > 0 ? (totals.expected_goals / totals.minutes) * 90 : 0),
-    assists_per_90: player.Ast_90 || (totals.minutes > 0 ? (totals.assists / totals.minutes) * 90 : 0),
-    xag_per_90: player.xAG_90 || (totals.minutes > 0 ? (totals.expected_assists / totals.minutes) * 90 : 0),
+    goals_per_90: player?.Gls_90 || (totals.minutes > 0 ? (totals.goals / totals.minutes) * 90 : 0),
+    xg_per_90: player?.xG_90 || (totals.minutes > 0 ? (totals.expected_goals / totals.minutes) * 90 : 0),
+    assists_per_90: player?.Ast_90 || (totals.minutes > 0 ? (totals.assists / totals.minutes) * 90 : 0),
+    xag_per_90: player?.xAG_90 || (totals.minutes > 0 ? (totals.expected_assists / totals.minutes) * 90 : 0),
   };
-
-  const percentiles = profileData?.percentiles;
-  const peerCount = percentiles?.peer_sample_size || 749;
-  const compPos = percentiles?.comparison_position || identity.position || "FW";
 
   const deltaObj = formatGoalsMinusXG(totals.goals - totals.expected_goals);
   const progTotal = (totals.progressive_carries || 0) + (totals.progressive_passes || 0);
@@ -143,6 +170,33 @@ export const PlayerProfileView = ({
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
+
+  // Fallback percentiles data if dedicated endpoint not yet populated
+  const defaultPercentilesData = [
+    { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? 85 },
+    { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: per90.xg_per_90, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? 82 },
+    { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? 74 },
+    { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? 78 },
+    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: (totals.progressive_carries / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_carries?.percentile ?? 88 },
+    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: (totals.progressive_passes / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_passes?.percentile ?? 70 }
+  ];
+
+  const resolvedPercentiles = percentilesList.length > 0 ? percentilesList : defaultPercentilesData;
+
+  // Build values dictionary for radar chart
+  const radarValues = {};
+  resolvedPercentiles.forEach(p => {
+    radarValues[p.metric] = p.percentile;
+  });
+
+  const radarDimensions = [
+    { key: 'Gls_90', label: 'Goals/90' },
+    { key: 'xG_90', label: 'xG/90' },
+    { key: 'Ast_90', label: 'Assists/90' },
+    { key: 'xAG_90', label: 'xAG/90' },
+    { key: 'PrgC_90', label: 'Carries/90' },
+    { key: 'PrgP_90', label: 'Passes/90' }
+  ];
 
   return (
     <div className="space-y-8 font-ser not-italic">
@@ -183,7 +237,7 @@ export const PlayerProfileView = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="text-xs uppercase font-disp font-bold tracking-widest text-[var(--mute)] mb-1">
-              Player Folio • {compPos} • {identity.competition}
+              Player Folio • {identity.position} • {identity.competition}
             </div>
             <h1 className="font-disp font-extrabold text-5xl sm:text-6xl text-[var(--ink)] leading-none">
               {identity.name}
@@ -229,7 +283,7 @@ export const PlayerProfileView = ({
             {totals.goals}
           </div>
           <div className={`text-xs font-semibold mt-2 flex items-center gap-1 ${
-            deltaObj.isOver ? 'text-[var(--blue)]' : deltaObj.isUnder ? 'text-[var(--red)]' : 'text-[var(--mute)]'
+            deltaObj.isOver ? 'text-[var(--blue)]' : deltaObj.isUnder ? 'text-[var(--red, #b91c1c)]' : 'text-[var(--mute)]'
           }`}>
             <span>{deltaObj.glyph} {deltaObj.text} vs xG ({formatDecimal(totals.expected_goals, 1)} xG)</span>
           </div>
@@ -261,7 +315,7 @@ export const PlayerProfileView = ({
           </div>
         </div>
 
-        {/* Card 4: Discipline (Readable!) */}
+        {/* Card 4: Discipline */}
         <div className="border border-[var(--rule)] bg-[var(--paper)] p-4 rounded-xs">
           <span className="font-disp font-bold text-xs uppercase tracking-wider text-[var(--mute)] block mb-1">
             Disciplinary Record
@@ -275,154 +329,75 @@ export const PlayerProfileView = ({
         </div>
       </div>
 
-      {/* 4. Positional Peer Percentile Benchmark (Grouped into Scoring, Creating, Progressing) */}
+      {/* 4. Section 5 & 6: Percentile Table & Radar Chart Side-by-Side */}
       <section className="space-y-4 pt-2">
-        <div className="border-b border-[var(--ink)] pb-2 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-          <h3 className="font-disp font-bold text-2xl text-[var(--ink)]">
-            Positional Peer Percentile Benchmark
-          </h3>
-          <span className="text-xs italic text-[var(--mute)]">
-            Compared with {peerCount} {compPos}s in the Big 5 with at least 270 minutes.
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Scoring Group */}
-          <div className="border border-[var(--rule)] p-4 bg-[var(--panel)] rounded-xs space-y-3">
-            <h4 className="font-disp font-bold text-base uppercase tracking-wider text-[var(--ink)] border-b border-[var(--rule)] pb-1">
-              Scoring Output
-            </h4>
-
-            {/* Goals per 90 */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Goals / 90</span>
-                <span className="font-bold">{formatDecimal(per90.goals_per_90, 2)} ({percentiles?.goals_per_90?.percentile ?? 85}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.goals_per_90?.percentile ?? 85}%` }} />
-              </div>
-            </div>
-
-            {/* xG per 90 */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Shot Threat (xG / 90)</span>
-                <span className="font-bold">{formatDecimal(per90.xg_per_90, 2)} ({percentiles?.xg_per_90?.percentile ?? 82}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.xg_per_90?.percentile ?? 82}%` }} />
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: Percentile Table */}
+          <div className="lg:col-span-7">
+            <PercentileTable
+              percentilesData={resolvedPercentiles}
+              sampleSize={peerPoolInfo.size}
+              position={peerPoolInfo.position}
+              poolDescription={`Compared against ${peerPoolInfo.size} ${peerPoolInfo.position}s in the Big 5 with >= 270 mins.`}
+            />
           </div>
 
-          {/* Creating Group */}
-          <div className="border border-[var(--rule)] p-4 bg-[var(--panel)] rounded-xs space-y-3">
-            <h4 className="font-disp font-bold text-base uppercase tracking-wider text-[var(--ink)] border-b border-[var(--rule)] pb-1">
-              Chance Creation
-            </h4>
-
-            {/* Assists per 90 */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Assists / 90</span>
-                <span className="font-bold">{formatDecimal(per90.assists_per_90, 2)} ({percentiles?.assists_per_90?.percentile ?? 74}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.assists_per_90?.percentile ?? 74}%` }} />
-              </div>
-            </div>
-
-            {/* xAG per 90 */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Creation Quality (xAG / 90)</span>
-                <span className="font-bold">{formatDecimal(per90.xag_per_90, 2)} ({percentiles?.xag_per_90?.percentile ?? 78}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.xag_per_90?.percentile ?? 78}%` }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Progressing Group */}
-          <div className="border border-[var(--rule)] p-4 bg-[var(--panel)] rounded-xs space-y-3">
-            <h4 className="font-disp font-bold text-base uppercase tracking-wider text-[var(--ink)] border-b border-[var(--rule)] pb-1">
-              Ball Progression
-            </h4>
-
-            {/* Progressive Carries */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Prog. Carries (PrgC)</span>
-                <span className="font-bold">{totals.progressive_carries} ({percentiles?.progressive_carries?.percentile ?? 88}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.progressive_carries?.percentile ?? 88}%` }} />
-              </div>
-            </div>
-
-            {/* Progressive Passes */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span>Prog. Passes (PrgP)</span>
-                <span className="font-bold">{totals.progressive_passes} ({percentiles?.progressive_passes?.percentile ?? 70}th pct)</span>
-              </div>
-              <div className="w-full bg-[var(--paper)] h-2 border border-[var(--rule)]">
-                <div className="h-full bg-[var(--blue)]" style={{ width: `${percentiles?.progressive_passes?.percentile ?? 70}%` }} />
-              </div>
-            </div>
+          {/* Right: Radar Chart */}
+          <div className="lg:col-span-5">
+            <RadarChart
+              dimensions={radarDimensions}
+              series={[
+                {
+                  name: identity.name,
+                  values: radarValues
+                }
+              ]}
+              title="Scouting Radar"
+              subtitle={`Relative to Big 5 ${peerPoolInfo.position}s`}
+            />
           </div>
         </div>
       </section>
 
-      {/* 5. Standardized Output Rates per 90 */}
-      <section className="space-y-3 pt-2">
-        <div className="border-b border-[var(--ink)] pb-2 flex items-baseline justify-between">
-          <h3 className="font-disp font-bold text-2xl text-[var(--ink)]">
-            Standardised Rates per 90 Minutes
-          </h3>
-          <span className="text-xs italic text-[var(--mute)]">
-            Standardized production scaled to 90 minutes of action
-          </span>
-        </div>
+      {/* 5. Section 4.4: Finishing Scatter Plot with Highlighted Dot & Parity Line */}
+      {scatterFinishingData && scatterFinishingData.points && (
+        <section className="space-y-3 pt-2">
+          <ScatterPlot
+            points={scatterFinishingData.points}
+            medians={scatterFinishingData.medians}
+            xLabel="Goals per 90 (Gls_90)"
+            yLabel="Expected Goals per 90 (xG_90)"
+            highlightName={identity.name}
+            parity={true}
+            parityLabel="Scoring exactly as expected"
+            title="Finishing Efficiency & Parity"
+            subtitle={`Points below diagonal score more than chances suggest (overperforming xG). Red dot highlights ${identity.name}.`}
+            poolCaption={`Pool: ${scatterFinishingData.pool?.n || scatterFinishingData.points.length} peers (min 500 minutes)`}
+            quadrantLabels={{
+              topRight: 'Elite volume & threat',
+              topLeft: 'Underperforming chances',
+              bottomRight: 'Clinical overperformers',
+              bottomLeft: 'Lower output'
+            }}
+          />
+        </section>
+      )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="border border-[var(--rule)] p-3 bg-[var(--paper)] text-center">
-            <span className="text-xs text-[var(--mute)] block">Goals / 90</span>
-            <span className="font-disp font-bold text-3xl text-[var(--ink)] block mt-1">
-              {formatDecimal(per90.goals_per_90, 2)}
-            </span>
-            <span className="text-[10px] text-[var(--mute)] italic">League avg: ~0.31</span>
-          </div>
-
-          <div className="border border-[var(--rule)] p-3 bg-[var(--paper)] text-center">
-            <span className="text-xs text-[var(--mute)] block">Shot Threat (xG / 90)</span>
-            <span className="font-disp font-bold text-3xl text-[var(--ink)] block mt-1">
-              {formatDecimal(per90.xg_per_90, 2)}
-            </span>
-            <span className="text-[10px] text-[var(--mute)] italic">League avg: ~0.29</span>
-          </div>
-
-          <div className="border border-[var(--rule)] p-3 bg-[var(--paper)] text-center">
-            <span className="text-xs text-[var(--mute)] block">Assists / 90</span>
-            <span className="font-disp font-bold text-3xl text-[var(--ink)] block mt-1">
-              {formatDecimal(per90.assists_per_90, 2)}
-            </span>
-            <span className="text-[10px] text-[var(--mute)] italic">League avg: ~0.21</span>
-          </div>
-
-          <div className="border border-[var(--rule)] p-3 bg-[var(--paper)] text-center">
-            <span className="text-xs text-[var(--mute)] block">Creation Quality (xAG / 90)</span>
-            <span className="font-disp font-bold text-3xl text-[var(--ink)] block mt-1">
-              {formatDecimal(per90.xag_per_90, 2)}
-            </span>
-            <span className="text-[10px] text-[var(--mute)] italic">League avg: ~0.20</span>
-          </div>
-        </div>
+      {/* 6. Section 3.3: Similar Players ("Scout: Find Statistical Matches") */}
+      <section className="pt-2">
+        <SimilarPlayers
+          playerId={playerId}
+          playerName={identity.name}
+          position={identity.position}
+          activeSeason={activeSeason}
+          onSelectPlayer={(pId) => {
+            window.location.hash = `#profile/${encodeURIComponent(pId)}`;
+          }}
+          onCompare={onCompare}
+        />
       </section>
 
-      {/* 6. Multi-Season Career History (Using Real Records!) */}
+      {/* 7. Multi-Season Career History */}
       {careerHistory.length > 0 && (
         <section className="space-y-3 pt-2">
           <div className="border-b border-[var(--ink)] pb-2 flex items-baseline justify-between">

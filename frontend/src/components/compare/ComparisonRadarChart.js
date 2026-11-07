@@ -26,8 +26,8 @@ export const ComparisonRadarChart = ({
   const numAxes = radarData.length;
   const angleStep = (2 * Math.PI) / numAxes;
 
-  // Concentric web levels (20%, 40%, 60%, 80%, 100%)
-  const levels = [0.2, 0.4, 0.6, 0.8, 1.0];
+  // Concentric web levels (25%, 50%, 75%, 100%) - 50% is median
+  const levels = [0.25, 0.50, 0.75, 1.0];
 
   const getCoordinates = (angle, dist) => {
     // Offset by -PI/2 so first axis points directly up
@@ -71,7 +71,7 @@ export const ComparisonRadarChart = ({
                   points={points}
                   fill="none"
                   stroke="#334155"
-                  strokeWidth="1"
+                  strokeWidth={lvl === 0.5 ? "1.8" : "1"}
                   strokeDasharray={lvl === 1.0 ? 'none' : '3 3'}
                   opacity={lvl === 1.0 ? 0.7 : 0.4}
                 />
@@ -109,7 +109,7 @@ export const ComparisonRadarChart = ({
                   x2={x}
                   y2={y}
                   stroke="#334155"
-                  strokeWidth="1"
+                  strokeWidth={lvl === 0.5 ? "1.8" : "1"}
                   opacity="0.6"
                 />
                 <text
