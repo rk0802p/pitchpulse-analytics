@@ -36,6 +36,7 @@ function App() {
   // Global Players & Squads for Global Search Palette
   const [allPlayers, setAllPlayers] = useState([]);
   const [squadsList, setSquadsList] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
 
   // Player Explorer State
   const [explorerPlayers, setExplorerPlayers] = useState([]);
@@ -166,7 +167,15 @@ function App() {
         }
       }).catch(() => {});
 
-  }, [activeSeason]);
+    // Executive Dashboard Analytics
+    api.getDashboard(selectedComp || undefined, activeSeason)
+      .then(res => {
+        const d = res?.data || res;
+        if (d) setDashboardData(d);
+      })
+      .catch(err => console.error("Error loading dashboard data:", err));
+
+  }, [activeSeason, selectedComp]);
 
   // Fetch Explorer Players
   useEffect(() => {
@@ -272,6 +281,7 @@ function App() {
       {currentTab === 'dashboard' && (
         <TerraceHomeView
           metadata={metadata}
+          dashboardData={dashboardData}
           topScorer={topScorer}
           topAssister={topAssister}
           topProgression={topProgression}

@@ -107,6 +107,11 @@ export const AppLayout = ({
     ? 'Reference Baseline Season'
     : 'Historical Season';
 
+  // Dynamic record & club counts based on active season
+  const currentSeasonObj = availableSeasons.find(s => (s.id || s) === activeSeason);
+  const activeRecordsCount = currentSeasonObj?.records_count || (allPlayers?.length ? allPlayers.length : null);
+  const activeClubsCount = currentSeasonObj?.clubs_count || (allSquads?.length ? allSquads.length : null);
+
   // Filtered search results grouped as Players & Clubs
   const matchingPlayers = searchQuery.trim().length > 1
     ? allPlayers.filter(p => p.Player?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
@@ -253,34 +258,26 @@ export const AppLayout = ({
           </div>
         </header>
 
-        {/* Global Competition Strip (All Big 5 Leagues) */}
+        {/* European Big 5 Coverage Strip */}
         <div className="border-b border-[var(--ink)] py-2 flex items-center justify-between gap-3 overflow-x-auto text-xs font-ser">
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <span className="font-disp font-bold uppercase text-[11px] text-[var(--mute)] tracking-wider mr-1">
-              Competition Filter:
+              Top 5 European Leagues Covered:
             </span>
-            {leagues.map(lg => {
-              const isSelected = (selectedComp || "") === lg.id;
-              return (
-                <button
-                  key={lg.id}
-                  onClick={() => onSelectComp && onSelectComp(lg.id)}
-                  className={`px-2.5 py-1 rounded-xs border transition-colors whitespace-nowrap ${
-                    isSelected 
-                      ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)] font-bold'
-                      : 'border-[var(--rule)] text-[var(--ink)] hover:bg-[var(--panel)]'
-                  }`}
-                >
-                  {lg.label}
-                </button>
-              );
-            })}
+            {leagues.filter(l => l.id).map(lg => (
+              <span
+                key={lg.id}
+                className="px-2.5 py-0.5 rounded-xs border border-[var(--rule)] bg-[var(--panel)] text-[var(--ink)] text-[11px] font-semibold tracking-wide whitespace-nowrap"
+              >
+                {lg.label}
+              </span>
+            ))}
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 text-[11px] italic text-[var(--mute)] shrink-0">
-            <span>2,854 Players</span>
+          <div className="hidden lg:flex items-center gap-2 text-[11px] italic text-[var(--mute)] shrink-0 font-medium">
+            <span>{activeRecordsCount ? `${Number(activeRecordsCount).toLocaleString()} Players` : "2,854+ Players"}</span>
             <span>•</span>
-            <span>96 European Clubs</span>
+            <span>{activeClubsCount ? `${activeClubsCount} European Clubs` : "96+ European Clubs"}</span>
           </div>
         </div>
 
