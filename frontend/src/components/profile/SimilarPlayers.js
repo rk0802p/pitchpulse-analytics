@@ -101,7 +101,7 @@ export default function SimilarPlayers({
                 <tr key={peer.id || peer.Player} className="hover:bg-[var(--panel)] transition-colors">
                   <td className="py-2 px-2 dotted-rule font-bold text-[var(--ink)]">
                     <button
-                      onClick={() => onSelectPlayer && onSelectPlayer(peer.id || peer.Player)}
+                      onClick={() => onSelectPlayer && onSelectPlayer(peer)}
                       className="hover:text-[var(--blue)] cursor-pointer text-left"
                     >
                       {peer.Player}
@@ -131,7 +131,7 @@ export default function SimilarPlayers({
                         </button>
                       )}
                       <button
-                        onClick={() => onSelectPlayer && onSelectPlayer(peer.id || peer.Player)}
+                        onClick={() => onSelectPlayer && onSelectPlayer(peer)}
                         className="border border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)] px-2 py-0.5 text-[10px] font-disp font-bold uppercase tracking-wider hover:opacity-90 flex items-center gap-1"
                       >
                         <span>Folio</span>

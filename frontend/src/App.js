@@ -65,12 +65,34 @@ function App() {
       if (['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(tab)) {
         setCurrentTab(tab);
       }
-      if (tab === 'profile' && parts[1]) {
-        const nameOrId = decodeURIComponent(parts[1]);
-        api.getPlayers({ season: activeSeason, search: nameOrId, limit: 1 })
+      if (tab === 'profile') {
+        const rawParam = parts[1] ? decodeURIComponent(parts[1]).trim() : '';
+        if (!rawParam || rawParam === 'undefined' || rawParam === 'null') {
+          window.location.hash = '#explorer';
+          return;
+        }
+        api.getPlayers({ season: activeSeason, search: rawParam, limit: 1 })
           .then(res => {
             const p = res?.data?.[0] || res?.[0];
-            if (p) setSelectedPlayer(p);
+            if (p) {
+              setSelectedPlayer(p);
+            } else {
+              api.getPlayer(rawParam, activeSeason)
+                .then(pRes => {
+                  const iden = pRes?.data?.identity || pRes?.identity;
+                  if (iden) {
+                    setSelectedPlayer({
+                      id: iden.id,
+                      Player: iden.name,
+                      Squad: iden.squad,
+                      Comp: iden.competition,
+                      Pos: iden.position,
+                      Age: iden.age,
+                      Min: iden.minutes
+                    });
+                  }
+                }).catch(() => {});
+            }
           }).catch(() => {});
       }
     };
@@ -175,9 +197,30 @@ function App() {
   }, [currentTab, activeSeason, pagination.page, pagination.limit, searchQuery, selectedComp, selectedPos, selectedSquad, minMinutes, sortBy, sortOrder]);
 
   const handleSelectPlayer = (player) => {
-    setSelectedPlayer(player);
+    if (!player) return;
+    let resolvedPlayer = player;
+    let identifier = '';
+
+    if (typeof player === 'string' || typeof player === 'number') {
+      const strVal = String(player).trim();
+      if (!strVal || strVal === 'undefined' || strVal === 'null') return;
+      identifier = strVal;
+      const found = allPlayers.find(p => String(p.id || p.Rk) === strVal || p.Player?.toLowerCase() === strVal.toLowerCase());
+      resolvedPlayer = found || { id: player, Player: strVal };
+    } else {
+      const pId = player.id || player.record_id || player.Rk;
+      const pName = player.Player || player.name;
+      identifier = String(pName || pId || '').trim();
+      if (!identifier || identifier === 'undefined' || identifier === 'null') {
+        identifier = String(pId || '');
+      }
+    }
+
+    setSelectedPlayer(resolvedPlayer);
     setCurrentTab('profile');
-    window.location.hash = `#profile/${encodeURIComponent(player.id || player.Player)}`;
+    if (identifier && identifier !== 'undefined' && identifier !== 'null') {
+      window.location.hash = `#profile/${encodeURIComponent(identifier)}`;
+    }
   };
 
   const handleAddToCompare = (player) => {

@@ -164,7 +164,7 @@ export default function ScatterPlot({
               {points.slice(0, 100).map((p, idx) => (
                 <tr
                   key={p.id || idx}
-                  onClick={() => onSelectPlayer && onSelectPlayer(p.id)}
+                  onClick={() => onSelectPlayer && onSelectPlayer(p)}
                   className={`hover:bg-[var(--panel)] cursor-pointer transition-colors ${
                     p.id === highlightId ? 'bg-amber-100/50 font-bold' : ''
                   }`}
@@ -312,7 +312,7 @@ export default function ScatterPlot({
                     onMouseLeave={() => setHovered((cur) => (cur && (cur.id === p.id || cur.name === p.name) ? null : cur))}
                     onFocus={() => setHovered(p)}
                     onBlur={() => setHovered(null)}
-                    onClick={() => onSelectPlayer && onSelectPlayer(p.id)}
+                    onClick={() => onSelectPlayer && onSelectPlayer(p)}
                   />
                 );
               })}

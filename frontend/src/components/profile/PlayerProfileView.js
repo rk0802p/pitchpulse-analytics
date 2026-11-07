@@ -33,8 +33,10 @@ export const PlayerProfileView = ({
   const [careerHistory, setCareerHistory] = useState([]);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const playerName = player?.Player || player?.name || "Player Profile";
-  const playerId = player?.id || player?.record_id || player?.Player;
+  const playerObj = (player && typeof player === 'object') ? player : {};
+  const rawId = playerObj.id || playerObj.record_id || playerObj.Rk || (typeof player === 'number' || typeof player === 'string' ? player : null);
+  const playerId = (rawId && rawId !== 'undefined' && rawId !== 'null') ? rawId : (playerObj.Player || playerObj.name || null);
+  const playerName = playerObj.Player || playerObj.name || profileData?.identity?.name || (typeof player === 'string' && player !== 'undefined' ? player : "Player Profile");
 
   // Load detailed profile, percentiles, and finishing scatter plot
   useEffect(() => {
@@ -130,28 +132,28 @@ export const PlayerProfileView = ({
     );
   }
 
-  const safePlayer = player || profileData?.identity || {};
+  const safePlayer = (profileData?.identity ? { ...playerObj, ...profileData.identity } : playerObj);
 
   const identity = profileData?.identity || {
-    name: safePlayer.Player || safePlayer.name || "Player Dossier",
-    squad: safePlayer.Squad || safePlayer.Team || "European Club",
-    position: safePlayer.Pos || "FW",
-    age: safePlayer.Age || "—",
-    competition: safePlayer.Comp?.replace(/^[a-z]{2}\s+/, '') || "European League"
+    name: safePlayer.name || safePlayer.Player || (typeof player === 'string' && player !== 'undefined' ? player : "Player Dossier"),
+    squad: safePlayer.squad || safePlayer.Squad || safePlayer.Team || "European Club",
+    position: safePlayer.position || safePlayer.Pos || "FW",
+    age: safePlayer.age || safePlayer.Age || "—",
+    competition: (safePlayer.competition || safePlayer.Comp || "").replace(/^[a-z]{2}\s+/, '') || "European League"
   };
 
   const totals = profileData?.totals || {
-    goals: safePlayer.Gls || 0,
-    expected_goals: safePlayer.xG || 0,
-    assists: safePlayer.Ast || 0,
-    expected_assists: safePlayer.xAG || 0,
-    progressive_carries: safePlayer.PrgC || 0,
-    progressive_passes: safePlayer.PrgP || 0,
-    progressive_receptions: safePlayer.PrgR || 0,
-    yellow_cards: safePlayer.CrdY || 0,
-    red_cards: safePlayer.CrdR || 0,
-    minutes: safePlayer.Min || 0,
-    nineties: safePlayer['90s'] || 0
+    goals: safePlayer.goals ?? safePlayer.Gls ?? 0,
+    expected_goals: safePlayer.expected_goals ?? safePlayer.xG ?? 0,
+    assists: safePlayer.assists ?? safePlayer.Ast ?? 0,
+    expected_assists: safePlayer.expected_assists ?? safePlayer.xAG ?? 0,
+    progressive_carries: safePlayer.progressive_carries ?? safePlayer.PrgC ?? 0,
+    progressive_passes: safePlayer.progressive_passes ?? safePlayer.PrgP ?? 0,
+    progressive_receptions: safePlayer.progressive_receptions ?? safePlayer.PrgR ?? 0,
+    yellow_cards: safePlayer.yellow_cards ?? safePlayer.CrdY ?? 0,
+    red_cards: safePlayer.red_cards ?? safePlayer.CrdR ?? 0,
+    minutes: safePlayer.minutes ?? safePlayer.Min ?? 0,
+    nineties: safePlayer.nineties ?? safePlayer['90s'] ?? 0
   };
 
   const per90 = profileData?.per_90_rates || {
