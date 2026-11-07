@@ -47,9 +47,9 @@ export const LeaderboardsView = ({
     { id: "xG", per90Id: "xG_90", label: "Expected Goals (xG)", title: "Shot Threat Leaders" },
     { id: "xAG", per90Id: "xAG_90", label: "Expected Assists (xAG)", title: "Chance Creation Quality" },
     { id: "G+A", per90Id: "G+A_90", label: "Goals + Assists (G+A)", title: "Goal Contribution Leaders" },
-    { id: "PrgC", per90Id: "PrgC", label: "Prog. Carries (PrgC)", title: "Progressive Carry Leaders" },
-    { id: "PrgP", per90Id: "PrgP", label: "Prog. Passes (PrgP)", title: "Progressive Passing Leaders" },
-    { id: "PrgR", per90Id: "PrgR", label: "Prog. Receptions (PrgR)", title: "Target & Receiving Leaders" },
+    { id: "PrgC", per90Id: "PrgC_90", label: "Prog. Carries (PrgC)", title: "Progressive Carry Leaders" },
+    { id: "PrgP", per90Id: "PrgP_90", label: "Prog. Passes (PrgP)", title: "Progressive Passing Leaders" },
+    { id: "PrgR", per90Id: "PrgR_90", label: "Prog. Receptions (PrgR)", title: "Target & Receiving Leaders" },
   ];
 
   const activeMetricObj = metrics.find(m => m.id === metric) || metrics[0];
@@ -505,7 +505,7 @@ export const LeaderboardsView = ({
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">Playing Time</th>
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">xG</th>
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">Assists</th>
-                          <th className="text-right py-2 px-3 font-semibold text-[var(--ink)] text-sm">{activeMetricObj.label}</th>
+                          <th className="text-right py-2 px-3 font-semibold text-[var(--ink)] text-sm">{activeMetricObj.label}{isPer90 ? " / 90" : ""}</th>
                           <th className="text-center py-2 px-2 w-24 font-semibold text-[var(--ink)]">Action</th>
                         </tr>
                       </thead>

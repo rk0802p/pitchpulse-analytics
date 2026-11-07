@@ -106,7 +106,8 @@ class DataLoader:
 
     def _validate_schema(self, df):
         """Validates that all expected baseline columns exist and types are correct."""
-        required_columns = list(METRIC_DEFINITIONS.keys())
+        derived_by_engine = {'PrgC_90', 'PrgP_90', 'PrgR_90'}
+        required_columns = [col for col in METRIC_DEFINITIONS.keys() if col not in derived_by_engine]
         missing = [col for col in required_columns if col not in df.columns]
         if missing:
             raise ValueError(f"Dataset is missing required columns: {missing}")
@@ -162,11 +163,11 @@ class DataLoader:
                         if not is_metric_tracked_in_era(metric, season_id, comp):
                             df.loc[comp_mask, metric] = np.nan
 
-        float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']
+        float_cols = ['90s', 'xG', 'npxG', 'xAG', 'npxG+xAG', 'Gls_90', 'Ast_90', 'G+A_90', 'G-PK_90', 'G+A-PK_90', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90', 'PrgC_90', 'PrgP_90', 'PrgR_90']
         for col in float_cols:
             if col in df.columns:
                 # Do not fillna(0.0) on advanced metrics to preserve raw missingness/nulls
-                if col in ['xG', 'npxG', 'xAG', 'npxG+xAG', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90']:
+                if col in ['xG', 'npxG', 'xAG', 'npxG+xAG', 'xG_90', 'xAG_90', 'xG+xAG_90', 'npxG_90', 'npxG+xAG_90', 'PrgC_90', 'PrgP_90', 'PrgR_90']:
                     df[col] = pd.to_numeric(df[col], errors='coerce').round(2)
                 else:
                     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float).round(2)
@@ -182,15 +183,26 @@ class DataLoader:
             ('xG', 'xG_90'),
             ('xAG', 'xAG_90'),
             ('npxG', 'npxG_90'),
-            ('npxG+xAG', 'npxG+xAG_90')
+            ('npxG+xAG', 'npxG+xAG_90'),
+            ('PrgC', 'PrgC_90'),
+            ('PrgP', 'PrgP_90'),
+            ('PrgR', 'PrgR_90')
         ]
         for total_col, rate_col in rate_derivations:
-            if total_col in df.columns and rate_col in df.columns:
+            if total_col in df.columns:
+                if rate_col not in df.columns:
+                    df[rate_col] = np.nan
                 # If total is NA/missing, rate must also be NA (cannot fabricate 0.0)
                 df.loc[df[total_col].isna(), rate_col] = np.nan
                 # If total > 0 and Min > 0, derive rate if rate is 0.0 or NA
                 recalc_mask = has_minutes & (df[total_col] > 0) & ((df[rate_col] == 0.0) | df[rate_col].isna())
                 df.loc[recalc_mask, rate_col] = ((df.loc[recalc_mask, total_col] / df.loc[recalc_mask, 'Min']) * 90.0).round(2)
+                # If total == 0 and not NA, and Min > 0, rate is 0.0 if NA
+                zero_mask = has_minutes & (df[total_col] == 0) & df[rate_col].isna()
+                df.loc[zero_mask, rate_col] = 0.0
+                # If Min == 0 and total is not NA, rate is 0.0
+                min_zero_mask = (~has_minutes) & df[total_col].notna() & df[rate_col].isna()
+                df.loc[min_zero_mask, rate_col] = 0.0
 
         # Also recalculate 90s if zero while Min > 0
         if '90s' in df.columns:

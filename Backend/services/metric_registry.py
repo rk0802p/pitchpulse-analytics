@@ -294,6 +294,54 @@ METRIC_SOURCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "derivation_formula": None,
         "validation_rules": "Integer >= 0; untracked across 2012-2023 and 2025-2026",
         "current_coverage": "Fully authentic in 2023-2024 & 2024-2025; untracked in 2012-2023 and 2025/26"
+    },
+    "progressive_carries_90": {
+        "display_name": "Progressive Carries per 90 (PrgC_90)",
+        "category": "Progression Rates",
+        "source_fields": ["PrgC_90", "progressive_carries_per_90", "prgc_90"],
+        "preferred_source": "Derived mathematically from FBref PrgC & Min",
+        "alternative_source": None,
+        "supported_seasons": "2023-2025 (Completed); partially present in 2025/26 (FR/IT only)",
+        "supported_competitions": ["eng Premier League", "es La Liga", "it Serie A", "de Bundesliga", "fr Ligue 1"],
+        "acquisition_method": "Computed dynamically: (PrgC / Min) * 90.0",
+        "license_terms": "Derived metric",
+        "source_url": "https://fbref.com/",
+        "is_derived": True,
+        "derivation_formula": "round((PrgC / Min) * 90.0, 2)",
+        "validation_rules": "Float >= 0.0; untracked across 2012-2023 historical era",
+        "current_coverage": "Fully authentic in 2023-2024 & 2024-2025"
+    },
+    "progressive_passes_90": {
+        "display_name": "Progressive Passes per 90 (PrgP_90)",
+        "category": "Progression Rates",
+        "source_fields": ["PrgP_90", "progressive_passes_per_90", "prgp_90"],
+        "preferred_source": "Derived mathematically from FBref PrgP & Min",
+        "alternative_source": None,
+        "supported_seasons": "2023-2025 (Completed); partially present in 2025/26 (FR/IT only)",
+        "supported_competitions": ["eng Premier League", "es La Liga", "it Serie A", "de Bundesliga", "fr Ligue 1"],
+        "acquisition_method": "Computed dynamically: (PrgP / Min) * 90.0",
+        "license_terms": "Derived metric",
+        "source_url": "https://fbref.com/",
+        "is_derived": True,
+        "derivation_formula": "round((PrgP / Min) * 90.0, 2)",
+        "validation_rules": "Float >= 0.0; untracked across 2012-2023 historical era",
+        "current_coverage": "Fully authentic in 2023-2024 & 2024-2025"
+    },
+    "progressive_receptions_90": {
+        "display_name": "Progressive Receptions per 90 (PrgR_90)",
+        "category": "Progression Rates",
+        "source_fields": ["PrgR_90", "progressive_receptions_per_90", "prgr_90"],
+        "preferred_source": "Derived mathematically from FBref PrgR & Min",
+        "alternative_source": None,
+        "supported_seasons": "2023-2025 (Completed)",
+        "supported_competitions": ["eng Premier League", "es La Liga", "it Serie A", "de Bundesliga", "fr Ligue 1"],
+        "acquisition_method": "Computed dynamically: (PrgR / Min) * 90.0",
+        "license_terms": "Derived metric",
+        "source_url": "https://fbref.com/",
+        "is_derived": True,
+        "derivation_formula": "round((PrgR / Min) * 90.0, 2)",
+        "validation_rules": "Float >= 0.0; untracked across 2012-2023 and 2025-2026",
+        "current_coverage": "Fully authentic in 2023-2024 & 2024-2025"
     }
 }
 
@@ -386,15 +434,19 @@ def is_metric_tracked_in_era(metric_col: str, season_id: str, competition: str =
     if not season_id:
         return True
     
+    base_metric = metric_col.replace('_90', '') if metric_col.endswith('_90') else metric_col
+
     # Check pre-xG historical era (2012-2014)
     if season_id in ERA_METRIC_COVERAGE["pre_xg_historical_era"]["seasons"]:
-        if metric_col in ERA_METRIC_COVERAGE["pre_xg_historical_era"]["untracked_metrics"]:
+        untracked = ERA_METRIC_COVERAGE["pre_xg_historical_era"]["untracked_metrics"]
+        if metric_col in untracked or base_metric in untracked:
             return False
         return True
 
     # Check early xG historical era (2014-2023)
     if season_id in ERA_METRIC_COVERAGE["early_xg_historical_era"]["seasons"]:
-        if metric_col in ERA_METRIC_COVERAGE["early_xg_historical_era"]["untracked_metrics"]:
+        untracked = ERA_METRIC_COVERAGE["early_xg_historical_era"]["untracked_metrics"]
+        if metric_col in untracked or base_metric in untracked:
             return False
         return True
         
@@ -404,12 +456,14 @@ def is_metric_tracked_in_era(metric_col: str, season_id: str, competition: str =
         
     # Check modern 2025-2026 era
     if season_id in ERA_METRIC_COVERAGE["modern_regular_era_2025"]["seasons"]:
-        if metric_col in ERA_METRIC_COVERAGE["modern_regular_era_2025"]["untracked_metrics"]:
+        untracked = ERA_METRIC_COVERAGE["modern_regular_era_2025"]["untracked_metrics"]
+        if metric_col in untracked or base_metric in untracked:
             return False
         if competition:
             comp_overrides = ERA_METRIC_COVERAGE["modern_regular_era_2025"]["competition_overrides"]
             if competition in comp_overrides:
-                if metric_col in comp_overrides[competition].get("untracked", []):
+                comp_untracked = comp_overrides[competition].get("untracked", [])
+                if metric_col in comp_untracked or base_metric in comp_untracked:
                     return False
         return True
         

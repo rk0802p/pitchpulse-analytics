@@ -34,6 +34,21 @@ export const GLOSSARY = {
     short: "PrgR",
     definition: "Completed passes received in forward territory that advance play significantly toward the opponent goal."
   },
+  PrgC_90: {
+    term: "Progressive Carries per 90 (PrgC_90)",
+    short: "PrgC/90",
+    definition: "Progressive carries scaled to 90 minutes of pitch time: (PrgC / Min) * 90.0."
+  },
+  PrgP_90: {
+    term: "Progressive Passes per 90 (PrgP_90)",
+    short: "PrgP/90",
+    definition: "Progressive passes completed scaled to 90 minutes of pitch time: (PrgP / Min) * 90.0."
+  },
+  PrgR_90: {
+    term: "Progressive Receptions per 90 (PrgR_90)",
+    short: "PrgR/90",
+    definition: "Progressive passes received scaled to 90 minutes of pitch time: (PrgR / Min) * 90.0."
+  },
   "90s": {
     term: "Total 90s Played",
     short: "90s",

@@ -24,6 +24,7 @@ const METRIC_CATALOG = [
   { id: 'PrgR', name: 'Progressive Receptions (PrgR)', group: 'Progressing', desc: 'Receptions of progressive passes' },
   { id: 'PrgC_90', name: 'Progressive Carries / 90', group: 'Progressing', desc: 'Carries scaled to 90 minutes' },
   { id: 'PrgP_90', name: 'Progressive Passes / 90', group: 'Progressing', desc: 'Passes scaled to 90 minutes' },
+  { id: 'PrgR_90', name: 'Progressive Receptions / 90', group: 'Progressing', desc: 'Receptions scaled to 90 minutes' },
 
   // Playing Time & Volume
   { id: 'Min', name: 'Minutes Played (Min)', group: 'Volume', desc: 'Total match minutes' },

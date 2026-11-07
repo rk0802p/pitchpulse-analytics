@@ -85,7 +85,7 @@ def merge_player_spells(df):
         mins = row.get('Min', 0)
         if mins > 0:
             row['90s'] = round(mins / 90.0, 1)
-            for m in ['Gls', 'Ast', 'G+A', 'G-PK', 'xG', 'xAG', 'npxG', 'npxG+xAG']:
+            for m in ['Gls', 'Ast', 'G+A', 'G-PK', 'xG', 'xAG', 'npxG', 'npxG+xAG', 'PrgC', 'PrgP', 'PrgR']:
                 m_90 = f"{m}_90"
                 if m in row and not pd.isna(row[m]):
                     row[m_90] = round((row[m] / mins) * 90.0, 2)
