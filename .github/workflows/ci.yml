@@ -32,16 +32,14 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run Backend Pytest Suite
-        env:
-          ADMIN_TOKEN: ci-admin-secret-token
-          FLASK_ENV: testing
-          TESTING: "True"
         run: |
-          python -m pytest Backend/tests/ -v
+          cd Backend
+          python -m pytest tests/ -v
 
       - name: Verify Baseline Cryptographic Invariants
         run: |
-          python Backend/test_api_baseline.py
+          cd Backend
+          python test_api_baseline.py
 
   frontend-test-and-build:
     name: Frontend Test & Production Build

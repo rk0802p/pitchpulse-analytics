@@ -40,10 +40,18 @@ from services.dataset_importer import DatasetImporter, DatasetValidationError
 from services.baseline_verifier import verify_baseline_integrity, BaselineIntegrityError
 
 
-def validate_safe_url(url):
+ALLOWED_IMPORT_HOSTS = {
+    'data.pitchpulse.io',
+    'raw.githubusercontent.com',
+    'fbref.com',
+    'statsbomb.com'
+}
+
+def validate_safe_url(url, allowed_hosts=None):
     """
     Validates URL safety for CLI ingestion (SSRF mitigation).
     Requires http/https, disallows localhost/loopback, private, link-local, or multicast IPs.
+    Enforces host allow-list.
     """
     try:
         parsed = urllib.parse.urlparse(url)
@@ -54,6 +62,11 @@ def validate_safe_url(url):
             return False, "Missing hostname in URL."
         if host.lower() in ('localhost', '127.0.0.1', '::1', '0.0.0.0'):
             return False, "Localhost destinations are strictly prohibited."
+
+        valid_hosts = allowed_hosts if allowed_hosts is not None else ALLOWED_IMPORT_HOSTS
+        if valid_hosts and host.lower() not in valid_hosts:
+            return False, f"Host '{host}' is not in the allowed hosts list."
+
         # Resolve target IP
         addr_info = socket.getaddrinfo(host, None)
         for family, _, _, _, sockaddr in addr_info:
