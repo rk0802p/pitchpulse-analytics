@@ -198,16 +198,13 @@ function App() {
     window.location.hash = '#browse';
   };
 
-  const handleSwitchSeason = async (seasonId) => {
+  const handleSwitchSeason = (seasonId) => {
+    if (!seasonId || seasonId === activeSeason) return;
     setIsSwitchingSeason(true);
-    try {
-      await api.setActiveSeason(seasonId);
-      setActiveSeason(seasonId);
-    } catch (err) {
-      console.error("Failed to switch season:", err);
-    } finally {
+    setActiveSeason(seasonId);
+    setTimeout(() => {
       setIsSwitchingSeason(false);
-    }
+    }, 150);
   };
 
   return (

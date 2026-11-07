@@ -103,12 +103,9 @@ export const AppLayout = ({
 
   // Determine non-contradictory season state label
   const isBaseline = activeSeason === '2024-2025';
-  const isProjection = activeSeason === '2025-2026';
   const seasonBadgeText = isBaseline 
     ? 'Reference Baseline Season'
-    : isProjection
-    ? 'Algorithmic Projection'
-    : 'Archive Season';
+    : 'Historical Season';
 
   // Filtered search results grouped as Players & Clubs
   const matchingPlayers = searchQuery.trim().length > 1

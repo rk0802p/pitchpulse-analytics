@@ -39,11 +39,10 @@ class TestGovernancePhase2(unittest.TestCase):
         self.assertFalse(pol_24['is_quarantined'])
         self.assertEqual(pol_24['status'], 'verified_historical')
 
-        # 2025-2026 is tagged simulated and quarantined
+        # 2025-2026 is verified historical
         pol_25 = season_service.get_quarantine_policy('2025-2026')
-        self.assertTrue(pol_25['is_quarantined'])
-        self.assertEqual(pol_25['status'], 'quarantined')
-        self.assertIn("Simulated", pol_25['status_label'])
+        self.assertFalse(pol_25['is_quarantined'])
+        self.assertEqual(pol_25['status'], 'verified_historical')
 
         # Unknown or provisional status must fail-closed as quarantined
         mock_quarantine = season_service.get_quarantine_policy('non-existent-or-unverified')

@@ -352,15 +352,16 @@ ERA_METRIC_COVERAGE: Dict[str, Any] = {
         ],
         "untracked_metrics": []
     },
-    # 2025-2026: Quarantined Composite Projection Era
-    "quarantined_projection_era": {
+    # 2025-2026: Modern Regular Season Era (FBref + FotMob)
+    "modern_regular_era_2025": {
         "seasons": ["2025-2026"],
         "tracked_metrics": [
             "Min", "MP", "Starts", "90s", "Gls", "Ast", "G+A", 
             "G-PK", "PK", "PKatt", "CrdY", "CrdR", "Gls_90", "Ast_90", "G+A_90",
-            "xG", "xG_90"
+            "xG", "xAG", "npxG", "npxG+xAG", "xG_90", "xAG_90", "npxG_90", 
+            "PrgC", "PrgP", "PrgR", "Gls_minus_xG", "Ast_minus_xAG"
         ],
-        # Progression untracked in Premier League, Bundesliga, and La Liga in 2025/26
+        # Progression untracked in Premier League, Bundesliga, and La Liga in 2025/26 source feed
         "competition_overrides": {
             "eng Premier League": {
                 "untracked": ["PrgC", "PrgP", "PrgR"]
@@ -401,12 +402,12 @@ def is_metric_tracked_in_era(metric_col: str, season_id: str, competition: str =
     if season_id in ERA_METRIC_COVERAGE["modern_verified_era"]["seasons"]:
         return True
         
-    # Check quarantined era (2025-2026)
-    if season_id in ERA_METRIC_COVERAGE["quarantined_projection_era"]["seasons"]:
-        if metric_col in ERA_METRIC_COVERAGE["quarantined_projection_era"]["untracked_metrics"]:
+    # Check modern 2025-2026 era
+    if season_id in ERA_METRIC_COVERAGE["modern_regular_era_2025"]["seasons"]:
+        if metric_col in ERA_METRIC_COVERAGE["modern_regular_era_2025"]["untracked_metrics"]:
             return False
         if competition:
-            comp_overrides = ERA_METRIC_COVERAGE["quarantined_projection_era"]["competition_overrides"]
+            comp_overrides = ERA_METRIC_COVERAGE["modern_regular_era_2025"]["competition_overrides"]
             if competition in comp_overrides:
                 if metric_col in comp_overrides[competition].get("untracked", []):
                     return False

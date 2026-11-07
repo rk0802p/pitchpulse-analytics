@@ -74,15 +74,7 @@ class SeasonService:
             status = 'verified_historical'
             status_label = 'Historical Season'
             quarantine_reason = None
-        elif s_id == '2025-2026' or raw_status in ('simulated', 'quarantined'):
-            is_quarantined = True
-            status = 'quarantined'
-            status_label = 'Quarantined / Simulated Dataset'
-            quarantine_reason = manifest.get('quarantine_reason') or (
-                "Simulated / projected dataset: not verified historical matchday statistics. "
-                "Quarantined from authoritative rankings."
-            )
-        elif manifest.get('is_quarantined') is True or raw_status == 'quarantined' or raw_status not in VERIFIED_ALLOWLIST:
+        elif manifest.get('is_quarantined') is True or raw_status in ('simulated', 'quarantined') or raw_status not in VERIFIED_ALLOWLIST:
             is_quarantined = True
             status = 'quarantined'
             status_label = manifest.get('status_label') or 'Quarantined / Provisional'

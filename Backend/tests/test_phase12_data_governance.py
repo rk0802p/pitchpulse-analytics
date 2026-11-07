@@ -32,8 +32,8 @@ class TestPhase12DataGovernance(unittest.TestCase):
         self.assertFalse(season_service.is_season_quarantined(active), "Default season must not be quarantined")
 
     def test_2025_2026_quarantine_policy(self):
-        """2025-2026 dataset must be quarantined from authoritative rankings."""
-        self.assertTrue(season_service.is_season_quarantined('2025-2026'))
+        """2025-2026 dataset is verified historical regular season."""
+        self.assertFalse(season_service.is_season_quarantined('2025-2026'))
         
         # Check API seasons list endpoint
         res = self.client.get('/api/seasons')
@@ -43,11 +43,8 @@ class TestPhase12DataGovernance(unittest.TestCase):
         
         season_2025 = next((s for s in data['data'] if s['id'] == '2025-2026'), None)
         self.assertIsNotNone(season_2025)
-        self.assertTrue(season_2025.get('is_quarantined'), "2025-2026 must have is_quarantined: True")
-        self.assertEqual(season_2025.get('dataset_status'), 'quarantined')
-        self.assertIn('Quarantined', season_2025.get('status_label', ''))
-        self.assertIsNotNone(season_2025.get('quarantine_reason'))
-        self.assertIn('197 clubs', season_2025.get('quarantine_reason', ''))
+        self.assertFalse(season_2025.get('is_quarantined'), "2025-2026 must have is_quarantined: False")
+        self.assertEqual(season_2025.get('dataset_status'), 'verified_historical')
 
     def test_historical_seasons_club_count_invariants(self):
         """Every completed historical season must have exactly 98 clubs (pre-2023) or 96 clubs (2023-2025)."""
@@ -91,11 +88,9 @@ class TestPhase12DataGovernance(unittest.TestCase):
         self.assertFalse(is_metric_tracked_in_era('PrgR', '2025-2026'))
 
     def test_quarantine_notice_in_dashboard_analytics(self):
-        """Dashboard analytics endpoint must include quarantine notice for quarantined seasons."""
+        """Dashboard analytics endpoint handles verified seasons."""
         dash_2025 = get_dashboard_analytics(season='2025-2026')
-        self.assertTrue(dash_2025['is_quarantined'])
-        self.assertIsNotNone(dash_2025['quarantine_notice'])
-        self.assertEqual(dash_2025['quarantine_notice']['status'], 'quarantined')
+        self.assertFalse(dash_2025.get('is_quarantined', False))
 
         dash_2024 = get_dashboard_analytics(season='2024-2025')
         self.assertFalse(dash_2024['is_quarantined'])
@@ -120,42 +115,41 @@ class TestPhase12DataGovernance(unittest.TestCase):
         self.assertEqual(prof['percentiles']['progressive_carries']['sample_size'], 0)
 
     def test_quarantine_metadata_across_all_endpoints(self):
-        """Phase 12.1: Verifies that player profile, leaderboards, comparisons, and player list endpoints all expose quarantine metadata."""
+        """Phase 12.1: Verifies that player profile, leaderboards, comparisons, and player list endpoints expose clean verified historical metadata."""
         # 1. Player Profile endpoint
         res = self.client.get('/api/players/1?season=2025-2026')
         self.assertEqual(res.status_code, 200)
         p = res.get_json()['data']
-        self.assertTrue(p['is_quarantined'])
-        self.assertEqual(p['dataset_status'], 'quarantined')
-        self.assertIsNotNone(p['quarantine_reason'])
+        self.assertFalse(p.get('is_quarantined', False))
+        self.assertEqual(p['dataset_status'], 'verified_historical')
 
         # Profile in authentic 2024-2025 baseline must be clean
         res_auth = self.client.get('/api/players/1?season=2024-2025')
         self.assertEqual(res_auth.status_code, 200)
         p_auth = res_auth.get_json()['data']
-        self.assertFalse(p_auth['is_quarantined'])
+        self.assertFalse(p_auth.get('is_quarantined', False))
         self.assertEqual(p_auth['dataset_status'], 'verified_historical')
 
         # 2. Leaderboards endpoint
         res_lead = self.client.get('/api/leaderboards?season=2025-2026')
         self.assertEqual(res_lead.status_code, 200)
         lead_meta = res_lead.get_json()['metadata']
-        self.assertTrue(lead_meta['is_quarantined'])
-        self.assertEqual(lead_meta['dataset_status'], 'quarantined')
+        self.assertFalse(lead_meta.get('is_quarantined', False))
+        self.assertEqual(lead_meta['dataset_status'], 'verified_historical')
 
         # 3. Comparison endpoint
         res_comp = self.client.post('/api/players/compare', json={'player_ids': [1, 2], 'season': '2025-2026'})
         self.assertEqual(res_comp.status_code, 200)
         comp_data = res_comp.get_json()
-        self.assertTrue(comp_data['is_quarantined'])
-        self.assertEqual(comp_data['dataset_status'], 'quarantined')
+        self.assertFalse(comp_data.get('is_quarantined', False))
+        self.assertEqual(comp_data['dataset_status'], 'verified_historical')
 
         # 4. Players List endpoint
         res_list = self.client.get('/api/players?season=2025-2026')
         self.assertEqual(res_list.status_code, 200)
         list_meta = res_list.get_json()['metadata']
-        self.assertTrue(list_meta['is_quarantined'])
-        self.assertEqual(list_meta['dataset_status'], 'quarantined')
+        self.assertFalse(list_meta.get('is_quarantined', False))
+        self.assertEqual(list_meta['dataset_status'], 'verified_historical')
 
 if __name__ == '__main__':
     unittest.main()

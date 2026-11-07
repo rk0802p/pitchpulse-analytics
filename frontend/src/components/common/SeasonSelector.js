@@ -52,7 +52,7 @@ export const SeasonSelector = ({
   };
 
   const activeMeta = availableSeasons.find(s => (s.id || s) === activeSeason) || {};
-  const isQuarantined = activeMeta.is_quarantined || activeMeta.dataset_status === 'quarantined' || activeSeason === '2025-2026';
+  const isQuarantined = activeMeta.is_quarantined || activeMeta.dataset_status === 'quarantined';
   const isProjection = activeMeta.is_projection || activeMeta.dataset_status === 'projection' || isQuarantined;
 
   // Resolved dropdown horizontal alignment
@@ -137,7 +137,7 @@ export const SeasonSelector = ({
               const sId = s.id || s;
               const sName = s.name || s.display_name || sId;
               const isSelected = sId === activeSeason;
-              const isItemQuarantined = s.is_quarantined || s.dataset_status === 'quarantined' || sId === '2025-2026';
+              const isItemQuarantined = s.is_quarantined || s.dataset_status === 'quarantined';
 
               return (
                 <button
