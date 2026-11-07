@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.analytics_service import get_leaderboard, get_dashboard_analytics
 from services.season_service import season_service
-from services.validation_service import validate_season_id, validate_position, resolve_and_validate_season
+from services.validation_service import validate_season_id, validate_position, resolve_and_validate_season, parse_bool
 from schemas.responses import success_response, error_response
 
 leaderboards_bp = Blueprint('leaderboards', __name__)
@@ -55,13 +55,15 @@ def leaderboards():
     except (ValueError, TypeError):
         limit = 10
 
+    merge_spells = parse_bool(request.args.get('merge_spells'), False)
     results = get_leaderboard(
         metric=metric,
         competition=competition,
         position=position,
         min_minutes=min_minutes,
         limit=limit,
-        season=season
+        season=season,
+        merge_spells=merge_spells
     )
 
     target_season = season or season_service.get_active_season()

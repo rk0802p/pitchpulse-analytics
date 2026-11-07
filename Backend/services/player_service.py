@@ -43,9 +43,67 @@ def get_teams_by_competition(competition=None, season=None):
             return []
     return sorted(df['Squad'].unique().tolist())
 
+
+def merge_player_spells(df):
+    """
+    B13: Aggregates multi-club spells within a single season for each player.
+    Sums playing time and scoring, recalculates rates per 90, and joins clubs.
+    """
+    if df is None or len(df) == 0 or 'player_id' not in df.columns:
+        return df
+
+    counts = df['player_id'].value_counts()
+    multi_ids = set(counts[counts > 1].index)
+    if not multi_ids:
+        return df
+
+    numeric_sum = [
+        'MP', 'Starts', 'Min', '90s', 'Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt',
+        'CrdY', 'CrdR', 'PrgC', 'PrgP', 'PrgR', 'xG', 'npxG', 'xAG', 'npxG+xAG'
+    ]
+
+    merged_records = []
+    for p_id, group in df.groupby('player_id', sort=False):
+        if len(group) == 1:
+            merged_records.append(group.iloc[0].to_dict())
+            continue
+
+        sorted_g = group.sort_values(by='Min', ascending=False)
+        row = sorted_g.iloc[0].to_dict()
+
+        # Combine distinct squads
+        squads = list(dict.fromkeys(sorted_g['Squad'].dropna().tolist()))
+        row['Squad'] = ", ".join(squads)
+
+        # Sum counting statistics
+        for col in numeric_sum:
+            if col in group.columns:
+                valid = group[col].dropna()
+                row[col] = valid.sum() if len(valid) > 0 else np.nan
+
+        # Recalculate per 90 rates
+        mins = row.get('Min', 0)
+        if mins > 0:
+            row['90s'] = round(mins / 90.0, 1)
+            for m in ['Gls', 'Ast', 'G+A', 'G-PK', 'xG', 'xAG', 'npxG', 'npxG+xAG']:
+                m_90 = f"{m}_90"
+                if m in row and not pd.isna(row[m]):
+                    row[m_90] = round((row[m] / mins) * 90.0, 2)
+            if not pd.isna(row.get('G-PK')) and not pd.isna(row.get('Ast')):
+                row['G+A-PK_90'] = round(((row['G-PK'] + row['Ast']) / mins) * 90.0, 2)
+            if not pd.isna(row.get('xG_90')) and not pd.isna(row.get('xAG_90')):
+                row['xG+xAG_90'] = round(row['xG_90'] + row['xAG_90'], 2)
+
+        row['spells_count'] = len(group)
+        merged_records.append(row)
+
+    return pd.DataFrame(merged_records)
+
 def search_players(search=None, competition=None, squad=None, position=None,
-                   min_minutes=0, sort_by="Gls", order="desc", page=1, limit=50, season=None):
+                   min_minutes=0, sort_by="Gls", order="desc", page=1, limit=50, season=None, merge_spells=False):
     df = data_loader.get_dataframe(season=season)
+    if merge_spells:
+        df = merge_player_spells(df)
 
     # Filter by competition
     if competition:

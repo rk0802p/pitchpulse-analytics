@@ -118,8 +118,28 @@ class DataLoader:
         df = raw_df.copy()
 
         # Handle missing demographic values
-        df['Nation'] = df['Nation'].fillna('Unknown')
-        df['Age'] = df['Age'].apply(lambda x: None if pd.isna(x) else float(x))
+        if 'Nation' in df.columns:
+            df['Nation'] = df['Nation'].fillna('Unknown')
+        else:
+            df['Nation'] = 'Unknown'
+        def parse_age(x):
+            if pd.isna(x) or x is None or x == '':
+                return None
+            s = str(x).strip()
+            if '-' in s:
+                parts = s.split('-')
+                try:
+                    years = float(parts[0])
+                    days = float(parts[1]) if len(parts) > 1 and parts[1] else 0.0
+                    return round(years + (days / 365.25), 1)
+                except (ValueError, TypeError):
+                    pass
+            try:
+                return float(s)
+            except (ValueError, TypeError):
+                return None
+
+        df['Age'] = df['Age'].apply(parse_age)
         df['Born'] = df['Born'].apply(lambda x: None if pd.isna(x) else int(x))
 
         # Ensure standard match counts are clean ints (0 if missing/NA)
@@ -159,7 +179,6 @@ class DataLoader:
             ('Ast', 'Ast_90'),
             ('G+A', 'G+A_90'),
             ('G-PK', 'G-PK_90'),
-            ('G+A-PK', 'G+A-PK_90'),
             ('xG', 'xG_90'),
             ('xAG', 'xAG_90'),
             ('npxG', 'npxG_90'),
@@ -180,6 +199,11 @@ class DataLoader:
         else:
             df['90s'] = 0.0
             df.loc[has_minutes, '90s'] = (df.loc[has_minutes, 'Min'] / 90.0).round(1)
+
+        # Derived G+A-PK_90 calculated from G-PK and Ast when Min > 0
+        if 'G-PK' in df.columns and 'Ast' in df.columns and 'G+A-PK_90' in df.columns:
+            recalc_gapk = has_minutes & ((df['G-PK'] > 0) | (df['Ast'] > 0)) & ((df['G+A-PK_90'] == 0.0) | df['G+A-PK_90'].isna())
+            df.loc[recalc_gapk, 'G+A-PK_90'] = (((df.loc[recalc_gapk, 'G-PK'] + df.loc[recalc_gapk, 'Ast']) / df.loc[recalc_gapk, 'Min']) * 90.0).round(2)
 
         # Derived composite rate: xG+xAG_90
         if 'xG_90' in df.columns and 'xAG_90' in df.columns and 'xG+xAG_90' in df.columns:

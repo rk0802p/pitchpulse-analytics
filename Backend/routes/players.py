@@ -50,19 +50,21 @@ def get_players():
     # Support all=true or raw=true to get unpaginated list
     all_records = parse_bool(request.args.get('all') or request.args.get('raw'), False)
     if all_records:
+        merge_spells = parse_bool(request.args.get('merge_spells'), False)
         items, total = search_players(
             search=search, competition=competition, squad=squad, position=position,
             min_minutes=min_minutes, sort_by=sort_by, order=order, page=1, limit=3000,
-            season=season
+            season=season, merge_spells=merge_spells
         )
         meta["total"] = total
         return success_response(items, metadata=meta)
 
+    merge_spells = parse_bool(request.args.get('merge_spells'), False)
     page, limit = validate_pagination(request.args.get('page'), request.args.get('limit'))
     items, total = search_players(
         search=search, competition=competition, squad=squad, position=position,
         min_minutes=min_minutes, sort_by=sort_by, order=order, page=page, limit=limit,
-        season=season
+        season=season, merge_spells=merge_spells
     )
 
     return paginated_response(items, total, page, limit, metadata=meta)

@@ -4,8 +4,11 @@ from services.validation_service import resolve_competition, validate_metric
 from services.season_service import season_service
 from services.metric_registry import is_metric_tracked_in_era
 
-def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=None, limit=10, season=None):
+def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=None, limit=10, season=None, merge_spells=False):
     df = data_loader.get_dataframe(season=season)
+    if merge_spells:
+        from services.player_service import merge_player_spells
+        df = merge_player_spells(df)
     metric_key = validate_metric(metric, default="Gls")
 
     # Filter out missing / untracked records for this metric
@@ -159,13 +162,13 @@ def compare_players(record_ids, season=None):
     ]
 
     radar_dimensions = [
-        {"key": "Gls_90", "label": "Goals/90", "max": 1.5},
-        {"key": "xG_90", "label": "xG/90", "max": 1.2},
-        {"key": "Ast_90", "label": "Assists/90", "max": 1.0},
-        {"key": "xAG_90", "label": "xAG/90", "max": 1.0},
-        {"key": "PrgC", "label": "Prog. Carries", "max": 150},
-        {"key": "PrgP", "label": "Prog. Passes", "max": 250},
-        {"key": "PrgR", "label": "Prog. Receptions", "max": 300}
+        {"key": "Gls_90", "label": "Goals/90"},
+        {"key": "xG_90", "label": "xG/90"},
+        {"key": "Ast_90", "label": "Assists/90"},
+        {"key": "xAG_90", "label": "xAG/90"},
+        {"key": "PrgC", "label": "Prog. Carries"},
+        {"key": "PrgP", "label": "Prog. Passes"},
+        {"key": "PrgR", "label": "Prog. Receptions"}
     ]
 
     aligned_matrix = []
@@ -247,7 +250,11 @@ def compare_players(record_ids, season=None):
                 dim_scores[p_id_str] = None
                 dim_scores[p_cmp_key] = None
             else:
-                p_peers = p_df[p_df['Min'] >= 270] if len(p_df) > 0 else p_df
+                p_pos = p.get("Pos", "MF")
+                pos_clean = p_pos.split(',')[0].strip() if p_pos else "MF"
+                p_peers = p_df[(p_df['Pos'].str.contains(pos_clean, regex=False, na=False)) & (p_df['Min'] >= 270)]
+                if len(p_peers) < 10:
+                    p_peers = p_df[p_df['Min'] >= 270] if len(p_df) > 0 else p_df
                 if key in p_peers.columns:
                     valid_series = p_peers[p_peers[key].notna()][key]
                     if len(valid_series) >= 10:
