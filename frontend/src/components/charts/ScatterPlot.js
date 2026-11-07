@@ -285,12 +285,14 @@ export default function ScatterPlot({
               {/* Plotted Player Dots */}
               {points.map((p) => {
                 const isHighlight = p.id === highlightId || (highlightName && p.name?.toLowerCase() === highlightName.toLowerCase());
+                const isHover = hovered && (hovered.id === p.id || (hovered.name === p.name && hovered.x === p.x && hovered.y === p.y));
                 const mins = p.mins || p.Min || 0;
-                const r = isHighlight ? sr(mins) + 3 : sr(mins);
-                const opacity = isHighlight ? 1 : mins < 900 ? 0.22 : 0.45;
+                const baseR = sr(mins);
+                const r = isHighlight ? baseR + 3.5 : isHover ? baseR + 2.5 : baseR;
+                const opacity = (isHighlight || isHover) ? 1 : mins < 900 ? 0.22 : 0.45;
                 const fill = isHighlight ? 'var(--signal, #c92a2a)' : 'var(--blue)';
-                const stroke = isHighlight ? 'var(--ink)' : 'var(--blue)';
-                const strokeWidth = isHighlight ? 2 : 0.75;
+                const stroke = isHighlight ? 'var(--signal, #c92a2a)' : isHover ? 'var(--ink)' : 'var(--blue)';
+                const strokeWidth = (isHighlight || isHover) ? 2 : 0.75;
 
                 return (
                   <circle
@@ -302,12 +304,12 @@ export default function ScatterPlot({
                     fillOpacity={opacity}
                     stroke={stroke}
                     strokeWidth={strokeWidth}
-                    className="cursor-pointer transition-transform duration-100 hover:scale-125"
+                    className="cursor-pointer"
                     tabIndex={0}
                     role="button"
                     aria-label={`${p.name || p.Player}: ${xLabel} ${p.x}, ${yLabel} ${p.y}`}
                     onMouseEnter={() => setHovered(p)}
-                    onMouseLeave={() => setHovered(null)}
+                    onMouseLeave={() => setHovered((cur) => (cur && (cur.id === p.id || cur.name === p.name) ? null : cur))}
                     onFocus={() => setHovered(p)}
                     onBlur={() => setHovered(null)}
                     onClick={() => onSelectPlayer && onSelectPlayer(p.id)}
@@ -346,32 +348,50 @@ export default function ScatterPlot({
               </text>
             </g>
 
-            {/* Hover Tooltip Overlay */}
-            {hovered && (
-              <g
-                transform={`translate(${Math.min(MARGIN.left + sx(hovered.x) + 12, width - 210)}, ${Math.max(MARGIN.top + sy(hovered.y) - 52, 10)})`}
-                pointerEvents="none"
-              >
-                <rect
-                  width="196"
-                  height="58"
-                  fill="var(--panel)"
-                  stroke="var(--ink)"
-                  strokeWidth="1.2"
-                  rx="2"
-                  filter="drop-shadow(0 2px 4px rgba(0,0,0,0.12))"
-                />
-                <text x="10" y="18" className="fill-[var(--ink)] font-disp font-bold text-xs">
-                  {hovered.name || hovered.Player}
-                </text>
-                <text x="10" y="34" className="fill-[var(--mute)] text-[10px] italic font-ser">
-                  {hovered.club || hovered.Squad} · {(hovered.mins || hovered.Min || 0).toLocaleString()} mins
-                </text>
-                <text x="10" y="48" className="fill-[var(--blue)] font-mono text-[10px] font-semibold">
-                  {xLabel.split(' ')[0]}: {Number(hovered.x).toFixed(2)} | {yLabel.split(' ')[0]}: {Number(hovered.y).toFixed(2)}
-                </text>
-              </g>
-            )}
+            {/* Hover Tooltip Overlay with smart left/right auto-flip */}
+            {hovered && (() => {
+              const tooltipW = 200;
+              const tooltipH = 58;
+              const dotPxX = MARGIN.left + sx(hovered.x);
+              const dotPxY = MARGIN.top + sy(hovered.y);
+
+              // Auto-flip: If point is on the right 45% of plot, render tooltip to the left of the dot
+              const posX = (sx(hovered.x) > W * 0.55)
+                ? Math.max(MARGIN.left + 6, dotPxX - tooltipW - 14)
+                : Math.min(dotPxX + 14, width - tooltipW - MARGIN.right);
+
+              // Keep vertically bounded inside the SVG box
+              const posY = Math.max(MARGIN.top + 4, Math.min(dotPxY - tooltipH / 2, height - tooltipH - MARGIN.bottom - 4));
+
+              return (
+                <g
+                  transform={`translate(${posX}, ${posY})`}
+                  pointerEvents="none"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <rect
+                    width={tooltipW}
+                    height={tooltipH}
+                    fill="var(--panel)"
+                    stroke="var(--ink)"
+                    strokeWidth="1.2"
+                    rx="2"
+                    filter="drop-shadow(0 2px 4px rgba(0,0,0,0.14))"
+                    pointerEvents="none"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                  <text x="10" y="18" className="fill-[var(--ink)] font-disp font-bold text-xs" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    {hovered.name || hovered.Player}
+                  </text>
+                  <text x="10" y="34" className="fill-[var(--mute)] text-[10px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    {hovered.club || hovered.Squad} · {(hovered.mins || hovered.Min || 0).toLocaleString()} mins
+                  </text>
+                  <text x="10" y="48" className="fill-[var(--blue)] font-mono text-[10px] font-semibold" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    {xLabel.split(' ')[0]}: {Number(hovered.x).toFixed(2)} | {yLabel.split(' ')[0]}: {Number(hovered.y).toFixed(2)}
+                  </text>
+                </g>
+              );
+            })()}
           </svg>
         </div>
       )}
