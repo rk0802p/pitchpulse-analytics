@@ -10,6 +10,7 @@ from routes.players import players_bp
 from routes.comparisons import comparisons_bp
 from routes.leaderboards import leaderboards_bp
 from routes.seasons import seasons_bp
+from routes.charts import charts_bp
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
@@ -53,6 +54,7 @@ def create_app():
     app.register_blueprint(comparisons_bp, url_prefix='/api')
     app.register_blueprint(leaderboards_bp, url_prefix='/api')
     app.register_blueprint(seasons_bp, url_prefix='/api')
+    app.register_blueprint(charts_bp, url_prefix='/api')
 
     @app.route('/api/')
     @app.route('/')
