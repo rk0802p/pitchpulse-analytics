@@ -34,12 +34,24 @@ jobs:
       - name: Run Backend Pytest Suite
         run: |
           cd Backend
-          python -m pytest tests/ -v
+          python -m pytest tests/ -v --tb=short 2>&1 | tee pytest_run.log
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "### Pytest Execution Output" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat pytest_run.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit $EXIT_CODE
 
       - name: Verify Baseline Cryptographic Invariants
         run: |
           cd Backend
-          python test_api_baseline.py
+          python test_api_baseline.py 2>&1 | tee baseline_run.log
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "### Baseline Verification Output" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat baseline_run.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit $EXIT_CODE
 
   frontend-test-and-build:
     name: Frontend Test & Production Build
