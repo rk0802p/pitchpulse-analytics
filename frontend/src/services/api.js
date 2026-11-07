@@ -4,6 +4,11 @@
  */
 
 const getApiBaseUrl = () => {
+  // When running locally in browser, always target the local Flask API
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://127.0.0.1:5000/api';
+  }
+
   const envUrl = process.env.REACT_APP_API_URL;
   if (envUrl && !envUrl.includes('your-backend-url')) {
     return envUrl.replace(/\/+$/, '');
