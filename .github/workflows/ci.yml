@@ -10,6 +10,8 @@ jobs:
   backend-test:
     name: Backend Tests & Invariant Verification
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       PYTHONPATH: ${{ github.workspace }}/Backend
       ADMIN_TOKEN: ci-admin-secret-token
@@ -36,19 +38,20 @@ jobs:
           python -m pytest Backend/tests/ -v -s --tb=long 2>&1 | tee Backend/pytest_run.log
           exit ${PIPESTATUS[0]}
 
+      - name: Publish Failure Log to Branch
+        if: failure()
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout -B ci-debug
+          cp Backend/pytest_run.log .
+          git add pytest_run.log
+          git commit -m "ci: publish pytest failure log"
+          git push -f origin ci-debug
+
       - name: Verify Baseline Cryptographic Invariants
         run: |
-          python Backend/test_api_baseline.py 2>&1 | tee Backend/baseline_run.log
-          exit ${PIPESTATUS[0]}
-
-      - name: Upload Test Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-logs
-          path: |
-            Backend/pytest_run.log
-            Backend/baseline_run.log
+          python Backend/test_api_baseline.py
 
   frontend-test-and-build:
     name: Frontend Test & Production Build
