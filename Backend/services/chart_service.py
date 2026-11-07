@@ -323,5 +323,7 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
             'max_y': max_y,
             'quadrants': {'q1': q1, 'q2': q2, 'q3': q3, 'q4': q4}
         },
+        'medians': {'x': med_x, 'y': med_y},
+        'pool': {'n': len(points), 'min_minutes': min_minutes},
         'points': points
     }
