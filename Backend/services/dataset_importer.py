@@ -400,19 +400,10 @@ class DatasetImporter:
             raise DatasetValidationError("The 2024-2025 baseline dataset is immutable and cannot be overwritten.")
 
         season_dir_check = os.path.join(SEASONS_DIR, season)
-        manifest_path_check = os.path.join(season_dir_check, "manifest.json")
-        if os.path.exists(manifest_path_check) and not allow_overwrite:
-            try:
-                with open(manifest_path_check, 'r', encoding='utf-8') as f:
-                    existing_manifest = json.load(f)
-                if existing_manifest.get('dataset_status') == 'verified_historical' or existing_manifest.get('is_baseline'):
-                    raise DatasetValidationError(
-                        f"Season '{season}' is an established verified dataset and cannot be overwritten without allow_overwrite=True."
-                    )
-            except DatasetValidationError:
-                raise
-            except Exception:
-                pass
+        if os.path.exists(season_dir_check) and not allow_overwrite:
+            raise DatasetValidationError(
+                f"Season '{season}' already exists in storage and cannot be overwritten without allow_overwrite=True / --force."
+            )
 
         df = self.read_file(file_path)
         validation = self.validate_dataframe(df)
@@ -511,14 +502,21 @@ class DatasetImporter:
                         json.dump(manifest, f, indent=2)
 
                     os.makedirs(season_dir, exist_ok=True)
+                    # Atomic file writes using temporary staging and os.replace
                     if os.path.exists(temp_excel):
-                        shutil.copy2(temp_excel, excel_path)
-                        logger.info(f"Saved Excel dataset to: {excel_path}")
+                        staging_excel = excel_path + ".staging"
+                        shutil.copy2(temp_excel, staging_excel)
+                        os.replace(staging_excel, excel_path)
+                        logger.info(f"Atomically saved Excel dataset to: {excel_path}")
                     if os.path.exists(temp_csv):
-                        shutil.copy2(temp_csv, csv_path)
-                        logger.info(f"Saved CSV dataset to: {csv_path}")
-                    shutil.copy2(temp_manifest, manifest_path)
-                    logger.info(f"Saved season manifest to: {manifest_path}")
+                        staging_csv = csv_path + ".staging"
+                        shutil.copy2(temp_csv, staging_csv)
+                        os.replace(staging_csv, csv_path)
+                        logger.info(f"Atomically saved CSV dataset to: {csv_path}")
+                    staging_manifest = manifest_path + ".staging"
+                    shutil.copy2(temp_manifest, staging_manifest)
+                    os.replace(staging_manifest, manifest_path)
+                    logger.info(f"Atomically saved season manifest to: {manifest_path}")
             except OSError as e:
                 logger.warning(f"Storage filesystem is read-only ({e}). Import validated in memory.")
                 return {

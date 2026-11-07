@@ -134,6 +134,11 @@ def main():
         help="Run complete parsing, validation, and normalization without writing files to disk."
     )
     parser.add_argument(
+        '--force',
+        action='store_true',
+        help="Force overwrite of existing non-baseline season dataset."
+    )
+    parser.add_argument(
         '--allow-unknown',
         action='store_true',
         help="Allow extra non-canonical columns rather than rejecting the file."

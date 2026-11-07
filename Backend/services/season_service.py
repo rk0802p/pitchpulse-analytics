@@ -58,24 +58,43 @@ class SeasonService:
     def get_quarantine_policy(self, season_id):
         """
         Centralized governance policy evaluation for datasets.
-        Returns quarantine state, reason, status label, and authorization flags.
+        Enforces strict allow-list: only 'verified_historical' and 'read_only_baseline'
+        are permitted for authoritative rankings. All other or unknown statuses
+        are strictly quarantined.
         """
         s_id = self.resolve_season(season_id) if season_id else self._active_season
         manifest = self.get_season_manifest(s_id) or {}
-        is_quarantined = (
-            manifest.get('is_quarantined') is True or
-            manifest.get('dataset_status') == 'quarantined' or
-            s_id == '2025-2026'
-        )
-        quarantine_reason = manifest.get('quarantine_reason')
-        if is_quarantined and not quarantine_reason:
-            quarantine_reason = (
-                "Composite dataset contains squad attribution anomalies (197 clubs) "
-                "and unverified projections. Quarantined from authoritative rankings."
-            )
 
-        status = 'quarantined' if is_quarantined else 'verified_historical'
-        status_label = manifest.get('status_label') or ('Quarantined / Provisional' if is_quarantined else 'Historical Season')
+        VERIFIED_ALLOWLIST = {'verified_historical', 'read_only_baseline'}
+        raw_status = manifest.get('dataset_status', '')
+
+        is_baseline = (s_id == '2024-2025' or manifest.get('is_baseline') is True)
+        if is_baseline:
+            is_quarantined = False
+            status = 'verified_historical'
+            status_label = 'Historical Season'
+            quarantine_reason = None
+        elif s_id == '2025-2026' or raw_status in ('simulated', 'quarantined'):
+            is_quarantined = True
+            status = 'quarantined'
+            status_label = 'Quarantined / Simulated Dataset'
+            quarantine_reason = manifest.get('quarantine_reason') or (
+                "Simulated / projected dataset: not verified historical matchday statistics. "
+                "Quarantined from authoritative rankings."
+            )
+        elif manifest.get('is_quarantined') is True or raw_status == 'quarantined' or raw_status not in VERIFIED_ALLOWLIST:
+            is_quarantined = True
+            status = 'quarantined'
+            status_label = manifest.get('status_label') or 'Quarantined / Provisional'
+            quarantine_reason = manifest.get('quarantine_reason') or (
+                "Dataset status is not in the verified historical allowlist. "
+                "Quarantined from authoritative rankings."
+            )
+        else:
+            is_quarantined = False
+            status = 'verified_historical'
+            status_label = manifest.get('status_label') or 'Historical Season'
+            quarantine_reason = None
 
         return {
             'season_id': s_id,
@@ -83,7 +102,7 @@ class SeasonService:
             'status': status,
             'dataset_status': status,
             'status_label': status_label,
-            'quarantine_reason': quarantine_reason if is_quarantined else None,
+            'quarantine_reason': quarantine_reason,
             'warning_title': 'Quarantined / Provisional Dataset' if is_quarantined else None,
             'warning_message': quarantine_reason if is_quarantined else None,
             'allow_authoritative_rankings': not is_quarantined,

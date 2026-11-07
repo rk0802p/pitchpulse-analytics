@@ -26,6 +26,19 @@ def create_app():
         'allow_headers': ['Content-Type', 'Authorization']
     }})
 
+    # B1: Run cryptographic baseline verification at startup
+    baseline_verified = False
+    try:
+        from services.baseline_verifier import verify_baseline_integrity
+        verify_res = verify_baseline_integrity()
+        baseline_verified = True
+        logger.info(f"Baseline (2024-2025) cryptographic integrity verified at startup: SHA={verify_res.get('primary_sha', verify_res.get('sha256'))}")
+    except Exception as e:
+        logger.error(f"Startup baseline verification failed: {e}")
+        baseline_verified = False
+
+    app.config['BASELINE_VERIFIED'] = baseline_verified
+
     # Pre-load and validate dataset at application startup
     try:
         data_loader.initialize()

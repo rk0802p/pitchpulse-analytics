@@ -26,10 +26,15 @@ def get_leaderboard(metric="Gls", competition=None, position=None, min_minutes=N
     if position:
         df = df[df['Pos'].str.contains(position.strip().upper(), regex=False, na=False, case=False)]
 
-    # If min_minutes is not specified, default to 270 minutes (3 full matches) for per-90 rate metrics
-    effective_min_minutes = min_minutes
-    if effective_min_minutes is None:
-        effective_min_minutes = 270 if metric_key.endswith('_90') else 0
+    # Enforce minimum 270-minute floor for per-90 rate metrics to eliminate small-sample noise
+    is_rate_metric = str(metric_key).endswith('_90')
+    if is_rate_metric:
+        if min_minutes is None or min_minutes < 270:
+            effective_min_minutes = 270
+        else:
+            effective_min_minutes = min_minutes
+    else:
+        effective_min_minutes = min_minutes if min_minutes is not None else 0
 
     # Filter min minutes
     if effective_min_minutes and effective_min_minutes > 0:

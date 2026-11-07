@@ -1,9 +1,9 @@
 {
   "season": "2025-2026",
   "canonical_id": "2025-2026",
-  "display_name": "2025/26 Provisional Season",
+  "display_name": "2025/26 Simulated Season",
   "dataset_status": "quarantined",
-  "status_label": "Quarantined / Provisional",
+  "status_label": "Quarantined / Simulated Dataset",
   "is_baseline": false,
   "is_projection": true,
   "records_count": 2997,
@@ -134,7 +134,8 @@
   "content_hash": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
   "sha256": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
   "validation_status": "passed",
-  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2025/26. Spot-checked against official records: Harry Kane (36 goals, 24.91 xG), Erling Haaland (27 goals, 22.36 xG), Kylian Mbappe (25 goals, 22.24 xG), Vedat Muriqi (23 goals, 15.37 xG), Igor Thiago (22 goals, 19.10 xG), Esteban Lepaul (17 goals, 13.07 xG), Lautaro Martinez (16 goals, 1.96 xAG), Joaquin Panichelli (16 goals). Schema validated for 37 canonical metrics.",
+  "verification_notes": "SIMULATED / PROJECTED DATASET: This season contains simulated/projected player metrics, not confirmed historical matchday records. Quarantined from authoritative rankings.",
   "is_quarantined": true,
-  "quarantine_reason": "Composite dataset contains 197 clubs across 5 leagues (e.g. 97 squads in Ligue 1) from cartesian joining of multiple projections, plus missing progression metrics in EPL/Bundesliga. Quarantined from authoritative team rankings and European benchmarks."
+  "quarantine_reason": "Simulated / projected dataset: not verified historical matchday statistics. Composite dataset contains 197 clubs across 5 leagues and synthetic player projections. Quarantined from authoritative rankings and European benchmarks.",
+  "is_simulated": true
 }

@@ -12,14 +12,16 @@ meta_bp = Blueprint('meta', __name__)
 def health():
     """
     Readiness and liveness probe.
-    Returns 200 when default reference dataset is ready in memory or storage.
-    Returns 503 if required baseline data is missing or inaccessible.
+    Returns 200 when default reference dataset is ready in memory or storage and baseline verified.
+    Returns 503 if required baseline data is missing, corrupted, or unready.
     """
+    from flask import current_app
+    baseline_verified = current_app.config.get('BASELINE_VERIFIED', False)
     baseline_exists = os.path.exists(DATASET_PATH) or season_service.season_exists('2024-2025')
     active_season = season_service.get_active_season()
     active_exists = season_service.season_exists(active_season)
-    
-    is_ready = baseline_exists and active_exists
+
+    is_ready = bool(baseline_verified and baseline_exists and active_exists)
     status_str = "healthy" if is_ready else "unhealthy"
     status_code = 200 if is_ready else 503
 
@@ -27,6 +29,7 @@ def health():
         "status": status_str,
         "service": "PitchPulse Analytics API",
         "dataset_ready": baseline_exists,
+        "baseline_verified": baseline_verified,
         "active_season": active_season,
         "available_seasons": [s['id'] for s in season_service.list_seasons()]
     }
