@@ -89,6 +89,12 @@ def get_player(player_id):
 @players_bp.route('/players/<path:league>/<path:team>', methods=['GET'])
 def get_players_by_team_legacy(league, team):
     """Legacy endpoint returning list of players for team and league."""
+    if team == 'percentiles':
+        from routes.charts import get_percentiles
+        return get_percentiles(league)
+    if team == 'similar':
+        from routes.charts import get_similar
+        return get_similar(league)
     season = request.args.get('season')
     if season:
         validated_season, err, code = resolve_and_validate_season(season, season_service)

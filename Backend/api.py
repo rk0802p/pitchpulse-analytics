@@ -47,14 +47,14 @@ def create_app():
     except Exception as e:
         logger.error(f"Failed to load dataset at startup: {e}")
 
-    # Register blueprints under /api
+    # Register blueprints under /api (charts_bp registered before players_bp for routing precedence)
     app.register_blueprint(meta_bp, url_prefix='/api')
+    app.register_blueprint(charts_bp, url_prefix='/api')
     app.register_blueprint(competitions_bp, url_prefix='/api')
     app.register_blueprint(players_bp, url_prefix='/api')
     app.register_blueprint(comparisons_bp, url_prefix='/api')
     app.register_blueprint(leaderboards_bp, url_prefix='/api')
     app.register_blueprint(seasons_bp, url_prefix='/api')
-    app.register_blueprint(charts_bp, url_prefix='/api')
 
     @app.route('/api/')
     @app.route('/')
