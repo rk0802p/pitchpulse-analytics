@@ -119,5 +119,10 @@ DEFAULT_ORIGINS = [
 cors_env = os.environ.get('CORS_ORIGINS')
 ALLOWED_ORIGINS = [o.strip() for o in cors_env.split(',') if o.strip()] if cors_env else DEFAULT_ORIGINS
 
-ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', 'pitchpulse-admin-dev-key')
+FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
+# S1: Fail closed by default if ADMIN_TOKEN is not explicitly configured
+ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN')
+if not ADMIN_TOKEN and (FLASK_ENV == 'testing' or os.environ.get('TESTING') == 'True'):
+    ADMIN_TOKEN = 'pitchpulse-admin-test-key'
+
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB

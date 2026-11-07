@@ -26,6 +26,8 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
     def setUpClass(cls):
 
+        os.environ['ADMIN_TOKEN'] = 'pitchpulse-admin-test-key'
+        cls.auth_headers = {'Authorization': 'Bearer pitchpulse-admin-test-key'}
         cls.app = create_app()
 
         cls.client = cls.app.test_client()
@@ -99,7 +101,7 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
         # Switch to 2023-2024
 
-        post_res = self.client.post('/api/seasons/active', json={'season': '2023-2024'})
+        post_res = self.client.post('/api/seasons/active', json={'season': '2023-2024'}, headers=self.auth_headers)
 
         self.assertEqual(post_res.status_code, 200)
 
@@ -119,7 +121,7 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
         # Switch back to 2024-2025
 
-        post_back = self.client.post('/api/seasons/active', json={'season': '2024-2025'})
+        post_back = self.client.post('/api/seasons/active', json={'season': '2024-2025'}, headers=self.auth_headers)
 
         self.assertEqual(post_back.status_code, 200)
 
@@ -127,13 +129,13 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
         # Switch back to default active 2025-2026
 
-        self.client.post('/api/seasons/active', json={'season': '2025-2026'})
+        self.client.post('/api/seasons/active', json={'season': '2025-2026'}, headers=self.auth_headers)
 
     def test_03_switching_to_invalid_season_returns_404(self):
 
         """Test 3: Switching to unknown or invalid season returns 404."""
 
-        res = self.client.post('/api/seasons/active', json={'season': '1990-1991'})
+        res = self.client.post('/api/seasons/active', json={'season': '1990-1991'}, headers=self.auth_headers)
 
         self.assertEqual(res.status_code, 404)
 

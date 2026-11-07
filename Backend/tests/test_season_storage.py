@@ -15,6 +15,8 @@ from services.dataset_importer import DatasetImporter
 class TestSeasonStorage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        os.environ['ADMIN_TOKEN'] = 'pitchpulse-admin-test-key'
+        cls.auth_headers = {'Authorization': 'Bearer pitchpulse-admin-test-key'}
         cls.client = app.test_client()
         cls.backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         cls.seasons_dir = os.path.join(cls.backend_dir, 'data', 'seasons')
@@ -81,7 +83,7 @@ class TestSeasonStorage(unittest.TestCase):
 
     def test_03_switch_active_season(self):
         """POST /api/seasons/active updates the active season."""
-        res = self.client.post('/api/seasons/active', json={'season': '2099-2100'})
+        res = self.client.post('/api/seasons/active', json={'season': '2099-2100'}, headers=self.auth_headers)
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertTrue(data['success'])
@@ -91,7 +93,7 @@ class TestSeasonStorage(unittest.TestCase):
         self.assertEqual(season_service.get_active_season(), '2099-2100')
 
         # Reset back to 2024-2025
-        res_reset = self.client.post('/api/seasons/active', json={'season': '2024-2025'})
+        res_reset = self.client.post('/api/seasons/active', json={'season': '2024-2025'}, headers=self.auth_headers)
         self.assertEqual(res_reset.status_code, 200)
         self.assertEqual(season_service.get_active_season(), '2024-2025')
 

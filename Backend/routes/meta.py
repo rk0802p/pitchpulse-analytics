@@ -1,6 +1,7 @@
 import os
 from flask import Blueprint, request
 from config import METRIC_DEFINITIONS, DATASET_PATH
+from services.validation_service import validate_season_id, resolve_and_validate_season
 from schemas.responses import success_response, error_response
 from services.season_service import season_service
 from services.metric_registry import get_metric_registry, get_metric_info
@@ -35,10 +36,14 @@ def health():
 def metadata():
     """Returns dataset metadata dynamically derived from the requested season manifest."""
     season = request.args.get('season')
-    target_season = season or season_service.get_active_season()
-    
-    if season and not season_service.season_exists(season):
-        return error_response(f"Season '{season}' not found", status_code=404, code="ERR_SEASON_NOT_FOUND")
+    if season:
+        validated_season, err, code = resolve_and_validate_season(season, season_service)
+        if err:
+            err_code = "ERR_INVALID_SEASON" if code == 400 else "ERR_SEASON_NOT_FOUND"
+            return error_response(err, status_code=code, code=err_code)
+        target_season = validated_season
+    else:
+        target_season = season_service.get_active_season()
 
     manifest = season_service.get_season_manifest(target_season) or {}
     policy = season_service.get_quarantine_policy(target_season)

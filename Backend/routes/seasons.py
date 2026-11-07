@@ -7,7 +7,7 @@ from services.season_service import season_service
 from services.data_loader import data_loader
 from services.dataset_importer import DatasetImporter, DatasetValidationError
 from services.baseline_verifier import verify_baseline_integrity, BaselineIntegrityError
-from services.validation_service import validate_season_id
+from services.validation_service import validate_season_id, parse_bool
 from schemas.responses import success_response, error_response
 
 seasons_bp = Blueprint('seasons', __name__)
@@ -52,8 +52,13 @@ def get_active_season():
 def set_active_season():
     """
     Sets the active season for the current application session.
+    Requires Bearer token authentication via ADMIN_TOKEN.
     Note: Query-scoped '?season=...' parameters are preferred for stateless execution.
     """
+    is_auth, auth_err = check_admin_auth()
+    if not is_auth:
+        return error_response(auth_err, status_code=403, code="ERR_FORBIDDEN")
+
     data = request.get_json() or {}
     season_id = data.get('season') or data.get('season_id')
     if not season_id:
@@ -122,8 +127,8 @@ def import_season_file():
     if not uploaded_file or not uploaded_file.filename:
         return error_response("Missing required file upload. Submit a file under key 'file'.", status_code=400, code="ERR_MISSING_FILE")
 
-    dry_run = str(request.form.get('dry_run', '')).lower() in ['true', '1']
-    allow_unknown = str(request.form.get('allow_unknown', '')).lower() in ['true', '1']
+    dry_run = parse_bool(request.form.get('dry_run', False))
+    allow_unknown = parse_bool(request.form.get('allow_unknown', False))
     season = request.form.get('season')
     source = request.form.get('source') or "FBref / StatsBomb style player-level aggregates"
 

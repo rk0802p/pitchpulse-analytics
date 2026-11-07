@@ -19,6 +19,10 @@ def validate_season_id(season_param, seasons_dir=None, must_exist=False):
     if '..' in cleaned or '\\' in cleaned or '\0' in cleaned:
         return None
 
+    lower = cleaned.lower()
+    if '%2e' in lower or '%2f' in lower or '%5c' in lower:
+        return None
+
     # Handle forward slashes: only permitted as a year separator, e.g. 2024/2025 or 2024/25
     if '/' in cleaned:
         parts = cleaned.split('/')
@@ -63,6 +67,40 @@ def validate_season_id(season_param, seasons_dir=None, must_exist=False):
             return None
 
     return canonical
+
+def is_unsafe_season_traversal(season_param):
+    """Detects path traversal attempts, null bytes, and malicious season query parameters."""
+    if not season_param:
+        return False
+    s = str(season_param).strip()
+    if '..' in s or '\\' in s or '\0' in s:
+        return True
+    if '/' in s:
+        parts = s.split('/')
+        if len(parts) != 2 or not parts[0].isdigit() or not parts[1].isdigit():
+            return True
+    lower = s.lower()
+    if '%2e' in lower or '%2f' in lower or '%5c' in lower:
+        return True
+    return False
+
+def resolve_and_validate_season(season_param, season_service):
+    """
+    Validates season query parameter.
+    Returns:
+      (canonical_season, None, 200) on success
+      (None, error_msg, 400) on traversal/malformed syntax (ERR_INVALID_SEASON)
+      (None, error_msg, 404) on non-existent season (ERR_SEASON_NOT_FOUND)
+    """
+    if not season_param:
+        return None, None, 200
+    if is_unsafe_season_traversal(season_param):
+        return None, f"Invalid season format '{season_param}'. Path traversal and malformed inputs prohibited.", 400
+    canonical = validate_season_id(season_param)
+    target = canonical or str(season_param).strip()
+    if not season_service.season_exists(target):
+        return None, f"Season '{season_param}' not found", 404
+    return target, None, 200
 
 def resolve_competition(comp_param):
     """Maps competition param (raw name, short name, or slug) to raw dataset name."""
@@ -126,3 +164,21 @@ def validate_pagination(page_str, limit_str, default_page=1, default_limit=50, m
         limit = default_limit
 
     return page, limit
+
+def parse_bool(val, default=False):
+    """
+    Safely parses common boolean query/form representations.
+    Supports boolean literals, 'true'/'false', '1'/'0', 'yes'/'no', 'on'/'off'.
+    Returns boolean default if val is None or empty.
+    """
+    if val is None or val == '':
+        return default
+    if isinstance(val, bool):
+        return val
+    s = str(val).strip().lower()
+    if s in ('true', '1', 'yes', 't', 'y', 'on'):
+        return True
+    if s in ('false', '0', 'no', 'f', 'n', 'off'):
+        return False
+    return default
+

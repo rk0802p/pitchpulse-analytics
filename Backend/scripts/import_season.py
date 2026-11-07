@@ -22,6 +22,9 @@ import argparse
 import json
 import tempfile
 import urllib.request
+import urllib.parse
+import socket
+import ipaddress
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -35,6 +38,32 @@ sys.path.insert(0, BACKEND_DIR)
 
 from services.dataset_importer import DatasetImporter, DatasetValidationError
 from services.baseline_verifier import verify_baseline_integrity, BaselineIntegrityError
+
+
+def validate_safe_url(url):
+    """
+    Validates URL safety for CLI ingestion (SSRF mitigation).
+    Requires http/https, disallows localhost/loopback, private, link-local, or multicast IPs.
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ('http', 'https'):
+            return False, f"Unsupported scheme '{parsed.scheme}'. Only http and https are allowed."
+        host = parsed.hostname
+        if not host:
+            return False, "Missing hostname in URL."
+        if host.lower() in ('localhost', '127.0.0.1', '::1', '0.0.0.0'):
+            return False, "Localhost destinations are strictly prohibited."
+        # Resolve target IP
+        addr_info = socket.getaddrinfo(host, None)
+        for family, _, _, _, sockaddr in addr_info:
+            ip_str = sockaddr[0]
+            ip = ipaddress.ip_address(ip_str)
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_reserved or ip.is_unspecified:
+                return False, f"Target IP {ip_str} falls within restricted/private address space."
+        return True, None
+    except Exception as e:
+        return False, f"URL resolution/validation failed: {e}"
 
 def print_banner():
     print("=" * 68)
@@ -136,18 +165,30 @@ def main():
             args.source = 'FBref / StatsBomb (JSzamik 2023-24 archive)'
 
     if args.url:
+        is_safe, err_msg = validate_safe_url(args.url)
+        if not is_safe:
+            print(f"\n[ERROR] SSRF Guard: Download rejected: {err_msg}", file=sys.stderr)
+            return 1
         print(f"\n[DOWNLOAD] Fetching candidate dataset from: {args.url}")
         ext = '.xlsx' if '.xlsx' in args.url.lower() else '.csv'
         fd, temp_target = tempfile.mkstemp(suffix=ext)
         os.close(fd)
         req = urllib.request.Request(args.url, headers={'User-Agent': 'Mozilla/5.0 PitchPulse/1.0'})
         try:
+            MAX_BYTES = 20 * 1024 * 1024  # 20 MB cap
+            total_bytes = 0
             with urllib.request.urlopen(req, timeout=30) as resp:
-                data = resp.read()
                 with open(temp_target, 'wb') as f:
-                    f.write(data)
+                    while True:
+                        chunk = resp.read(64 * 1024)
+                        if not chunk:
+                            break
+                        total_bytes += len(chunk)
+                        if total_bytes > MAX_BYTES:
+                            raise ValueError(f"Download exceeded maximum permitted size of 20MB.")
+                        f.write(chunk)
             file_path = temp_target
-            print(f"  ✓ Download completed: {len(data):,} bytes received.")
+            print(f"  ✓ Download completed: {total_bytes:,} bytes received.")
         except Exception as e:
             print(f"\n[ERROR] Failed to download URL: {e}", file=sys.stderr)
             if temp_target and os.path.exists(temp_target):

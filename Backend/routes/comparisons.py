@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.analytics_service import compare_players
+from services.validation_service import validate_season_id, resolve_and_validate_season
 from schemas.responses import success_response, error_response
 
 comparisons_bp = Blueprint('comparisons', __name__)
@@ -13,8 +14,12 @@ def compare():
     player_ids = data.get('player_ids') or data.get('ids') or []
     season = data.get('season') or request.args.get('season')
     from services.season_service import season_service
-    if season and not season_service.season_exists(season):
-        return jsonify({'success': False, 'error': f"Season '{season}' not found"}), 404
+    if season:
+        validated_season, err, code = resolve_and_validate_season(season, season_service)
+        if err:
+            err_code = "ERR_INVALID_SEASON" if code == 400 else "ERR_SEASON_NOT_FOUND"
+            return jsonify({'success': False, 'error': err, 'error_detail': {'code': err_code}}), code
+        season = validated_season
 
     if not isinstance(player_ids, list):
         return jsonify({'success': False, 'error': 'player_ids must be a list'}), 400
