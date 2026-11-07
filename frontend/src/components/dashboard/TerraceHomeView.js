@@ -176,7 +176,7 @@ export const TerraceHomeView = ({
       <section className="border-t-2 border-[var(--ink)] pt-4">
         <div className="flex items-baseline justify-between mb-2">
           <h3 className="font-disp font-bold text-2xl text-[var(--ink)] tracking-tight">
-            Terrace Scoreboard & Spatial Shot Distribution
+            Matchday Scoreboard & Spatial Shot Distribution
           </h3>
           <span className="text-xs italic text-[var(--mute)]">
             Opta spatial coordinates • Split-flap display
