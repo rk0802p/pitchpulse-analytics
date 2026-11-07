@@ -102,8 +102,9 @@ export default function PlotAnyMetricView({
       age_max: ageMax || undefined
     })
       .then((res) => {
-        if (res) {
-          setChartData(res);
+        const payload = res?.data || res;
+        if (payload) {
+          setChartData(payload);
         }
       })
       .catch((err) => {
@@ -336,10 +337,10 @@ export default function PlotAnyMetricView({
             Resolving pool medians and standard deviations across {activeSeason}
           </p>
         </div>
-      ) : chartData && chartData.points ? (
+      ) : chartData && ((chartData.points && chartData.points.length > 0) || (chartData.data?.points && chartData.data.points.length > 0)) ? (
         <ScatterPlot
-          points={chartData.points}
-          medians={chartData.medians}
+          points={chartData.points || chartData.data?.points || []}
+          medians={chartData.medians || chartData.data?.medians || (chartData.distribution ? { x: chartData.distribution.median_x, y: chartData.distribution.median_y } : { x: 0, y: 0 })}
           xLabel={xLabel}
           yLabel={yLabel}
           highlightName={searchHighlight}
@@ -348,11 +349,15 @@ export default function PlotAnyMetricView({
           quadrantLabels={quadrantLabels}
           title={`${yLabel} vs ${xLabel}`}
           subtitle={`Interactive bubble scatter plot with pool median cross-hairs and collision-free outlier labels`}
-          poolCaption={`Pool: ${chartData.pool?.n || chartData.points.length} players (${selectedPos || 'All positions'}, ${minMinutes}+ minutes played)`}
+          poolCaption={`Pool: ${chartData.pool?.n || chartData.points_count || (chartData.points ? chartData.points.length : 0)} players (${selectedPos || 'All positions'}, ${minMinutes}+ minutes played)`}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />
-      ) : null}
+      ) : (
+        <div className="border border-[var(--ink)] bg-[var(--paper)] p-12 text-center text-xs italic text-[var(--mute)]">
+          No players match the selected criteria ({selectedPos || 'All positions'}, {selectedComp || 'All Big 5'}, {minMinutes}+ minutes). Lower the minimum minutes slider to include more players.
+        </div>
+      )}
     </div>
   );
 }

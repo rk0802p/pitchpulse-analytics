@@ -20,11 +20,11 @@ export default function SimilarPlayers({
     setLoading(true);
     api.getSimilarPlayers(playerId, { season: activeSeason, n: 8 })
       .then((res) => {
-        if (res?.data) {
-          setSimilar(res.data);
-          setMetricsUsed(res.metrics_used || []);
-          setPoolSize(res.pool_size || 0);
-        }
+        const payload = res?.data || res;
+        const list = payload?.similar_players || (Array.isArray(payload) ? payload : (payload?.data || []));
+        setSimilar(list);
+        setMetricsUsed(payload?.metrics_used || []);
+        setPoolSize(payload?.pool_size || list.length);
       })
       .catch((err) => {
         console.error('Failed to load similar players:', err);

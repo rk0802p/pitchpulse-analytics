@@ -58,12 +58,13 @@ export const PlayerProfileView = ({
     // 2. Positional percentiles from dedicated endpoint
     api.getPlayerPercentiles(playerId, { season: activeSeason })
       .then(res => {
-        if (res?.percentiles) {
-          setPercentilesList(res.percentiles);
-          if (res.pool) {
+        const payload = res?.data || res;
+        if (payload?.percentiles) {
+          setPercentilesList(payload.percentiles);
+          if (payload.pool) {
             setPeerPoolInfo({
-              size: res.pool.sample_size || 749,
-              position: res.pool.position || player?.Pos || 'FW'
+              size: payload.pool.sample_size || 749,
+              position: payload.pool.position || player?.Pos || 'FW'
             });
           }
         }
@@ -80,8 +81,9 @@ export const PlayerProfileView = ({
       position: player?.Pos?.split(',')[0] || undefined,
       min_minutes: 500
     }).then(res => {
-      if (res?.points) {
-        setScatterFinishingData(res);
+      const payload = res?.data || res;
+      if (payload?.points) {
+        setScatterFinishingData(payload);
       }
     }).catch(() => {});
 
