@@ -13,7 +13,8 @@
     "csv": {
       "filename": "top5-players24-25.csv",
       "sha256": "b6adc0f2f44db409d9a89d22210a6e20172b99479998627291c540bf1785583b",
-      "size_bytes": 477515
+      "size_bytes": 477515,
+      "lf_sha256": "7e081df6bf965dc4667b1025dae6ec5e5949999113351937fe50bdaccddccee7"
     }
   },
   "schema": {

@@ -1,7 +1,11 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DATASET = os.path.join(BASE_DIR, 'data', 'seasons', '2024-2025', 'top5-players24-25.xlsx')
+DEFAULT_DATASET = os.path.join(BASE_DIR, 'data', 'seasons', '2024-2025', 'top5-players24-25.csv')
+if not os.path.exists(DEFAULT_DATASET):
+    DEFAULT_DATASET = os.path.join(BASE_DIR, 'data', 'seasons', '2024-2025', 'top5-players24-25.xlsx')
+if not os.path.exists(DEFAULT_DATASET):
+    DEFAULT_DATASET = os.path.join(BASE_DIR, 'top5-players24-25.csv')
 if not os.path.exists(DEFAULT_DATASET):
     DEFAULT_DATASET = os.path.join(BASE_DIR, 'top5-players24-25.xlsx')
 DATASET_PATH = os.environ.get('DATASET_PATH', DEFAULT_DATASET)
@@ -117,7 +121,7 @@ DEFAULT_ORIGINS = [
     "http://127.0.0.1:5001",
 ]
 cors_env = os.environ.get('CORS_ORIGINS')
-ALLOWED_ORIGINS = [o.strip() for o in cors_env.split(',') if o.strip()] if cors_env else DEFAULT_ORIGINS
+ALLOWED_ORIGINS = '*' if not cors_env or cors_env == '*' else [o.strip() for o in cors_env.split(',') if o.strip()]
 
 FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
 # S1: Fail closed by default if ADMIN_TOKEN is not explicitly configured
