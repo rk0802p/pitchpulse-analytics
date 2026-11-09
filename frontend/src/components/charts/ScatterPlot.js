@@ -35,7 +35,7 @@ export default function ScatterPlot({
       return {
         sx: scaleLinear([0, 1], [0, W]),
         sy: scaleLinear([0, 1], [H, 0]),
-        sr: () => 5,
+        sr: () => 3,
         labels: [],
         resolvedMedians: medians
       };
@@ -48,7 +48,7 @@ export default function ScatterPlot({
 
     const sx = scaleLinear([Math.min(0, x0), (x1 || 1) * 1.06], [0, W]);
     const sy = scaleLinear([Math.min(0, y0), (y1 || 1) * 1.06], [H, 0]);
-    const sr = scaleSqrt([minMins, maxMins], [3.5, 11.5]);
+    const sr = scaleSqrt([minMins, maxMins], [2.2, 5.8]);
 
     const mX = medians?.x !== undefined ? medians.x : (x0 + x1) / 2;
     const mY = medians?.y !== undefined ? medians.y : (y0 + y1) / 2;
@@ -288,11 +288,11 @@ export default function ScatterPlot({
                 const isHover = hovered && (hovered.id === p.id || (hovered.name === p.name && hovered.x === p.x && hovered.y === p.y));
                 const mins = p.mins || p.Min || 0;
                 const baseR = sr(mins);
-                const r = isHighlight ? baseR + 3.5 : isHover ? baseR + 2.5 : baseR;
-                const opacity = (isHighlight || isHover) ? 1 : mins < 900 ? 0.22 : 0.45;
+                const r = isHighlight ? baseR + 2.5 : isHover ? baseR + 1.8 : baseR;
+                const opacity = (isHighlight || isHover) ? 1 : mins < 900 ? 0.35 : 0.6;
                 const fill = isHighlight ? 'var(--signal, #c92a2a)' : 'var(--blue)';
                 const stroke = isHighlight ? 'var(--signal, #c92a2a)' : isHover ? 'var(--ink)' : 'var(--blue)';
-                const strokeWidth = (isHighlight || isHover) ? 2 : 0.75;
+                const strokeWidth = (isHighlight || isHover) ? 1.75 : 0.6;
 
                 return (
                   <circle

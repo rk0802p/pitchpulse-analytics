@@ -63,15 +63,14 @@ function App() {
     const handleHashChange = () => {
       const parts = window.location.hash.replace(/^#\/?/, '').split('/');
       const tab = parts[0];
-      if (['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(tab)) {
-        setCurrentTab(tab);
-      }
       if (tab === 'profile') {
         const rawParam = parts[1] ? decodeURIComponent(parts[1]).trim() : '';
         if (!rawParam || rawParam === 'undefined' || rawParam === 'null') {
+          setCurrentTab('explorer');
           window.location.hash = '#explorer';
           return;
         }
+        setCurrentTab('profile');
         api.getPlayers({ season: activeSeason, search: rawParam, limit: 1 })
           .then(res => {
             const p = res?.data?.[0] || res?.[0];
@@ -91,10 +90,21 @@ function App() {
                       Age: iden.age,
                       Min: iden.minutes
                     });
+                  } else {
+                    setCurrentTab('explorer');
+                    window.location.hash = '#explorer';
                   }
-                }).catch(() => {});
+                }).catch(() => {
+                  setCurrentTab('explorer');
+                  window.location.hash = '#explorer';
+                });
             }
-          }).catch(() => {});
+          }).catch(() => {
+            setCurrentTab('explorer');
+            window.location.hash = '#explorer';
+          });
+      } else if (['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'data'].includes(tab)) {
+        setCurrentTab(tab);
       }
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -405,6 +415,7 @@ function App() {
             window.location.hash = '#explorer';
           }}
           onCompare={handleAddToCompare}
+          onSelectPlayer={handleSelectPlayer}
           activeSeason={activeSeason}
         />
       )}

@@ -25,6 +25,28 @@ export default function PercentileTable({
   sampleSize = 749,
   position = 'FW'
 }) {
+  if (!percentilesData || percentilesData.length === 0) {
+    return (
+      <div className="border border-[var(--ink)] bg-[var(--paper)] p-5 rounded-xs space-y-4 font-ser">
+        <div className="border-b border-[var(--ink)] pb-3 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+          <div>
+            <h3 className="font-disp font-bold text-xl sm:text-2xl text-[var(--ink)]">
+              Positional Percentile Benchmark
+            </h3>
+            <p className="text-xs italic text-[var(--mute)] mt-0.5">
+              {poolDescription}
+            </p>
+          </div>
+          <div className="text-xs font-mono text-[var(--mute)] bg-[var(--panel)] px-2.5 py-1 border border-[var(--rule)]">
+            Pool: {sampleSize} {position}s
+          </div>
+        </div>
+        <p className="text-xs italic text-[var(--mute)] py-4 text-center">
+          No percentile benchmarks available for this selection or playing time threshold.
+        </p>
+      </div>
+    );
+  }
   // Group rows
   const groups = percentilesData.reduce((acc, row) => {
     const grp = normalizeGroupName(row.group);

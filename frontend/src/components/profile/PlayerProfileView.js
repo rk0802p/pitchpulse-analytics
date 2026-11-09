@@ -23,6 +23,7 @@ export const PlayerProfileView = ({
   player,
   onBack,
   onCompare,
+  onSelectPlayer,
   activeSeason = "2024-2025"
 }) => {
   const [profileData, setProfileData] = useState(null);
@@ -177,12 +178,12 @@ export const PlayerProfileView = ({
 
   // Fallback percentiles data if dedicated endpoint not yet populated
   const defaultPercentilesData = [
-    { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? 85 },
-    { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: per90.xg_per_90, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? 82 },
-    { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? 74 },
-    { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? 78 },
-    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: (totals.progressive_carries / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_carries?.percentile ?? 88 },
-    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: (totals.progressive_passes / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_passes?.percentile ?? 70 }
+    { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? (player?.Gls_90_pct ?? 85) },
+    { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: per90.xg_per_90, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? (player?.xG_90_pct ?? 82) },
+    { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? (player?.Ast_90_pct ?? 74) },
+    { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? (player?.xAG_90_pct ?? 78) },
+    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: (totals.progressive_carries / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_carries?.percentile ?? (player?.PrgC_90_pct ?? 88) },
+    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: (totals.progressive_passes / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_passes?.percentile ?? (player?.PrgP_90_pct ?? 70) }
   ];
 
   const resolvedPercentiles = percentilesList.length > 0 ? percentilesList : defaultPercentilesData;
@@ -394,8 +395,15 @@ export const PlayerProfileView = ({
           playerName={identity.name}
           position={identity.position}
           activeSeason={activeSeason}
-          onSelectPlayer={(pId) => {
-            window.location.hash = `#profile/${encodeURIComponent(pId)}`;
+          onSelectPlayer={(target) => {
+            if (onSelectPlayer) {
+              onSelectPlayer(target);
+            } else {
+              const targetId = typeof target === 'object' ? (target.id || target.record_id || target.Player || target.name) : target;
+              if (targetId && targetId !== 'undefined' && targetId !== 'null') {
+                window.location.hash = `#profile/${encodeURIComponent(targetId)}`;
+              }
+            }
           }}
           onCompare={onCompare}
         />
