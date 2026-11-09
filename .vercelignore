@@ -1,0 +1,33 @@
+# Tests & caches
+tests/
+Backend/tests/
+.pytest_cache/
+*/.pytest_cache/
+
+# Maintenance & offline scripts
+scripts/
+Backend/scripts/
+
+# Documentation & artifacts
+docs/
+artifacts/
+*.md
+
+# Excel files (production API exclusively serves CSV)
+*.xlsx
+*.xls
+Backend/*.xlsx
+
+# Virtual environments
+venv/
+.venv/
+env/
+Backend/venv/
+
+# Caches & build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.vscode/
+.idea/

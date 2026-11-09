@@ -1,0 +1,21 @@
+# Tests & caches
+tests/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Maintenance & offline scripts
+scripts/
+
+# Excel spreadsheets (production API reads CSV only)
+*.xlsx
+*.xls
+top5-players24-25.xlsx
+
+# Local environments
+venv/
+.venv/
+env/
+.env*
