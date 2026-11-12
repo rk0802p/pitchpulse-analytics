@@ -25,19 +25,21 @@ export default function ScatterPlot({
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
+  const [dotMode, setDotMode] = useState('volume'); // 'volume' | 'uniform'
   const svgRef = useRef(null);
 
   const W = width - MARGIN.left - MARGIN.right;
   const H = height - MARGIN.top - MARGIN.bottom;
 
-  const { sx, sy, sr, labels, resolvedMedians } = useMemo(() => {
+  const { sx, sy, sr, labels, resolvedMedians, poolSize } = useMemo(() => {
     if (!points || points.length === 0) {
       return {
         sx: scaleLinear([0, 1], [0, W]),
         sy: scaleLinear([0, 1], [H, 0]),
         sr: () => 3,
         labels: [],
-        resolvedMedians: medians
+        resolvedMedians: medians,
+        poolSize: 0
       };
     }
 
@@ -45,10 +47,37 @@ export default function ScatterPlot({
     const [y0, y1] = extent(points, (p) => p.y);
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
+    const poolSize = points.length;
 
     const sx = scaleLinear([Math.min(0, x0), (x1 || 1) * 1.06], [0, W]);
     const sy = scaleLinear([Math.min(0, y0), (y1 || 1) * 1.06], [H, 0]);
-    const sr = scaleSqrt([minMins, maxMins], [2.2, 5.8]);
+
+    // Density-aware radius scaling
+    let sr;
+    if (dotMode === 'uniform') {
+      sr = () => 2; // Uniform micro-dots for unbiased density analysis
+    } else {
+      // Volume-scaled with density adaptation
+      // Dense pools (>250): 1.5–3.6px (editorial micro-dot style)
+      // Sparse pools (<100): 2.4–5.2px
+      // Medium pools: interpolated
+      const denseThreshold = 250;
+      const sparseThreshold = 100;
+      let minR, maxR;
+      if (poolSize >= denseThreshold) {
+        minR = 1.5;
+        maxR = 3.6;
+      } else if (poolSize <= sparseThreshold) {
+        minR = 2.4;
+        maxR = 5.2;
+      } else {
+        // Linear interpolation between sparse and dense ranges
+        const t = (poolSize - sparseThreshold) / (denseThreshold - sparseThreshold);
+        minR = 2.4 + (1.5 - 2.4) * t;
+        maxR = 5.2 + (3.6 - 5.2) * t;
+      }
+      sr = scaleSqrt([minMins, maxMins], [minR, maxR]);
+    }
 
     const mX = medians?.x !== undefined ? medians.x : (x0 + x1) / 2;
     const mY = medians?.y !== undefined ? medians.y : (y0 + y1) / 2;
@@ -84,9 +113,10 @@ export default function ScatterPlot({
       sy,
       sr,
       labels: placed,
-      resolvedMedians: { x: mX, y: mY }
+      resolvedMedians: { x: mX, y: mY },
+      poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode]);
 
   const handleExport = () => {
     if (svgRef.current) {
@@ -133,6 +163,19 @@ export default function ScatterPlot({
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export PNG</span>
+            </button>
+          )}
+
+          {!viewTable && (
+            <button
+              type="button"
+              onClick={() => setDotMode(dotMode === 'volume' ? 'uniform' : 'volume')}
+              className="border border-[var(--rule)] hover:border-[var(--ink)] px-2.5 py-1 text-xs italic text-[var(--ink)] flex items-center gap-1.5 transition-colors cursor-pointer"
+              title={dotMode === 'volume' ? 'Switch to uniform micro-dots (2px)' : 'Switch to volume-scaled dots (minutes-based)'}
+            >
+              <span className="font-mono">
+                {dotMode === 'volume' ? '● Volume' : '● Uniform'}
+              </span>
             </button>
           )}
         </div>
@@ -288,32 +331,71 @@ export default function ScatterPlot({
                 const isHover = hovered && (hovered.id === p.id || (hovered.name === p.name && hovered.x === p.x && hovered.y === p.y));
                 const mins = p.mins || p.Min || 0;
                 const baseR = sr(mins);
-                const r = isHighlight ? baseR + 2.5 : isHover ? baseR + 1.8 : baseR;
-                const opacity = (isHighlight || isHover) ? 1 : mins < 900 ? 0.35 : 0.6;
-                const fill = isHighlight ? 'var(--signal, #c92a2a)' : 'var(--blue)';
-                const stroke = isHighlight ? 'var(--signal, #c92a2a)' : isHover ? 'var(--ink)' : 'var(--blue)';
-                const strokeWidth = (isHighlight || isHover) ? 1.75 : 0.6;
+
+                // Visual radius (what you see)
+                const visualR = isHighlight ? baseR + 2.5 : isHover ? baseR + 2 : baseR;
+                // Hitbox radius (invisible, for effortless targeting) - always at least 7px
+                const hitboxR = Math.max(baseR, 7);
+
+                // Visual hierarchy: sub-900m vs established starters
+                const isLowMinutes = mins < 900 && !isHighlight && !isHover;
+                const baseOpacity = isLowMinutes ? 0.30 : 0.55;
+                const baseStrokeWidth = isLowMinutes ? 0.4 : 0.6;
+                const baseStroke = isLowMinutes ? 'var(--blue)' : 'var(--blue)';
+                const baseFill = 'var(--blue)';
+
+                const opacity = (isHighlight || isHover) ? 1 : baseOpacity;
+                const fill = isHighlight ? 'var(--signal, #c92a2a)' : baseFill;
+                const stroke = isHighlight ? 'var(--signal, #c92a2a)' : isHover ? 'var(--ink)' : baseStroke;
+                const strokeWidth = (isHighlight || isHover) ? 1.75 : baseStrokeWidth;
+
+                // Hover/highlight bloom with halo ring
+                const bloomR = (isHighlight || isHover) ? visualR + 2 : visualR;
+                const haloStroke = (isHighlight || isHover) ? 'var(--ink)' : 'transparent';
+                const haloStrokeWidth = (isHighlight || isHover) ? 2 : 0;
 
                 return (
-                  <circle
-                    key={p.id || `${p.name}-${p.x}-${p.y}`}
-                    cx={sx(p.x)}
-                    cy={sy(p.y)}
-                    r={r}
-                    fill={fill}
-                    fillOpacity={opacity}
-                    stroke={stroke}
-                    strokeWidth={strokeWidth}
-                    className="cursor-pointer"
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`${p.name || p.Player}: ${xLabel} ${p.x}, ${yLabel} ${p.y}`}
-                    onMouseEnter={() => setHovered(p)}
-                    onMouseLeave={() => setHovered((cur) => (cur && (cur.id === p.id || cur.name === p.name) ? null : cur))}
-                    onFocus={() => setHovered(p)}
-                    onBlur={() => setHovered(null)}
-                    onClick={() => onSelectPlayer && onSelectPlayer(p)}
-                  />
+                  <g key={p.id || `${p.name}-${p.x}-${p.y}`}>
+                    {/* Invisible transparent hitbox for effortless targeting */}
+                    <circle
+                      cx={sx(p.x)}
+                      cy={sy(p.y)}
+                      r={hitboxR}
+                      fill="transparent"
+                      stroke="transparent"
+                      className="cursor-pointer"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`${p.name || p.Player}: ${xLabel} ${p.x}, ${yLabel} ${p.y}`}
+                      onMouseEnter={() => setHovered(p)}
+                      onMouseLeave={() => setHovered((cur) => (cur && (cur.id === p.id || cur.name === p.name) ? null : cur))}
+                      onFocus={() => setHovered(p)}
+                      onBlur={() => setHovered(null)}
+                      onClick={() => onSelectPlayer && onSelectPlayer(p)}
+                    />
+                    {/* Visible dot with bloom + halo on interaction */}
+                    <circle
+                      cx={sx(p.x)}
+                      cy={sy(p.y)}
+                      r={bloomR}
+                      fill={fill}
+                      fillOpacity={opacity}
+                      stroke={haloStroke}
+                      strokeWidth={haloStrokeWidth}
+                      pointerEvents="none"
+                    />
+                    {/* Core dot */}
+                    <circle
+                      cx={sx(p.x)}
+                      cy={sy(p.y)}
+                      r={visualR}
+                      fill={fill}
+                      fillOpacity={opacity}
+                      stroke={stroke}
+                      strokeWidth={strokeWidth}
+                      pointerEvents="none"
+                    />
+                  </g>
                 );
               })}
 
