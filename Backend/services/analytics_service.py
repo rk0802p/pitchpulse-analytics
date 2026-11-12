@@ -346,11 +346,7 @@ def get_dashboard_analytics(competition=None, season=None):
     quar_policy = season_service.get_quarantine_policy(season)
     quarantine_notice = None
     if quar_policy["is_quarantined"]:
-        quarantine_notice = {
-            "status": "quarantined",
-            "title": quar_policy["warning_title"],
-            "message": quar_policy["warning_message"]
-        }
+        quarantine_notice = quar_policy["warning_message"] or f"This {quar_policy['dataset_status']} dataset is quarantined from authoritative rankings."
 
     return {
         "is_quarantined": quar_policy["is_quarantined"],

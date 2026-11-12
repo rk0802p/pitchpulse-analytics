@@ -74,23 +74,28 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
         self.assertIn('2025-2026', season_ids)
 
-        # Verify all 3 seasons are verified historical without baseline lock or projection
+        # Verify all 3 seasons have correct governance metadata
 
         for s in seasons:
 
             if s['id'] == '2025-2026':
-                self.assertIn(s['dataset_status'], ['quarantined', 'verified_historical'])
+                # 2025-2026 is verified historical (completed season)
+                self.assertEqual(s['dataset_status'], 'verified_historical')
+                self.assertFalse(s['is_quarantined'])
+                self.assertFalse(s['is_projection'])
+                self.assertFalse(s['is_simulated'])
+                self.assertEqual(s['status_label'], 'Historical Season')
             else:
                 self.assertEqual(s['dataset_status'], 'verified_historical')
+                self.assertFalse(s['is_quarantined'])
+                self.assertFalse(s['is_projection'])
+                self.assertFalse(s['is_simulated'])
+                self.assertEqual(s['status_label'], 'Historical Season')
 
             if s['id'] == '2024-2025':
                 self.assertTrue(s['is_baseline'])
             else:
                 self.assertFalse(s['is_baseline'])
-
-            if s['id'] != '2025-2026':
-                self.assertFalse(s['is_projection'])
-                self.assertEqual(s['status_label'], 'Historical Season')
     
 
 

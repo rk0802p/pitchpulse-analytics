@@ -39,10 +39,11 @@ class TestGovernancePhase2(unittest.TestCase):
         self.assertFalse(pol_24['is_quarantined'])
         self.assertEqual(pol_24['status'], 'verified_historical')
 
-        # 2025-2026 is verified historical
+        # 2025-2026 is verified historical (completed season)
         pol_25 = season_service.get_quarantine_policy('2025-2026')
         self.assertFalse(pol_25['is_quarantined'])
         self.assertEqual(pol_25['status'], 'verified_historical')
+        self.assertEqual(pol_25['dataset_status'], 'verified_historical')
 
         # Unknown or provisional status must fail-closed as quarantined
         mock_quarantine = season_service.get_quarantine_policy('non-existent-or-unverified')

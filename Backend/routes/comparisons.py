@@ -38,9 +38,15 @@ def compare():
     player_policies = [season_service.get_quarantine_policy(p.get("season", target_season)) for p in selected_players]
     any_quarantined = base_policy["is_quarantined"] or any(pol["is_quarantined"] for pol in player_policies)
     quar_reason = None
+    dataset_status = 'verified_historical'
     if any_quarantined:
         quar_reasons = [pol["quarantine_reason"] for pol in ([base_policy] + player_policies) if pol["quarantine_reason"]]
         quar_reason = quar_reasons[0] if quar_reasons else "Dataset contains unverified data and is quarantined."
+        # Use the actual dataset_status from the first quarantined policy
+        for pol in ([base_policy] + player_policies):
+            if pol["is_quarantined"]:
+                dataset_status = pol.get("dataset_status", "quarantined")
+                break
 
     return jsonify({
         'success': True,
@@ -48,7 +54,7 @@ def compare():
         'metrics': result['metrics'],
         'radar': result['radar'],
         'is_quarantined': any_quarantined,
-        'dataset_status': 'quarantined' if any_quarantined else 'verified_historical',
+        'dataset_status': dataset_status,
         'quarantine_notice': quar_reason if any_quarantined else None,
         'quarantine_policy': base_policy if not any_quarantined else next((p for p in player_policies if p["is_quarantined"]), base_policy),
         'comparison_data': {

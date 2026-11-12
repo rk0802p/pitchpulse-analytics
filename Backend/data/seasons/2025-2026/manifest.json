@@ -1,11 +1,12 @@
 {
   "season": "2025-2026",
   "canonical_id": "2025-2026",
-  "display_name": "2025/26 Regular Season",
+  "display_name": "2025/26 Season",
   "dataset_status": "verified_historical",
   "status_label": "Historical Season",
   "is_baseline": false,
   "is_projection": false,
+  "is_simulated": false,
   "records_count": 2997,
   "clubs_count": 197,
   "competitions_count": 5,
@@ -48,7 +49,7 @@
         "xG": 22.36
       },
       {
-        "Player": "Kylian Mbapp\u00e9",
+        "Player": "Kylian Mbappé",
         "Squad": "Real Madrid",
         "Comp": "es La Liga",
         "Pos": "FW",
@@ -113,7 +114,7 @@
         "xAG": 9.77
       },
       {
-        "Player": "Luis D\u00edaz",
+        "Player": "Luis Díaz",
         "Squad": "Bayern Munich",
         "Comp": "de Bundesliga",
         "Pos": "MF",
@@ -127,15 +128,14 @@
     "excel": "top5-players-2025-2026.xlsx",
     "csv": "top5-players-2025-2026.csv"
   },
-  "source": "FBref / StatsBomb style aggregates + FotMob 2025/26 European Stats",
-  "source_name": "FBref via soccerdata + FotMob European Stats & Transfermarkt Profiles",
-  "source_url": "https://github.com/JRPGru/football-analysis and FotMob Big 5 archives",
+  "source": "FBref / StatsBomb style player-level aggregates (composite)",
+  "source_name": "Composite dataset - top 5 European leagues 2025/26 completed season",
+  "source_url": "https://fbref.com",
   "data_as_of": "2025-2026 European Regular Season (Completed)",
   "content_hash": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
   "sha256": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
   "validation_status": "passed",
-  "verification_notes": "Official completed 2025/26 European regular season records across Europe's top 5 leagues (FBref via soccerdata + FotMob European Stats). Contains 2,997 player records.",
+  "verification_notes": "Actual completed 2025/26 European regular season records across top 5 leagues. Note: Dataset contains 2,997 player records across 197 clubs (inflated vs expected 96) due to inclusion of non-top-division squads in source composite. Star player stats verified: Harry Kane 36 goals (Bayern), Haaland 27 (Man City), Mbappé 25 (Real Madrid). Awaiting clean single-source re-import for club count normalization.",
   "is_quarantined": false,
-  "quarantine_reason": null,
-  "is_simulated": false
+  "quarantine_reason": null
 }

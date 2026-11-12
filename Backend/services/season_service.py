@@ -66,17 +66,21 @@ class SeasonService:
         manifest = self.get_season_manifest(s_id) or {}
 
         VERIFIED_ALLOWLIST = {'verified_historical', 'read_only_baseline'}
+        KNOWN_STATUSES = {'verified_historical', 'read_only_baseline', 'projected', 'simulated', 'quarantined'}
         raw_status = manifest.get('dataset_status', '')
 
         is_baseline = (s_id == '2024-2025' or manifest.get('is_baseline') is True)
         if is_baseline:
             is_quarantined = False
             status = 'verified_historical'
+            dataset_status = 'verified_historical'
             status_label = 'Historical Season'
             quarantine_reason = None
         elif manifest.get('is_quarantined') is True or raw_status in ('simulated', 'quarantined') or raw_status not in VERIFIED_ALLOWLIST:
             is_quarantined = True
-            status = 'quarantined'
+            # Preserve actual dataset_status if it's a known status
+            status = raw_status if raw_status in KNOWN_STATUSES else 'quarantined'
+            dataset_status = raw_status if raw_status in KNOWN_STATUSES else 'quarantined'
             status_label = manifest.get('status_label') or 'Quarantined / Provisional'
             quarantine_reason = manifest.get('quarantine_reason') or (
                 "Dataset status is not in the verified historical allowlist. "
@@ -85,6 +89,7 @@ class SeasonService:
         else:
             is_quarantined = False
             status = 'verified_historical'
+            dataset_status = 'verified_historical'
             status_label = manifest.get('status_label') or 'Historical Season'
             quarantine_reason = None
 
@@ -92,7 +97,7 @@ class SeasonService:
             'season_id': s_id,
             'is_quarantined': is_quarantined,
             'status': status,
-            'dataset_status': status,
+            'dataset_status': dataset_status,
             'status_label': status_label,
             'quarantine_reason': quarantine_reason,
             'warning_title': 'Quarantined / Provisional Dataset' if is_quarantined else None,
@@ -138,6 +143,7 @@ class SeasonService:
             status_label = policy['status_label']
             quarantine_reason = policy['quarantine_reason']
             is_projection = is_quarantined
+            is_simulated = manifest.get('is_simulated', False)
 
             # Human friendly display name e.g. "2023/24 Historical Season"
             short_year = entry.replace('-', '/').replace('20', '', 1)
@@ -160,6 +166,7 @@ class SeasonService:
                 'dataset_status': dataset_status,
                 'status_label': status_label,
                 'is_projection': is_projection,
+                'is_simulated': is_simulated,
                 'records_count': manifest.get('records_count', 0),
                 'clubs_count': manifest.get('clubs_count', 0),
                 'competitions_count': manifest.get('competitions_count', 5),
