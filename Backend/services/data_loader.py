@@ -3,10 +3,16 @@ import re
 import logging
 import pandas as pd
 import numpy as np
+import duckdb
 from config import DATASET_PATH, COMPETITIONS, COMPETITION_LOOKUP, METRIC_DEFINITIONS
 from services.season_service import season_service
 
 logger = logging.getLogger(__name__)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DUCKDB_PATH = os.path.join(BASE_DIR, 'data', 'pitchpulse.duckdb')
+PARQUET_DIR = os.path.join(BASE_DIR, 'data', 'parquet')
+
 
 def slugify(text):
     if not text:
@@ -15,10 +21,11 @@ def slugify(text):
     text = re.sub(r'[^\w\s-]', '', text)
     return re.sub(r'[-\s]+', '-', text).strip('-')
 
+
 class DataLoader:
     """
-    Multi-season data loader and in-memory cache for PitchPulse.
-    Supports on-demand loading of individual seasons with fallback to the immutable baseline.
+    Multi-season data loader using DuckDB for high-performance columnar queries.
+    Falls back to Parquet files for direct access. In-memory cache for hot data.
     """
     _instance = None
     _seasons_df = {}
@@ -28,6 +35,7 @@ class DataLoader:
     _records = None
     _by_id = {}
     _is_initialized = False
+    _conn = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -36,6 +44,12 @@ class DataLoader:
             cls._instance._seasons_records = {}
             cls._instance._seasons_by_id = {}
         return cls._instance
+
+    def _get_connection(self):
+        """Get or create DuckDB connection (read-only for query performance)."""
+        if self._conn is None:
+            self._conn = duckdb.connect(DUCKDB_PATH, read_only=True)
+        return self._conn
 
     def initialize(self, force_reload=False):
         if self._is_initialized and not force_reload:
@@ -47,7 +61,7 @@ class DataLoader:
         self._is_initialized = True
 
     def load_season(self, season_id, force_reload=False):
-        """Loads and normalizes a specific season dataset into memory."""
+        """Loads a specific season from Parquet (fast), DuckDB, or CSV/Excel fallback into memory cache."""
         s_id = season_service.resolve_season(season_id)
         if not season_service.season_exists(s_id):
             raise FileNotFoundError(f"Season data file not found for season '{s_id}'.")
@@ -60,33 +74,55 @@ class DataLoader:
                 self._by_id = self._seasons_by_id[s_id]
             return self._seasons_df[s_id]
 
-        file_path = season_service.get_season_file_path(s_id, preferred_format='csv')
-        if not file_path or not os.path.exists(file_path):
-            if s_id == '2024-2025' and os.path.exists(DATASET_PATH):
-                file_path = DATASET_PATH
-            else:
-                raise FileNotFoundError(f"Season data file not found for season '{s_id}'.")
-
-        logger.info(f"Loading season '{s_id}' from: {file_path}")
-        ext = os.path.splitext(file_path)[1].lower()
-        if ext in ['.csv', '.txt']:
-            try:
-                raw_df = pd.read_csv(file_path, encoding='utf-8')
-            except UnicodeDecodeError:
-                raw_df = pd.read_csv(file_path, encoding='latin1')
-        elif ext in ['.xlsx', '.xls']:
-            xls = pd.ExcelFile(file_path)
-            all_dfs = []
-            for sheet_name in xls.sheet_names:
-                all_dfs.append(pd.read_excel(xls, sheet_name=sheet_name))
-            raw_df = pd.concat(all_dfs, ignore_index=True) if all_dfs else pd.DataFrame()
+        # Try Parquet first (fastest for single-season loads)
+        parquet_path = os.path.join(PARQUET_DIR, f"{s_id}.parquet")
+        if os.path.exists(parquet_path):
+            logger.info(f"Loading season '{s_id}' from Parquet: {parquet_path}")
+            norm_df = pd.read_parquet(parquet_path)
         else:
-            raise ValueError(f"Unsupported file format '{ext}' for season '{s_id}'.")
+            # Fallback to DuckDB query
+            conn = self._get_connection()
+            duck_df = conn.execute(
+                "SELECT * FROM players WHERE season = ?", [s_id]
+            ).fetchdf()
 
-        self._validate_schema(raw_df)
-        norm_df = self._normalize_dataset(raw_df, season_id=s_id)
-        norm_df['season'] = s_id
-        norm_df['comparison_key'] = norm_df['Rk'].astype(str) + '@' + s_id
+            if len(duck_df) > 0:
+                logger.info(f"Loading season '{s_id}' from DuckDB ({len(duck_df)} rows)")
+                norm_df = duck_df
+            else:
+                # Fallback to legacy CSV/Excel import (for dynamically added seasons not yet in DuckDB/Parquet)
+                logger.info(f"Season '{s_id}' not in DuckDB/Parquet, falling back to CSV/Excel import")
+                file_path = season_service.get_season_file_path(s_id, preferred_format='csv')
+                if not file_path or not os.path.exists(file_path):
+                    if s_id == '2024-2025' and os.path.exists(DATASET_PATH):
+                        file_path = DATASET_PATH
+                    else:
+                        raise FileNotFoundError(f"Season data file not found for season '{s_id}'.")
+
+                ext = os.path.splitext(file_path)[1].lower()
+                if ext in ['.csv', '.txt']:
+                    try:
+                        raw_df = pd.read_csv(file_path, encoding='utf-8')
+                    except UnicodeDecodeError:
+                        raw_df = pd.read_csv(file_path, encoding='latin1')
+                elif ext in ['.xlsx', '.xls']:
+                    xls = pd.ExcelFile(file_path)
+                    all_dfs = []
+                    for sheet_name in xls.sheet_names:
+                        all_dfs.append(pd.read_excel(xls, sheet_name=sheet_name))
+                    raw_df = pd.concat(all_dfs, ignore_index=True) if all_dfs else pd.DataFrame()
+                else:
+                    raise ValueError(f"Unsupported file format '{ext}' for season '{s_id}'.")
+
+                self._validate_schema(raw_df)
+                norm_df = self._normalize_dataset(raw_df, season_id=s_id)
+                norm_df['season'] = s_id
+                norm_df['comparison_key'] = norm_df['Rk'].astype(str) + '@' + s_id
+
+        if len(norm_df) == 0:
+            raise ValueError(f"Season '{s_id}' has no records.")
+
+        # Convert to records format for API compatibility
         raw_records = norm_df.to_dict(orient='records')
         records = [{k: (None if pd.isna(v) else (int(v) if k in ['PrgC', 'PrgP', 'PrgR'] and not pd.isna(v) else v)) for k, v in r.items()} for r in raw_records]
         by_id = {r['Rk']: r for r in records}
@@ -260,6 +296,59 @@ class DataLoader:
 
         return df
 
+    def query_players(self, season=None, competition=None, position=None, min_minutes=0, metrics=None, limit=None, offset=0):
+        """
+        High-performance filtered query using DuckDB SQL.
+        Returns DataFrame for analytical operations or list of dicts for API.
+        """
+        conn = self._get_connection()
+
+        conditions = []
+        params = []
+
+        if season:
+            s_id = season_service.resolve_season(season)
+            conditions.append("season = ?")
+            params.append(s_id)
+        else:
+            s_id = season_service.get_active_season()
+            conditions.append("season = ?")
+            params.append(s_id)
+
+        if competition:
+            conditions.append("competition_id = ?")
+            params.append(competition)
+
+        if position:
+            conditions.append("Pos = ?")
+            params.append(position)
+
+        if min_minutes > 0:
+            conditions.append("Min >= ?")
+            params.append(min_minutes)
+
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+
+        # Build select clause
+        if metrics:
+            # Quote metric names that contain special characters
+            quoted_metrics = [f'"{m}"' if any(c in m for c in '+-') else m for m in metrics]
+            # Always include identity columns
+            identity_cols = ['Rk', 'Player', 'Squad', 'Comp', 'Pos', 'Min', 'season', 'competition_id', 'competition_name', 'country']
+            select_cols = identity_cols + [m for m in quoted_metrics if m not in identity_cols]
+            select_clause = ", ".join(select_cols)
+        else:
+            select_clause = "*"
+
+        query = f"SELECT {select_clause} FROM players WHERE {where_clause}"
+
+        if limit:
+            query += f" LIMIT {limit}"
+        if offset:
+            query += f" OFFSET {offset}"
+
+        return conn.execute(query, params).fetchdf()
+
     def get_dataframe(self, season=None):
         if not self._is_initialized:
             self.initialize()
@@ -309,6 +398,61 @@ class DataLoader:
             slug = slugify(req_str)
             matches = [r for r in target_records if r.get('player_id') == req_str or r.get('player_slug') == slug]
             return matches[0] if matches else None
+
+    def get_aggregations(self, season=None, group_by='competition_id', metrics=None):
+        """Fast aggregated queries (means, percentiles) using DuckDB."""
+        conn = self._get_connection()
+
+        if season:
+            s_id = season_service.resolve_season(season)
+            where = "WHERE season = ?"
+            params = [s_id]
+        else:
+            s_id = season_service.get_active_season()
+            where = "WHERE season = ?"
+            params = [s_id]
+
+        if metrics:
+            quoted = [f'AVG("{m}") as avg_{m.replace("+", "_").replace("-", "_")}' if any(c in m for c in '+-') else f'AVG({m}) as avg_{m}' for m in metrics]
+            agg_clause = ", ".join(quoted)
+        else:
+            agg_clause = "AVG(Gls_90) as avg_gls_90, AVG(Ast_90) as avg_ast_90, AVG(xG_90) as avg_xg_90"
+
+        query = f"""
+            SELECT {group_by}, {agg_clause}, COUNT(*) as player_count
+            FROM players
+            {where} AND Min > 0
+            GROUP BY {group_by}
+            ORDER BY player_count DESC
+        """
+        return conn.execute(query, params).fetchdf()
+
+    def get_percentiles(self, season=None, metric='Gls_90', percentiles=[0.25, 0.5, 0.75, 0.9, 0.95]):
+        """Fast percentile computation using DuckDB's quantile functions."""
+        conn = self._get_connection()
+
+        if season:
+            s_id = season_service.resolve_season(season)
+            where = "WHERE season = ? AND Min > 0"
+            params = [s_id]
+        else:
+            s_id = season_service.get_active_season()
+            where = "WHERE season = ? AND Min > 0"
+            params = [s_id]
+
+        # Quote metric if needed
+        metric_q = f'"{metric}"' if any(c in metric for c in '+-') else metric
+
+        pct_exprs = ", ".join([f"quantile_cont({metric_q}, {p}) as p{int(p*100)}" for p in percentiles])
+        query = f"SELECT {pct_exprs} FROM players {where}"
+        return conn.execute(query, params).fetchdf()
+
+    def close(self):
+        """Close DuckDB connection."""
+        if self._conn:
+            self._conn.close()
+            self._conn = None
+
 
 # Global singleton accessor
 data_loader = DataLoader()

@@ -56,6 +56,33 @@ def create_app():
     app.register_blueprint(leaderboards_bp, url_prefix='/api')
     app.register_blueprint(seasons_bp, url_prefix='/api')
 
+    # Edge caching for immutable historical data
+    # Historical seasons (2012-2013 through 2024-2025) never change - safe to cache aggressively
+    @app.after_request
+    def add_cache_headers(response):
+        # Only cache successful GET requests
+        if request.method == 'GET' and response.status_code == 200:
+            # Check if this is a historical data endpoint (not admin, not current live season mutations)
+            path = request.path
+            if path.startswith('/api/') and not path.startswith('/api/admin'):
+                # For historical seasons: cache for 24h at edge, 7 days stale-while-revalidate
+                # Active season (2024-2025): shorter cache since it may update during season
+                season = request.args.get('season')
+                is_historical = season and season != '2024-2025' and season != '2025-2026'
+
+                if is_historical or path.startswith('/api/players') or path.startswith('/api/leaderboards') or path.startswith('/api/charts') or path.startswith('/api/competitions') or path.startswith('/api/seasons') or path.startswith('/api/comparisons'):
+                    if is_historical:
+                        # Immutable historical data: 24h edge cache, 7 days stale-while-revalidate
+                        response.headers['Cache-Control'] = 'public, s-maxage=86400, stale-while-revalidate=604800'
+                    else:
+                        # Active season: 5 min edge cache, 1 hour stale-while-revalidate
+                        response.headers['Cache-Control'] = 'public, s-maxage=300, stale-while-revalidate=3600'
+                    # Add cache tag for potential purging
+                    response.headers['Cache-Tag'] = f'season-{season}' if season else 'active-season'
+        return response
+
+    from flask import request
+
     @app.route('/api/')
     @app.route('/')
     def home():
