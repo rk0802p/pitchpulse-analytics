@@ -246,7 +246,7 @@ def performance_index(df, role='finisher', position=None, competition=None, min_
         'players': results
     }
 
-def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=None, competition=None, min_minutes=270):
+def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=None, competition=None, min_minutes=270, age_max=None):
     """
     Generates standardized 2D scatter plot data with median crosshairs and quadrant distribution.
     """
@@ -278,6 +278,9 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
     if cohort is None:
         return empty_result('not_tracked')
     cohort = cohort.copy()
+
+    if age_max is not None and 'Age' in cohort.columns:
+        cohort = cohort[pd.to_numeric(cohort['Age'], errors='coerce').le(age_max)]
 
     if len(cohort) == 0:
         if df is None or len(df) == 0 or valid_x not in df.columns or valid_y not in df.columns:
@@ -327,6 +330,7 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
             'Squad': row['Squad'],
             'Comp': row['Comp'],
             'Pos': row['Pos'],
+            'Age': float(row['Age']) if 'Age' in row and pd.notna(row['Age']) else None,
             'Min': int(row['Min']),
             'x': vx,
             'y': vy,

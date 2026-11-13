@@ -4,6 +4,7 @@ Exposes REST endpoints for scatter plots, empirical percentiles,
 player style similarity matching, and composite performance indices.
 """
 
+import math
 from flask import Blueprint, request
 from services.data_loader import data_loader
 from services.season_service import season_service
@@ -49,6 +50,17 @@ def get_scatter():
     except (ValueError, TypeError):
         min_minutes = 270
 
+    age_max = request.args.get('age_max')
+    if age_max not in (None, ''):
+        try:
+            age_max = float(age_max)
+            if not math.isfinite(age_max) or age_max < 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            return error_response("age_max must be a non-negative number", status_code=400, code="ERR_INVALID_AGE")
+    else:
+        age_max = None
+
     df = data_loader.get_dataframe(season=target_season)
     data = get_scatter_chart_data(
         df=df,
@@ -56,7 +68,8 @@ def get_scatter():
         y_metric=y_metric,
         position=position,
         competition=competition,
-        min_minutes=min_minutes
+        min_minutes=min_minutes,
+        age_max=age_max
     )
     return success_response(data, metadata={'season': target_season})
 

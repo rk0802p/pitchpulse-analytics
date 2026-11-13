@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
-import { extent, deviation, scaleLinear, scaleSqrt, downloadSvgAsPng } from '../../utils/chartMath';
+import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng } from '../../utils/chartMath';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
 const MARGIN = { top: 24, right: 32, bottom: 58, left: 68 };
@@ -43,14 +43,25 @@ export default function ScatterPlot({
       };
     }
 
-    const [x0, x1] = extent(points, (p) => p.x);
-    const [y0, y1] = extent(points, (p) => p.y);
+    const axisDomain = (values) => {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      if (min === max) {
+        if (min === 0) return [-1, 1];
+        const padding = Math.abs(min) * 0.06;
+        return [min - padding, max + padding];
+      }
+      const padding = (max - min) * 0.06;
+      return [min >= 0 ? 0 : min - padding, max + padding];
+    };
+    const xDomain = axisDomain(points.map((p) => p.x));
+    const yDomain = axisDomain(points.map((p) => p.y));
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
     const poolSize = points.length;
 
-    const sx = scaleLinear([Math.min(0, x0), (x1 || 1) * 1.06], [0, W]);
-    const sy = scaleLinear([Math.min(0, y0), (y1 || 1) * 1.06], [H, 0]);
+    const sx = scaleLinear(xDomain, [0, W]);
+    const sy = scaleLinear(yDomain, [H, 0]);
 
     // Density-aware radius scaling
     let sr;
@@ -79,8 +90,8 @@ export default function ScatterPlot({
       sr = scaleSqrt([minMins, maxMins], [minR, maxR]);
     }
 
-    const mX = medians?.x !== undefined ? medians.x : (x0 + x1) / 2;
-    const mY = medians?.y !== undefined ? medians.y : (y0 + y1) / 2;
+    const mX = Number.isFinite(medians?.x) ? medians.x : (xDomain[0] + xDomain[1]) / 2;
+    const mY = Number.isFinite(medians?.y) ? medians.y : (yDomain[0] + yDomain[1]) / 2;
     const xs = { median: mX, sd: deviation(points, (p) => p.x) };
     const ys = { median: mY, sd: deviation(points, (p) => p.y) };
 
@@ -189,8 +200,17 @@ export default function ScatterPlot({
       )}
 
       {/* Accessible Table View */}
-      {viewTable ? (
+      {poolSize === 0 ? (
+        <div className="border border-[var(--rule)] p-8 text-center text-xs italic text-[var(--mute)]" role="status">
+          No eligible observations are available for this chart.
+        </div>
+      ) : viewTable ? (
         <div className="overflow-x-auto max-h-[500px] border border-[var(--rule)]">
+          {poolSize > 100 && (
+            <p className="px-3 py-2 text-xs italic text-[var(--mute)]" role="status">
+              Showing the first 100 of {poolSize} plotted players.
+            </p>
+          )}
           <table className="w-full text-xs font-ser border-collapse">
             <thead>
               <tr className="border-b border-[var(--ink)] bg-[var(--panel)]">
@@ -282,7 +302,7 @@ export default function ScatterPlot({
               ))}
 
               {/* Median Cross-hairs */}
-              <line
+              {poolSize > 0 && <line
                 x1={sx(resolvedMedians.x)}
                 x2={sx(resolvedMedians.x)}
                 y1={0}
@@ -290,8 +310,8 @@ export default function ScatterPlot({
                 stroke="var(--mute)"
                 strokeDasharray="3 5"
                 strokeWidth="1.2"
-              />
-              <line
+              />}
+              {poolSize > 0 && <line
                 y1={sy(resolvedMedians.y)}
                 y2={sy(resolvedMedians.y)}
                 x1={0}
@@ -299,7 +319,7 @@ export default function ScatterPlot({
                 stroke="var(--mute)"
                 strokeDasharray="3 5"
                 strokeWidth="1.2"
-              />
+              />}
 
               {/* Optional Parity Line */}
               {parity && parityEnd > 0 && (

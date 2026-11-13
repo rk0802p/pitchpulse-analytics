@@ -43,6 +43,27 @@ class TestChartsBackendPhase5(unittest.TestCase):
             self.assertIn('FW', p['Pos'])
             self.assertGreaterEqual(p['Min'], 500)
 
+    def test_scatter_age_filter_is_applied_and_reported(self):
+        response = self.client.get(
+            '/api/charts/scatter?season=2024-2025&x=Gls&y=Ast&pos=FW&min_minutes=500&age_max=23'
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()['data']
+        self.assertGreater(payload['points_count'], 0)
+        self.assertTrue(all(point['Age'] is not None and point['Age'] <= 23 for point in payload['points']))
+
+    def test_scatter_rejects_invalid_age_filter(self):
+        response = self.client.get('/api/charts/scatter?age_max=NaN')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json()['error_detail']['code'], 'ERR_INVALID_AGE')
+
+    def test_scatter_accepts_goals_minus_xg_metric(self):
+        response = self.client.get(
+            '/api/charts/scatter?season=2024-2025&x=Gls_minus_xG&y=Ast&min_minutes=500'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()['data']['x_metric'], 'Gls_minus_xG')
+
     def test_scatter_untracked_metrics_are_null_and_marked_not_tracked(self):
         """Untracked historical metrics must not serialize an empty chart as zero statistics."""
         for query in (

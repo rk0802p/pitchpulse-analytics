@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import ScatterPlot from './ScatterPlot';
 import { Sliders, Search, Filter, RotateCcw, Sparkles } from 'lucide-react';
@@ -9,7 +9,7 @@ const METRIC_CATALOG = [
   { id: 'xG', name: 'Expected Goals (xG)', group: 'Scoring', desc: 'Shot quality accumulation' },
   { id: 'Gls_90', name: 'Goals per 90 (Gls_90)', group: 'Scoring', desc: 'Goals scaled to 90 minutes' },
   { id: 'xG_90', name: 'xG per 90 (xG_90)', group: 'Scoring', desc: 'Expected goals scaled to 90 minutes' },
-  { id: 'np:G-xG_90', name: 'Non-penalty G minus xG/90', group: 'Scoring', desc: 'Finishing over/under performance' },
+  { id: 'Gls_minus_xG', name: 'Goals minus xG', group: 'Scoring', desc: 'Season goals minus expected goals' },
 
   // Creating
   { id: 'Ast', name: 'Assists (Ast)', group: 'Creating', desc: 'Direct goal assists' },
@@ -52,7 +52,7 @@ export default function PlotAnyMetricView({
         pos: sp.get('pos') || 'FW',
         comp: sp.get('comp') || '',
         mins: Number(sp.get('mins')) || 500,
-        ageMax: sp.get('age_max') ? Number(sp.get('age_max')) : ''
+        ageMax: sp.has('age_max') ? Number(sp.get('age_max')) : ''
       };
     }
     return {
@@ -76,6 +76,7 @@ export default function PlotAnyMetricView({
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const requestKey = JSON.stringify([activeSeason, xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
 
   // Sync state to URL hash for shareable links
   useEffect(() => {
@@ -85,14 +86,16 @@ export default function PlotAnyMetricView({
     if (selectedPos) sp.set('pos', selectedPos);
     if (selectedComp) sp.set('comp', selectedComp);
     if (minMinutes) sp.set('mins', String(minMinutes));
-    if (ageMax) sp.set('age_max', String(ageMax));
+    if (ageMax !== '') sp.set('age_max', String(ageMax));
     window.location.hash = `#plots?${sp.toString()}`;
   }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
 
-  // Fetch scatter plot payload
-  const fetchScatter = useCallback(() => {
+  // Keep the chart tied to the current controls, ignoring responses from stale requests.
+  useEffect(() => {
+    let isCurrent = true;
     setLoading(true);
     setError(null);
+    setChartData(null);
     api.getScatterChart({
       season: activeSeason,
       x: xMetric,
@@ -100,24 +103,24 @@ export default function PlotAnyMetricView({
       position: selectedPos,
       competition: selectedComp,
       min_minutes: minMinutes,
-      age_max: ageMax || undefined
+      age_max: ageMax !== '' ? ageMax : undefined
     })
       .then((res) => {
         const payload = res?.data || res;
-        if (payload) {
-          setChartData(payload);
+        if (payload && isCurrent) {
+          setChartData({ requestKey, payload: payload.data || payload });
         }
       })
       .catch((err) => {
+        if (!isCurrent) return;
         console.error('Failed to load scatter data:', err);
-        setError(err.message || 'Failed to generate chart coordinates');
+        setError({ requestKey, message: err.message || 'Failed to generate chart coordinates' });
       })
-      .finally(() => setLoading(false));
-  }, [activeSeason, xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
-
-  useEffect(() => {
-    fetchScatter();
-  }, [fetchScatter]);
+      .finally(() => {
+        if (isCurrent) setLoading(false);
+      });
+    return () => { isCurrent = false; };
+  }, [requestKey, activeSeason, xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
 
   // Automatic quadrant labels for known pairs
   const quadrantLabels = useMemo(() => {
@@ -161,6 +164,11 @@ export default function PlotAnyMetricView({
 
   const xLabel = METRIC_CATALOG.find((m) => m.id === xMetric)?.name || xMetric;
   const yLabel = METRIC_CATALOG.find((m) => m.id === yMetric)?.name || yMetric;
+  const currentChartData = chartData?.requestKey === requestKey ? chartData.payload : null;
+  const currentError = error?.requestKey === requestKey ? error.message : null;
+  const isLoading = loading || (!currentChartData && !currentError);
+  const scatterPoints = currentChartData?.points || [];
+  const plottedLabel = scatterPoints.length === 1 ? 'player' : 'players';
 
   return (
     <div className="space-y-6 font-ser">
@@ -322,14 +330,14 @@ export default function PlotAnyMetricView({
       </div>
 
       {/* Error state */}
-      {error && (
+      {currentError && (
         <div className="p-4 bg-red-50 border border-red-200 text-xs text-red-700">
-          {error}
+          {currentError}
         </div>
       )}
 
       {/* Main Scatter Plot Display */}
-      {loading ? (
+      {isLoading ? (
         <div className="border border-[var(--ink)] bg-[var(--paper)] p-16 text-center animate-pulse">
           <div className="font-disp font-bold text-xl text-[var(--ink)]">
             Computing Positional Coordinates...
@@ -338,10 +346,10 @@ export default function PlotAnyMetricView({
             Resolving pool medians and standard deviations across {activeSeason}
           </p>
         </div>
-      ) : chartData && ((chartData.points && chartData.points.length > 0) || (chartData.data?.points && chartData.data.points.length > 0)) ? (
+      ) : currentError ? null : currentChartData && scatterPoints.length > 0 ? (
         <ScatterPlot
-          points={chartData.points || chartData.data?.points || []}
-          medians={chartData.medians || chartData.data?.medians || (chartData.distribution ? { x: chartData.distribution.median_x, y: chartData.distribution.median_y } : { x: 0, y: 0 })}
+          points={scatterPoints}
+          medians={currentChartData.medians || (currentChartData.distribution ? { x: currentChartData.distribution.median_x, y: currentChartData.distribution.median_y } : { x: null, y: null })}
           xLabel={xLabel}
           yLabel={yLabel}
           highlightName={searchHighlight}
@@ -350,13 +358,17 @@ export default function PlotAnyMetricView({
           quadrantLabels={quadrantLabels}
           title={`${yLabel} vs ${xLabel}`}
           subtitle={`Interactive bubble scatter plot with pool median cross-hairs and collision-free outlier labels`}
-          poolCaption={`Pool: ${chartData.pool?.n || chartData.points_count || (chartData.points ? chartData.points.length : 0)} players (${selectedPos || 'All positions'}, ${minMinutes}+ minutes played)`}
+          poolCaption={`Plotted: ${scatterPoints.length} ${plottedLabel} (${selectedPos || 'All positions'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}${selectedComp ? `, ${selectedComp}` : ''})`}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />
       ) : (
         <div className="border border-[var(--ink)] bg-[var(--paper)] p-12 text-center text-xs italic text-[var(--mute)]">
-          No players match the selected criteria ({selectedPos || 'All positions'}, {selectedComp || 'All Big 5'}, {minMinutes}+ minutes). Lower the minimum minutes slider to include more players.
+          {currentChartData?.tracking_status === 'not_tracked'
+            ? `${xLabel} or ${yLabel} is not tracked for ${activeSeason}.`
+            : currentChartData?.tracking_status === 'no_eligible_observations'
+              ? `No players have eligible ${xLabel} and ${yLabel} values for the selected filters.`
+              : `No players match the selected criteria (${selectedPos || 'All positions'}, ${selectedComp || 'All Big 5'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}). Lower the filters to include more players.`}
         </div>
       )}
     </div>
