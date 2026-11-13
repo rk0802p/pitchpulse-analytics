@@ -338,7 +338,7 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
 
         self.assertTrue(data_loader._is_initialized)
 
-        self.assertEqual(len(data_loader.get_dataframe()), 2997)
+        self.assertEqual(len(data_loader.get_dataframe()), 2611)
 
     def test_10_baseline_cryptographic_integrity(self):
 

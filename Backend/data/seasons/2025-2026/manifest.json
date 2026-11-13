@@ -7,13 +7,13 @@
   "is_baseline": false,
   "is_projection": false,
   "is_simulated": false,
-  "records_count": 2997,
-  "clubs_count": 197,
+  "records_count": 2611,
+  "clubs_count": 176,
   "competitions_count": 5,
   "competitions": {
-    "es La Liga": 767,
-    "eng Premier League": 693,
-    "de Bundesliga": 595,
+    "es La Liga": 611,
+    "eng Premier League": 551,
+    "de Bundesliga": 507,
     "it Serie A": 495,
     "fr Ligue 1": 447
   },
@@ -21,12 +21,12 @@
     "goals": 4426,
     "assists": 3090,
     "minutes": 3248289,
-    "xg": 4115.5,
-    "xag": 2795.3,
+    "xg": 4097.14,
+    "xag": 2784.0,
     "yellow_cards": 6387,
     "red_cards": 320,
-    "progressive_passes": 27603,
-    "progressive_carries": 14061
+    "progressive_passes": null,
+    "progressive_carries": null
   },
   "preview": {
     "top_scorers": [
@@ -126,16 +126,21 @@
   },
   "files": {
     "excel": "top5-players-2025-2026.xlsx",
-    "csv": "top5-players-2025-2026.csv"
+    "csv": "top5-players-2025-2026.csv",
+    "squad_verification": "squad_verification.csv",
+    "zero_minute_archive": "archive/zero_minute_rows.csv",
+    "removed_progression_values": "../../scripts/output/removed_progression_values.csv"
   },
   "source": "FBref / StatsBomb style player-level aggregates (composite)",
   "source_name": "Composite dataset - top 5 European leagues 2025/26 completed season",
   "source_url": "https://fbref.com",
   "data_as_of": "2025-2026 European Regular Season (Completed)",
-  "content_hash": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
-  "sha256": "fdd2ef7afb1a3ba698d718365c2ce456d2728ddba91e4e373e9f871292aaf27c",
+  "content_hash": "2551deb38a30df880efbe2bf5c45626f8e88cd9566d833a9a467949438d36e88",
+  "sha256": "2551deb38a30df880efbe2bf5c45626f8e88cd9566d833a9a467949438d36e88",
   "validation_status": "passed",
-  "verification_notes": "Actual completed 2025/26 European regular season records across top 5 leagues. Note: Dataset contains 2,997 player records across 197 clubs (inflated vs expected 96) due to inclusion of non-top-division squads in source composite. Star player stats verified: Harry Kane 36 goals (Bayern), Haaland 27 (Man City), Mbappé 25 (Real Madrid). Awaiting clean single-source re-import for club count normalization.",
+  "verification_notes": "Phase 2 applied to 2025/26 only: 386 zero-minute placeholders archived and removed; 89 uniquely sourced Serie A/Ligue 1 squad corrections applied; 163 reviewed rows remain unchanged as unresolved. PrgC/PrgP/PrgR are null for all 2,611 rows because no traceable source was found for the composite progression values. The sidecar records 252 reviewed rows (89 verified true, 163 false).",
+  "progression_removal_reason": "The matched CSV has no progression columns, FBref advanced data ended in January 2026, the supplied values correlate 0.83 with goals (0.39 in 2023-24) and 0.10 with minutes, and git/scripts/docs contain no traceable generation source.",
+  "squad_verification_counts": {"rows": 252, "verified_true": 89, "verified_false": 163, "actions_correct": 89, "actions_auto_map": 0, "actions_unresolved": 163},
   "is_quarantined": false,
   "quarantine_reason": null
 }

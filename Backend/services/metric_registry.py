@@ -409,19 +409,8 @@ ERA_METRIC_COVERAGE: Dict[str, Any] = {
             "xG", "xAG", "npxG", "npxG+xAG", "xG_90", "xAG_90", "npxG_90", 
             "PrgC", "PrgP", "PrgR", "Gls_minus_xG", "Ast_minus_xAG"
         ],
-        # Progression untracked in Premier League, Bundesliga, and La Liga in 2025/26 source feed
-        "competition_overrides": {
-            "eng Premier League": {
-                "untracked": ["PrgC", "PrgP", "PrgR"]
-            },
-            "de Bundesliga": {
-                "untracked": ["PrgC", "PrgP", "PrgR"]
-            },
-            "es La Liga": {
-                "untracked": ["PrgC", "PrgP", "PrgR"]
-            }
-        },
-        "untracked_metrics": ["PrgR"]
+        "competition_overrides": {},
+        "untracked_metrics": ["PrgC", "PrgP", "PrgR"]
     }
 }
 

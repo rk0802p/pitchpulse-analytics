@@ -83,11 +83,11 @@ class TestPhase12DataGovernance(unittest.TestCase):
         self.assertTrue(is_metric_tracked_in_era('PrgC', '2024-2025'))
         self.assertTrue(is_metric_tracked_in_era('PrgR', '2024-2025'))
 
-        # 4. 2025-2026 (Quarantined Era): Progression untracked in EPL, Bundesliga, and La Liga
+        # 4. 2025-2026: progression is unavailable in all five competitions
         self.assertFalse(is_metric_tracked_in_era('PrgC', '2025-2026', 'eng Premier League'))
         self.assertFalse(is_metric_tracked_in_era('PrgC', '2025-2026', 'de Bundesliga'))
         self.assertFalse(is_metric_tracked_in_era('PrgC', '2025-2026', 'es La Liga'))
-        self.assertTrue(is_metric_tracked_in_era('PrgC', '2025-2026', 'it Serie A'))
+        self.assertFalse(is_metric_tracked_in_era('PrgC', '2025-2026', 'it Serie A'))
         self.assertFalse(is_metric_tracked_in_era('PrgR', '2025-2026'))
 
     def test_quarantine_notice_in_dashboard_analytics(self):

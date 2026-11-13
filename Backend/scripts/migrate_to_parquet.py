@@ -34,7 +34,8 @@ def get_season_files():
     for season_dir in sorted(DATA_DIR.iterdir()):
         if not season_dir.is_dir():
             continue
-        csv_files = list(season_dir.glob('*.csv'))
+        csv_files = sorted(path for path in season_dir.glob('top5-players*.csv')
+                           if path.name not in {'squad_verification.csv'})
         if csv_files:
             seasons.append((season_dir.name, csv_files[0]))
     return seasons

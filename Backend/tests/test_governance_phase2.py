@@ -104,5 +104,21 @@ class TestGovernancePhase2(unittest.TestCase):
         self.assertEqual(res['totals']['goals'], 4806)
         self.assertEqual(res['totals']['assists'], 3429)
 
+    def test_07_phase2_2025_2026_data_invariants(self):
+        """Phase 2: progression is unavailable and review changes stay sidecar-only."""
+        season_dir = os.path.join(backend_dir, 'data', 'seasons', '2025-2026')
+        df = pd.read_csv(os.path.join(season_dir, 'top5-players-2025-2026.csv'))
+        review = pd.read_csv(os.path.join(backend_dir, 'scripts', 'output', 'squad_label_review_2025_2026.csv'))
+        sidecar = pd.read_csv(os.path.join(season_dir, 'squad_verification.csv'))
+        self.assertEqual(len(df), 2611)
+        self.assertEqual(len(df.columns), 37)
+        self.assertEqual(int((df['Min'] == 0).sum()), 0)
+        self.assertEqual(int(df[['PrgC', 'PrgP', 'PrgR']].notna().sum().sum()), 0)
+        self.assertEqual(len(review), 252)
+        self.assertEqual(review['action'].value_counts().to_dict(), {'correct': 89, 'unresolved': 163})
+        self.assertEqual(len(sidecar), 252)
+        self.assertEqual(int(sidecar['verified'].sum()), 89)
+        self.assertNotIn('squad_verified', df.columns)
+
 if __name__ == '__main__':
     unittest.main()

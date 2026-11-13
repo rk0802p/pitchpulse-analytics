@@ -514,7 +514,9 @@ def match_player(wiki_name: str, players: dict[str, dict]) -> tuple[str | None, 
 # Data loading
 # --------------------------------------------------------------------------
 def season_csv(season: str) -> Path:
-    files = sorted((DATA_DIR / season).glob("*.csv"))
+    files = sorted((DATA_DIR / season).glob(f"top5-players-{season}.csv"))
+    if not files:
+        files = sorted((DATA_DIR / season).glob("top5-players*.csv"))
     if len(files) != 1:
         raise RuntimeError(f"Expected one CSV for {season}, found {files}")
     return files[0]

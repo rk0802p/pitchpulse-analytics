@@ -219,7 +219,7 @@ class MultiSeasonAuditor:
             if not os.path.isdir(dir_path) or not os.path.exists(os.path.join(dir_path, 'manifest.json')):
                 continue
 
-            csvs = glob.glob(os.path.join(dir_path, '*.csv'))
+            csvs = sorted(glob.glob(os.path.join(dir_path, 'top5-players*.csv')))
             if not csvs:
                 continue
 
