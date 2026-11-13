@@ -1,0 +1,71 @@
+{
+  "season": "2020-2021",
+  "grade": "SIGNIFICANT_GAPS",
+  "league_coverage": 0.956029,
+  "clubs_with_gaps": [
+    {
+      "club": "Real Madrid",
+      "league": "es La Liga",
+      "rows": 25,
+      "data_goals": 30,
+      "wiki_goals": 67,
+      "shortfall": 37
+    },
+    {
+      "club": "FC Barcelona",
+      "league": "es La Liga",
+      "rows": 22,
+      "data_goals": 74,
+      "wiki_goals": 85,
+      "shortfall": 11
+    },
+    {
+      "club": "Valencia CF",
+      "league": "es La Liga",
+      "rows": 24,
+      "data_goals": 31,
+      "wiki_goals": 50,
+      "shortfall": 19
+    },
+    {
+      "club": "Hellas Verona",
+      "league": "it Serie A",
+      "rows": 32,
+      "data_goals": 38,
+      "wiki_goals": 46,
+      "shortfall": 8
+    },
+    {
+      "club": "Eintracht Frankfurt",
+      "league": "de Bundesliga",
+      "rows": 24,
+      "data_goals": 59,
+      "wiki_goals": 69,
+      "shortfall": 10
+    },
+    {
+      "club": "Arminia Bielefeld",
+      "league": "de Bundesliga",
+      "rows": 26,
+      "data_goals": 23,
+      "wiki_goals": 26,
+      "shortfall": 3
+    }
+  ],
+  "missing_top10_scorers": [
+    {
+      "player": "Karim Benzema",
+      "club": "Real Madrid",
+      "league": "es La Liga",
+      "wiki_goals": 23
+    }
+  ],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2020–21_Premier_League",
+    "https://en.wikipedia.org/wiki/2020–21_La_Liga",
+    "https://en.wikipedia.org/wiki/2020–21_Serie_A",
+    "https://en.wikipedia.org/wiki/2020–21_Bundesliga",
+    "https://en.wikipedia.org/wiki/2020–21_Ligue_1"
+  ]
+}

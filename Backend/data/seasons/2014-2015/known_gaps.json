@@ -1,0 +1,153 @@
+{
+  "season": "2014-2015",
+  "grade": "SIGNIFICANT_GAPS",
+  "league_coverage": 0.916424,
+  "clubs_with_gaps": [
+    {
+      "club": "Burnley",
+      "league": "eng Premier League",
+      "rows": 3,
+      "data_goals": 5,
+      "wiki_goals": 28,
+      "shortfall": 23
+    },
+    {
+      "club": "Atlético Madrid",
+      "league": "es La Liga",
+      "rows": 3,
+      "data_goals": 3,
+      "wiki_goals": 67,
+      "shortfall": 64
+    },
+    {
+      "club": "Valencia CF",
+      "league": "es La Liga",
+      "rows": 22,
+      "data_goals": 51,
+      "wiki_goals": 70,
+      "shortfall": 19
+    },
+    {
+      "club": "Sevilla FC",
+      "league": "es La Liga",
+      "rows": 24,
+      "data_goals": 46,
+      "wiki_goals": 71,
+      "shortfall": 25
+    },
+    {
+      "club": "Villarreal CF",
+      "league": "es La Liga",
+      "rows": 4,
+      "data_goals": 2,
+      "wiki_goals": 48,
+      "shortfall": 46
+    },
+    {
+      "club": "Juventus",
+      "league": "it Serie A",
+      "rows": 27,
+      "data_goals": 64,
+      "wiki_goals": 72,
+      "shortfall": 8
+    },
+    {
+      "club": "Fiorentina",
+      "league": "it Serie A",
+      "rows": 27,
+      "data_goals": 47,
+      "wiki_goals": 61,
+      "shortfall": 14
+    },
+    {
+      "club": "Atalanta",
+      "league": "it Serie A",
+      "rows": 29,
+      "data_goals": 34,
+      "wiki_goals": 38,
+      "shortfall": 4
+    },
+    {
+      "club": "Cagliari",
+      "league": "it Serie A",
+      "rows": 23,
+      "data_goals": 40,
+      "wiki_goals": 48,
+      "shortfall": 8
+    },
+    {
+      "club": "Bayern Munich",
+      "league": "de Bundesliga",
+      "rows": 26,
+      "data_goals": 48,
+      "wiki_goals": 80,
+      "shortfall": 32
+    },
+    {
+      "club": "Hamburger SV",
+      "league": "de Bundesliga",
+      "rows": 31,
+      "data_goals": 22,
+      "wiki_goals": 25,
+      "shortfall": 3
+    },
+    {
+      "club": "OGC Nice",
+      "league": "fr Ligue 1",
+      "rows": 24,
+      "data_goals": 26,
+      "wiki_goals": 44,
+      "shortfall": 18
+    },
+    {
+      "club": "FC Nantes",
+      "league": "fr Ligue 1",
+      "rows": 27,
+      "data_goals": 26,
+      "wiki_goals": 29,
+      "shortfall": 3
+    },
+    {
+      "club": "Évian Thonon Gaillard",
+      "league": "fr Ligue 1",
+      "rows": 28,
+      "data_goals": 36,
+      "wiki_goals": 41,
+      "shortfall": 5
+    }
+  ],
+  "missing_top10_scorers": [
+    {
+      "player": "Antoine Griezmann",
+      "club": "Atlético Madrid",
+      "league": "es La Liga",
+      "wiki_goals": 22
+    },
+    {
+      "player": "Carlos Bacca",
+      "club": "Sevilla",
+      "league": "es La Liga",
+      "wiki_goals": 20
+    },
+    {
+      "player": "Arjen Robben",
+      "club": "Bayern Munich",
+      "league": "de Bundesliga",
+      "wiki_goals": 17
+    },
+    {
+      "player": "Thomas Müller",
+      "club": "Bayern Munich",
+      "league": "de Bundesliga",
+      "wiki_goals": 13
+    }
+  ],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2014–15_Premier_League",
+    "https://en.wikipedia.org/wiki/2014–15_La_Liga",
+    "https://en.wikipedia.org/wiki/2014–15_Serie_A",
+    "https://en.wikipedia.org/wiki/2014–15_Bundesliga",
+    "https://en.wikipedia.org/wiki/2014–15_Ligue_1"
+  ]
+}

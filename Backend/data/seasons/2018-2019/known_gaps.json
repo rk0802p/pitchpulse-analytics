@@ -1,0 +1,24 @@
+{
+  "season": "2018-2019",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.971508,
+  "clubs_with_gaps": [
+    {
+      "club": "Espanyol",
+      "league": "es La Liga",
+      "rows": 27,
+      "data_goals": 42,
+      "wiki_goals": 48,
+      "shortfall": 6
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2018–19_Premier_League",
+    "https://en.wikipedia.org/wiki/2018–19_La_Liga",
+    "https://en.wikipedia.org/wiki/2018–19_Serie_A",
+    "https://en.wikipedia.org/wiki/2018–19_Bundesliga",
+    "https://en.wikipedia.org/wiki/2018–19_Ligue_1"
+  ]
+}

@@ -2,7 +2,7 @@
   "season": "2020-2021",
   "canonical_id": "2020-2021",
   "display_name": "2020/21 Historical Season",
-  "dataset_status": "verified_historical",
+  "dataset_status": "verified_historical_with_known_gaps",
   "status_label": "Historical Season",
   "is_baseline": false,
   "is_projection": false,
@@ -148,5 +148,6 @@
   "repair_status": "repaired_understat_deterministic_matching",
   "repaired_zero_xg_records": 20,
   "intra_league_spells_nullified": 126,
-  "matched_players_count": 2754
+  "matched_players_count": 2754,
+  "known_gaps": {"grade": "SIGNIFICANT_GAPS", "file": "known_gaps.json", "summary": "SIGNIFICANT_GAPS: 6 clubs meet the real-gap threshold, 88 missing player goals, and 1 missing Wikipedia top-10 scorers."}
 }

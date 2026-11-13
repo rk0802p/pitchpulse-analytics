@@ -148,5 +148,6 @@
   "repair_status": "repaired_understat_deterministic_matching",
   "repaired_zero_xg_records": 17,
   "intra_league_spells_nullified": 157,
-  "matched_players_count": 2732
+  "matched_players_count": 2732,
+  "known_gaps": {"grade": "MINOR_GAPS", "file": "known_gaps.json", "summary": "MINOR_GAPS: 1 clubs meet the real-gap threshold, 4 missing player goals, and 0 missing Wikipedia top-10 scorers."}
 }

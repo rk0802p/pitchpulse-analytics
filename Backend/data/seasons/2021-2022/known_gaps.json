@@ -1,0 +1,40 @@
+{
+  "season": "2021-2022",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.960055,
+  "clubs_with_gaps": [
+    {
+      "club": "Crystal Palace",
+      "league": "eng Premier League",
+      "rows": 22,
+      "data_goals": 42,
+      "wiki_goals": 50,
+      "shortfall": 8
+    },
+    {
+      "club": "Southampton",
+      "league": "eng Premier League",
+      "rows": 24,
+      "data_goals": 35,
+      "wiki_goals": 43,
+      "shortfall": 8
+    },
+    {
+      "club": "Genoa",
+      "league": "it Serie A",
+      "rows": 33,
+      "data_goals": 24,
+      "wiki_goals": 27,
+      "shortfall": 3
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2021–22_Premier_League",
+    "https://en.wikipedia.org/wiki/2021–22_La_Liga",
+    "https://en.wikipedia.org/wiki/2021–22_Serie_A",
+    "https://en.wikipedia.org/wiki/2021–22_Bundesliga",
+    "https://en.wikipedia.org/wiki/2021–22_Ligue_1"
+  ]
+}

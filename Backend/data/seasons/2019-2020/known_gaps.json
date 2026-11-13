@@ -1,0 +1,32 @@
+{
+  "season": "2019-2020",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.969892,
+  "clubs_with_gaps": [
+    {
+      "club": "Brighton & Hove Albion",
+      "league": "eng Premier League",
+      "rows": 25,
+      "data_goals": 35,
+      "wiki_goals": 39,
+      "shortfall": 4
+    },
+    {
+      "club": "FC Nantes",
+      "league": "fr Ligue 1",
+      "rows": 29,
+      "data_goals": 23,
+      "wiki_goals": 28,
+      "shortfall": 5
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2019–20_Premier_League",
+    "https://en.wikipedia.org/wiki/2019–20_La_Liga",
+    "https://en.wikipedia.org/wiki/2019–20_Serie_A",
+    "https://en.wikipedia.org/wiki/2019–20_Bundesliga",
+    "https://en.wikipedia.org/wiki/2019–20_Ligue_1"
+  ]
+}

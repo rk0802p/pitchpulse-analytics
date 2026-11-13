@@ -1,0 +1,24 @@
+{
+  "season": "2016-2017",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.974676,
+  "clubs_with_gaps": [
+    {
+      "club": "Pescara",
+      "league": "it Serie A",
+      "rows": 34,
+      "data_goals": 32,
+      "wiki_goals": 37,
+      "shortfall": 5
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2016–17_Premier_League",
+    "https://en.wikipedia.org/wiki/2016–17_La_Liga",
+    "https://en.wikipedia.org/wiki/2016–17_Serie_A",
+    "https://en.wikipedia.org/wiki/2016–17_Bundesliga",
+    "https://en.wikipedia.org/wiki/2016–17_Ligue_1"
+  ]
+}

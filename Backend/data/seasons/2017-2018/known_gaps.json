@@ -1,0 +1,24 @@
+{
+  "season": "2017-2018",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.969476,
+  "clubs_with_gaps": [
+    {
+      "club": "Huddersfield Town",
+      "league": "eng Premier League",
+      "rows": 25,
+      "data_goals": 25,
+      "wiki_goals": 28,
+      "shortfall": 3
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2017–18_Premier_League",
+    "https://en.wikipedia.org/wiki/2017–18_La_Liga",
+    "https://en.wikipedia.org/wiki/2017–18_Serie_A",
+    "https://en.wikipedia.org/wiki/2017–18_Bundesliga",
+    "https://en.wikipedia.org/wiki/2017–18_Ligue_1"
+  ]
+}

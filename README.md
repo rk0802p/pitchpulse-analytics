@@ -70,6 +70,27 @@ PitchPulse organizes 14 historical seasons into clearly governed statistical era
 | **Reference Baseline** | `2024/25` | 96 | Kylian Mbappé (31 Gls) • Mohamed Salah (29 Gls) • Lewandowski (27 Gls) | Gold standard baseline: SHA-256 fingerprinted, 4,806 goals, 3,429 assists | **Authoritative Baseline (Locked)** |
 | **2025/26 Composite** | `2025/26` | 172 distinct raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical player aggregates; progression fields unavailable and represented as null; 386 zero-minute placeholders archived; squad verification is maintained in a sidecar | **Verified with documented limitations** |
 
+### Historical completeness flags
+
+The read-only Wikipedia cross-check grades below flag coverage gaps without changing any player data. `known_gaps.json` sidecars contain the club and top-scorer details for MINOR_GAPS and SIGNIFICANT_GAPS seasons.
+
+| Season | Gap grade | Note |
+|---|---|---|
+| 2012/13 | MINOR_GAPS | Small club-level shortfalls. |
+| 2013/14 | MINOR_GAPS | Small club-level shortfalls. |
+| 2014/15 | SIGNIFICANT_GAPS | Large pre-existing gaps, especially Burnley, Atlético Madrid and Villarreal. |
+| 2015/16 | MINOR_GAPS | Small club-level shortfalls. |
+| 2016/17 | MINOR_GAPS | Small club-level shortfalls. |
+| 2017/18 | MINOR_GAPS | Small club-level shortfalls. |
+| 2018/19 | MINOR_GAPS | Small club-level shortfalls. |
+| 2019/20 | MINOR_GAPS | Small club-level shortfalls. |
+| 2020/21 | SIGNIFICANT_GAPS | Large pre-existing gaps, including Real Madrid attacking coverage. |
+| 2021/22 | MINOR_GAPS | Small club-level shortfalls. |
+| 2022/23 | COMPLETE | No club crossed the real-gap threshold. |
+| 2023/24 | MINOR_GAPS | Small club-level shortfalls. |
+| 2024/25 | MINOR_GAPS | Flag recorded in the investigation; the locked baseline files and manifest were not changed. |
+| 2025/26 | PARTIAL_SNAPSHOT | Serie A and Ligue 1 are incomplete snapshots; full-league checks cover the other three leagues. |
+
 *For full cryptographic hashes, mathematical totals, and licensing provenance, see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) and [docs/TERMS.md](docs/TERMS.md).*
 
 ---

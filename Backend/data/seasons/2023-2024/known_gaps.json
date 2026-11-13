@@ -1,0 +1,32 @@
+{
+  "season": "2023-2024",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.970716,
+  "clubs_with_gaps": [
+    {
+      "club": "Sheffield United",
+      "league": "eng Premier League",
+      "rows": 35,
+      "data_goals": 31,
+      "wiki_goals": 35,
+      "shortfall": 4
+    },
+    {
+      "club": "Empoli",
+      "league": "it Serie A",
+      "rows": 34,
+      "data_goals": 26,
+      "wiki_goals": 29,
+      "shortfall": 3
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2023–24_Premier_League",
+    "https://en.wikipedia.org/wiki/2023–24_La_Liga",
+    "https://en.wikipedia.org/wiki/2023–24_Serie_A",
+    "https://en.wikipedia.org/wiki/2023–24_Bundesliga",
+    "https://en.wikipedia.org/wiki/2023–24_Ligue_1"
+  ]
+}

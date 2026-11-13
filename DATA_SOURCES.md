@@ -16,6 +16,27 @@ PitchPulse maintains 14 distinct seasons spanning 2012 to 2026 across Europe's t
 | **Reference Baseline** | `2024-2025` | Complete 37 canonical metrics with full positional percentiles and cross-metric validation. | Immutable Reference Baseline (96 clubs, 2,854 player records) | **Authoritative Baseline (Locked)** |
 | **Phase 2 Composite** | `2025-2026` | 2,611 retained rows after archiving 386 zero-minute placeholders; 73 uniquely sourced squad corrections and 11 youth/reserve parent-club auto-maps applied; 168 unresolved rows retained unchanged. `PrgC`, `PrgP`, and `PrgR` are null because the composite values have no traceable source. | Automated composite plus Wikipedia 2025/26 club-season squad evidence | **Verified with documented limitations** |
 
+### Historical completeness flags
+
+The cached Wikipedia audit is read-only and does not alter player rows or analytical stores. A real club gap means coverage below 90% or a shortfall of at least 10 goals. Detailed sidecars are stored as `Backend/data/seasons/<season>/known_gaps.json` for MINOR_GAPS and SIGNIFICANT_GAPS seasons. The 2024/25 baseline manifest and files remain locked.
+
+| Season | Grade | Coverage | Note |
+|---|---|---:|---|
+| 2012/13 | MINOR_GAPS | 96.83% | Small club-level shortfalls. |
+| 2013/14 | MINOR_GAPS | 97.12% | Small club-level shortfalls. |
+| 2014/15 | SIGNIFICANT_GAPS | 91.64% | Large pre-existing gaps; patch candidates are documented only. |
+| 2015/16 | MINOR_GAPS | 96.78% | Small club-level shortfalls. |
+| 2016/17 | MINOR_GAPS | 97.47% | Small club-level shortfalls. |
+| 2017/18 | MINOR_GAPS | 96.95% | Small club-level shortfalls. |
+| 2018/19 | MINOR_GAPS | 97.15% | Small club-level shortfalls. |
+| 2019/20 | MINOR_GAPS | 96.99% | Small club-level shortfalls. |
+| 2020/21 | SIGNIFICANT_GAPS | 95.60% | Large pre-existing gaps, including Real Madrid attacking coverage. |
+| 2021/22 | MINOR_GAPS | 96.01% | Small club-level shortfalls. |
+| 2022/23 | COMPLETE | 96.65% | No club crossed the real-gap threshold. |
+| 2023/24 | MINOR_GAPS | 97.07% | Small club-level shortfalls. |
+| 2024/25 | MINOR_GAPS | 97.03% | Investigation-only flag; baseline files and manifest unchanged. |
+| 2025/26 | PARTIAL_SNAPSHOT | 97.29%* | *Full-season leagues only; Serie A and Ligue 1 are measured against their reached matchweeks. |
+
 ---
 
 ## 2. The 2024/25 Authoritative Reference Baseline

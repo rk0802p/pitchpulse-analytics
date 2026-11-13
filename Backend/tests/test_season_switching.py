@@ -85,6 +85,11 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
                 self.assertFalse(s['is_projection'])
                 self.assertFalse(s['is_simulated'])
                 self.assertEqual(s['status_label'], 'Historical Season')
+            elif s['dataset_status'] == 'quarantined':
+                self.assertTrue(s['is_quarantined'])
+                self.assertTrue(s['is_projection'])
+                self.assertFalse(s['is_simulated'])
+                self.assertIsNotNone(s.get('known_gaps'))
             else:
                 self.assertEqual(s['dataset_status'], 'verified_historical')
                 self.assertFalse(s['is_quarantined'])

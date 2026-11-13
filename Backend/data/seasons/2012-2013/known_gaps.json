@@ -1,0 +1,24 @@
+{
+  "season": "2012-2013",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.968339,
+  "clubs_with_gaps": [
+    {
+      "club": "VfB Stuttgart",
+      "league": "de Bundesliga",
+      "rows": 27,
+      "data_goals": 33,
+      "wiki_goals": 37,
+      "shortfall": 4
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2012–13_Premier_League",
+    "https://en.wikipedia.org/wiki/2012–13_La_Liga",
+    "https://en.wikipedia.org/wiki/2012–13_Serie_A",
+    "https://en.wikipedia.org/wiki/2012–13_Bundesliga",
+    "https://en.wikipedia.org/wiki/2012–13_Ligue_1"
+  ]
+}

@@ -134,5 +134,6 @@
   "content_hash": "d4204c81814dd04b8907cba7f09608a452f84b1224732eaf64a066953f967e7b",
   "sha256": "d4204c81814dd04b8907cba7f09608a452f84b1224732eaf64a066953f967e7b",
   "validation_status": "passed",
-  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2012/13 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics."
+  "verification_notes": "Authentic player-level seasonal aggregates covering Europe's Big 5 leagues for 2012/13 from Transfermarkt appearance logs. Schema validated for 37 canonical metrics.",
+  "known_gaps": {"grade": "MINOR_GAPS", "file": "known_gaps.json", "summary": "MINOR_GAPS: 1 clubs meet the real-gap threshold, 4 missing player goals, and 0 missing Wikipedia top-10 scorers."}
 }

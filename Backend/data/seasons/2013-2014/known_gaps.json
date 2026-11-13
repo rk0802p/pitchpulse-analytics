@@ -1,0 +1,24 @@
+{
+  "season": "2013-2014",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.971173,
+  "clubs_with_gaps": [
+    {
+      "club": "Swansea City",
+      "league": "eng Premier League",
+      "rows": 27,
+      "data_goals": 48,
+      "wiki_goals": 54,
+      "shortfall": 6
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2013–14_Premier_League",
+    "https://en.wikipedia.org/wiki/2013–14_La_Liga",
+    "https://en.wikipedia.org/wiki/2013–14_Serie_A",
+    "https://en.wikipedia.org/wiki/2013–14_Bundesliga",
+    "https://en.wikipedia.org/wiki/2013–14_Ligue_1"
+  ]
+}

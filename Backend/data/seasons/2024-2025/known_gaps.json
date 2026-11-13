@@ -1,0 +1,24 @@
+{
+  "season": "2024-2025",
+  "grade": "MINOR_GAPS",
+  "league_coverage": 0.970321,
+  "clubs_with_gaps": [
+    {
+      "club": "Como",
+      "league": "it Serie A",
+      "rows": 38,
+      "data_goals": 44,
+      "wiki_goals": 49,
+      "shortfall": 5
+    }
+  ],
+  "missing_top10_scorers": [],
+  "generated_on": "2026-11-13",
+  "source_urls": [
+    "https://en.wikipedia.org/wiki/2024–25_Premier_League",
+    "https://en.wikipedia.org/wiki/2024–25_La_Liga",
+    "https://en.wikipedia.org/wiki/2024–25_Serie_A",
+    "https://en.wikipedia.org/wiki/2024–25_Bundesliga",
+    "https://en.wikipedia.org/wiki/2024–25_Ligue_1"
+  ]
+}

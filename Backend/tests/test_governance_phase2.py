@@ -120,5 +120,24 @@ class TestGovernancePhase2(unittest.TestCase):
         self.assertEqual(int(sidecar['verified'].sum()), 84)
         self.assertNotIn('squad_verified', df.columns)
 
+    def test_08_known_gap_sidecars_parse_and_reference_registered_seasons(self):
+        """Historical gap sidecars are valid and only name registered seasons."""
+        season_root = os.path.join(backend_dir, 'data', 'seasons')
+        registered = {item['id'] for item in season_service.list_seasons()}
+        sidecars = []
+        for season in os.listdir(season_root):
+            path = os.path.join(season_root, season, 'known_gaps.json')
+            if os.path.isfile(path):
+                sidecars.append(path)
+                with open(path, encoding='utf-8') as handle:
+                    payload = json.load(handle)
+                self.assertEqual(payload['season'], season)
+                self.assertIn(payload['season'], registered)
+                self.assertIn(payload['grade'], {'MINOR_GAPS', 'SIGNIFICANT_GAPS'})
+                self.assertIsInstance(payload['clubs_with_gaps'], list)
+                self.assertIsInstance(payload['missing_top10_scorers'], list)
+        self.assertGreater(len(sidecars), 0)
+        self.assertNotIn('known_gaps', season_service.get_season_manifest('2024-2025'))
+
 if __name__ == '__main__':
     unittest.main()

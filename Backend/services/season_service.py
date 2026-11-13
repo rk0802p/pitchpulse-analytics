@@ -176,6 +176,7 @@ class SeasonService:
                 'source_url': manifest.get('source_url'),
                 'data_as_of': manifest.get('data_as_of'),
                 'verification_notes': manifest.get('verification_notes'),
+                'known_gaps': manifest.get('known_gaps'),
                 'content_hash': manifest.get('content_hash', manifest.get('sha256')),
                 'validation_status': manifest.get('validation_status', 'passed'),
                 'files': manifest.get('files', {})
