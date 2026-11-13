@@ -23,6 +23,9 @@ build/
 /frontend/build
 dist/
 
+# Local corroboration archive; never ingested as production season data
+/artifacts/understat_players_aggregated_2014_2024.csv
+
 # Environment files
 .env
 .env.*

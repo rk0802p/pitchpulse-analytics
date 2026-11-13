@@ -154,9 +154,15 @@ python -m pytest Backend/tests
 # Run cryptographic baseline invariant verification
 python Backend/test_api_baseline.py
 
+# Check CSV, XLSX, Parquet, and DuckDB row-level parity without writing data
+python Backend/scripts/check_storage_parity.py
+python Backend/scripts/check_storage_parity.py --season 2025-2026
+
 # Run the frontend test suite
 cd frontend && npm test -- --watchAll=false
 ```
+
+The parity audit is read-only and returns a failure code when stores differ. It currently identifies historical zero-versus-null representation differences for 2012/13–2022/23; see [Data Sources](docs/DATA_SOURCES.md) before interpreting those results.
 
 ---
 
