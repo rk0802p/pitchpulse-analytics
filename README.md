@@ -5,7 +5,7 @@
 [![Flask](https://img.shields.io/badge/Flask-3.1+-black?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Pandas](https://img.shields.io/badge/Pandas-2.2+-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Seasons](https://img.shields.io/badge/Seasons-14_Historical_Seasons_(12%2F13_to_25%2F26)-10b981)](#-multi-season-registry)
-[![Tests](https://img.shields.io/badge/Tests-90_Backend_+_19_Frontend_Passing_(100%25)-emerald)](#-testing-suite)
+[![Tests](https://img.shields.io/badge/Tests-backend_+_frontend-emerald)](#-testing-suite)
 
 PitchPulse is a modern, full-stack European football analytics platform and scouting workspace covering **Europe's Top 5 Leagues** (Premier League, La Liga, Serie A, Bundesliga, and Ligue 1) across **14 distinct seasons** (`2012/13` through `2025/26`). Built with a **React 19** frontend and a **Python / Flask / pandas** backend, it transforms raw match events into actionable scouting intelligence, interactive quadrant matrices, multi-axis radar charts, empirical peer percentiles, and versioned multi-season analytics.
 
@@ -21,7 +21,7 @@ PitchPulse is a modern, full-stack European football analytics platform and scou
 - **Standout Leaders**: Live top scorers and creators with direct profile navigation.
 
 ### 2. 🔍 Advanced Player Explorer
-- **Comprehensive Database**: Full dataset of **2,850+ player records** across **96 clubs** per season.
+- **Comprehensive Database**: Season-selectable player records across Europe's top five leagues; row and club counts vary by season.
 - **Multi-Parameter Search & Filter**: Filter simultaneously by player name, club, competition, primary position (`FW`, `MF`, `DF`, `GK`), and minimum minutes.
 - **Per-90 Rate Normalization Toggle**: One-click switch between season volume totals (e.g. 15 goals) and standardized per-90 rates (e.g. 0.72 goals/90) for fair sub/starter comparison.
 - **Server-Side Pagination & Sorting**: Fast column sorting on any offensive, creation, progression, or defensive metric.
@@ -68,7 +68,7 @@ PitchPulse organizes 14 historical seasons into clearly governed statistical era
 | **Early xG Era** | `2014/15` – `2016/17` | 98 | Cristiano Ronaldo (`14/15`: 48 Gls) • Luis Suárez (`15/16`: 40 Gls) | Standard stats + Understat $xG$, $npxG$; progression untracked | **Verified Historical** |
 | **Modern Event Era** | `2017/18` – `2023/24` | 98 / 96 | **Harry Kane** (`23/24`: 36 Gls, Golden Shoe) • Mbappé (27 Gls) • Haaland (27 Gls) | Complete 37 canonical metrics including progressive passes & carries | **Verified Historical** |
 | **Reference Baseline** | `2024/25` | 96 | Kylian Mbappé (31 Gls) • Mohamed Salah (29 Gls) • Lewandowski (27 Gls) | Gold standard baseline: SHA-256 fingerprinted, 4,806 goals, 3,429 assists | **Authoritative Baseline (Locked)** |
-| **2025/26 Composite** | `2025/26` | 172 distinct raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical player aggregates; progression fields unavailable and represented as null; 386 zero-minute placeholders archived; squad verification is maintained in a sidecar | **Verified with documented limitations** |
+| **2025/26 Composite** | `2025/26` | 172 distinct raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical aggregates with partial-season league snapshots; progression fields unavailable and represented as null; 386 zero-minute placeholders archived; squad verification is maintained in a sidecar | **Verified with documented limitations** |
 
 ### Historical completeness flags
 
@@ -91,7 +91,7 @@ The read-only Wikipedia cross-check grades below flag coverage gaps without chan
 | 2024/25 | MINOR_GAPS | Flag recorded in the investigation; the locked baseline files and manifest were not changed. |
 | 2025/26 | PARTIAL_SNAPSHOT | Serie A and Ligue 1 are incomplete snapshots; full-league checks cover the other three leagues. |
 
-*For full cryptographic hashes, mathematical totals, and licensing provenance, see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) and [docs/TERMS.md](docs/TERMS.md).*
+*For full cryptographic hashes, mathematical totals, and licensing provenance, see [Data Sources](docs/DATA_SOURCES.md), [Terms](docs/TERMS.md), and the [historical gap report](docs/OLD_SEASON_GAPS.md).*
 
 ---
 
@@ -145,13 +145,13 @@ flowchart TD
 The application includes automated unit and integration tests across both backend and frontend:
 
 ```bash
-# Run full backend test suite (90 tests)
+# Run the full backend test suite
 python -m pytest Backend/tests
 
 # Run cryptographic baseline invariant verification
 python Backend/test_api_baseline.py
 
-# Run frontend test suite (19 tests)
+# Run the frontend test suite
 cd frontend && npm test -- --watchAll=false
 ```
 
@@ -160,4 +160,4 @@ cd frontend && npm test -- --watchAll=false
 ## 📄 Licensing & Data Attribution
 
 - **Software License**: The PitchPulse Analytics application code is released under the [MIT License](LICENSE).
-- **Sports Data Attribution**: Player statistics, match records, and advanced event metrics are derived from public sports reporting archives (FBref, Opta/Stats Perform, and Understat). All trademarks and underlying proprietary feeds belong to their respective rights holders. Detailed provider terms, Opta January 2026 updates, and non-commercial research disclosures are documented in [DATA_SOURCES.md](DATA_SOURCES.md).
+- **Sports Data Attribution**: Player statistics, match records, and advanced event metrics are derived from public sports reporting archives (FBref, Opta/Stats Perform, and Understat). All trademarks and underlying proprietary feeds belong to their respective rights holders. Detailed provider terms and data provenance are documented in [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).

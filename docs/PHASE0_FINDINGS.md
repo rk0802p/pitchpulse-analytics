@@ -38,7 +38,7 @@ In this initial reconnaissance phase, all items from the review were cross-verif
 | ID | Description in Review | Status in Real Repo | Evidence & Code Reference |
 | :--- | :--- | :---: | :--- |
 | **B1** | Verifier checks XLSX while loader serves CSV | **PARTIALLY FIXED / CONFIRMED** | `baseline_verifier.py` was updated in commit `83eb277` to hash both CSV and XLSX, but verification is **not** executed on application startup in `api.py:create_app()`, nor is `baseline_verified` exposed in `/api/health`. |
-| **B2** | "Cryptographically locked" claim overstates local SHA-256 | **CONFIRMED** | Documented in `DATA_SOURCES.md` as local tamper-evident hashing. |
+| **B2** | "Cryptographically locked" claim overstates local SHA-256 | **CONFIRMED** | Documented in `docs/DATA_SOURCES.md` as local tamper-evident hashing. |
 | **B3** | Baseline can be overwritten | **PARTIALLY FIXED / CONFIRMED** | `dataset_importer.py` has a guard blocking `season == '2024-2025'`, but atomic staging in a temporary directory and atomic replacement (`os.replace`) with an explicit CLI `--force` flag must be standardized. |
 | **B4** | API never reports `is_baseline: True` | **FIXED** | Verified in `Backend/services/season_service.py:143`: `'is_baseline': (entry == '2024-2025')` is returned. Unit tests assert `assertTrue(b24['is_baseline'])`. |
 | **B5** | Unverified imports display as verified | **CONFIRMED** | `get_quarantine_policy()` in `season_service.py` treats everything as verified unless `is_quarantined` is explicitly true (deny-list). An import with `dataset_status: 'unverified'` falls back to `verified_historical`. Needs an allow-list (`verified_historical`, `read_only_baseline`). |
@@ -61,8 +61,8 @@ In this initial reconnaissance phase, all items from the review were cross-verif
 
 | ID | Description in Review | Status in Real Repo | Evidence & Code Reference |
 | :--- | :--- | :---: | :--- |
-| **L1** | Third-party data licensing (Opta removal Jan 2026, FBref, Understat) | **CONFIRMED** | Documented in `DATA_SOURCES.md`. Needs explicit disclaimer paperwork and `TODO(lawyer)` review stubs. |
-| **L2** | MIT license doesn't cover third-party data | **CONFIRMED** | Addressed conceptually in `DATA_SOURCES.md`, but terms stub file and clear code vs data license boundary are required. |
+| **L1** | Third-party data licensing (Opta removal Jan 2026, FBref, Understat) | **CONFIRMED** | Documented in `docs/DATA_SOURCES.md`. Needs explicit disclaimer paperwork and `TODO(lawyer)` review stubs. |
+| **L2** | MIT license doesn't cover third-party data | **CONFIRMED** | Addressed conceptually in `docs/DATA_SOURCES.md`, but terms stub file and clear code vs data license boundary are required. |
 | **L3** | Projected/composite data presented as player statistics | **CONFIRMED** | 2025/26 composite data exhibits 197 clubs and squad anomalies. Needs `dataset_status: "simulated"` manifest tag, exclusion from authoritative views, and persistent UI/API notices. |
 | **L4** | Personal data of minors (players aged 15–17) | **CONFIRMED** | Minimum age in dataset is 15. Privacy policy stub with `TODO(lawyer)` required. |
 | **L5** | Trademarks and club crests | **NOT APPLICABLE** | Verified: frontend uses text and CSS styled badges (`TeamBadge.js`), not copyrighted club crest image files. |

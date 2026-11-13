@@ -1885,7 +1885,9 @@ Each season page was fetched once and cached outside the repository. The URL bel
 | 2025-2026 | de Bundesliga | https://en.wikipedia.org/wiki/2025–26_Bundesliga |
 | 2025-2026 | fr Ligue 1 | https://en.wikipedia.org/wiki/2025–26_Ligue_1 |
 
-## 11. Recommended repairs
+## 11. Recommended repairs (original audit recommendations)
+
+These recommendations record the state at the time of the independent audit. Phase 2 subsequently addressed items 1–5; see [PHASE2_REPORT.md](PHASE2_REPORT.md) and the [before/after verification below](#12-phase-2-beforeafter-verification). Items 6–8 remain historical coverage notes or follow-up quality work, not claims that Phase 2 left its approved tasks incomplete.
 
 1. **2025-26 progression metrics.** In the Premier League, La Liga and Bundesliga the three columns are zero for every row (2,055 rows); set them to the project's missing-value representation (NULL) so the UI reports "not tracked" instead of zero. Keep the populated Serie A / Ligue 1 values, mark them as partial-season statistics, and do not compare them with a full season. Archive a copy of the season before either change.
 2. **2025-26 transferred players.** Update the squad label on every row whose label names a club outside the 2025-26 league table (for example `Venezia` → the player's 2025-26 club) using an authoritative source. Until then, do not sum those rows by label, and do not sum the two spells of a mid-season transfer as if they were one club total.
