@@ -14,7 +14,7 @@ PitchPulse maintains 14 distinct seasons spanning 2012 to 2026 across Europe's t
 | **Early xG Era** | `2014-2015` to `2016-2017` | Standard match statistics + shot-level Expected Goals ($xG$) and Non-Penalty $xG$ ($npxG$). Ball progression metrics remain untracked. | Understat / FBref Aggregates (98 clubs) | **Verified Historical** |
 | **Modern Event Era** | `2017-2018` to `2023-2024` | Comprehensive 37 canonical metrics: Standard stats, $xG$, $xAG$, Progressive Carries ($PrgC$), Progressive Passes ($PrgP$), and Progressive Receptions ($PrgR$). | FBref / Opta Event Data Archives (98 clubs pre-2023, 96 clubs 2023/24) | **Verified Historical** |
 | **Reference Baseline** | `2024-2025` | Complete 37 canonical metrics with full positional percentiles and cross-metric validation. | Immutable Reference Baseline (96 clubs, 2,854 player records) | **Authoritative Baseline (Locked)** |
-| **Phase 2 Composite** | `2025-2026` | 2,611 retained rows after archiving 386 zero-minute placeholders; 89 uniquely sourced squad corrections applied and 163 unresolved rows retained unchanged. `PrgC`, `PrgP`, and `PrgR` are null because the composite values have no traceable source. | Automated composite plus Wikipedia 2025/26 club-season squad evidence | **Verified with documented limitations** |
+| **Phase 2 Composite** | `2025-2026` | 2,611 retained rows after archiving 386 zero-minute placeholders; 73 uniquely sourced squad corrections and 11 youth/reserve parent-club auto-maps applied; 168 unresolved rows retained unchanged. `PrgC`, `PrgP`, and `PrgR` are null because the composite values have no traceable source. | Automated composite plus Wikipedia 2025/26 club-season squad evidence | **Verified with documented limitations** |
 
 ---
 

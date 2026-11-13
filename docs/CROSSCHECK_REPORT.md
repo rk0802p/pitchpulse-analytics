@@ -1427,7 +1427,7 @@ A page is considered verified for a check only when it yields at least 10 scorer
 
 #### it Serie A
 
-*Status:* **PARTIAL SNAPSHOT** — max MP 33 of 38 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 46 squad label(s) name a club outside the 2025-26 league table (players who transferred in).
+*Status:* **PARTIAL SNAPSHOT** — max MP 33 of 38 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 44 squad label(s) name a club outside the 2025-26 league table (players who transferred in).
 
 | Rank | Player (Wikipedia) | Club (Wikipedia) | Wiki Gls | Our Gls | Status |
 |-----:|-------------------|------------------|---------:|--------:|--------|
@@ -1451,7 +1451,7 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | Club | Our rows | Our player Gls | Wiki GF | Diff | Severity | Reason |
 |------|---------:|---------------:|--------:|-----:|----------|--------|
 | Inter Milan | 18 | 61 | 89 | -28 | severe | shortfall 28 exceeds max(5, 5% of GF=89) |
-| Roma | 26 | 50 | 59 | -9 | borderline | shortfall 9 exceeds max(5, 5% of GF=59) |
+| Roma | 25 | 50 | 59 | -9 | borderline | shortfall 9 exceeds max(5, 5% of GF=59) |
 | Como | 24 | 55 | 65 | -10 | severe | shortfall 10 exceeds max(5, 5% of GF=65) |
 | Juventus | 18 | 42 | 61 | -19 | severe | shortfall 19 exceeds max(5, 5% of GF=61) |
 | Atalanta | 18 | 31 | 51 | -20 | severe | shortfall 20 exceeds max(5, 5% of GF=51) |
@@ -1460,12 +1460,12 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | Udinese | 24 | 31 | 45 | -14 | severe | shortfall 14 exceeds max(5, 5% of GF=45) |
 | Sassuolo | 11 | 20 | 46 | -26 | severe | shortfall 26 exceeds max(5, 5% of GF=46) |
 | Torino | 22 | 29 | 44 | -15 | severe | shortfall 15 exceeds max(5, 5% of GF=44) |
-| Cagliari | 24 | 28 | 40 | -12 | severe | shortfall 12 exceeds max(5, 5% of GF=40) |
+| Cagliari | 20 | 24 | 40 | -16 | severe | shortfall 16 exceeds max(5, 5% of GF=40) |
 | Cremonese | 10 | 10 | 32 | -22 | severe | shortfall 22 exceeds max(5, 5% of GF=32) |
-| Hellas Verona | 18 | 9 | 25 | -16 | severe | shortfall 16 exceeds max(5, 5% of GF=25) |
+| Hellas Verona | 19 | 9 | 25 | -16 | severe | shortfall 16 exceeds max(5, 5% of GF=25) |
 | Pisa | 15 | 8 | 26 | -18 | severe | shortfall 18 exceeds max(5, 5% of GF=26) |
 
-**Squad-name variants mapped to one club:** AC Milan ← AC Milan, Milan; Bologna ← Bologna, Bologna FC 1909; Cagliari ← Cagliari, Cagliari Calcio; Como ← Como, Como 1907; Fiorentina ← ACF Fiorentina, Fiorentina; Genoa ← Genoa, Genoa CFC; Inter Milan ← Inter, Inter Milan; Juventus ← Juventus, Juventus FC; Lazio ← Lazio, SS Lazio; Lecce ← Lecce, US Lecce; Napoli ← Napoli, SSC Napoli; Parma ← Parma, Parma Calcio 1913; Roma ← AS Roma, Roma; Torino ← Torino, Torino FC; Udinese ← Udinese, Udinese Calcio; Villarreal CF ← Villarreal, Villarreal CF.
+**Squad-name variants mapped to one club:** AC Milan ← AC Milan, Milan; Bologna ← Bologna, Bologna FC 1909; Cagliari ← Cagliari, Cagliari Calcio; Como ← Como, Como 1907; Fiorentina ← ACF Fiorentina, Fiorentina; Genoa ← Genoa, Genoa CFC; Hellas Verona ← Hellas Verona, Hellas Verona (R); Inter Milan ← Inter, Inter Milan; Juventus ← Juventus, Juventus FC; Lazio ← Lazio, SS Lazio; Lecce ← Lecce, US Lecce; Napoli ← Napoli, SSC Napoli; Parma ← Parma, Parma Calcio 1913; Roma ← AS Roma, Roma; Torino ← Torino, Torino FC; Udinese ← Udinese, Udinese Calcio; Villarreal CF ← Villarreal, Villarreal CF.
 
 **Within-tolerance goal-count excesses** (our player goals slightly above Wikipedia GF; logged for follow-up, below the flag threshold): Genoa 44 vs 41; Lecce 29 vs 28.
 
@@ -1504,7 +1504,6 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | GNK Dinamo Zagreb | UNMAPPED |
 | Feyenoord Rotterdam | UNMAPPED |
 | Grenoble Foot 38 | UNMAPPED |
-| Fiorentina Primavera | UNMAPPED |
 | Avigliano | UNMAPPED |
 | KAA Gent | UNMAPPED |
 | CF Estrela Amadora | UNMAPPED |
@@ -1512,7 +1511,6 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | CA Alvarado II | UNMAPPED |
 | Clube Atlético Mineiro | UNMAPPED |
 | Hibernian FC | UNMAPPED |
-| Hellas Verona Primavera | UNMAPPED |
 | Wisla Plock | UNMAPPED |
 | FC Viktoria Plzen | UNMAPPED |
 | Cracovia | UNMAPPED |
@@ -1541,7 +1539,7 @@ A page is considered verified for a check only when it yields at least 10 scorer
 
 #### fr Ligue 1
 
-*Status:* **PARTIAL SNAPSHOT** — max MP 30 of 34 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 29 squad label(s) name a club outside the 2025-26 league table (players who transferred in).
+*Status:* **PARTIAL SNAPSHOT** — max MP 30 of 34 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 24 squad label(s) name a club outside the 2025-26 league table (players who transferred in).
 
 | Rank | Player (Wikipedia) | Club (Wikipedia) | Wiki Gls | Our Gls | Status |
 |-----:|-------------------|------------------|---------:|--------:|--------|
@@ -1565,23 +1563,23 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | Club | Our rows | Our player Gls | Wiki GF | Diff | Severity | Reason |
 |------|---------:|---------------:|--------:|-----:|----------|--------|
 | Paris Saint-Germain | 19 | 53 | 74 | -21 | severe | shortfall 21 exceeds max(5, 5% of GF=74) |
-| RC Lens | 29 | 59 | 66 | -7 | borderline | shortfall 7 exceeds max(5, 5% of GF=66) |
+| RC Lens | 28 | 59 | 66 | -7 | borderline | shortfall 7 exceeds max(5, 5% of GF=66) |
 | LOSC Lille | 23 | 39 | 52 | -13 | severe | shortfall 13 exceeds max(5, 5% of GF=52) |
-| Olympique Lyonnais | 23 | 38 | 53 | -15 | severe | shortfall 15 exceeds max(5, 5% of GF=53) |
+| Olympique Lyonnais | 18 | 36 | 53 | -17 | severe | shortfall 17 exceeds max(5, 5% of GF=53) |
 | Olympique de Marseille | 22 | 51 | 63 | -12 | severe | shortfall 12 exceeds max(5, 5% of GF=63) |
-| Stade Rennais FC | 18 | 17 | 59 | -42 | severe | shortfall 42 exceeds max(5, 5% of GF=59) |
-| AS Monaco | 28 | 52 | 60 | -8 | borderline | shortfall 8 exceeds max(5, 5% of GF=60) |
+| Stade Rennais FC | 16 | 17 | 59 | -42 | severe | shortfall 42 exceeds max(5, 5% of GF=59) |
+| AS Monaco | 27 | 52 | 60 | -8 | borderline | shortfall 8 exceeds max(5, 5% of GF=60) |
 | RC Strasbourg Alsace | 25 | 44 | 58 | -14 | severe | shortfall 14 exceeds max(5, 5% of GF=58) |
-| Toulouse FC | 20 | 38 | 47 | -9 | borderline | shortfall 9 exceeds max(5, 5% of GF=47) |
-| FC Lorient | 16 | 27 | 48 | -21 | severe | shortfall 21 exceeds max(5, 5% of GF=48) |
+| Toulouse FC | 21 | 39 | 47 | -8 | borderline | shortfall 8 exceeds max(5, 5% of GF=47) |
+| FC Lorient | 17 | 27 | 48 | -21 | severe | shortfall 21 exceeds max(5, 5% of GF=48) |
 | Paris FC | 24 | 32 | 47 | -15 | severe | shortfall 15 exceeds max(5, 5% of GF=47) |
-| Stade Brestois 29 | 18 | 30 | 43 | -13 | severe | shortfall 13 exceeds max(5, 5% of GF=43) |
+| Stade Brestois 29 | 19 | 30 | 43 | -13 | severe | shortfall 13 exceeds max(5, 5% of GF=43) |
 | Le Havre AC | 21 | 23 | 32 | -9 | borderline | shortfall 9 exceeds max(5, 5% of GF=32) |
-| AJ Auxerre | 18 | 19 | 34 | -15 | severe | shortfall 15 exceeds max(5, 5% of GF=34) |
-| OGC Nice | 20 | 23 | 37 | -14 | severe | shortfall 14 exceeds max(5, 5% of GF=37) |
+| AJ Auxerre | 20 | 19 | 34 | -15 | severe | shortfall 15 exceeds max(5, 5% of GF=34) |
+| OGC Nice | 22 | 24 | 37 | -13 | severe | shortfall 13 exceeds max(5, 5% of GF=37) |
 | FC Metz | 14 | 18 | 32 | -14 | severe | shortfall 14 exceeds max(5, 5% of GF=32) |
 
-**Squad-name variants mapped to one club:** AJ Auxerre ← AJ Auxerre, Auxerre; AS Monaco ← AS Monaco, Monaco; Angers SCO ← Angers, Angers SCO; FC Nantes ← FC Nantes, Nantes; LOSC Lille ← LOSC Lille, Lille; Le Havre AC ← Le Havre, Le Havre AC; OGC Nice ← Nice, OGC Nice; Olympique Lyonnais ← Lyon, Olympique Lyon; Olympique de Marseille ← Marseille, Olympique Marseille; Paris Saint-Germain ← Paris S-G, Paris Saint-Germain; RC Lens ← Lens, RC Lens; RC Strasbourg Alsace ← RC Strasbourg Alsace, Strasbourg; Stade Brestois 29 ← Brest, Stade Brestois 29; Stade Rennais FC ← Rennes, Stade Rennais FC; Toulouse FC ← FC Toulouse, Toulouse.
+**Squad-name variants mapped to one club:** AJ Auxerre ← AJ Auxerre, Auxerre; AS Monaco ← AS Monaco, Monaco; Angers SCO ← Angers, Angers SCO; FC Lorient ← FC Lorient, Lorient; FC Nantes ← FC Nantes, Nantes; LOSC Lille ← LOSC Lille, Lille; Le Havre AC ← Le Havre, Le Havre AC; OGC Nice ← Nice, Nice (O), OGC Nice; Olympique Lyonnais ← Lyon, Olympique Lyon; Olympique de Marseille ← Marseille, Olympique Marseille; Paris Saint-Germain ← Paris S-G, Paris Saint-Germain; RC Lens ← Lens, RC Lens; RC Strasbourg Alsace ← RC Strasbourg Alsace, Strasbourg; Stade Brestois 29 ← Brest, Stade Brestois 29; Stade Rennais FC ← Rennes, Stade Rennais FC; Toulouse FC ← FC Toulouse, Toulouse.
 
 **Within-tolerance goal-count excesses** (our player goals slightly above Wikipedia GF; logged for follow-up, below the flag threshold): Angers SCO 30 vs 29.
 
@@ -1606,16 +1604,11 @@ A page is considered verified for a check only when it yields at least 10 scorer
 | Wolves | Wolverhampton Wanderers |
 | Ligue 1 Squad | UNMAPPED |
 | Club Siero | UNMAPPED |
-| FC Lorient B | UNMAPPED |
 | Columbus Crew | UNMAPPED |
-| Toulouse FC U19 | UNMAPPED |
-| Stade Brest 29 B | UNMAPPED |
 | Ajax Amsterdam | UNMAPPED |
 | Al-Fateh SC | UNMAPPED |
 | Union Saint-Gilloise | UNMAPPED |
-| OGC Nice Espoir | UNMAPPED |
 | Djoliba AC | UNMAPPED |
-| AJ Auxerre B | UNMAPPED |
 | FC Lausanne-Sport | UNMAPPED |
 | Aris Limassol | UNMAPPED |
 
@@ -1646,21 +1639,21 @@ These are clubs whose player-goal total is at least 10 goals below Wikipedia, or
 | 2025-2026 | it Serie A | Udinese | 24 | 31 | 45 | -14 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | it Serie A | Sassuolo | 11 | 20 | 46 | -26 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | it Serie A | Torino | 22 | 29 | 44 | -15 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | it Serie A | Cagliari | 24 | 28 | 40 | -12 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | it Serie A | Cagliari | 20 | 24 | 40 | -16 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | it Serie A | Cremonese | 10 | 10 | 32 | -22 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | it Serie A | Hellas Verona | 18 | 9 | 25 | -16 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | it Serie A | Hellas Verona | 19 | 9 | 25 | -16 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | it Serie A | Pisa | 15 | 8 | 26 | -18 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | Paris Saint-Germain | 19 | 53 | 74 | -21 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | LOSC Lille | 23 | 39 | 52 | -13 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | Olympique Lyonnais | 23 | 38 | 53 | -15 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | Olympique Lyonnais | 18 | 36 | 53 | -17 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | Olympique de Marseille | 22 | 51 | 63 | -12 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | Stade Rennais FC | 18 | 17 | 59 | -42 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | Stade Rennais FC | 16 | 17 | 59 | -42 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | RC Strasbourg Alsace | 25 | 44 | 58 | -14 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | FC Lorient | 16 | 27 | 48 | -21 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | FC Lorient | 17 | 27 | 48 | -21 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | Paris FC | 24 | 32 | 47 | -15 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | Stade Brestois 29 | 18 | 30 | 43 | -13 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | AJ Auxerre | 18 | 19 | 34 | -15 | partial-season snapshot; final GF not comparable |
-| 2025-2026 | fr Ligue 1 | OGC Nice | 20 | 23 | 37 | -14 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | Stade Brestois 29 | 19 | 30 | 43 | -13 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | AJ Auxerre | 20 | 19 | 34 | -15 | partial-season snapshot; final GF not comparable |
+| 2025-2026 | fr Ligue 1 | OGC Nice | 22 | 24 | 37 | -13 | partial-season snapshot; final GF not comparable |
 | 2025-2026 | fr Ligue 1 | FC Metz | 14 | 18 | 32 | -14 | partial-season snapshot; final GF not comparable |
 
 ## 5. 2025-26 deep dive
@@ -1671,17 +1664,17 @@ The 2025-26 verdict is computed per league. A league whose maximum appearance co
 |--------|--------|----------|
 | eng Premier League | **PASS** | complete season (max MP 38 of 38); top-10 scorers and club goal totals matched. |
 | es La Liga | **PASS** | complete season (max MP 38 of 38); top-10 scorers and club goal totals matched. |
-| it Serie A | **PARTIAL SNAPSHOT** | max MP 33 of 38 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 46 squad label(s) name a club outside the 2025-26 league table (players who transferred in). |
+| it Serie A | **PARTIAL SNAPSHOT** | max MP 33 of 38 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 44 squad label(s) name a club outside the 2025-26 league table (players who transferred in). |
 | de Bundesliga | **PASS** | complete season (max MP 34 of 34); top-10 scorers and club goal totals matched. |
-| fr Ligue 1 | **PARTIAL SNAPSHOT** | max MP 30 of 34 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 29 squad label(s) name a club outside the 2025-26 league table (players who transferred in). |
+| fr Ligue 1 | **PARTIAL SNAPSHOT** | max MP 30 of 34 — the stored season stops before the final matchweek, so final goals-for and final top-10 totals are not comparable; 7 top-10 figure(s) are below the final total; 24 squad label(s) name a club outside the 2025-26 league table (players who transferred in). |
 
 | League | Rows | Squad label in league table | Squad label outside the table | Raw squads | Wikipedia clubs | Max MP | Player Gls |
 |--------|-----:|----------------------------:|------------------------------:|-----------:|----------------:|-------:|-----------:|
 | eng Premier League | 551 | 551 | 0 | 20 | 20 | 38 | 1005 |
 | es La Liga | 611 | 611 | 0 | 20 | 20 | 38 | 1001 |
-| it Serie A | 495 | 402 | 93 | 81 | 20 | 33 | 765 |
+| it Serie A | 495 | 399 | 96 | 80 | 20 | 33 | 765 |
 | de Bundesliga | 507 | 507 | 0 | 18 | 18 | 34 | 970 |
-| fr Ligue 1 | 447 | 377 | 70 | 62 | 18 | 30 | 685 |
+| fr Ligue 1 | 447 | 375 | 72 | 59 | 18 | 30 | 685 |
 
 Excluding the zero-minute rows, the squad sizes are Premier League: 27.6, La Liga: 30.6, Serie A: 24.8, Bundesliga: 28.2, Ligue 1: 24.8 players per club, which is normal for a league season. In Serie A and Ligue 1 a minority of rows carry the name of a club that is not in that league's 2025-26 table; these are players who transferred into the league during 2025-26 and whose squad label was not updated. Their player-level statistics are real, but the club label is wrong, so the label must be repaired before club-level aggregation. Examples: Jay Idzes (`Venezia`, 32 Serie A appearances), Luka Modrić (`Real Madrid`, 32 Serie A appearances) and Manuel Akanji (`Manchester City`, 31 Serie A appearances). The same population is listed at the end of each league sub-section in section 3.
 
@@ -1902,4 +1895,16 @@ Each season page was fetched once and cached outside the repository. The URL bel
 6. **Historical coverage holes (out of 2025-26 scope, do not repair in Phase 2).** 2014-15 is missing most of the Burnley, Atlético Madrid and Villarreal squads plus several high-profile scorers, and 2020-21 is missing Benzema and other attacking players at Real Madrid. These are pre-existing gaps in the stored CSV; record them as known limitations rather than silently patching other seasons.
 7. **Metadata.** Make the manifest, README and `docs/DATA_SOURCES.md` agree: `is_simulated=false`, `dataset_status` describing a verified historical season with partial metrics, and explicit notes about the unavailable progression data and the club-name normalisation date.
 8. **Regression tests.** Add a test that fails if a season reports a progression total of zero while the column is supposed to be tracked, a test that fails when a squad label names a club outside the league table, and a test that pins the per-league club counts.
+
+## 12. Phase 2 before/after verification
+
+The following table compares the pre-Phase-2 backup with the modified 2025-26 CSV. “Stale labels” counts played rows whose squad label is outside the corresponding 2025-26 league table; distinct clubs is the number of distinct raw `Squad` labels.
+
+| League | Stale labels before | Stale labels after | Zero-minute rows before | Zero-minute rows after | Distinct clubs before | Distinct clubs after |
+|---|---:|---:|---:|---:|---:|---:|
+| Serie A | 128 | 96 | 0 | 0 | 96 | 80 |
+| Ligue 1 | 124 | 72 | 0 | 0 | 97 | 59 |
+| Other three leagues | 0 | 0 | 386 | 0 | unchanged | unchanged |
+
+The 252 reviewed rows are classified after the approved corrections as follows: 73 `verified_club_season` corrections, 11 `youth_reserve_parent_club` auto-maps, 87 `stale_transfer_label_no_unique_squad_match`, 71 `generic_placeholder`, 9 `mid_season_transfer_spell`, and 1 `youth_reserve_non_league_parent` (Salernitana Primavera, unchanged). The 386 zero-minute rows from the Premier League, La Liga, and Bundesliga are archived and removed; no rows are deleted by the squad-label step.
 

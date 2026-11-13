@@ -1,164 +1,164 @@
 Rk,Player,Comp,Squad_before,category,action,proposed_squad,evidence,source_url
-2059,Francesco Pio Esposito,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2067,Luís Henrique,it Serie A,Marseille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2069,Andy Diouf,it Serie A,Lens,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2071,Manuel Akanji,it Serie A,Manchester City,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2059,Francesco Pio Esposito,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2067,Luís Henrique,it Serie A,Marseille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2069,Andy Diouf,it Serie A,Lens,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2071,Manuel Akanji,it Serie A,Manchester City,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
 2080,Christopher Nkunku,it Serie A,Chelsea,verified_club_season,correct,AC Milan,club_2025_26_season: AC Milan lists Christopher Nkunku,https://en.wikipedia.org/wiki/2025–26_AC_Milan_season
 2083,Niclas Fullkrug,it Serie A,West Ham,verified_club_season,correct,AC Milan,club_2025_26_season: AC Milan lists Niclas Fullkrug,https://en.wikipedia.org/wiki/2025–26_AC_Milan_season
 2084,Luka Modrić,it Serie A,Real Madrid,verified_club_season,correct,AC Milan,club_2025_26_season: AC Milan lists Luka Modrić,https://en.wikipedia.org/wiki/2025–26_AC_Milan_season
 2085,Adrien Rabiot,it Serie A,Marseille,verified_club_season,correct,AC Milan,club_2025_26_season: AC Milan lists Adrien Rabiot,https://en.wikipedia.org/wiki/2025–26_AC_Milan_season
 2091,Pervis Estupiñán,it Serie A,Brighton,verified_club_season,correct,AC Milan,club_2025_26_season: AC Milan lists Pervis Estupiñán,https://en.wikipedia.org/wiki/2025–26_AC_Milan_season
-2098,David Odogu,it Serie A,Wolfsburg,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2098,David Odogu,it Serie A,Wolfsburg,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
 2101,Rasmus Højlund,it Serie A,Manchester Utd,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Rasmus Højlund,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
 2104,Alisson Santos,it Serie A,Sporting CP,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Alisson Santos,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
 2108,Kevin De Bruyne,it Serie A,Manchester City,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Kevin De Bruyne,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
 2109,Scott McTominay,it Serie A,Manchester Utd,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Scott McTominay,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
 2112,Billy Gilmour,it Serie A,Brighton,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Billy Gilmour,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
 2116,Miguel Gutiérrez,it Serie A,Girona,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Miguel Gutiérrez,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
-2127,Jonathan David,it Serie A,Lille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2129,Loïs Openda,it Serie A,RB Leipzig,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2131,Edon Zhegrova,it Serie A,Lille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2132,Jeremie Boga,it Serie A,Nice,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2145,Lloyd Kelly,it Serie A,Newcastle Utd,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2152,Nicolas-Gerrit Kühn,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2127,Jonathan David,it Serie A,Lille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2129,Loïs Openda,it Serie A,RB Leipzig,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
+2131,Edon Zhegrova,it Serie A,Lille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2132,Jeremie Boga,it Serie A,Nice,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2145,Lloyd Kelly,it Serie A,Newcastle Utd,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2152,Nicolas-Gerrit Kühn,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2157,Jesús Rodriguez,it Serie A,Betis,verified_club_season,correct,Como,club_2025_26_season: Como lists Jesús Rodriguez,https://en.wikipedia.org/wiki/2025–26_Como_1907_season
 2161,Jacobo Ramón,it Serie A,Real Madrid,verified_club_season,correct,Como,club_2025_26_season: Como lists Jacobo Ramón,https://en.wikipedia.org/wiki/2025–26_Como_1907_season
 2163,Diego Carlos,it Serie A,Aston Villa,verified_club_season,correct,Como,club_2025_26_season: Como lists Diego Carlos,https://en.wikipedia.org/wiki/2025–26_Como_1907_season
-2166,Marc Kempf,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2166,Marc Kempf,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2172,Donyell Malen,it Serie A,Aston Villa,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Donyell Malen,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
 2175,Evan Ferguson,it Serie A,West Ham,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Evan Ferguson,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
 2176,Robinio Vaz,it Serie A,Marseille,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Robinio Vaz,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
-2179,Bryan Zaragoza,it Serie A,Osasuna,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2179,Bryan Zaragoza,it Serie A,Osasuna,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
 2181,Neil El Aynaoui,it Serie A,Lens,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Neil El Aynaoui,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
 2186,Wesley,it Serie A,Al-Nassr FC,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Wesley,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
-2190,Jan Ziółkowski,it Serie A,Serie A Squad,verified_club_season,correct,Roma,club_2025_26_season: Roma lists Jan Ziółkowski,https://en.wikipedia.org/wiki/2025–26_AS_Roma_season
+2190,Jan Ziółkowski,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2197,Kamaldeen Sulemana,it Serie A,Southampton,verified_club_season,correct,Atalanta,club_2025_26_season: Atalanta lists Kamaldeen Sulemana,https://en.wikipedia.org/wiki/2025–26_Atalanta_BC_season
 2202,Éderson,it Serie A,Manchester City,verified_club_season,correct,Atalanta,club_2025_26_season: Atalanta lists Éderson,https://en.wikipedia.org/wiki/2025–26_Atalanta_BC_season
-2209,Lorenzo Bernasconi,it Serie A,Atalanta U23,verified_club_season,correct,Atalanta,club_2025_26_season: Atalanta lists Lorenzo Bernasconi,https://en.wikipedia.org/wiki/2025–26_Atalanta_BC_season
-2231,João Mário,it Serie A,AEK Athens,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2236,Eivind Helland,it Serie A,SK Brann,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2245,Daniel Maldini,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2248,Petar Ratkov,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2252,Kenneth Taylor,it Serie A,Ajax Amsterdam,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2259,Mario Gila Fuentes,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2267,Edoardo Motta,it Serie A,AC Reggiana 1919,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2271,M'Bala Nzola,it Serie A,Lens,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2274,Nemanja Matić,it Serie A,Lyon,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2275,Ismael Koné,it Serie A,Marseille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2277,Darryl Bakola,it Serie A,Marseille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2278,Aster Vranckx,it Serie A,Wolfsburg,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2283,Jay Idzes,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2285,Woyo Coulibaly,it Serie A,Leicester City,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2288,Ulisses Garcia,it Serie A,Marseille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2289,Pedro Felipe,it Serie A,São Bernardo FC,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2290,Fali Candé,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2292,Arijanet Murić,it Serie A,Ipswich Town,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2293,Stefano Turati,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2209,Lorenzo Bernasconi,it Serie A,Atalanta U23,youth_reserve_parent_club,auto-map,Atalanta,Youth/reserve label auto-mapped to parent 2025-26 club: Atalanta,https://en.wikipedia.org/wiki/2025–26_Atalanta_BC_season
+2231,João Mário,it Serie A,AEK Athens,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2236,Eivind Helland,it Serie A,SK Brann,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2245,Daniel Maldini,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2248,Petar Ratkov,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2252,Kenneth Taylor,it Serie A,Ajax Amsterdam,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2259,Mario Gila Fuentes,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2267,Edoardo Motta,it Serie A,AC Reggiana 1919,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2271,M'Bala Nzola,it Serie A,Lens,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2274,Nemanja Matić,it Serie A,Lyon,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2275,Ismael Koné,it Serie A,Marseille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2277,Darryl Bakola,it Serie A,Marseille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2278,Aster Vranckx,it Serie A,Wolfsburg,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2283,Jay Idzes,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2285,Woyo Coulibaly,it Serie A,Leicester City,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2288,Ulisses Garcia,it Serie A,Marseille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2289,Pedro Felipe,it Serie A,São Bernardo FC,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2290,Fali Candé,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2292,Arijanet Murić,it Serie A,Ipswich Town,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2293,Stefano Turati,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
 2298,Idrissa Gueye,it Serie A,Everton FC,verified_club_season,correct,Udinese,club_2025_26_season: Udinese lists Idrissa Gueye,https://en.wikipedia.org/wiki/2025–26_Udinese_Calcio_season
 2310,Branimir Mlačić,it Serie A,HNK Hajduk Split,verified_club_season,correct,Udinese,club_2025_26_season: Udinese lists Branimir Mlačić,https://en.wikipedia.org/wiki/2025–26_Udinese_Calcio_season
-2311,Juan Arizala,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2319,Zakaria Aboukhlal,it Serie A,Toulouse,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2321,Sandro Kulenović,it Serie A,GNK Dinamo Zagreb,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2328,Faustino Anjorin,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2334,Rafael Obrador,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2337,Ardian Ismajli,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2311,Juan Arizala,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2319,Zakaria Aboukhlal,it Serie A,Toulouse,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2321,Sandro Kulenović,it Serie A,GNK Dinamo Zagreb,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2328,Faustino Anjorin,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2334,Rafael Obrador,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2337,Ardian Ismajli,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
 2338,Luca Marianucci,it Serie A,Empoli,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Luca Marianucci,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
-2339,Niels Nkounkou,it Serie A,Eint Frankfurt,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2344,Lorenzo Colombo,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2346,Maxwel Cornet,it Serie A,Southampton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2354,Alexsandro Amorim,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2355,Mikael Ellertsson,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2361,Nils Zätterström,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2365,Justin Bijlow,it Serie A,Feyenoord Rotterdam,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2370,Gaetano Oristanio,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2371,Nesta Elphege,it Serie A,Grenoble Foot 38,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2372,Daniel Mikołajewski,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2374,Benjamin Cremaschi,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2377,Hans Nicolussi Caviglia,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2379,Franco Carboni,it Serie A,Venezia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2396,Jacopo Fazzini,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2397,Manor Solomon,it Serie A,Villarreal CF,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2405,Jack Harrison,it Serie A,Everton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2408,Tariq Lamptey,it Serie A,Brighton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2414,Luís Balbo,it Serie A,Fiorentina Primavera,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2417,Semih Kılıçsoy,it Serie A,Serie A Squad,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Semih Kılıçsoy,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
+2339,Niels Nkounkou,it Serie A,Eint Frankfurt,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
+2344,Lorenzo Colombo,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2346,Maxwel Cornet,it Serie A,Southampton,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2354,Alexsandro Amorim,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2355,Mikael Ellertsson,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2361,Nils Zätterström,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2365,Justin Bijlow,it Serie A,Feyenoord Rotterdam,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2370,Gaetano Oristanio,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2371,Nesta Elphege,it Serie A,Grenoble Foot 38,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2372,Daniel Mikołajewski,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2374,Benjamin Cremaschi,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2377,Hans Nicolussi Caviglia,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2379,Franco Carboni,it Serie A,Venezia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2396,Jacopo Fazzini,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2397,Manor Solomon,it Serie A,Villarreal CF,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
+2405,Jack Harrison,it Serie A,Everton,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
+2408,Tariq Lamptey,it Serie A,Brighton,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2414,Luís Balbo,it Serie A,Fiorentina Primavera,youth_reserve_parent_club,auto-map,Fiorentina,Youth/reserve label auto-mapped to parent 2025-26 club: Fiorentina,https://en.wikipedia.org/wiki/2025–26_ACF_Fiorentina_season
+2417,Semih Kılıçsoy,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2418,Sebastiano Esposito,it Serie A,Empoli,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Sebastiano Esposito,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
-2423,Yael Trepy,it Serie A,Cagliari Primavera,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Yael Trepy,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
-2424,Paul Mendy,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2426,Sulemana,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2430,Joseph Liteta,it Serie A,Serie A Squad,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Joseph Liteta,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
-2433,Agustín Albarracín,it Serie A,Serie A Squad,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Agustín Albarracín,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
-2435,Juan Rodríguez,it Serie A,Serie A Squad,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Juan Rodríguez,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
+2423,Yael Trepy,it Serie A,Cagliari Primavera,youth_reserve_parent_club,auto-map,Cagliari,Youth/reserve label auto-mapped to parent 2025-26 club: Cagliari,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
+2424,Paul Mendy,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2426,Sulemana,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2430,Joseph Liteta,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2433,Agustín Albarracín,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2435,Juan Rodríguez,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2437,Zé Pedro,it Serie A,AD Limianos,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Zé Pedro,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
 2441,Othniël Raterink,it Serie A,De Graafschap Doetinchem,verified_club_season,correct,Cagliari,club_2025_26_season: Cagliari lists Othniël Raterink,https://en.wikipedia.org/wiki/2025–26_Cagliari_Calcio_season
-2443,Jamie Vardy,it Serie A,Leicester City,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2448,Milan Đurić,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2449,Warren Bondo,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2451,Youssef Maleh,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2443,Jamie Vardy,it Serie A,Leicester City,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2448,Milan Đurić,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2449,Warren Bondo,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2451,Youssef Maleh,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
 2452,Alessio Zerbin,it Serie A,Venezia,verified_club_season,correct,Napoli,club_2025_26_season: Napoli lists Alessio Zerbin,https://en.wikipedia.org/wiki/2025–26_SSC_Napoli_season
-2456,Giuseppe Pezzella,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2458,Michele Collocolo,it Serie A,Avigliano,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2459,Alberto Grassi,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2468,Marco Silvestri,it Serie A,Empoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2478,Omri Gandelman,it Serie A,KAA Gent,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2480,Oumar Ngom,it Serie A,CF Estrela Amadora,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2481,Sadik Fofana,it Serie A,Grazer AK 1902,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2485,Kialonda Gaspar,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2486,Matías Pérez,it Serie A,CA Alvarado II,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2493,Gift Orban,it Serie A,Lyon,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2497,Isaac,it Serie A,Clube Atlético Mineiro,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2498,Kieron Bowie,it Serie A,Hibernian FC,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2499,Ioan Vermesan,it Serie A,Hellas Verona Primavera,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2501,Rafik Belghali,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2502,Mutassim Al-Musrati,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2508,Roberto Gagliardini,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2509,Jean Daniel Akpa-Akpro,it Serie A,Monza,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2513,Armel Bella-Kotchap,it Serie A,Southampton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2514,Pol Lirola,it Serie A,Marseille,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2517,Andrias Edmundsson,it Serie A,Wisla Plock,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2518,Fallou Cham,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2523,Rafiu Durosinmi,it Serie A,FC Viktoria Plzen,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2525,Stefano Moreo,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2526,Henrik Wendel Meister,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2527,Filip Stojilković,it Serie A,Cracovia,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2530,Felipe Loyola,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2541,Raúl Albiol,it Serie A,Villarreal,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2542,Rosen Bozhinov,it Serie A,Royal Antwerp FC,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2545,Francesco Coppola,it Serie A,Salernitana Primavera,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2547,Daniel Denoon,it Serie A,Serie A Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2550,Nicolas,it Serie A,Criciúma Esporte Clube,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2552,Khvicha Kvaratskhelia,fr Ligue 1,Napoli,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2557,Quentin Ndjantou,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2558,Dro Fernández,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2559,Vitinha,fr Ligue 1,Genoa,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2456,Giuseppe Pezzella,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2458,Michele Collocolo,it Serie A,Avigliano,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2459,Alberto Grassi,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2468,Marco Silvestri,it Serie A,Empoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2478,Omri Gandelman,it Serie A,KAA Gent,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2480,Oumar Ngom,it Serie A,CF Estrela Amadora,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2481,Sadik Fofana,it Serie A,Grazer AK 1902,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2485,Kialonda Gaspar,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2486,Matías Pérez,it Serie A,CA Alvarado II,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2493,Gift Orban,it Serie A,Lyon,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2497,Isaac,it Serie A,Clube Atlético Mineiro,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2498,Kieron Bowie,it Serie A,Hibernian FC,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2499,Ioan Vermesan,it Serie A,Hellas Verona Primavera,youth_reserve_parent_club,auto-map,Hellas Verona (R),Youth/reserve label auto-mapped to parent 2025-26 club: Hellas Verona (R),https://en.wikipedia.org/wiki/Hellas_Verona_(R)
+2501,Rafik Belghali,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2502,Mutassim Al-Musrati,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2508,Roberto Gagliardini,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2509,Jean Daniel Akpa-Akpro,it Serie A,Monza,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2513,Armel Bella-Kotchap,it Serie A,Southampton,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2514,Pol Lirola,it Serie A,Marseille,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2517,Andrias Edmundsson,it Serie A,Wisla Plock,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2518,Fallou Cham,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2523,Rafiu Durosinmi,it Serie A,FC Viktoria Plzen,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2525,Stefano Moreo,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2526,Henrik Wendel Meister,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2527,Filip Stojilković,it Serie A,Cracovia,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2530,Felipe Loyola,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2541,Raúl Albiol,it Serie A,Villarreal,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2542,Rosen Bozhinov,it Serie A,Royal Antwerp FC,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2545,Francesco Coppola,it Serie A,Salernitana Primavera,youth_reserve_non_league_parent,unresolved,,Youth/reserve parent Salernitana is not a 2025-26 it Serie A club; row left unchanged,
+2547,Daniel Denoon,it Serie A,Serie A Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2550,Nicolas,it Serie A,Criciúma Esporte Clube,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2552,Khvicha Kvaratskhelia,fr Ligue 1,Napoli,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2557,Quentin Ndjantou,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2558,Dro Fernández,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2559,Vitinha,fr Ligue 1,Genoa,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
 2574,Allan Saint-Maximin,fr Ligue 1,CF América,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Allan Saint-Maximin,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
 2575,Florian Thauvin,fr Ligue 1,Udinese,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Florian Thauvin,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
 2576,Odsonne Édouard,fr Ligue 1,Crystal Palace,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Odsonne Édouard,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
 2581,Saud Abdulhamid,fr Ligue 1,Roma,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Saud Abdulhamid,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
 2582,Amadou Haidara,fr Ligue 1,RB Leipzig,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Amadou Haidara,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
 2590,Arthur Masuaku,fr Ligue 1,Sunderland AFC,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Arthur Masuaku,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
-2595,Erawan Garnier,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lens,club_2025_26_season: Lens lists Erawan Garnier,https://en.wikipedia.org/wiki/2025–26_RC_Lens_season
-2601,Matías Fernández,fr Ligue 1,Club Siero,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2602,Marius Sivertsen Broholm,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2604,Soriba Diaoune,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2595,Erawan Garnier,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2601,Matías Fernández,fr Ligue 1,Club Siero,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2602,Marius Sivertsen Broholm,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2604,Soriba Diaoune,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2621,Romain Perraud,fr Ligue 1,Betis,verified_club_season,correct,Lille,club_2025_26_season: Lille lists Romain Perraud,https://en.wikipedia.org/wiki/2025–26_Lille_OSC_season
-2623,Maxima Goffi,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2623,Maxima Goffi,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2626,Endrick,fr Ligue 1,Real Madrid,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Endrick,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
 2627,Roman Yaremchuk,fr Ligue 1,Olympiacos Piraeus,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Roman Yaremchuk,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2630,Adil Hamdani,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Adil Hamdani,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2633,Khalis Merah,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Khalis Merah,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
+2630,Adil Hamdani,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2633,Khalis Merah,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2636,Noah Nartey,fr Ligue 1,Bröndby IF,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Noah Nartey,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2637,Orel Mangala,fr Ligue 1,Everton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2638,Adam Karabec,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Adam Karabec,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2640,Rémi Himbert,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Rémi Himbert,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2644,Abner Vinícius,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2650,Steeve Kango,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Steeve Kango,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
+2637,Orel Mangala,fr Ligue 1,Everton,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2638,Adam Karabec,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2640,Rémi Himbert,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2644,Abner Vinícius,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2650,Steeve Kango,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2651,Dominik Greif,fr Ligue 1,Mallorca,verified_club_season,correct,Lyon,club_2025_26_season: Lyon lists Dominik Greif,https://en.wikipedia.org/wiki/2025–26_Olympique_Lyonnais_season
-2653,Yassir Zabiri,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Rennes,club_2025_26_season: Rennes lists Yassir Zabiri,https://en.wikipedia.org/wiki/2025–26_Stade_Rennais_FC_season
+2653,Yassir Zabiri,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2658,Arnaud Nordin,fr Ligue 1,Montpellier,verified_club_season,correct,Rennes,club_2025_26_season: Rennes lists Arnaud Nordin,https://en.wikipedia.org/wiki/2025–26_Stade_Rennais_FC_season
 2660,Sebastian Szymański,fr Ligue 1,Fenerbahce,verified_club_season,correct,Rennes,club_2025_26_season: Rennes lists Sebastian Szymański,https://en.wikipedia.org/wiki/2025–26_Stade_Rennais_FC_season
-2667,Elias Legendre Quiñonez Zae,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2675,Mathys Silistrie,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Rennes,club_2025_26_season: Rennes lists Mathys Silistrie,https://en.wikipedia.org/wiki/2025–26_Stade_Rennais_FC_season
+2667,Elias Legendre Quiñonez Zae,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2675,Mathys Silistrie,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2679,Ethan Nwaneri,fr Ligue 1,Arsenal,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Ethan Nwaneri,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
 2681,Timothy Weah,fr Ligue 1,Juventus,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Timothy Weah,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
 2682,Quinten Timber,fr Ligue 1,Feyenoord Rotterdam,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Quinten Timber,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
@@ -167,87 +167,87 @@ Rk,Player,Comp,Squad_before,category,action,proposed_squad,evidence,source_url
 2690,Nayef Aguerd,fr Ligue 1,Real Sociedad,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Nayef Aguerd,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
 2691,Benjamin Pavard,fr Ligue 1,Inter,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Benjamin Pavard,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
 2694,Emerson,fr Ligue 1,Milan,verified_club_season,correct,Marseille,club_2025_26_season: Marseille lists Emerson,https://en.wikipedia.org/wiki/2025–26_Olympique_de_Marseille_season
-2695,Conrad Jaden Egan-Riley,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2695,Conrad Jaden Egan-Riley,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2698,Ansu Fati,fr Ligue 1,Barcelona,verified_club_season,correct,Monaco,club_2025_26_season: Monaco lists Ansu Fati,https://en.wikipedia.org/wiki/2025–26_AS_Monaco_FC_season
-2703,Simon Adingra,fr Ligue 1,Brighton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2712,Pape Cabral,fr Ligue 1,Ligue 1 Squad,verified_club_season,correct,Monaco,club_2025_26_season: Monaco lists Pape Cabral,https://en.wikipedia.org/wiki/2025–26_AS_Monaco_FC_season
-2713,Stanis Idumbo Muzambo,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2714,Samuel Nibombe,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2703,Simon Adingra,fr Ligue 1,Brighton,mid_season_transfer_spell,unresolved,,Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source,
+2712,Pape Cabral,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2713,Stanis Idumbo Muzambo,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2714,Samuel Nibombe,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2717,Eric Dier,fr Ligue 1,Bayern Munich,verified_club_season,correct,Monaco,club_2025_26_season: Monaco lists Eric Dier,https://en.wikipedia.org/wiki/2025–26_AS_Monaco_FC_season
 2720,Wout Faes,fr Ligue 1,Leicester City,verified_club_season,correct,Monaco,club_2025_26_season: Monaco lists Wout Faes,https://en.wikipedia.org/wiki/2025–26_AS_Monaco_FC_season
 2724,Lukáš Hrádecký,fr Ligue 1,Leverkusen,verified_club_season,correct,Monaco,club_2025_26_season: Monaco lists Lukáš Hrádecký,https://en.wikipedia.org/wiki/2025–26_AS_Monaco_FC_season
 2728,David Datro Fofana,fr Ligue 1,Chelsea FC,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists David Datro Fofana,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
-2729,Samuel Amo-Ameyaw,fr Ligue 1,Southampton,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2729,Samuel Amo-Ameyaw,fr Ligue 1,Southampton,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
 2730,Valentín Barco,fr Ligue 1,Sevilla,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Valentín Barco,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
 2731,Julio Enciso,fr Ligue 1,Ipswich Town,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Julio Enciso,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
 2732,Gessime Yassine,fr Ligue 1,USL Dunkerque,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Gessime Yassine,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
 2736,Mathis Amougou,fr Ligue 1,Chelsea,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Mathis Amougou,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
 2737,Martial Godo,fr Ligue 1,Fulham,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Martial Godo,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
-2742,Tyrese Noubissie,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2742,Tyrese Noubissie,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2743,Aarón Anselmino,fr Ligue 1,Borussia Dortmund,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Aarón Anselmino,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
 2745,Ben Chilwell,fr Ligue 1,Crystal Palace,verified_club_season,correct,Strasbourg,club_2025_26_season: Strasbourg lists Ben Chilwell,https://en.wikipedia.org/wiki/2025–26_RC_Strasbourg_Alsace_season
-2751,Ahmadou Bamba Dieng,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2752,Karim Dermane,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2754,Mohamed Bamba,fr Ligue 1,Reims,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2759,Arthur Avom Ebong,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2760,Martin Bley,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2765,Daniel Semedo,fr Ligue 1,FC Lorient B,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2769,Bamo Meïté,fr Ligue 1,Montpellier,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2751,Ahmadou Bamba Dieng,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2752,Karim Dermane,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2754,Mohamed Bamba,fr Ligue 1,Reims,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2759,Arthur Avom Ebong,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2760,Martin Bley,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2765,Daniel Semedo,fr Ligue 1,FC Lorient B,youth_reserve_parent_club,auto-map,Lorient,Youth/reserve label auto-mapped to parent 2025-26 club: Lorient,https://en.wikipedia.org/wiki/2025–26_FC_Lorient_season
+2769,Bamo Meïté,fr Ligue 1,Montpellier,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
 2774,Ciro Immobile,fr Ligue 1,Bologna FC 1909,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Ciro Immobile,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2777,Luca Koleosho,fr Ligue 1,RCD Espanyol Barcelona,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Luca Koleosho,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2778,Jonathan Ikoné,fr Ligue 1,Como,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Jonathan Ikoné,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2784,Marshall Munetsi,fr Ligue 1,Wolves,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Marshall Munetsi,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2788,Adama Camara,fr Ligue 1,AFC Creil,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Adama Camara,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2789,Mathieu Cafaro,fr Ligue 1,Saint-Étienne,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Mathieu Cafaro,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
-2791,Samir Sophian Chergui,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2791,Samir Sophian Chergui,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
 2792,Hamari Traore,fr Ligue 1,Real Sociedad,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Hamari Traore,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2794,Diego Coppola,fr Ligue 1,Hellas Verona,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Diego Coppola,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2795,Otávio,fr Ligue 1,Al-Qadsiah FC,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Otávio,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2796,Nhoa Sangui,fr Ligue 1,Reims,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Nhoa Sangui,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2797,Thibault De Smet,fr Ligue 1,Reims,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Thibault De Smet,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
 2800,Kevin Trapp,fr Ligue 1,Eint Frankfurt,verified_club_season,correct,Paris FC,club_2025_26_season: Paris FC lists Kevin Trapp,https://en.wikipedia.org/wiki/2025–26_Paris_FC_season
-2806,Jacen Russell-Rowe,fr Ligue 1,Columbus Crew,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2808,Pape Diop,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2815,Alexis Vossah,fr Ligue 1,Toulouse FC U19,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2829,Junior Dina Ebimbe,fr Ligue 1,Eint Frankfurt,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2833,Joris Chotard,fr Ligue 1,Montpellier,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2834,Lucas Tousart,fr Ligue 1,Union Berlin,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2838,Luc Zogbé,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2841,Michel Diaz,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2843,Raphaël Le Guen,fr Ligue 1,Stade Brest 29 B,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2848,Djibirin Harouna,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2852,Branco Van den Boomen,fr Ligue 1,Ajax Amsterdam,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2853,Amine Sbai,fr Ligue 1,Al-Fateh SC,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2854,Louis Mouton,fr Ligue 1,Saint-Étienne,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2870,Mbwana Ally Samatta,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2871,Sofiane Boufal,fr Ligue 1,Union Saint-Gilloise,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2875,Kenny Quetant,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2876,Noam Obougou Jacquet,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2881,Lucas Gourna-Douath,fr Ligue 1,Roma,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2882,Reda Khadra,fr Ligue 1,Reims,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2884,Daren Nbenbege Mosengo,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2893,Lionel M'Pasi,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2899,Kaïl Boudache,fr Ligue 1,OGC Nice Espoir,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2900,Kevin Carlos Omoruyi,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2902,Zoumana Diallo,fr Ligue 1,OGC Nice Espoir,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2913,Djibril Coulibaly,fr Ligue 1,Djoliba AC,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2915,Abdulay Juma Bah,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2921,Yehvann Diouf,fr Ligue 1,Reims,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2926,Ryan Rodin,fr Ligue 1,AJ Auxerre B,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2928,Oussama El Azzouzi,fr Ligue 1,Bologna,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2935,Tidiane Devernois,fr Ligue 1,AJ Auxerre B,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2942,Bryan Okoh,fr Ligue 1,FC Lausanne-Sport,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2954,Ibrahima Sissoko,fr Ligue 1,Bochum,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2957,Mohamed Kaba,fr Ligue 1,Lecce,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2961,Bahmed Deuff,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2962,Ali Youssef,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2964,Tylel Tati,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2966,Uros Radakovic,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2967,Frederic Guilbert,fr Ligue 1,Lecce,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2977,Giorgi Kvilitaia,fr Ligue 1,Aris Limassol,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2978,Nathan Mbala,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2979,Georgiy Tsitaishvili,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2980,Boubacar Traoré,fr Ligue 1,Wolves,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2984,Believe Munongo,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2988,Bouna Sarr,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
-2994,Urie-Michel Mboula,fr Ligue 1,Ligue 1 Squad,unresolved_no_unique_squad_source,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2806,Jacen Russell-Rowe,fr Ligue 1,Columbus Crew,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2808,Pape Diop,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2815,Alexis Vossah,fr Ligue 1,Toulouse FC U19,youth_reserve_parent_club,auto-map,Toulouse,Youth/reserve label auto-mapped to parent 2025-26 club: Toulouse,https://en.wikipedia.org/wiki/2025–26_Toulouse_FC_season
+2829,Junior Dina Ebimbe,fr Ligue 1,Eint Frankfurt,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2833,Joris Chotard,fr Ligue 1,Montpellier,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2834,Lucas Tousart,fr Ligue 1,Union Berlin,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2838,Luc Zogbé,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2841,Michel Diaz,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2843,Raphaël Le Guen,fr Ligue 1,Stade Brest 29 B,youth_reserve_parent_club,auto-map,Brest,Youth/reserve label auto-mapped to parent 2025-26 club: Brest,https://en.wikipedia.org/wiki/2025–26_Stade_Brestois_29_season
+2848,Djibirin Harouna,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2852,Branco Van den Boomen,fr Ligue 1,Ajax Amsterdam,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2853,Amine Sbai,fr Ligue 1,Al-Fateh SC,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2854,Louis Mouton,fr Ligue 1,Saint-Étienne,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2870,Mbwana Ally Samatta,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2871,Sofiane Boufal,fr Ligue 1,Union Saint-Gilloise,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2875,Kenny Quetant,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2876,Noam Obougou Jacquet,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2881,Lucas Gourna-Douath,fr Ligue 1,Roma,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2882,Reda Khadra,fr Ligue 1,Reims,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2884,Daren Nbenbege Mosengo,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2893,Lionel M'Pasi,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2899,Kaïl Boudache,fr Ligue 1,OGC Nice Espoir,youth_reserve_parent_club,auto-map,Nice (O),Youth/reserve label auto-mapped to parent 2025-26 club: Nice (O),https://en.wikipedia.org/wiki/Nice_(O)
+2900,Kevin Carlos Omoruyi,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2902,Zoumana Diallo,fr Ligue 1,OGC Nice Espoir,youth_reserve_parent_club,auto-map,Nice (O),Youth/reserve label auto-mapped to parent 2025-26 club: Nice (O),https://en.wikipedia.org/wiki/Nice_(O)
+2913,Djibril Coulibaly,fr Ligue 1,Djoliba AC,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2915,Abdulay Juma Bah,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2921,Yehvann Diouf,fr Ligue 1,Reims,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2926,Ryan Rodin,fr Ligue 1,AJ Auxerre B,youth_reserve_parent_club,auto-map,Auxerre,Youth/reserve label auto-mapped to parent 2025-26 club: Auxerre,https://en.wikipedia.org/wiki/2025–26_AJ_Auxerre_season
+2928,Oussama El Azzouzi,fr Ligue 1,Bologna,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2935,Tidiane Devernois,fr Ligue 1,AJ Auxerre B,youth_reserve_parent_club,auto-map,Auxerre,Youth/reserve label auto-mapped to parent 2025-26 club: Auxerre,https://en.wikipedia.org/wiki/2025–26_AJ_Auxerre_season
+2942,Bryan Okoh,fr Ligue 1,FC Lausanne-Sport,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2954,Ibrahima Sissoko,fr Ligue 1,Bochum,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2957,Mohamed Kaba,fr Ligue 1,Lecce,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2961,Bahmed Deuff,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2962,Ali Youssef,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2964,Tylel Tati,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2966,Uros Radakovic,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2967,Frederic Guilbert,fr Ligue 1,Lecce,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2977,Giorgi Kvilitaia,fr Ligue 1,Aris Limassol,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2978,Nathan Mbala,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2979,Georgiy Tsitaishvili,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2980,Boubacar Traoré,fr Ligue 1,Wolves,stale_transfer_label_no_unique_squad_match,unresolved,,No unique 2025-26 squad source matched the player; row left unchanged,
+2984,Believe Munongo,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2988,Bouna Sarr,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,
+2994,Urie-Michel Mboula,fr Ligue 1,Ligue 1 Squad,generic_placeholder,unresolved,,Generic competition placeholder; row left unchanged,

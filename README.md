@@ -68,7 +68,7 @@ PitchPulse organizes 14 historical seasons into clearly governed statistical era
 | **Early xG Era** | `2014/15` – `2016/17` | 98 | Cristiano Ronaldo (`14/15`: 48 Gls) • Luis Suárez (`15/16`: 40 Gls) | Standard stats + Understat $xG$, $npxG$; progression untracked | **Verified Historical** |
 | **Modern Event Era** | `2017/18` – `2023/24` | 98 / 96 | **Harry Kane** (`23/24`: 36 Gls, Golden Shoe) • Mbappé (27 Gls) • Haaland (27 Gls) | Complete 37 canonical metrics including progressive passes & carries | **Verified Historical** |
 | **Reference Baseline** | `2024/25` | 96 | Kylian Mbappé (31 Gls) • Mohamed Salah (29 Gls) • Lewandowski (27 Gls) | Gold standard baseline: SHA-256 fingerprinted, 4,806 goals, 3,429 assists | **Authoritative Baseline (Locked)** |
-| **2025/26 Composite** | `2025/26` | 176 raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical player aggregates; progression fields unavailable and represented as null | **Verified with documented limitations** |
+| **2025/26 Composite** | `2025/26` | 172 distinct raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical player aggregates; progression fields unavailable and represented as null; 386 zero-minute placeholders archived; squad verification is maintained in a sidecar | **Verified with documented limitations** |
 
 *For full cryptographic hashes, mathematical totals, and licensing provenance, see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) and [docs/TERMS.md](docs/TERMS.md).*
 

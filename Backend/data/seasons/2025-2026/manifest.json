@@ -8,7 +8,7 @@
   "is_projection": false,
   "is_simulated": false,
   "records_count": 2611,
-  "clubs_count": 176,
+  "clubs_count": 172,
   "competitions_count": 5,
   "competitions": {
     "es La Liga": 611,
@@ -135,12 +135,12 @@
   "source_name": "Composite dataset - top 5 European leagues 2025/26 completed season",
   "source_url": "https://fbref.com",
   "data_as_of": "2025-2026 European Regular Season (Completed)",
-  "content_hash": "2551deb38a30df880efbe2bf5c45626f8e88cd9566d833a9a467949438d36e88",
-  "sha256": "2551deb38a30df880efbe2bf5c45626f8e88cd9566d833a9a467949438d36e88",
+  "content_hash": "71ebe4ef05d6d74a5591467da2bb68a40a5727e2446aedf54521376ca39e5509",
+  "sha256": "71ebe4ef05d6d74a5591467da2bb68a40a5727e2446aedf54521376ca39e5509",
   "validation_status": "passed",
-  "verification_notes": "Phase 2 applied to 2025/26 only: 386 zero-minute placeholders archived and removed; 89 uniquely sourced Serie A/Ligue 1 squad corrections applied; 163 reviewed rows remain unchanged as unresolved. PrgC/PrgP/PrgR are null for all 2,611 rows because no traceable source was found for the composite progression values. The sidecar records 252 reviewed rows (89 verified true, 163 false).",
+  "verification_notes": "Phase 2 applied to 2025/26 only: 386 zero-minute placeholders archived and removed; 73 uniquely sourced Serie A/Ligue 1 squad corrections and 11 youth/reserve parent-club auto-maps applied; 168 reviewed rows remain unchanged as unresolved (87 stale transfer labels, 71 generic placeholders, 9 mid-season transfer spells, and 1 non-league youth/reserve parent). PrgC/PrgP/PrgR are null for all 2,611 rows because no traceable source was found for the composite progression values. The sidecar records 252 reviewed rows (84 verified true, 168 false).",
   "progression_removal_reason": "The matched CSV has no progression columns, FBref advanced data ended in January 2026, the supplied values correlate 0.83 with goals (0.39 in 2023-24) and 0.10 with minutes, and git/scripts/docs contain no traceable generation source.",
-  "squad_verification_counts": {"rows": 252, "verified_true": 89, "verified_false": 163, "actions_correct": 89, "actions_auto_map": 0, "actions_unresolved": 163},
+  "squad_verification_counts": {"rows": 252, "verified_true": 84, "verified_false": 168, "actions_correct": 73, "actions_auto_map": 11, "actions_unresolved": 168},
   "is_quarantined": false,
   "quarantine_reason": null
 }

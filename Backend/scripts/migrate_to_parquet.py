@@ -256,7 +256,7 @@ def migrate():
         CREATE VIEW per90_metrics AS
         SELECT
             season, competition_id, competition_name, country,
-            Player, Squad, Pos, Min, "Gls_90", "Ast_90", "G+A_90", "xG_90", "xAG_90",
+            Player, Squad, Pos, Min, Gls, Ast, PrgC, PrgP, PrgR, "Gls_90", "Ast_90", "G+A_90", "xG_90", "xAG_90",
             "PrgC_90", "PrgP_90", "PrgR_90", "npxG_90", "npxG+xAG_90"
         FROM players
         WHERE Min > 0

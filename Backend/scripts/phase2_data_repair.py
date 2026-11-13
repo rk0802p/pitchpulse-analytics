@@ -25,6 +25,19 @@ SIDECAR = SEASON_DIR / "squad_verification.csv"
 ZERO_ARCHIVE = SEASON_DIR / "archive" / "zero_minute_rows.csv"
 HEADERS = {"User-Agent": "PitchPulsePhase2/1.0 (data verification)"}
 LEAGUE_PAGE = {"it Serie A": "2025–26_Serie_A", "fr Ligue 1": "2025–26_Ligue_1"}
+YOUTH_PARENTS = {
+    ("it Serie A", "Atalanta U23"): "Atalanta",
+    ("it Serie A", "Cagliari Primavera"): "Cagliari",
+    ("it Serie A", "Fiorentina Primavera"): "Fiorentina",
+    ("it Serie A", "Hellas Verona Primavera"): "Hellas Verona",
+    ("it Serie A", "Salernitana Primavera"): "Salernitana",
+    ("fr Ligue 1", "AJ Auxerre B"): "AJ Auxerre",
+    ("fr Ligue 1", "FC Lorient B"): "FC Lorient",
+    ("fr Ligue 1", "OGC Nice Espoir"): "OGC Nice",
+    ("fr Ligue 1", "Stade Brest 29 B"): "Stade Brestois 29",
+    ("fr Ligue 1", "Toulouse FC U19"): "Toulouse FC",
+}
+GENERIC_LABELS = {"Serie A Squad", "Ligue 1 Squad"}
 
 
 def audit_module():
@@ -117,18 +130,48 @@ def build_review() -> pd.DataFrame:
         subset = df[(df["Comp"] == competition) & (df["Min"] > 0)].copy()
         subset["club_key"] = subset["Squad"].map(lambda value: crosscheck.canon_club(value)[0] if crosscheck.canon_club(value) else None)
         subset = subset[~subset["club_key"].isin(official)]
+        duplicate_players = set(df["Player"][df["Player"].duplicated(keep=False)])
         for _, row in subset.iterrows():
             matches = [source for source in sources if player_key(row["Player"]) in source[4]]
-            if len(matches) == 1:
+            youth_parent = YOUTH_PARENTS.get((competition, row["Squad"]))
+            parent_identity = crosscheck.canon_club(youth_parent)
+            parent_match = next((source for source in sources
+                                 if (crosscheck.canon_club(source[1]) and parent_identity
+                                     and crosscheck.canon_club(source[1])[0] == parent_identity[0])), None) if youth_parent else None
+            if youth_parent and parent_match:
+                action = "auto-map"
+                category = "youth_reserve_parent_club"
+                proposed = parent_match[1]
+                evidence = f"Youth/reserve label auto-mapped to parent 2025-26 club: {proposed}"
+                evidence_url = parent_match[2]
+            elif youth_parent:
+                action = "unresolved"
+                category = "youth_reserve_non_league_parent"
+                proposed = ""
+                evidence = f"Youth/reserve parent {youth_parent} is not a 2025-26 {competition} club; row left unchanged"
+                evidence_url = ""
+            elif row["Squad"] in GENERIC_LABELS:
+                action = "unresolved"
+                category = "generic_placeholder"
+                proposed = ""
+                evidence = "Generic competition placeholder; row left unchanged"
+                evidence_url = ""
+            elif len(matches) == 1:
                 club_key, club, url, kind, _ = matches[0]
                 action = "correct" if kind == "club_2025_26_season" else "auto-map"
                 category = "verified_club_season" if action == "correct" else "verified_current_squad_fallback"
                 proposed = club
                 evidence = f"{kind}: {club} lists {row['Player']}"
                 evidence_url = url
+            elif player_key(row["Player"]) in {player_key(name) for name in duplicate_players}:
+                action = "unresolved"
+                category = "mid_season_transfer_spell"
+                proposed = ""
+                evidence = "Player has multiple 2025-26 competition/spell rows; label is retained pending a unique club source"
+                evidence_url = ""
             else:
                 action = "unresolved"
-                category = "unresolved_no_unique_squad_source"
+                category = "stale_transfer_label_no_unique_squad_match"
                 proposed = ""
                 evidence = "No unique 2025-26 squad source matched the player; row left unchanged"
                 evidence_url = ""
@@ -167,7 +210,7 @@ def apply_changes(review: pd.DataFrame) -> None:
                             "verified": True, "category": approved.loc[rk, "category"], "source_url": approved.loc[rk, "source_url"]})
         elif rk in reviewed:
             sidecar.append({"Player": row["Player"], "Comp": row["Comp"], "Squad_after": row["Squad"],
-                            "verified": False, "category": "unresolved_no_unique_squad_source", "source_url": ""})
+                            "verified": False, "category": review.set_index("Rk").loc[rk, "category"], "source_url": review.set_index("Rk").loc[rk, "source_url"]})
     pd.DataFrame(sidecar).to_csv(SIDECAR, index=False, encoding="utf-8")
     df["Rk"] = range(1, len(df) + 1)
     df.to_csv(MAIN_CSV, index=False, encoding="utf-8")

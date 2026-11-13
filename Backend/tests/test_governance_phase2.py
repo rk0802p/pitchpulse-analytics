@@ -115,9 +115,9 @@ class TestGovernancePhase2(unittest.TestCase):
         self.assertEqual(int((df['Min'] == 0).sum()), 0)
         self.assertEqual(int(df[['PrgC', 'PrgP', 'PrgR']].notna().sum().sum()), 0)
         self.assertEqual(len(review), 252)
-        self.assertEqual(review['action'].value_counts().to_dict(), {'correct': 89, 'unresolved': 163})
+        self.assertEqual(review['action'].value_counts().to_dict(), {'correct': 73, 'auto-map': 11, 'unresolved': 168})
         self.assertEqual(len(sidecar), 252)
-        self.assertEqual(int(sidecar['verified'].sum()), 89)
+        self.assertEqual(int(sidecar['verified'].sum()), 84)
         self.assertNotIn('squad_verified', df.columns)
 
 if __name__ == '__main__':
