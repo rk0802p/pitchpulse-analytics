@@ -31,6 +31,24 @@ test('shows per-90 coordinate precision in the point tooltip', () => {
   expect(screen.getByText(/Assists: 0\.4806/)).toBeInTheDocument();
 });
 
+test('uses integer axes in steps of three for goals and assists', () => {
+  render(
+    <ScatterPlot
+      points={[player(1, 0, 0), player(2, 31, 18)]}
+      medians={{ x: 3, y: 2 }}
+      xLabel="Goals (Gls)"
+      yLabel="Assists (Ast)"
+      xTickStep={3}
+      yTickStep={3}
+    />
+  );
+
+  expect(screen.getAllByText('33').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('21').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('30').length).toBeGreaterThan(0);
+  expect(screen.queryByText('4.69')).not.toBeInTheDocument();
+});
+
 test('discloses that table view is limited to the first 100 plotted players', () => {
   const points = Array.from({ length: 101 }, (_, index) => player(index + 1, index, index));
   render(<ScatterPlot points={points} />);

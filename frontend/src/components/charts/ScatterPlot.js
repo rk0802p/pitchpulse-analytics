@@ -28,7 +28,9 @@ export default function ScatterPlot({
   onSelectPlayer = null,
   title = '',
   subtitle = '',
-  poolCaption = ''
+  poolCaption = '',
+  xTickStep = null,
+  yTickStep = null
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
@@ -50,9 +52,12 @@ export default function ScatterPlot({
       };
     }
 
-    const axisDomain = (values) => {
+    const axisDomain = (values, tickStep) => {
       const min = Math.min(...values);
       const max = Math.max(...values);
+      if (Number.isFinite(tickStep) && tickStep > 0 && min >= 0) {
+        return [Math.floor(min / tickStep) * tickStep, (Math.floor(max / tickStep) + 1) * tickStep];
+      }
       if (min === max) {
         if (min === 0) return [-1, 1];
         const padding = Math.abs(min) * 0.06;
@@ -61,8 +66,8 @@ export default function ScatterPlot({
       const padding = (max - min) * 0.06;
       return [min >= 0 ? 0 : min - padding, max + padding];
     };
-    const xDomain = axisDomain(points.map((p) => p.x));
-    const yDomain = axisDomain(points.map((p) => p.y));
+    const xDomain = axisDomain(points.map((p) => p.x), xTickStep);
+    const yDomain = axisDomain(points.map((p) => p.y), yTickStep);
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
     const poolSize = points.length;
@@ -134,7 +139,7 @@ export default function ScatterPlot({
       resolvedMedians: { x: mX, y: mY },
       poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep]);
 
   const handleExport = () => {
     if (svgRef.current) {
@@ -289,7 +294,7 @@ export default function ScatterPlot({
               )}
 
               {/* Y Grid lines and Ticks */}
-              {sy.ticks(6).map((t) => (
+              {sy.ticks(6, yTickStep).map((t) => (
                 <g key={`y-${t}`} transform={`translate(0,${sy(t)})`}>
                   <line x2={W} stroke="var(--rule)" strokeWidth="0.8" />
                   <text x={-10} dy="0.32em" textAnchor="end" className="fill-[var(--mute)] text-[11px] font-mono">
@@ -299,7 +304,7 @@ export default function ScatterPlot({
               ))}
 
               {/* X Ticks */}
-              {sx.ticks(7).map((t) => (
+              {sx.ticks(7, xTickStep).map((t) => (
                 <g key={`x-${t}`} transform={`translate(${sx(t)},${H})`}>
                   <line y2={5} stroke="var(--ink)" strokeWidth="1" />
                   <text y={20} textAnchor="middle" className="fill-[var(--mute)] text-[11px] font-mono">

@@ -81,6 +81,10 @@ describe('chartMath statistical and scale tests', () => {
     expect(ticks).toEqual([0, 0.002, 0.004, 0.006, 0.008, 0.01]);
   });
 
+  test('scale supports fixed integer tick steps', () => {
+    expect(scaleLinear([0, 21], [100, 0]).ticks(6, 3)).toEqual([0, 3, 6, 9, 12, 15, 18, 21]);
+  });
+
   test('scaleSqrt maps square roots proportionally for bubble sizing', () => {
     const scale = scaleSqrt([0, 3600], [3, 11]);
     expect(scale(0)).toBe(3);

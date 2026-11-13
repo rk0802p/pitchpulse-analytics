@@ -359,6 +359,8 @@ export default function PlotAnyMetricView({
           title={`${yLabel} vs ${xLabel}`}
           subtitle={`Interactive bubble scatter plot with pool median cross-hairs and collision-free outlier labels`}
           poolCaption={`Plotted: ${scatterPoints.length} ${plottedLabel} (${selectedPos || 'All positions'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}${selectedComp ? `, ${selectedComp}` : ''})`}
+          xTickStep={xMetric === 'Gls' || xMetric === 'Ast' ? 3 : null}
+          yTickStep={yMetric === 'Gls' || yMetric === 'Ast' ? 3 : null}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />

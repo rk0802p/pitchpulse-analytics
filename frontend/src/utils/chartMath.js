@@ -51,7 +51,18 @@ export function scaleLinear(domain, range) {
   scale.range = () => [r0, r1];
   scale.nice = () => scale;
 
-  scale.ticks = (count = 6) => {
+  scale.ticks = (count = 6, fixedStep = null) => {
+    if (Number.isFinite(fixedStep) && fixedStep > 0) {
+      const epsilon = fixedStep * 1e-9;
+      const firstIndex = Math.ceil((d0 - epsilon) / fixedStep);
+      const lastIndex = Math.floor((d1 + epsilon) / fixedStep);
+      const ticks = [];
+      for (let index = firstIndex; index <= lastIndex; index += 1) {
+        ticks.push(Number((index * fixedStep).toFixed(8)));
+      }
+      return ticks;
+    }
+
     const step = span / count;
     const ticks = [];
     for (let i = 0; i <= count; i++) {
