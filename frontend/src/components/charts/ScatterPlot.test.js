@@ -31,21 +31,23 @@ test('shows per-90 coordinate precision in the point tooltip', () => {
   expect(screen.getByText(/Assists: 0\.4806/)).toBeInTheDocument();
 });
 
-test('uses integer axes in steps of three for goals and assists', () => {
+test('uses integer axes in steps of eight for goals and assists', () => {
   render(
     <ScatterPlot
       points={[player(1, 0, 0), player(2, 31, 18)]}
-      medians={{ x: 3, y: 2 }}
+      medians={{ x: 8, y: 8 }}
       xLabel="Goals (Gls)"
       yLabel="Assists (Ast)"
-      xTickStep={3}
-      yTickStep={3}
+      xTickStep={8}
+      yTickStep={8}
+      xMax={48}
+      yMax={48}
     />
   );
 
-  expect(screen.getAllByText('33').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('21').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('30').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('48').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('40').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('32').length).toBeGreaterThan(0);
   expect(screen.queryByText('4.69')).not.toBeInTheDocument();
 });
 
@@ -54,10 +56,10 @@ test('caps configured axes at 50 and reports values plotted at the edge', () => 
     <ScatterPlot
       points={[player(1, 10, 12), player(2, 55, 60)]}
       medians={{ x: 32.5, y: 36 }}
-      xTickStep={3}
-      yTickStep={3}
-      xMax={50}
-      yMax={50}
+      xTickStep={8}
+      yTickStep={8}
+      xMax={48}
+      yMax={48}
     />
   );
 
@@ -65,7 +67,7 @@ test('caps configured axes at 50 and reports values plotted at the edge', () => 
   expect(Number(beyondLimit.getAttribute('cx'))).toBeLessThan(780);
   expect(Number(beyondLimit.getAttribute('cy'))).toBeGreaterThan(0);
   expect(screen.getByRole('status')).toHaveTextContent('exceed the fixed axis maximum');
-  expect(screen.getAllByText('50').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('48').length).toBeGreaterThan(0);
 });
 
 test('discloses that table view is limited to the first 100 plotted players', () => {
