@@ -246,6 +246,42 @@ def performance_index(df, role='finisher', position=None, competition=None, min_
         'players': results
     }
 
+SCATTER_PER_90_NUMERATORS = {
+    'Gls_90': 'Gls',
+    'Ast_90': 'Ast',
+    'G+A_90': 'G+A',
+    'G-PK_90': 'G-PK',
+    'xG_90': 'xG',
+    'xAG_90': 'xAG',
+    'npxG_90': 'npxG',
+    'npxG+xAG_90': 'npxG+xAG',
+    'PrgC_90': 'PrgC',
+    'PrgP_90': 'PrgP',
+    'PrgR_90': 'PrgR',
+}
+
+
+def _scatter_metric_values(frame, metric):
+    """Use full-precision count/minutes rates for plotted per-90 coordinates."""
+    if metric == 'xG+xAG_90' and {'xG', 'xAG', 'Min'}.issubset(frame.columns):
+        minutes = pd.to_numeric(frame['Min'], errors='coerce')
+        numerator = pd.to_numeric(frame['xG'], errors='coerce') + pd.to_numeric(frame['xAG'], errors='coerce')
+        return numerator.mul(90).div(minutes.where(minutes > 0))
+
+    if metric == 'G+A-PK_90' and {'G-PK', 'Ast', 'Min'}.issubset(frame.columns):
+        minutes = pd.to_numeric(frame['Min'], errors='coerce')
+        numerator = pd.to_numeric(frame['G-PK'], errors='coerce') + pd.to_numeric(frame['Ast'], errors='coerce')
+        return numerator.mul(90).div(minutes.where(minutes > 0))
+
+    numerator_col = SCATTER_PER_90_NUMERATORS.get(metric)
+    if numerator_col and {numerator_col, 'Min'}.issubset(frame.columns):
+        minutes = pd.to_numeric(frame['Min'], errors='coerce')
+        numerator = pd.to_numeric(frame[numerator_col], errors='coerce')
+        return numerator.mul(90).div(minutes.where(minutes > 0))
+
+    return pd.to_numeric(frame[metric], errors='coerce')
+
+
 def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=None, competition=None, min_minutes=270, age_max=None):
     """
     Generates standardized 2D scatter plot data with median crosshairs and quadrant distribution.
@@ -288,7 +324,11 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
         tracked_values_exist = df[valid_x].notna().any() and df[valid_y].notna().any()
         return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
-    cohort = cohort[cohort[valid_x].notna() & cohort[valid_y].notna()]
+    x_values = _scatter_metric_values(cohort, valid_x)
+    y_values = _scatter_metric_values(cohort, valid_y)
+    cohort = cohort[x_values.notna() & y_values.notna()]
+    x_values = x_values.loc[cohort.index]
+    y_values = y_values.loc[cohort.index]
     if len(cohort) == 0:
         tracked_values_exist = (
             df is not None and len(df) > 0 and
@@ -297,19 +337,19 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
         )
         return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
-    med_x = round(float(cohort[valid_x].median()), 2)
-    med_y = round(float(cohort[valid_y].median()), 2)
-    min_x = round(float(cohort[valid_x].min()), 2)
-    max_x = round(float(cohort[valid_x].max()), 2)
-    min_y = round(float(cohort[valid_y].min()), 2)
-    max_y = round(float(cohort[valid_y].max()), 2)
+    med_x = float(x_values.median())
+    med_y = float(y_values.median())
+    min_x = float(x_values.min())
+    max_x = float(x_values.max())
+    min_y = float(y_values.min())
+    max_y = float(y_values.max())
 
     points = []
     q1, q2, q3, q4 = 0, 0, 0, 0  # Q1: high X high Y, Q2: low X high Y, Q3: low X low Y, Q4: high X low Y
 
-    for _, row in cohort.iterrows():
-        vx = round(float(row[valid_x]), 2)
-        vy = round(float(row[valid_y]), 2)
+    for index, row in cohort.iterrows():
+        vx = float(x_values.loc[index])
+        vy = float(y_values.loc[index])
 
         if vx >= med_x and vy >= med_y:
             q = 'Q1'

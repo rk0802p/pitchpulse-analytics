@@ -56,8 +56,11 @@ export function scaleLinear(domain, range) {
     const ticks = [];
     for (let i = 0; i <= count; i++) {
       const v = d0 + i * step;
-      // Round to 2 decimal places if fractional, else integer
-      const rounded = Math.abs(v) >= 10 ? Math.round(v) : Number(v.toFixed(2));
+      // Keep tick labels fine enough to show small per-90 differences.
+      const precision = Math.abs(step) >= 10
+        ? 0
+        : Math.min(8, Math.max(2, Math.ceil(-Math.log10(Math.abs(step))) + 1));
+      const rounded = Number(v.toFixed(precision));
       if (!ticks.includes(rounded)) {
         ticks.push(rounded);
       }

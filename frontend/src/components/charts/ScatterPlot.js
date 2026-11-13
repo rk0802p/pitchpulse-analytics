@@ -5,6 +5,13 @@ import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
 const MARGIN = { top: 24, right: 32, bottom: 58, left: 68 };
 
+const formatCoordinate = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '—';
+  if (Number.isInteger(numeric)) return String(numeric);
+  return String(Number(numeric.toFixed(4)));
+};
+
 export default function ScatterPlot({
   points = [],
   medians = { x: 0, y: 0 },
@@ -237,8 +244,8 @@ export default function ScatterPlot({
                   <td className="py-1.5 px-2 dotted-rule">{p.comp || p.Comp}</td>
                   <td className="py-1.5 px-2 dotted-rule text-center">{p.pos || p.Pos}</td>
                   <td className="py-1.5 px-2 dotted-rule text-right font-mono">{(p.mins || p.Min || 0).toLocaleString()}</td>
-                  <td className="py-1.5 px-3 dotted-rule text-right font-mono font-semibold">{Number(p.x).toFixed(2)}</td>
-                  <td className="py-1.5 px-3 dotted-rule text-right font-mono font-semibold">{Number(p.y).toFixed(2)}</td>
+                  <td className="py-1.5 px-3 dotted-rule text-right font-mono font-semibold">{formatCoordinate(p.x)}</td>
+                  <td className="py-1.5 px-3 dotted-rule text-right font-mono font-semibold">{formatCoordinate(p.y)}</td>
                 </tr>
               ))}
             </tbody>
@@ -489,7 +496,7 @@ export default function ScatterPlot({
                     {hovered.club || hovered.Squad} · {(hovered.mins || hovered.Min || 0).toLocaleString()} mins
                   </text>
                   <text x="10" y="48" className="fill-[var(--blue)] font-mono text-[10px] font-semibold" pointerEvents="none" style={{ pointerEvents: 'none' }}>
-                    {xLabel.split(' ')[0]}: {Number(hovered.x).toFixed(2)} | {yLabel.split(' ')[0]}: {Number(hovered.y).toFixed(2)}
+                    {xLabel.split(' ')[0]}: {formatCoordinate(hovered.x)} | {yLabel.split(' ')[0]}: {formatCoordinate(hovered.y)}
                   </text>
                 </g>
               );

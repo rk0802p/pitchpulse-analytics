@@ -64,6 +64,17 @@ class TestChartsBackendPhase5(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()['data']['x_metric'], 'Gls_minus_xG')
 
+    def test_scatter_uses_unrounded_per90_coordinates_from_totals(self):
+        response = self.client.get(
+            '/api/charts/scatter?season=2024-2025&x=Gls&y=Ast_90&pos=FW&min_minutes=500'
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()['data']
+        salah = next(point for point in payload['points'] if point['Player'] == 'Mohamed Salah')
+        self.assertAlmostEqual(salah['y'], 18 * 90 / 3371, places=12)
+        self.assertNotEqual(salah['y'], 0.48)
+        self.assertEqual(salah['x'], 29)
+
     def test_scatter_untracked_metrics_are_null_and_marked_not_tracked(self):
         """Untracked historical metrics must not serialize an empty chart as zero statistics."""
         for query in (

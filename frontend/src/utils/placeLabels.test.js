@@ -76,6 +76,11 @@ describe('chartMath statistical and scale tests', () => {
     expect(scale.ticks(5)).toBeDefined();
   });
 
+  test('scale ticks retain precision for small per-90 ranges', () => {
+    const ticks = scaleLinear([0, 0.01], [100, 0]).ticks(5);
+    expect(ticks).toEqual([0, 0.002, 0.004, 0.006, 0.008, 0.01]);
+  });
+
   test('scaleSqrt maps square roots proportionally for bubble sizing', () => {
     const scale = scaleSqrt([0, 3600], [3, 11]);
     expect(scale(0)).toBe(3);

@@ -18,6 +18,19 @@ test('shows an explicit empty state when there are no plotted observations', () 
   expect(screen.getByRole('status')).toHaveTextContent('No eligible observations');
 });
 
+test('shows per-90 coordinate precision in the point tooltip', () => {
+  render(
+    <ScatterPlot
+      points={[{ ...player(1, 29, 18 * 90 / 3371), y: 18 * 90 / 3371 }]}
+      medians={{ x: 29, y: 18 * 90 / 3371 }}
+      xLabel="Goals (Gls)"
+      yLabel="Assists per 90 (Ast_90)"
+    />
+  );
+  fireEvent.mouseEnter(screen.getByRole('button', { name: /Player 1/ }));
+  expect(screen.getByText(/Assists: 0\.4806/)).toBeInTheDocument();
+});
+
 test('discloses that table view is limited to the first 100 plotted players', () => {
   const points = Array.from({ length: 101 }, (_, index) => player(index + 1, index, index));
   render(<ScatterPlot points={points} />);
