@@ -64,15 +64,15 @@ PitchPulse organizes 14 historical seasons into clearly governed statistical era
 
 | Era | Seasons | Clubs | Top Scorer Highlight | Era Metrics | Governance Status |
 | :--- | :---: | :---: | :--- | :--- | :---: |
-| **Pre-xG Era** | `2012/13` – `2013/14` | 98 | Lionel Messi (`12/13`: 46 Gls) • Luis Suárez (`13/14`: 31 Gls) | Standard stats, minutes, cards; advanced metrics untracked (`NaN`) | **Verified Historical** |
-| **Early xG Era** | `2014/15` – `2016/17` | 98 | Cristiano Ronaldo (`14/15`: 48 Gls) • Luis Suárez (`15/16`: 40 Gls) | Standard stats + Understat $xG$, $npxG$; progression untracked | **Verified Historical** |
-| **Modern Event Era** | `2017/18` – `2023/24` | 98 / 96 | **Harry Kane** (`23/24`: 36 Gls, Golden Shoe) • Mbappé (27 Gls) • Haaland (27 Gls) | Complete 37 canonical metrics including progressive passes & carries | **Verified Historical** |
+| **Pre-xG Era** | `2012/13` – `2013/14` | 98 | Lionel Messi (`12/13`: 46 Gls) • Luis Suárez (`13/14`: 31 Gls) | Standard stats, minutes, cards; advanced metrics untracked (`NaN`) | **Historical; coverage gaps flagged** |
+| **Early xG Era** | `2014/15` – `2016/17` | 98 | Cristiano Ronaldo (`14/15`: 48 Gls) • Luis Suárez (`15/16`: 40 Gls) | Standard stats + Understat $xG$, $npxG$; progression untracked | **Historical; coverage gaps flagged** |
+| **Modern Event Era** | `2017/18` – `2023/24` | 98 / 96 | **Harry Kane** (`23/24`: 36 Gls, Golden Shoe) • Mbappé (27 Gls) • Haaland (27 Gls) | Complete 37 canonical metrics including progressive passes & carries | **Historical; coverage gaps flagged** |
 | **Reference Baseline** | `2024/25` | 96 | Kylian Mbappé (31 Gls) • Mohamed Salah (29 Gls) • Lewandowski (27 Gls) | Gold standard baseline: SHA-256 fingerprinted, 4,806 goals, 3,429 assists | **Authoritative Baseline (Locked)** |
 | **2025/26 Composite** | `2025/26` | 172 distinct raw labels after Phase 2 | Harry Kane (36 Gls) • Erling Haaland (27 Gls) | Historical aggregates with partial-season league snapshots; progression fields unavailable and represented as null; 386 zero-minute placeholders archived; squad verification is maintained in a sidecar | **Verified with documented limitations** |
 
 ### Historical completeness flags
 
-The read-only Wikipedia cross-check grades below flag coverage gaps without changing any player data. `known_gaps.json` sidecars contain the club and top-scorer details for MINOR_GAPS and SIGNIFICANT_GAPS seasons.
+The read-only Wikipedia cross-check grades below flag coverage gaps without changing any player data. Historical datasets are not uniformly complete: 12 of the 14 listed seasons have measurable real gaps under the documented club thresholds. `known_gaps.json` sidecars contain the club and top-scorer details for MINOR_GAPS and SIGNIFICANT_GAPS seasons; season-specific grades below qualify the era labels above.
 
 | Season | Gap grade | Note |
 |---|---|---|
@@ -145,6 +145,9 @@ flowchart TD
 The application includes automated unit and integration tests across both backend and frontend:
 
 ```bash
+# Install pinned backend runtime and test dependencies
+python -m pip install -r Backend/requirements-dev.txt
+
 # Run the full backend test suite
 python -m pytest Backend/tests
 
