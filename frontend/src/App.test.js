@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import SplitFlapScoreboard from './components/common/SplitFlapScoreboard';
 import ExpectedGoalsFigure from './components/dashboard/ExpectedGoalsFigure';
@@ -74,6 +74,12 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+const flushAsyncEffects = async () => {
+  await act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+};
+
 test('renders PitchPulse editorial masthead, split-flap scoreboard, and almanac layout', async () => {
   render(<App />);
 
@@ -86,6 +92,7 @@ test('renders PitchPulse editorial masthead, split-flap scoreboard, and almanac 
     expect(screen.getByText(/Expected goals, minute by minute/i)).toBeInTheDocument();
     expect(screen.getByText(/Every shot, one goal at the top/i)).toBeInTheDocument();
   });
+  await flushAsyncEffects();
 });
 
 test('renders SplitFlapScoreboard with team names', () => {
@@ -154,7 +161,7 @@ test('renders StatCard with sparkline and delta indicators', () => {
   expect(screen.getByText(/Erling Haaland/i)).toBeInTheDocument();
 });
 
-test('renders PlayerProfileView with complete dossier and 3 percentile groups', () => {
+test('renders PlayerProfileView with complete dossier and 3 percentile groups', async () => {
   const dummyPlayer = {
     Player: 'Bukayo Saka',
     Squad: 'Arsenal',
@@ -180,6 +187,7 @@ test('renders PlayerProfileView with complete dossier and 3 percentile groups', 
   expect(screen.getByText(/Scoring Output/i)).toBeInTheDocument();
   expect(screen.getByText(/Chance Creation/i)).toBeInTheDocument();
   expect(screen.getByText(/Ball Progression/i)).toBeInTheDocument();
+  await flushAsyncEffects();
 });
 
 test('renders ComparisonMatrix side by side with scouting verdict', () => {
@@ -199,12 +207,14 @@ test('renders LeaderboardsView with metric picker and podium', async () => {
   render(<LeaderboardsView activeSeason="2024-2025" />);
   expect(screen.getByText(/Continental League Podiums & Leaderboards/i)).toBeInTheDocument();
   expect(screen.getAllByText(/Goals/i).length).toBeGreaterThan(0);
+  await flushAsyncEffects();
 });
 
 test('renders SquadBrowserView with league filter and club index', async () => {
   render(<SquadBrowserView activeSeason="2024-2025" />);
   expect(screen.getByText(/Squad Browser/i)).toBeInTheDocument();
   expect(screen.getByText(/Club Registry & First-Team Almanac/i)).toBeInTheDocument();
+  await flushAsyncEffects();
 });
 
 test('renders DataManagementView with high-density archive table and validation checks', async () => {
@@ -213,4 +223,5 @@ test('renders DataManagementView with high-density archive table and validation 
   expect(screen.getByText(/Historical Season Ledger/i)).toBeInTheDocument();
   expect(screen.getByText(/Validation Checks Explained/i)).toBeInTheDocument();
   expect(screen.getByText(/Dataset Changelog/i)).toBeInTheDocument();
+  await flushAsyncEffects();
 });
