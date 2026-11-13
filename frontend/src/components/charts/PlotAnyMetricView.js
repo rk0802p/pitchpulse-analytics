@@ -361,6 +361,8 @@ export default function PlotAnyMetricView({
           poolCaption={`Plotted: ${scatterPoints.length} ${plottedLabel} (${selectedPos || 'All positions'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}${selectedComp ? `, ${selectedComp}` : ''})`}
           xTickStep={xMetric === 'Gls' || xMetric === 'Ast' ? 3 : null}
           yTickStep={yMetric === 'Gls' || yMetric === 'Ast' ? 3 : null}
+          xMax={xMetric === 'Gls' || xMetric === 'Ast' ? 50 : null}
+          yMax={yMetric === 'Gls' || yMetric === 'Ast' ? 50 : null}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />

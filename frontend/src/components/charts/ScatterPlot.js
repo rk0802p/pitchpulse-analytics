@@ -30,7 +30,9 @@ export default function ScatterPlot({
   subtitle = '',
   poolCaption = '',
   xTickStep = null,
-  yTickStep = null
+  yTickStep = null,
+  xMax = null,
+  yMax = null
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
@@ -52,9 +54,10 @@ export default function ScatterPlot({
       };
     }
 
-    const axisDomain = (values, tickStep) => {
+    const axisDomain = (values, tickStep, maximum) => {
       const min = Math.min(...values);
       const max = Math.max(...values);
+      if (Number.isFinite(maximum) && maximum > 0 && min >= 0) return [0, maximum];
       if (Number.isFinite(tickStep) && tickStep > 0 && min >= 0) {
         return [Math.floor(min / tickStep) * tickStep, (Math.floor(max / tickStep) + 1) * tickStep];
       }
@@ -66,8 +69,8 @@ export default function ScatterPlot({
       const padding = (max - min) * 0.06;
       return [min >= 0 ? 0 : min - padding, max + padding];
     };
-    const xDomain = axisDomain(points.map((p) => p.x), xTickStep);
-    const yDomain = axisDomain(points.map((p) => p.y), yTickStep);
+    const xDomain = axisDomain(points.map((p) => p.x), xTickStep, xMax);
+    const yDomain = axisDomain(points.map((p) => p.y), yTickStep, yMax);
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
     const poolSize = points.length;
@@ -113,16 +116,16 @@ export default function ScatterPlot({
       .map((p) => ({
         id: p.id,
         text: p.name || p.Player || '',
-        x: sx(p.x),
-        y: sy(p.y),
+        x: Math.max(8, Math.min(W - 8, sx(p.x))),
+        y: Math.max(8, Math.min(H - 8, sy(p.y))),
         r: sr(p.mins || p.Min || 0)
       }));
 
     const all = points.map((p) => ({
       id: p.id,
       text: p.name || p.Player || '',
-      x: sx(p.x),
-      y: sy(p.y),
+      x: Math.max(8, Math.min(W - 8, sx(p.x))),
+      y: Math.max(8, Math.min(H - 8, sy(p.y))),
       r: sr(p.mins || p.Min || 0)
     }));
 
@@ -139,7 +142,7 @@ export default function ScatterPlot({
       resolvedMedians: { x: mX, y: mY },
       poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax]);
 
   const handleExport = () => {
     if (svgRef.current) {
@@ -148,6 +151,13 @@ export default function ScatterPlot({
   };
 
   const parityEnd = parity ? Math.min(sx.domain()[1], sy.domain()[1]) : 0;
+  const projectX = (value) => Math.max(0, Math.min(W, sx(value)));
+  const projectY = (value) => Math.max(0, Math.min(H, sy(value)));
+  const projectPointX = (value) => Math.max(8, Math.min(W - 8, sx(value)));
+  const projectPointY = (value) => Math.max(8, Math.min(H - 8, sy(value)));
+  const overflowCount = points.filter((point) =>
+    (Number.isFinite(xMax) && point.x > xMax) || (Number.isFinite(yMax) && point.y > yMax)
+  ).length;
 
   return (
     <div className="border border-[var(--ink)] bg-[var(--paper)] p-4 sm:p-5 rounded-xs space-y-3 font-ser">
@@ -208,6 +218,11 @@ export default function ScatterPlot({
         <div className="text-xs italic text-[var(--mute)] flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
           <span>{poolCaption}</span>
+        </div>
+      )}
+      {overflowCount > 0 && (
+        <div className="text-xs italic text-[var(--mute)]" role="status">
+          {overflowCount} point{overflowCount === 1 ? '' : 's'} exceed the fixed axis maximum; shown at the chart edge. Hover or open the table for exact values.
         </div>
       )}
 
@@ -315,8 +330,8 @@ export default function ScatterPlot({
 
               {/* Median Cross-hairs */}
               {poolSize > 0 && <line
-                x1={sx(resolvedMedians.x)}
-                x2={sx(resolvedMedians.x)}
+                x1={projectX(resolvedMedians.x)}
+                x2={projectX(resolvedMedians.x)}
                 y1={0}
                 y2={H}
                 stroke="var(--mute)"
@@ -324,8 +339,8 @@ export default function ScatterPlot({
                 strokeWidth="1.2"
               />}
               {poolSize > 0 && <line
-                y1={sy(resolvedMedians.y)}
-                y2={sy(resolvedMedians.y)}
+                y1={projectY(resolvedMedians.y)}
+                y2={projectY(resolvedMedians.y)}
                 x1={0}
                 x2={W}
                 stroke="var(--mute)"
@@ -390,8 +405,8 @@ export default function ScatterPlot({
                   <g key={p.id || `${p.name}-${p.x}-${p.y}`}>
                     {/* Invisible transparent hitbox for effortless targeting */}
                     <circle
-                      cx={sx(p.x)}
-                      cy={sy(p.y)}
+                      cx={projectPointX(p.x)}
+                      cy={projectPointY(p.y)}
                       r={hitboxR}
                       fill="transparent"
                       stroke="transparent"
@@ -407,8 +422,8 @@ export default function ScatterPlot({
                     />
                     {/* Visible dot with bloom + halo on interaction */}
                     <circle
-                      cx={sx(p.x)}
-                      cy={sy(p.y)}
+                      cx={projectPointX(p.x)}
+                      cy={projectPointY(p.y)}
                       r={bloomR}
                       fill={fill}
                       fillOpacity={opacity}
@@ -418,8 +433,8 @@ export default function ScatterPlot({
                     />
                     {/* Core dot */}
                     <circle
-                      cx={sx(p.x)}
-                      cy={sy(p.y)}
+                      cx={projectPointX(p.x)}
+                      cy={projectPointY(p.y)}
                       r={visualR}
                       fill={fill}
                       fillOpacity={opacity}
@@ -466,11 +481,11 @@ export default function ScatterPlot({
             {hovered && (() => {
               const tooltipW = 200;
               const tooltipH = 58;
-              const dotPxX = MARGIN.left + sx(hovered.x);
-              const dotPxY = MARGIN.top + sy(hovered.y);
+              const dotPxX = MARGIN.left + projectPointX(hovered.x);
+              const dotPxY = MARGIN.top + projectPointY(hovered.y);
 
               // Auto-flip: If point is on the right 45% of plot, render tooltip to the left of the dot
-              const posX = (sx(hovered.x) > W * 0.55)
+              const posX = (projectPointX(hovered.x) > W * 0.55)
                 ? Math.max(MARGIN.left + 6, dotPxX - tooltipW - 14)
                 : Math.min(dotPxX + 14, width - tooltipW - MARGIN.right);
 

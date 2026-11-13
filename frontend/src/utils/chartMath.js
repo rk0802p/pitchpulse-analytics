@@ -60,6 +60,7 @@ export function scaleLinear(domain, range) {
       for (let index = firstIndex; index <= lastIndex; index += 1) {
         ticks.push(Number((index * fixedStep).toFixed(8)));
       }
+      if (Number.isInteger(d1) && ticks[ticks.length - 1] !== d1) ticks.push(d1);
       return ticks;
     }
 
