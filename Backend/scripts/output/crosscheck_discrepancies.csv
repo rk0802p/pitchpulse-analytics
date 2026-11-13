@@ -1,0 +1,245 @@
+﻿check,season,league,entity,our_value,wiki_value,difference,status,detail
+top_scorer,2013-2014,de Bundesliga,Raffael,14.0,15,-1.0,MISMATCH,wiki club: Borussia Mönchengladbach
+top_scorer,2013-2014,eng Premier League,Daniel Sturridge,22.0,21,1.0,MISMATCH,wiki club: Liverpool
+top_scorer,2013-2014,eng Premier League,Wilfried Bony,17.0,16,1.0,MISMATCH,wiki club: Swansea City
+top_scorer,2014-2015,de Bundesliga,Arjen Robben,,17,,NOT FOUND,wiki club: Bayern Munich
+top_scorer,2014-2015,de Bundesliga,Thomas Müller,,13,,NOT FOUND,wiki club: Bayern Munich
+top_scorer,2014-2015,de Bundesliga,Karim Bellarabi,12.0,11,1.0,MISMATCH,wiki club: Bayer Leverkusen
+top_scorer,2014-2015,es La Liga,Antoine Griezmann,,22,,NOT FOUND,wiki club: Atlético Madrid
+top_scorer,2014-2015,es La Liga,Carlos Bacca,,20,,NOT FOUND,wiki club: Sevilla
+top_scorer,2015-2016,eng Premier League,Odion Ighalo,16.0,15,1.0,MISMATCH,wiki club: Watford
+top_scorer,2016-2017,es La Liga,Luis Suárez,28.0,29,-1.0,MISMATCH,wiki club: Barcelona
+top_scorer,2017-2018,es La Liga,Maxi Gómez,18.0,17,1.0,MISMATCH,wiki club: Celta Vigo
+top_scorer,2018-2019,es La Liga,Luis Suárez,19.0,21,-2.0,MISMATCH,wiki club: Barcelona
+top_scorer,2020-2021,es La Liga,Karim Benzema,,23,,NOT FOUND,wiki club: Real Madrid
+top_scorer,2025-2026,fr Ligue 1,Esteban Lepaul,17.0,21,-4.0,MISMATCH,wiki club: Angers/Rennes
+top_scorer,2025-2026,fr Ligue 1,Mason Greenwood,15.0,16,-1.0,MISMATCH,wiki club: Marseille
+top_scorer,2025-2026,fr Ligue 1,Folarin Balogun,12.0,13,-1.0,MISMATCH,wiki club: Monaco
+top_scorer,2025-2026,fr Ligue 1,Wesley Saïd,10.0,12,-2.0,MISMATCH,wiki club: Lens
+top_scorer,2025-2026,fr Ligue 1,Lassine Sinayoko,8.0,12,-4.0,MISMATCH,wiki club: Auxerre
+top_scorer,2025-2026,fr Ligue 1,Bradley Barcola,10.0,11,-1.0,MISMATCH,wiki club: Paris Saint-Germain
+top_scorer,2025-2026,fr Ligue 1,Ansu Fati,9.0,11,-2.0,MISMATCH,wiki club: Monaco; club mismatch
+top_scorer,2025-2026,it Serie A,Lautaro Martínez,16.0,17,-1.0,MISMATCH,wiki club: Inter Milan
+top_scorer,2025-2026,it Serie A,Anastasios Douvikas,11.0,14,-3.0,MISMATCH,wiki club: Como
+top_scorer,2025-2026,it Serie A,Donyell Malen,10.0,14,-4.0,MISMATCH,wiki club: Roma; club mismatch
+top_scorer,2025-2026,it Serie A,Marcus Thuram,11.0,13,-2.0,MISMATCH,wiki club: Inter Milan
+top_scorer,2025-2026,it Serie A,Rasmus Højlund,10.0,12,-2.0,MISMATCH,wiki club: Napoli; club mismatch
+top_scorer,2025-2026,it Serie A,Giovanni Simeone,9.0,11,-2.0,MISMATCH,wiki club: Torino; club mismatch
+top_scorer,2025-2026,it Serie A,Federico Bonazzoli,7.0,10,-3.0,MISMATCH,wiki club: Cremonese
+club_goals,2012-2013,eng Premier League,Manchester United,80.0,86,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=86); severity: borderline; our rows: 25"
+club_goals,2013-2014,eng Premier League,Swansea City,48.0,54,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=54); severity: borderline; our rows: 27"
+club_goals,2014-2015,eng Premier League,Burnley,5.0,28,-23.0,FLAG,"shortfall 23 exceeds max(5, 5% of GF=28); severity: severe; our rows: 3"
+club_goals,2014-2015,es La Liga,Atlético Madrid,3.0,67,-64.0,FLAG,"shortfall 64 exceeds max(5, 5% of GF=67); severity: severe; our rows: 3"
+club_goals,2014-2015,es La Liga,Valencia CF,51.0,70,-19.0,FLAG,"shortfall 19 exceeds max(5, 5% of GF=70); severity: severe; our rows: 22"
+club_goals,2014-2015,es La Liga,Sevilla FC,46.0,71,-25.0,FLAG,"shortfall 25 exceeds max(5, 5% of GF=71); severity: severe; our rows: 24"
+club_goals,2014-2015,es La Liga,Villarreal CF,2.0,48,-46.0,FLAG,"shortfall 46 exceeds max(5, 5% of GF=48); severity: severe; our rows: 4"
+club_goals,2014-2015,it Serie A,Juventus,64.0,72,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=72); severity: borderline; our rows: 27"
+club_goals,2014-2015,it Serie A,Fiorentina,47.0,61,-14.0,FLAG,"shortfall 14 exceeds max(5, 5% of GF=61); severity: severe; our rows: 27"
+club_goals,2014-2015,it Serie A,Cagliari,40.0,48,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=48); severity: borderline; our rows: 23"
+club_goals,2014-2015,de Bundesliga,Bayern Munich,48.0,80,-32.0,FLAG,"shortfall 32 exceeds max(5, 5% of GF=80); severity: severe; our rows: 26"
+club_goals,2014-2015,fr Ligue 1,OGC Nice,26.0,44,-18.0,FLAG,"shortfall 18 exceeds max(5, 5% of GF=44); severity: severe; our rows: 24"
+club_goals,2017-2018,fr Ligue 1,Paris Saint-Germain,100.0,108,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=108); severity: borderline; our rows: 28"
+club_goals,2018-2019,es La Liga,Espanyol,42.0,48,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=48); severity: borderline; our rows: 27"
+club_goals,2020-2021,es La Liga,Real Madrid,30.0,67,-37.0,FLAG,"shortfall 37 exceeds max(5, 5% of GF=67); severity: severe; our rows: 25"
+club_goals,2020-2021,es La Liga,FC Barcelona,74.0,85,-11.0,FLAG,"shortfall 11 exceeds max(5, 5% of GF=85); severity: severe; our rows: 22"
+club_goals,2020-2021,es La Liga,Valencia CF,31.0,50,-19.0,FLAG,"shortfall 19 exceeds max(5, 5% of GF=50); severity: severe; our rows: 24"
+club_goals,2020-2021,it Serie A,Hellas Verona,38.0,46,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=46); severity: borderline; our rows: 32"
+club_goals,2020-2021,de Bundesliga,Eintracht Frankfurt,59.0,69,-10.0,FLAG,"shortfall 10 exceeds max(5, 5% of GF=69); severity: severe; our rows: 24"
+club_goals,2021-2022,eng Premier League,Tottenham Hotspur,63.0,69,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=69); severity: borderline; our rows: 24"
+club_goals,2021-2022,eng Premier League,Crystal Palace,42.0,50,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=50); severity: borderline; our rows: 22"
+club_goals,2021-2022,eng Premier League,Southampton,35.0,43,-8.0,FLAG,"shortfall 8 exceeds max(5, 5% of GF=43); severity: borderline; our rows: 24"
+club_goals,2021-2022,it Serie A,Hellas Verona,59.0,65,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=65); severity: borderline; our rows: 28"
+club_goals,2022-2023,fr Ligue 1,Olympique de Marseille,61.0,67,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=67); severity: borderline; our rows: 30"
+club_goals,2023-2024,eng Premier League,Liverpool,80.0,86,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=86); severity: borderline; our rows: 30"
+club_goals,2025-2026,it Serie A,Inter Milan,61.0,89,-28.0,FLAG,"shortfall 28 exceeds max(5, 5% of GF=89); severity: severe; our rows: 18"
+club_goals,2025-2026,it Serie A,Napoli,30.0,58,-28.0,FLAG,"shortfall 28 exceeds max(5, 5% of GF=58); severity: severe; our rows: 18"
+club_goals,2025-2026,it Serie A,Roma,32.0,59,-27.0,FLAG,"shortfall 27 exceeds max(5, 5% of GF=59); severity: severe; our rows: 20"
+club_goals,2025-2026,it Serie A,Como,51.0,65,-14.0,FLAG,"shortfall 14 exceeds max(5, 5% of GF=65); severity: severe; our rows: 21"
+club_goals,2025-2026,it Serie A,AC Milan,33.0,53,-20.0,FLAG,"shortfall 20 exceeds max(5, 5% of GF=53); severity: severe; our rows: 16"
+club_goals,2025-2026,it Serie A,Juventus,42.0,61,-19.0,FLAG,"shortfall 19 exceeds max(5, 5% of GF=61); severity: severe; our rows: 18"
+club_goals,2025-2026,it Serie A,Atalanta,28.0,51,-23.0,FLAG,"shortfall 23 exceeds max(5, 5% of GF=51); severity: severe; our rows: 15"
+club_goals,2025-2026,it Serie A,Bologna,43.0,49,-6.0,FLAG,"shortfall 6 exceeds max(5, 5% of GF=49); severity: borderline; our rows: 27"
+club_goals,2025-2026,it Serie A,Lazio,17.0,41,-24.0,FLAG,"shortfall 24 exceeds max(5, 5% of GF=41); severity: severe; our rows: 17"
+club_goals,2025-2026,it Serie A,Udinese,31.0,45,-14.0,FLAG,"shortfall 14 exceeds max(5, 5% of GF=45); severity: severe; our rows: 22"
+club_goals,2025-2026,it Serie A,Sassuolo,20.0,46,-26.0,FLAG,"shortfall 26 exceeds max(5, 5% of GF=46); severity: severe; our rows: 11"
+club_goals,2025-2026,it Serie A,Torino,29.0,44,-15.0,FLAG,"shortfall 15 exceeds max(5, 5% of GF=44); severity: severe; our rows: 22"
+club_goals,2025-2026,it Serie A,Cagliari,17.0,40,-23.0,FLAG,"shortfall 23 exceeds max(5, 5% of GF=40); severity: severe; our rows: 16"
+club_goals,2025-2026,it Serie A,Cremonese,10.0,32,-22.0,FLAG,"shortfall 22 exceeds max(5, 5% of GF=32); severity: severe; our rows: 10"
+club_goals,2025-2026,it Serie A,Hellas Verona,9.0,25,-16.0,FLAG,"shortfall 16 exceeds max(5, 5% of GF=25); severity: severe; our rows: 18"
+club_goals,2025-2026,it Serie A,Pisa,8.0,26,-18.0,FLAG,"shortfall 18 exceeds max(5, 5% of GF=26); severity: severe; our rows: 15"
+club_goals,2025-2026,fr Ligue 1,Paris Saint-Germain,53.0,74,-21.0,FLAG,"shortfall 21 exceeds max(5, 5% of GF=74); severity: severe; our rows: 19"
+club_goals,2025-2026,fr Ligue 1,RC Lens,34.0,66,-32.0,FLAG,"shortfall 32 exceeds max(5, 5% of GF=66); severity: severe; our rows: 22"
+club_goals,2025-2026,fr Ligue 1,LOSC Lille,36.0,52,-16.0,FLAG,"shortfall 16 exceeds max(5, 5% of GF=52); severity: severe; our rows: 22"
+club_goals,2025-2026,fr Ligue 1,Olympique Lyonnais,29.0,53,-24.0,FLAG,"shortfall 24 exceeds max(5, 5% of GF=53); severity: severe; our rows: 14"
+club_goals,2025-2026,fr Ligue 1,Olympique de Marseille,45.0,63,-18.0,FLAG,"shortfall 18 exceeds max(5, 5% of GF=63); severity: severe; our rows: 14"
+club_goals,2025-2026,fr Ligue 1,Stade Rennais FC,15.0,59,-44.0,FLAG,"shortfall 44 exceeds max(5, 5% of GF=59); severity: severe; our rows: 14"
+club_goals,2025-2026,fr Ligue 1,AS Monaco,42.0,60,-18.0,FLAG,"shortfall 18 exceeds max(5, 5% of GF=60); severity: severe; our rows: 23"
+club_goals,2025-2026,fr Ligue 1,RC Strasbourg Alsace,33.0,58,-25.0,FLAG,"shortfall 25 exceeds max(5, 5% of GF=58); severity: severe; our rows: 17"
+club_goals,2025-2026,fr Ligue 1,Toulouse FC,38.0,47,-9.0,FLAG,"shortfall 9 exceeds max(5, 5% of GF=47); severity: borderline; our rows: 20"
+club_goals,2025-2026,fr Ligue 1,FC Lorient,27.0,48,-21.0,FLAG,"shortfall 21 exceeds max(5, 5% of GF=48); severity: severe; our rows: 16"
+club_goals,2025-2026,fr Ligue 1,Paris FC,19.0,47,-28.0,FLAG,"shortfall 28 exceeds max(5, 5% of GF=47); severity: severe; our rows: 12"
+club_goals,2025-2026,fr Ligue 1,Stade Brestois 29,30.0,43,-13.0,FLAG,"shortfall 13 exceeds max(5, 5% of GF=43); severity: severe; our rows: 18"
+club_goals,2025-2026,fr Ligue 1,Le Havre AC,23.0,32,-9.0,FLAG,"shortfall 9 exceeds max(5, 5% of GF=32); severity: borderline; our rows: 21"
+club_goals,2025-2026,fr Ligue 1,AJ Auxerre,19.0,34,-15.0,FLAG,"shortfall 15 exceeds max(5, 5% of GF=34); severity: severe; our rows: 18"
+club_goals,2025-2026,fr Ligue 1,OGC Nice,23.0,37,-14.0,FLAG,"shortfall 14 exceeds max(5, 5% of GF=37); severity: severe; our rows: 20"
+club_goals,2025-2026,fr Ligue 1,FC Metz,18.0,32,-14.0,FLAG,"shortfall 14 exceeds max(5, 5% of GF=32); severity: severe; our rows: 14"
+squad_label,2025-2026,fr Ligue 1,Napoli,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Napoli
+squad_label,2025-2026,fr Ligue 1,Genoa,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Genoa
+squad_label,2025-2026,fr Ligue 1,Udinese,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Udinese
+squad_label,2025-2026,fr Ligue 1,Crystal Palace,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Crystal Palace
+squad_label,2025-2026,fr Ligue 1,Roma,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Roma
+squad_label,2025-2026,fr Ligue 1,RB Leipzig,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: RB Leipzig
+squad_label,2025-2026,fr Ligue 1,Sunderland AFC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Sunderland
+squad_label,2025-2026,fr Ligue 1,Betis,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Real Betis
+squad_label,2025-2026,fr Ligue 1,Real Madrid,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Real Madrid
+squad_label,2025-2026,fr Ligue 1,Everton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Everton
+squad_label,2025-2026,fr Ligue 1,Mallorca,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: RCD Mallorca
+squad_label,2025-2026,fr Ligue 1,Montpellier,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Montpellier HSC
+squad_label,2025-2026,fr Ligue 1,Arsenal,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Arsenal
+squad_label,2025-2026,fr Ligue 1,Juventus,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Juventus
+squad_label,2025-2026,fr Ligue 1,Real Sociedad,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Real Sociedad
+squad_label,2025-2026,fr Ligue 1,Inter,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Inter Milan
+squad_label,2025-2026,fr Ligue 1,Milan,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: AC Milan
+squad_label,2025-2026,fr Ligue 1,Barcelona,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: FC Barcelona
+squad_label,2025-2026,fr Ligue 1,Brighton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Brighton & Hove Albion
+squad_label,2025-2026,fr Ligue 1,Bayern Munich,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Bayern Munich
+squad_label,2025-2026,fr Ligue 1,Leicester City,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Leicester City
+squad_label,2025-2026,fr Ligue 1,Leverkusen,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Bayer Leverkusen
+squad_label,2025-2026,fr Ligue 1,Chelsea FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Chelsea
+squad_label,2025-2026,fr Ligue 1,Chelsea,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Chelsea
+squad_label,2025-2026,fr Ligue 1,Southampton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Southampton
+squad_label,2025-2026,fr Ligue 1,Sevilla,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Sevilla FC
+squad_label,2025-2026,fr Ligue 1,Ipswich Town,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Ipswich Town
+squad_label,2025-2026,fr Ligue 1,Fulham,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Fulham
+squad_label,2025-2026,fr Ligue 1,Borussia Dortmund,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Borussia Dortmund
+squad_label,2025-2026,fr Ligue 1,Reims,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Stade de Reims
+squad_label,2025-2026,fr Ligue 1,Bologna,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Bologna
+squad_label,2025-2026,fr Ligue 1,Bologna FC 1909,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Bologna
+squad_label,2025-2026,fr Ligue 1,RCD Espanyol Barcelona,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Espanyol
+squad_label,2025-2026,fr Ligue 1,Como,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Como
+squad_label,2025-2026,fr Ligue 1,Wolves,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Wolverhampton Wanderers
+squad_label,2025-2026,fr Ligue 1,Saint-Étienne,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: AS Saint-Étienne
+squad_label,2025-2026,fr Ligue 1,Hellas Verona,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Hellas Verona
+squad_label,2025-2026,fr Ligue 1,Eint Frankfurt,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Eintracht Frankfurt
+squad_label,2025-2026,fr Ligue 1,Union Berlin,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Union Berlin
+squad_label,2025-2026,fr Ligue 1,Bochum,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: VfL Bochum
+squad_label,2025-2026,fr Ligue 1,Lecce,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Lecce
+squad_label,2025-2026,fr Ligue 1,Ligue 1 Squad,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,CF América,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Club Siero,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Olympiacos Piraeus,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Bröndby IF,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Fenerbahce,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Feyenoord Rotterdam,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Zulte Waregem,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,USL Dunkerque,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,FC Lorient B,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,AFC Creil,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Al-Qadsiah FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Columbus Crew,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Toulouse FC U19,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Stade Brest 29 B,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Ajax Amsterdam,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Al-Fateh SC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Union Saint-Gilloise,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,OGC Nice Espoir,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Djoliba AC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,AJ Auxerre B,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,FC Lausanne-Sport,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,fr Ligue 1,Aris Limassol,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+club_naming,2025-2026,fr Ligue 1,AJ Auxerre,2,,,VARIANTS,raw names: AJ Auxerre | Auxerre
+club_naming,2025-2026,fr Ligue 1,AS Monaco,2,,,VARIANTS,raw names: AS Monaco | Monaco
+club_naming,2025-2026,fr Ligue 1,Angers SCO,2,,,VARIANTS,raw names: Angers | Angers SCO
+club_naming,2025-2026,fr Ligue 1,Bologna,2,,,VARIANTS,raw names: Bologna | Bologna FC 1909
+club_naming,2025-2026,fr Ligue 1,Chelsea,2,,,VARIANTS,raw names: Chelsea | Chelsea FC
+club_naming,2025-2026,fr Ligue 1,FC Nantes,2,,,VARIANTS,raw names: FC Nantes | Nantes
+club_naming,2025-2026,fr Ligue 1,LOSC Lille,2,,,VARIANTS,raw names: LOSC Lille | Lille
+club_naming,2025-2026,fr Ligue 1,Le Havre AC,2,,,VARIANTS,raw names: Le Havre | Le Havre AC
+club_naming,2025-2026,fr Ligue 1,OGC Nice,2,,,VARIANTS,raw names: Nice | OGC Nice
+club_naming,2025-2026,fr Ligue 1,Olympique Lyonnais,2,,,VARIANTS,raw names: Lyon | Olympique Lyon
+club_naming,2025-2026,fr Ligue 1,Olympique de Marseille,2,,,VARIANTS,raw names: Marseille | Olympique Marseille
+club_naming,2025-2026,fr Ligue 1,Paris Saint-Germain,2,,,VARIANTS,raw names: Paris S-G | Paris Saint-Germain
+club_naming,2025-2026,fr Ligue 1,RC Lens,2,,,VARIANTS,raw names: Lens | RC Lens
+club_naming,2025-2026,fr Ligue 1,RC Strasbourg Alsace,2,,,VARIANTS,raw names: RC Strasbourg Alsace | Strasbourg
+club_naming,2025-2026,fr Ligue 1,Stade Brestois 29,2,,,VARIANTS,raw names: Brest | Stade Brestois 29
+club_naming,2025-2026,fr Ligue 1,Stade Rennais FC,2,,,VARIANTS,raw names: Rennes | Stade Rennais FC
+club_naming,2025-2026,fr Ligue 1,Toulouse FC,2,,,VARIANTS,raw names: FC Toulouse | Toulouse
+squad_label,2025-2026,it Serie A,Marseille,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Olympique de Marseille
+squad_label,2025-2026,it Serie A,Lens,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: RC Lens
+squad_label,2025-2026,it Serie A,Manchester City,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Manchester City
+squad_label,2025-2026,it Serie A,Chelsea,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Chelsea
+squad_label,2025-2026,it Serie A,West Ham,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: West Ham United
+squad_label,2025-2026,it Serie A,Real Madrid,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Real Madrid
+squad_label,2025-2026,it Serie A,Brighton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Brighton & Hove Albion
+squad_label,2025-2026,it Serie A,Wolfsburg,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: VfL Wolfsburg
+squad_label,2025-2026,it Serie A,Manchester Utd,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Manchester United
+squad_label,2025-2026,it Serie A,Girona,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Girona FC
+squad_label,2025-2026,it Serie A,Lille,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: LOSC Lille
+squad_label,2025-2026,it Serie A,RB Leipzig,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: RB Leipzig
+squad_label,2025-2026,it Serie A,Nice,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: OGC Nice
+squad_label,2025-2026,it Serie A,Newcastle Utd,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Newcastle United
+squad_label,2025-2026,it Serie A,Betis,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Real Betis
+squad_label,2025-2026,it Serie A,Aston Villa,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Aston Villa
+squad_label,2025-2026,it Serie A,Osasuna,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: CA Osasuna
+squad_label,2025-2026,it Serie A,Southampton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Southampton
+squad_label,2025-2026,it Serie A,Monza,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Monza
+squad_label,2025-2026,it Serie A,AC Reggiana 1919,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Reggiana
+squad_label,2025-2026,it Serie A,Lyon,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Olympique Lyonnais
+squad_label,2025-2026,it Serie A,Venezia,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Venezia
+squad_label,2025-2026,it Serie A,Leicester City,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Leicester City
+squad_label,2025-2026,it Serie A,Ipswich Town,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Ipswich Town
+squad_label,2025-2026,it Serie A,Everton FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Everton
+squad_label,2025-2026,it Serie A,Everton,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Everton
+squad_label,2025-2026,it Serie A,Toulouse,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Toulouse FC
+squad_label,2025-2026,it Serie A,Empoli,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Empoli
+squad_label,2025-2026,it Serie A,Eint Frankfurt,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Eintracht Frankfurt
+squad_label,2025-2026,it Serie A,Villarreal CF,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Villarreal CF
+squad_label,2025-2026,it Serie A,Villarreal,,,,OUTSIDE_LEAGUE_LABEL,transferred player; canonical: Villarreal CF
+squad_label,2025-2026,it Serie A,Serie A Squad,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Sporting CP,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Al-Nassr FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Atalanta U23,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,AEK Athens,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,SK Brann,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Ajax Amsterdam,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,São Bernardo FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,HNK Hajduk Split,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,GNK Dinamo Zagreb,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Feyenoord Rotterdam,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Grenoble Foot 38,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Fiorentina Primavera,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Cagliari Primavera,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,AD Limianos,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,De Graafschap Doetinchem,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Avigliano,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,KAA Gent,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,CF Estrela Amadora,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Grazer AK 1902,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,CA Alvarado II,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Clube Atlético Mineiro,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Hibernian FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Hellas Verona Primavera,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Wisla Plock,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,FC Viktoria Plzen,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Cracovia,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Royal Antwerp FC,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Salernitana Primavera,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+squad_label,2025-2026,it Serie A,Criciúma Esporte Clube,,,,OUTSIDE_LEAGUE_LABEL,transferred player; not in canonical registry
+club_naming,2025-2026,it Serie A,AC Milan,2,,,VARIANTS,raw names: AC Milan | Milan
+club_naming,2025-2026,it Serie A,Bologna,2,,,VARIANTS,raw names: Bologna | Bologna FC 1909
+club_naming,2025-2026,it Serie A,Cagliari,2,,,VARIANTS,raw names: Cagliari | Cagliari Calcio
+club_naming,2025-2026,it Serie A,Como,2,,,VARIANTS,raw names: Como | Como 1907
+club_naming,2025-2026,it Serie A,Everton,2,,,VARIANTS,raw names: Everton | Everton FC
+club_naming,2025-2026,it Serie A,Fiorentina,2,,,VARIANTS,raw names: ACF Fiorentina | Fiorentina
+club_naming,2025-2026,it Serie A,Genoa,2,,,VARIANTS,raw names: Genoa | Genoa CFC
+club_naming,2025-2026,it Serie A,Inter Milan,2,,,VARIANTS,raw names: Inter | Inter Milan
+club_naming,2025-2026,it Serie A,Juventus,2,,,VARIANTS,raw names: Juventus | Juventus FC
+club_naming,2025-2026,it Serie A,Lazio,2,,,VARIANTS,raw names: Lazio | SS Lazio
+club_naming,2025-2026,it Serie A,Lecce,2,,,VARIANTS,raw names: Lecce | US Lecce
+club_naming,2025-2026,it Serie A,Napoli,2,,,VARIANTS,raw names: Napoli | SSC Napoli
+club_naming,2025-2026,it Serie A,Parma,2,,,VARIANTS,raw names: Parma | Parma Calcio 1913
+club_naming,2025-2026,it Serie A,Roma,2,,,VARIANTS,raw names: AS Roma | Roma
+club_naming,2025-2026,it Serie A,Torino,2,,,VARIANTS,raw names: Torino | Torino FC
+club_naming,2025-2026,it Serie A,Udinese,2,,,VARIANTS,raw names: Udinese | Udinese Calcio
+club_naming,2025-2026,it Serie A,Villarreal CF,2,,,VARIANTS,raw names: Villarreal | Villarreal CF
+zero_minutes,2025-2026,,rows with Min=0,386,0,386,FLAG,386 of 2997 rows; MP=0: 386; Gls=0: 386; Nation=Unknown: 386
