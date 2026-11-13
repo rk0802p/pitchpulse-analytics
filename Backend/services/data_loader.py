@@ -106,10 +106,11 @@ class DataLoader:
                     except UnicodeDecodeError:
                         raw_df = pd.read_csv(file_path, encoding='latin1')
                 elif ext in ['.xlsx', '.xls']:
-                    xls = pd.ExcelFile(file_path)
-                    all_dfs = []
-                    for sheet_name in xls.sheet_names:
-                        all_dfs.append(pd.read_excel(xls, sheet_name=sheet_name))
+                    with pd.ExcelFile(file_path) as xls:
+                        all_dfs = [
+                            pd.read_excel(xls, sheet_name=sheet_name)
+                            for sheet_name in xls.sheet_names
+                        ]
                     raw_df = pd.concat(all_dfs, ignore_index=True) if all_dfs else pd.DataFrame()
                 else:
                     raise ValueError(f"Unsupported file format '{ext}' for season '{s_id}'.")

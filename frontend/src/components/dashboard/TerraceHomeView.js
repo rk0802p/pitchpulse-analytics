@@ -43,38 +43,25 @@ export const TerraceHomeView = ({
   const [scatterHover, setScatterHover] = useState(null);
   const [scatterSearch, setScatterSearch] = useState('');
 
-  const overperformers = (dashboardData?.overperformers && dashboardData.overperformers.length > 0)
+  const overperformers = Array.isArray(dashboardData?.overperformers)
     ? dashboardData.overperformers
-    : [
-        { id: 101, Player: "Patrik Schick", Squad: "Bayer Leverkusen", Comp: "de Bundesliga", Pos: "FW", Gls: 21, xG: 12.7, Gls_minus_xG: 8.3, Min: 1840 },
-        { id: 102, Player: "Mateo Retegui", Squad: "Atalanta", Comp: "it Serie A", Pos: "FW", Gls: 25, xG: 18.2, Gls_minus_xG: 6.8, Min: 2120 },
-        { id: 103, Player: "Chris Wood", Squad: "Nottingham Forest", Comp: "eng Premier League", Pos: "FW", Gls: 18, xG: 11.9, Gls_minus_xG: 6.1, Min: 1980 },
-        { id: 104, Player: "Robert Lewandowski", Squad: "Barcelona", Comp: "es La Liga", Pos: "FW", Gls: 27, xG: 21.4, Gls_minus_xG: 5.6, Min: 2310 },
-        { id: 105, Player: "Ayoze Pérez", Squad: "Villarreal", Comp: "es La Liga", Pos: "FW", Gls: 16, xG: 10.9, Gls_minus_xG: 5.1, Min: 1750 }
-      ];
+    : [];
 
-  const underperformers = (dashboardData?.underperformers && dashboardData.underperformers.length > 0)
+  const underperformers = Array.isArray(dashboardData?.underperformers)
     ? dashboardData.underperformers
-    : [
-        { id: 201, Player: "Hugo Ekitike", Squad: "Eintracht Frankfurt", Comp: "de Bundesliga", Pos: "FW", Gls: 15, xG: 21.6, Gls_minus_xG: -6.6, Min: 2050 },
-        { id: 202, Player: "Darwin Núñez", Squad: "Liverpool", Comp: "eng Premier League", Pos: "FW", Gls: 11, xG: 16.4, Gls_minus_xG: -5.4, Min: 1620 },
-        { id: 203, Player: "Dominic Calvert-Lewin", Squad: "Everton", Comp: "eng Premier League", Pos: "FW", Gls: 8, xG: 13.1, Gls_minus_xG: -5.1, Min: 1890 },
-        { id: 204, Player: "Artem Dovbyk", Squad: "Roma", Comp: "it Serie A", Pos: "FW", Gls: 12, xG: 16.8, Gls_minus_xG: -4.8, Min: 2100 },
-        { id: 205, Player: "Nicolas Jackson", Squad: "Chelsea", Comp: "eng Premier League", Pos: "FW", Gls: 12, xG: 16.5, Gls_minus_xG: -4.5, Min: 2190 }
-      ];
+    : [];
 
   const activeFinishingList = finishingTab === 'over' ? overperformers : underperformers;
 
-  // Real scatter points from backend or fallback
-  const scatterData = (dashboardData?.scatter_data && dashboardData.scatter_data.length > 0)
-    ? dashboardData.scatter_data
-    : [
-        { id: 1, Player: "Mohamed Salah", Squad: "Liverpool", Comp: "Premier League", Pos: "FW", Gls: 29, Ast: 18, xG: 26.4, xAG: 15.2 },
-        { id: 2, Player: "Kylian Mbappé", Squad: "Real Madrid", Comp: "La Liga", Pos: "FW", Gls: 31, Ast: 6, xG: 28.5, xAG: 7.1 },
-        { id: 3, Player: "Erling Haaland", Squad: "Manchester City", Comp: "Premier League", Pos: "FW", Gls: 22, Ast: 3, xG: 22.0, xAG: 3.4 },
-        { id: 4, Player: "Harry Kane", Squad: "Bayern Munich", Comp: "Bundesliga", Pos: "FW", Gls: 26, Ast: 10, xG: 23.8, xAG: 8.9 },
-        { id: 5, Player: "Bukayo Saka", Squad: "Arsenal", Comp: "Premier League", Pos: "FW", Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1 }
-      ];
+  const scatterData = Array.isArray(dashboardData?.scatter_data)
+    ? dashboardData.scatter_data.filter(player =>
+        player.xG != null && player.xAG != null &&
+        Number.isFinite(Number(player.xG)) && Number.isFinite(Number(player.xAG))
+      )
+    : [];
+  const progressionLeaders = Array.isArray(dashboardData?.progression_leaders)
+    ? dashboardData.progression_leaders
+    : [];
 
   // Dynamic Standfirst text
   const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2}\s+/, '') : "European Big 5";
@@ -88,11 +75,13 @@ export const TerraceHomeView = ({
   // Dynamic Auto-Written Findings from actual data
   const topOver = overperformers[0];
   const topUnder = underperformers[0];
-  const topCombined = [...scatterData].sort((a, b) => ((b.xG || b.Gls || 0) + (b.xAG || b.Ast || 0)) - ((a.xG || a.Gls || 0) + (a.xAG || a.Ast || 0)))[0];
+  const topCombined = [...scatterData].sort((a, b) =>
+    (Number(b.xG) + Number(b.xAG)) - (Number(a.xG) + Number(a.xAG))
+  )[0];
 
   // Dynamic scatter boundaries
-  const maxX = Math.max(14, ...scatterData.map(p => Number(p.xAG || p.Ast || 0))) * 1.15;
-  const maxY = Math.max(18, ...scatterData.map(p => Number(p.xG || p.Gls || 0))) * 1.15;
+  const maxX = Math.max(14, ...scatterData.map(p => Number(p.xAG))) * 1.15;
+  const maxY = Math.max(18, ...scatterData.map(p => Number(p.xG))) * 1.15;
 
   return (
     <div className="space-y-12 font-ser not-italic">
@@ -304,11 +293,9 @@ export const TerraceHomeView = ({
               </div>
 
               <div className="divide-y divide-[var(--rule)]/60">
-                {(dashboardData?.progression_leaders && dashboardData.progression_leaders.length > 0 
-                  ? dashboardData.progression_leaders 
-                  : (dashboardData?.top_scorers || []).slice(4, 8)
-                ).slice(0, 4).map((p, idx) => {
-                  const progSum = (p.PrgC || 0) + (p.PrgP || 0);
+                {progressionLeaders.length > 0 ? progressionLeaders.slice(0, 4).map((p, idx) => {
+                  const hasProgression = p.PrgC != null || p.PrgP != null;
+                  const progSum = (p.PrgC ?? 0) + (p.PrgP ?? 0);
                   return (
                     <div
                       key={p.id || idx}
@@ -330,15 +317,19 @@ export const TerraceHomeView = ({
                       </div>
                       <div className="text-right shrink-0">
                         <span className="font-disp font-extrabold text-base text-[var(--ink)]">
-                          {progSum > 0 ? formatNumber(progSum) : `${p.Gls || p.Min || 0}`}
+                          {hasProgression ? formatNumber(progSum) : "—"}
                         </span>
                         <span className="text-[10px] font-mono text-[var(--mute)] ml-1">
-                          {progSum > 0 ? 'actions' : 'recorded'}
+                          {hasProgression ? 'actions' : 'unavailable'}
                         </span>
                       </div>
                     </div>
                   );
-                })}
+                }) : (
+                  <p className="py-4 text-xs italic text-[var(--mute)]" role="status">
+                    Progressive action metrics (PrgC &amp; PrgP) are not tracked or unavailable for this season.
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-3 pt-2 border-t border-[var(--rule)] text-[11px] italic text-[var(--mute)] flex justify-between">
@@ -516,9 +507,13 @@ export const TerraceHomeView = ({
 
           {/* Points */}
           <div className="relative w-full h-full">
-            {scatterData.map((player, idx) => {
-              const xVal = Number(player.xAG || player.Ast || 0);
-              const yVal = Number(player.xG || player.Gls || 0);
+            {scatterData.length === 0 ? (
+              <p className="absolute inset-0 flex items-center justify-center text-sm italic text-[var(--mute)]" role="status">
+                Expected-goal observations are not available for this season.
+              </p>
+            ) : scatterData.map((player, idx) => {
+              const xVal = Number(player.xAG);
+              const yVal = Number(player.xG);
               const xPercent = Math.min(92, Math.max(8, (xVal / maxX) * 100));
               const yPercent = Math.min(90, Math.max(8, 100 - (yVal / maxY) * 100));
               const isHovered = scatterHover?.id === player.id;
@@ -606,7 +601,7 @@ export const TerraceHomeView = ({
               {topCombined ? topCombined.Player : "—"}
             </div>
             <p className="text-xs italic text-[var(--mute)] mt-1">
-              {topCombined ? `${topCombined.Player} accumulated ${(Number(topCombined.xG || topCombined.Gls || 0) + Number(topCombined.xAG || topCombined.Ast || 0)).toFixed(1)} combined xG + xAG.` : "Dual-threat chance creator."}
+              {topCombined ? `${topCombined.Player} accumulated ${(Number(topCombined.xG) + Number(topCombined.xAG)).toFixed(1)} combined xG + xAG.` : "Expected-goal data is unavailable for this season."}
             </p>
           </div>
         </div>

@@ -253,23 +253,46 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
     valid_x = validate_metric(x_metric, default="xG_90")
     valid_y = validate_metric(y_metric, default="xAG_90")
 
-    cohort = pool(df, position=position, min_minutes=min_minutes, competition=competition).copy()
-    if len(cohort) == 0:
+    cohort = pool(df, position=position, min_minutes=min_minutes, competition=competition)
+
+    def empty_result(tracking_status):
         return {
             'points': [],
+            'points_count': 0,
             'x_metric': valid_x,
             'y_metric': valid_y,
-            'distribution': {'median_x': 0, 'median_y': 0, 'min_x': 0, 'max_x': 0, 'min_y': 0, 'max_y': 0}
+            'tracking_status': tracking_status,
+            'distribution': {
+                'median_x': None,
+                'median_y': None,
+                'min_x': None,
+                'max_x': None,
+                'min_y': None,
+                'max_y': None,
+                'quadrants': {'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0}
+            },
+            'medians': {'x': None, 'y': None},
+            'pool': {'n': 0, 'min_minutes': min_minutes}
         }
+
+    if cohort is None:
+        return empty_result('not_tracked')
+    cohort = cohort.copy()
+
+    if len(cohort) == 0:
+        if df is None or len(df) == 0 or valid_x not in df.columns or valid_y not in df.columns:
+            return empty_result('not_tracked')
+        tracked_values_exist = df[valid_x].notna().any() and df[valid_y].notna().any()
+        return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
     cohort = cohort[cohort[valid_x].notna() & cohort[valid_y].notna()]
     if len(cohort) == 0:
-        return {
-            'points': [],
-            'x_metric': valid_x,
-            'y_metric': valid_y,
-            'distribution': {'median_x': 0, 'median_y': 0, 'min_x': 0, 'max_x': 0, 'min_y': 0, 'max_y': 0}
-        }
+        tracked_values_exist = (
+            df is not None and len(df) > 0 and
+            valid_x in df.columns and valid_y in df.columns and
+            df[valid_x].notna().any() and df[valid_y].notna().any()
+        )
+        return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
     med_x = round(float(cohort[valid_x].median()), 2)
     med_y = round(float(cohort[valid_y].median()), 2)
@@ -313,6 +336,7 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
     return {
         'x_metric': valid_x,
         'y_metric': valid_y,
+        'tracking_status': 'tracked',
         'points_count': len(points),
         'distribution': {
             'median_x': med_x,

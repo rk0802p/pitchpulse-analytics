@@ -7,6 +7,7 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from api import create_app
+from services.chart_service import get_scatter_chart_data
 
 class TestChartsBackendPhase5(unittest.TestCase):
     @classmethod
@@ -41,6 +42,41 @@ class TestChartsBackendPhase5(unittest.TestCase):
         for p in data['points']:
             self.assertIn('FW', p['Pos'])
             self.assertGreaterEqual(p['Min'], 500)
+
+    def test_scatter_untracked_metrics_are_null_and_marked_not_tracked(self):
+        """Untracked historical metrics must not serialize an empty chart as zero statistics."""
+        for query in (
+            'season=2012-2013',
+            'season=2025-2026&x=PrgC&y=PrgP'
+        ):
+            with self.subTest(query=query):
+                response = self.client.get(f'/api/charts/scatter?{query}')
+                self.assertEqual(response.status_code, 200)
+                payload = response.get_json()['data']
+                self.assertEqual(payload['tracking_status'], 'not_tracked')
+                self.assertEqual(payload['points'], [])
+                self.assertEqual(payload['points_count'], 0)
+                for key in ('median_x', 'median_y', 'min_x', 'max_x', 'min_y', 'max_y'):
+                    self.assertIsNone(payload['distribution'][key])
+                self.assertEqual(payload['distribution']['quadrants'], {
+                    'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0
+                })
+
+    def test_scatter_with_no_eligible_minutes_is_distinct_from_untracked(self):
+        response = self.client.get(
+            '/api/charts/scatter?season=2024-2025&min_minutes=999999'
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()['data']
+        self.assertEqual(payload['tracking_status'], 'no_eligible_observations')
+        self.assertEqual(payload['points'], [])
+        self.assertIsNone(payload['distribution']['median_x'])
+
+    def test_scatter_service_handles_missing_dataframe_as_untracked(self):
+        payload = get_scatter_chart_data(None)
+        self.assertEqual(payload['tracking_status'], 'not_tracked')
+        self.assertEqual(payload['points'], [])
+        self.assertIsNone(payload['distribution']['median_x'])
 
     def test_03_player_percentiles_endpoint(self):
         """GET /api/players/<id>/percentiles returns positional peer percentiles."""
