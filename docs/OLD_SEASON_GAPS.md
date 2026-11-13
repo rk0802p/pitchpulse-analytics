@@ -25,7 +25,25 @@ A real club gap is coverage below 90% or a shortfall of at least 10 goals. COMPL
 | 2024-2025 | MINOR_GAPS | 97.03% | 1 | 5 | 0 |
 | 2025-2026 | PARTIAL_SNAPSHOT | 97.29% | 0 | 0 | 0 |
 
-12 of 14 seasons have measurable real gaps under this rule: 2012-2013, 2013-2014, 2014-2015, 2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2023-2024, 2024-2025. The likely cause is missing player-season rows in the source snapshot; the same absence is expected across CSV, parquet, XLSX, DuckDB `players`, and DuckDB `per90_metrics` because those stores are generated from the same season CSV. No repair or ingestion was performed.
+12 of 14 seasons have measurable real gaps under this rule: 2012-2013, 2013-2014, 2014-2015, 2015-2016, 2016-2017, 2017-2018, 2018-2019, 2019-2020, 2020-2021, 2021-2022, 2023-2024, 2024-2025. The likely cause is missing player-season rows in the source snapshot; the same absence is expected across CSV, parquet, XLSX, DuckDB `players`, and DuckDB `per90_metrics` because those stores are generated from the same season CSV.
+
+## Understat archive reconciliation (follow-up)
+
+A free player-season CSV was downloaded for review to `artifacts/understat_players_aggregated_2014_2024.csv` (SHA-256 `b78fad5f01844a0fdab0d89474dafba9b86c586d2f0ce88f0ce2c9af70d2bc64`). The [public repository and field documentation](https://github.com/vibedatascience/understat_players_aggregated) describes the archive as covering 2014/15–2024/25 and documents player, club, league, goals, games and minutes. The [downloaded raw CSV](https://raw.githubusercontent.com/vibedatascience/understat_players_aggregated/main/understat_players_aggregated_2014_2024.csv) is an Understat-based community aggregation. It is suitable as corroborating evidence, but the checks below show it is not a complete replacement dataset.
+
+All five top-10 scorers previously marked `NOT FOUND` in the local season CSV are present in this downloaded archive with matching club, goals, games and minutes:
+
+| Season | Player | Club | Goals | Games | Minutes | Local row |
+|---|---|---|---:|---:|---:|---|
+| 2014-2015 | Antoine Griezmann | Atlético Madrid | 22 | 37 | 2,490 | Not found |
+| 2014-2015 | Carlos Bacca | Sevilla | 20 | 37 | 2,581 | Not found |
+| 2014-2015 | Arjen Robben | Bayern Munich | 17 | 21 | 1,681 | Not found |
+| 2014-2015 | Thomas Müller | Bayern Munich | 13 | 32 | 2,382 | Not found |
+| 2020-2021 | Karim Benzema | Real Madrid | 23 | 34 | 2,914 | Not found |
+
+For the 2014-15 Understat rows, league-to-Wikipedia final goals-for checks found all 20 La Liga, Serie A and Ligue 1 club keys, but three Bundesliga and four Premier League clubs had no rows. Examples of substantial remaining Understat shortfalls include Napoli (57 player goals vs 70 GF), Genoa (32 vs 62), Sampdoria (34 vs 48), Marseille (64 vs 76), and Caen (36 vs 54). In 2020-21, the archive had all 20 La Liga, Serie A and Ligue 1 club keys; however it lacked two Premier League and four Bundesliga clubs. Examples of remaining shortfalls include Newcastle United (36 vs 46), RC Strasbourg (38 vs 49), and Wolfsburg (51 vs 61). These totals do not reconcile to the final tables and cannot establish that every missing player or club record is available.
+
+**Decision:** use these five entries as named patch candidates and independent cross-checks, not as an automatic import. Before a repair, verify the source snapshot/version and per-player club allocation, establish which player rows are genuinely absent versus mislabelled or split across clubs, and reconcile each candidate against an independent season-level source. Do not sum Understat goals into the existing dataset without row-level identity and duplicate checks. No player rows or analytical stores were changed in this follow-up.
 
 ## 2012-2013 — MINOR_GAPS
 
