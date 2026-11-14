@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
 import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng, copySvgAsPng, canCopyChartImage } from '../../utils/chartMath';
 import { computeAxisDomain } from '../../utils/axisDomain';
-import { deterministicJitter, normalizePlayerSearch } from '../../utils/plotInteractions';
+import { getOverlapOffsets, normalizePlayerSearch } from '../../utils/plotInteractions';
 import DataQualityBadge from '../common/DataQualityBadge';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
@@ -103,7 +103,7 @@ export default function ScatterPlot({
   const W = width - MARGIN.left - MARGIN.right;
   const H = height - MARGIN.top - MARGIN.bottom;
 
-  const { sx, sy, sr, labels, resolvedMedians, poolSize } = useMemo(() => {
+  const { sx, sy, sr, labels, resolvedMedians, poolSize, pointOffsets } = useMemo(() => {
     if (!points || points.length === 0) {
       return {
         sx: scaleLinear([0, 1], [0, W]),
@@ -111,7 +111,8 @@ export default function ScatterPlot({
         sr: () => 3,
         labels: [],
         resolvedMedians: medians,
-        poolSize: 0
+        poolSize: 0,
+        pointOffsets: new Map()
       };
     }
 
@@ -122,7 +123,7 @@ export default function ScatterPlot({
       if (Number.isFinite(tickStep) && tickStep > 0 && min >= 0) {
         return [Math.floor(min / tickStep) * tickStep, (Math.floor(max / tickStep) + 1) * tickStep];
       }
-      const integer = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' && metricId !== 'xG+xAG_90' : values.every(Number.isInteger);
+      const integer = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' && metricId !== 'xG+xAG' : values.every(Number.isInteger);
       return computeAxisDomain(values, {
         integer,
         canBeNegative: metricId === 'Gls_minus_xG' || (isX ? xCanBeNegative : yCanBeNegative) || min < 0,
@@ -138,11 +139,13 @@ export default function ScatterPlot({
 
     const sx = scaleLinear(xDomain, [0, W]);
     const sy = scaleLinear(yDomain, [H, 0]);
-    const plotted = (p, axis, domain, metricId) => {
-      const value = p[axis];
-      const isIntegerMetric = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' : Number.isInteger(value);
-      if (!jitter || !isIntegerMetric || !Number.isInteger(value)) return value;
-      return value + deterministicJitter(p.id, axis, (domain[1] - domain[0]) / 6);
+    const pointOffsets = getOverlapOffsets(points, (value) => sx(value), (value) => sy(value), jitter);
+    const position = (point) => {
+      const offset = pointOffsets.get(point.id) || { dx: 0, dy: 0 };
+      return {
+        x: Math.max(8, Math.min(W - 8, sx(point.x) + offset.dx)),
+        y: Math.max(8, Math.min(H - 8, sy(point.y) + offset.dy))
+      };
     };
 
     // Density-aware radius scaling
@@ -185,16 +188,14 @@ export default function ScatterPlot({
       .map((p) => ({
         id: p.id,
         text: p.name || p.Player || '',
-        x: Math.max(8, Math.min(W - 8, sx(plotted(p, 'x', xDomain, xMetricId)))),
-        y: Math.max(8, Math.min(H - 8, sy(plotted(p, 'y', yDomain, yMetricId)))),
+        ...position(p),
         r: sr(p.mins || p.Min || 0)
       }));
 
     const all = points.map((p) => ({
       id: p.id,
       text: p.name || p.Player || '',
-      x: Math.max(8, Math.min(W - 8, sx(plotted(p, 'x', xDomain, xMetricId)))),
-      y: Math.max(8, Math.min(H - 8, sy(plotted(p, 'y', yDomain, yMetricId)))),
+      ...position(p),
       r: sr(p.mins || p.Min || 0)
     }));
 
@@ -209,7 +210,8 @@ export default function ScatterPlot({
       sr,
       labels: placed,
       resolvedMedians: { x: mX, y: mY },
-      poolSize
+      poolSize,
+      pointOffsets
     };
   }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative, pinnedIds, jitter, xDomainOverride, yDomainOverride]);
 
@@ -227,14 +229,8 @@ export default function ScatterPlot({
   const parityEnd = parity ? Math.min(sx.domain()[1], sy.domain()[1]) : 0;
   const projectX = (value) => Math.max(0, Math.min(W, sx(value)));
   const projectY = (value) => Math.max(0, Math.min(H, sy(value)));
-  const plottedCoordinate = (point, axis, metricId, scale) => {
-    const value = point[axis];
-    const integerMetric = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' : Number.isInteger(value);
-    if (!jitter || !integerMetric || !Number.isInteger(value)) return value;
-    return value + deterministicJitter(point.id, axis, (scale.domain()[1] - scale.domain()[0]) / 6);
-  };
-  const projectPointX = (point) => Math.max(8, Math.min(W - 8, sx(plottedCoordinate(point, 'x', xMetricId, sx))));
-  const projectPointY = (point) => Math.max(8, Math.min(H - 8, sy(plottedCoordinate(point, 'y', yMetricId, sy))));
+  const projectPointX = (point) => Math.max(8, Math.min(W - 8, sx(point.x) + (pointOffsets.get(point.id)?.dx || 0)));
+  const projectPointY = (point) => Math.max(8, Math.min(H - 8, sy(point.y) + (pointOffsets.get(point.id)?.dy || 0)));
   const getPointColor = (point) => {
     if (colorBy === 'position') {
       const pos = String(point.Pos || point.pos || '').split(',')[0].trim();
@@ -614,7 +610,7 @@ export default function ScatterPlot({
             {/* Hover Tooltip Overlay with smart left/right auto-flip */}
             {hovered && (() => {
               const tooltipW = 258;
-              const tooltipH = 162;
+              const tooltipH = 136;
               const dotPxX = MARGIN.left + projectPointX(hovered);
               const dotPxY = MARGIN.top + projectPointY(hovered);
 
@@ -655,16 +651,10 @@ export default function ScatterPlot({
                   <text x="10" y="68" className="fill-[var(--blue)] font-mono text-[10px] font-semibold" pointerEvents="none" style={{ pointerEvents: 'none' }}>
                     {xShort || xLabel}: {formatCoordinate(hovered.x)} · {yShort || yLabel}: {formatCoordinate(hovered.y)}
                   </text>
-                  <text x="10" y="86" className="fill-[var(--blue)] font-mono text-[10px]" pointerEvents="none" style={{ pointerEvents: 'none' }}>
-                    {xShort || xLabel} per 90: {formatOptional(hovered.tooltip?.[xMetricId?.endsWith('_90') ? xMetricId : `${xMetricId}_90`] ?? (xMetricId?.endsWith('_90') ? hovered.x : null))} · {yShort || yLabel} per 90: {formatOptional(hovered.tooltip?.[yMetricId?.endsWith('_90') ? yMetricId : `${yMetricId}_90`] ?? (yMetricId?.endsWith('_90') ? hovered.y : null))}
-                  </text>
-                  <text x="10" y="104" className="fill-[var(--blue)] font-mono text-[10px]" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                  <text x="10" y="92" className="fill-[var(--blue)] font-mono text-[10px]" pointerEvents="none" style={{ pointerEvents: 'none' }}>
                     Goals - xG: {formatOptional(hovered.tooltip?.Gls_minus_xG)}
                   </text>
-                  <text x="10" y="124" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
-                    Per-90 and goals - xG show n/a when not tracked.
-                  </text>
-                  <text x="10" y="144" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                  <text x="10" y="120" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
                     Click to pin · double-click or Enter to open profile.
                   </text>
                 </g>

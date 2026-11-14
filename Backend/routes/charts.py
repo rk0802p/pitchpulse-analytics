@@ -9,7 +9,7 @@ import threading
 from flask import Blueprint, request
 from services.data_loader import data_loader
 from services.season_service import season_service
-from services.validation_service import resolve_and_validate_season, validate_position, parse_bool, validate_metric
+from services.validation_service import resolve_and_validate_season, validate_position, parse_bool, validate_scatter_metric
 from services.chart_service import (
     get_scatter_chart_data,
     similar_players,
@@ -83,11 +83,11 @@ def get_scatter_range():
     """Return cohort-filtered shared metric bounds across seasons where both metrics exist."""
     x_raw = request.args.get('x') or 'xG_90'
     y_raw = request.args.get('y') or 'xAG_90'
-    x_metric = validate_metric(x_raw, default=None)
-    y_metric = validate_metric(y_raw, default=None)
-    if x_metric not in METRIC_DEFINITIONS and x_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'}:
+    x_metric = validate_scatter_metric(x_raw, default=None)
+    y_metric = validate_scatter_metric(y_raw, default=None)
+    if x_metric not in METRIC_DEFINITIONS and x_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls', 'xG+xAG'}:
         return error_response(f"Invalid metric '{x_raw}'", status_code=400, code='ERR_INVALID_METRIC')
-    if y_metric not in METRIC_DEFINITIONS and y_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'}:
+    if y_metric not in METRIC_DEFINITIONS and y_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls', 'xG+xAG'}:
         return error_response(f"Invalid metric '{y_raw}'", status_code=400, code='ERR_INVALID_METRIC')
     position = request.args.get('position') or None
     if position and not validate_position(position):
@@ -112,14 +112,12 @@ def get_scatter_range():
         filtered = pool(frame, position=position, competition=competition, min_minutes=min_minutes)
         if filtered is None or filtered.empty:
             continue
-        if x_metric in filtered.columns:
-            values = _scatter_metric_values(filtered, x_metric).dropna()
-            if not values.empty:
-                x_values.extend(values.astype(float).tolist()); x_seasons.append(season['id'])
-        if y_metric in filtered.columns:
-            values = _scatter_metric_values(filtered, y_metric).dropna()
-            if not values.empty:
-                y_values.extend(values.astype(float).tolist()); y_seasons.append(season['id'])
+        values = _scatter_metric_values(filtered, x_metric).dropna()
+        if not values.empty:
+            x_values.extend(values.astype(float).tolist()); x_seasons.append(season['id'])
+        values = _scatter_metric_values(filtered, y_metric).dropna()
+        if not values.empty:
+            y_values.extend(values.astype(float).tolist()); y_seasons.append(season['id'])
 
     def metric_range(metric, values, seasons):
         if not values:

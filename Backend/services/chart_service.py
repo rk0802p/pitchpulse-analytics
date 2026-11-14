@@ -6,7 +6,7 @@ player style similarity matching (z-score distance), and composite role performa
 
 import numpy as np
 import pandas as pd
-from services.validation_service import resolve_competition, validate_metric
+from services.validation_service import resolve_competition, validate_scatter_metric
 from services.metric_registry import is_metric_tracked_in_era
 
 DEFAULT_SIMILARITY_METRICS = [
@@ -263,6 +263,15 @@ SCATTER_PER_90_NUMERATORS = {
 
 def _scatter_metric_values(frame, metric):
     """Use full-precision count/minutes rates for plotted per-90 coordinates."""
+    derived_totals = {'G+A': ('Gls', 'Ast'), 'xG+xAG': ('xG', 'xAG')}
+    if metric in derived_totals:
+        first, second = derived_totals[metric]
+        if {first, second}.issubset(frame.columns):
+            left = pd.to_numeric(frame[first], errors='coerce')
+            right = pd.to_numeric(frame[second], errors='coerce')
+            return (left + right).where(left.notna() & right.notna())
+        return pd.Series(float('nan'), index=frame.index, dtype='float64')
+
     if metric == 'xG+xAG_90' and {'xG', 'xAG', 'Min'}.issubset(frame.columns):
         minutes = pd.to_numeric(frame['Min'], errors='coerce')
         numerator = pd.to_numeric(frame['xG'], errors='coerce') + pd.to_numeric(frame['xAG'], errors='coerce')
@@ -279,6 +288,8 @@ def _scatter_metric_values(frame, metric):
         numerator = pd.to_numeric(frame[numerator_col], errors='coerce')
         return numerator.mul(90).div(minutes.where(minutes > 0))
 
+    if metric not in frame.columns:
+        return pd.Series(float('nan'), index=frame.index, dtype='float64')
     return pd.to_numeric(frame[metric], errors='coerce')
 
 
@@ -286,8 +297,8 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
     """
     Generates standardized 2D scatter plot data with median crosshairs and quadrant distribution.
     """
-    valid_x = validate_metric(x_metric, default="xG_90")
-    valid_y = validate_metric(y_metric, default="xAG_90")
+    valid_x = validate_scatter_metric(x_metric, default="xG_90")
+    valid_y = validate_scatter_metric(y_metric, default="xAG_90")
 
     cohort = pool(df, position=position, min_minutes=min_minutes, competition=competition)
 
@@ -319,9 +330,9 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
         cohort = cohort[pd.to_numeric(cohort['Age'], errors='coerce').le(age_max)]
 
     if len(cohort) == 0:
-        if df is None or len(df) == 0 or valid_x not in df.columns or valid_y not in df.columns:
+        if df is None or len(df) == 0:
             return empty_result('not_tracked')
-        tracked_values_exist = df[valid_x].notna().any() and df[valid_y].notna().any()
+        tracked_values_exist = _scatter_metric_values(df, valid_x).notna().any() and _scatter_metric_values(df, valid_y).notna().any()
         return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
     x_values = _scatter_metric_values(cohort, valid_x)
@@ -332,8 +343,8 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
     if len(cohort) == 0:
         tracked_values_exist = (
             df is not None and len(df) > 0 and
-            valid_x in df.columns and valid_y in df.columns and
-            df[valid_x].notna().any() and df[valid_y].notna().any()
+            _scatter_metric_values(df, valid_x).notna().any() and
+            _scatter_metric_values(df, valid_y).notna().any()
         )
         return empty_result('no_eligible_observations' if tracked_values_exist else 'not_tracked')
 
@@ -377,10 +388,6 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
             # Additive tooltip-only fields; plotted coordinates and existing response
             # fields retain their prior meanings and precision.
             'tooltip': {
-                **{
-                    metric: (float(row[metric]) if metric in row and pd.notna(row[metric]) else None)
-                    for metric in ('Gls_90', 'Ast_90', 'xG_90', 'xAG_90', 'PrgC_90', 'PrgP_90', 'PrgR_90')
-                },
                 'Gls_minus_xG': (
                     float(row['Gls']) - float(row['xG'])
                     if 'Gls' in row and 'xG' in row and pd.notna(row['Gls']) and pd.notna(row['xG']) else None

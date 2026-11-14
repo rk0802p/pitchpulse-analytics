@@ -7,7 +7,9 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from api import create_app
-from services.chart_service import get_scatter_chart_data
+from services.chart_service import get_scatter_chart_data, _scatter_metric_values
+from services.data_loader import data_loader
+from services.validation_service import validate_metric
 
 class TestChartsBackendPhase5(unittest.TestCase):
     @classmethod
@@ -52,6 +54,24 @@ class TestChartsBackendPhase5(unittest.TestCase):
         self.assertTrue(x_range['signed'])
         self.assertIn('min', x_range)
         self.assertLessEqual(x_range['min'], x_range['max'])
+
+    def test_scatter_range_supports_combined_totals(self):
+        response = self.client.get('/api/charts/scatter/range?x=G%2BA&y=xG%2BxAG&min_minutes=500')
+        self.assertEqual(response.status_code, 200)
+        ranges = response.get_json()['data']
+        self.assertGreater(ranges['x']['max'], 0)
+        self.assertGreater(ranges['y']['max'], 0)
+        self.assertEqual(validate_metric('xG+xAG'), 'Gls')
+
+    def test_scatter_combined_metrics_are_derived_from_tracked_components(self):
+        response = self.client.get('/api/charts/scatter?season=2024-2025&x=G%2BA&y=xG%2BxAG&min_minutes=500')
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()['data']
+        self.assertEqual(payload['tracking_status'], 'tracked')
+        source = data_loader.get_dataframe(season='2024-2025')
+        eligible = source[source['Min'] >= 500]
+        self.assertAlmostEqual(payload['distribution']['max_x'], _scatter_metric_values(eligible, 'G+A').max())
+        self.assertAlmostEqual(payload['distribution']['max_y'], _scatter_metric_values(eligible, 'xG+xAG').max())
 
     def test_02_scatter_endpoint_custom_metrics_and_filters(self):
         """GET /api/charts/scatter accepts custom x/y metrics, position, and minutes."""
@@ -101,8 +121,8 @@ class TestChartsBackendPhase5(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         salah = next(point for point in response.get_json()['data']['points'] if point['Player'] == 'Mohamed Salah')
         self.assertEqual((salah['x'], salah['y']), (29, 18))
-        self.assertAlmostEqual(salah['tooltip']['Gls_90'], 29 * 90 / salah['Min'], places=2)
         self.assertEqual(salah['tooltip']['Gls_minus_xG'], 29 - 25.2)
+        self.assertNotIn('Gls_90', salah['tooltip'])
 
     def test_scatter_untracked_metrics_are_null_and_marked_not_tracked(self):
         """Untracked historical metrics must not serialize an empty chart as zero statistics."""

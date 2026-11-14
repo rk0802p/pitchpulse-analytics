@@ -57,7 +57,7 @@ PitchPulse is a modern, full-stack European football analytics platform and scou
 - **Security Hardening**: Protected by admin authentication, strict season identifier validation, path containment, and automated atomic writes.
 
 ### 8. 📈 Scatter plot comparison
-- Scatter plots use metric-aware domains, median guide lines, and tooltips with minutes, club, position, competition, per-90 values where tracked, and goals minus xG when available.
+- Scatter plots use metric-aware domains, median guide lines, and tooltips limited to the selected metrics, minutes, club, position, competition, and goals minus xG (shown as n/a when unavailable).
 - The labelled toolbar supports filters, per-90 display, colour and size encodings, overlap reduction, quadrant labels, and a reset action.
 - **Compare seasons: lock scale** is off by default. Enabling it sets `lock=1` in the plot URL and uses `/api/charts/scatter/range` to calculate shared bounds across seasons with tracked values; if that request fails, the chart stays on its season-specific scale.
 - See [Scatter plot behavior and maintenance](docs/SCATTER_AND_QUALITY_PLAN.md) for details.

@@ -28,18 +28,19 @@ beforeEach(() => {
 });
 
 test('uses the plotted point count and requests the age filter', async () => {
-  api.getScatterChart
-    .mockResolvedValueOnce(chart([point(1, 'First Player'), point(2, 'Second Player')]))
-    .mockResolvedValueOnce(chart([point(1, 'First Player')]));
+  api.getScatterChart.mockImplementation((params) => Promise.resolve(
+    params.age_max === 23
+      ? chart([point(1, 'First Player')])
+      : chart([point(1, 'First Player'), point(2, 'Second Player')])
+  ));
 
   render(<PlotAnyMetricView activeSeason="2024-2025" />);
   expect(await screen.findByText(/Plotted: 2 players/)).toBeInTheDocument();
   expect(screen.queryByText('48')).not.toBeInTheDocument();
 
   fireEvent.change(screen.getByPlaceholderText('e.g. 23 (U23)'), { target: { value: '23' } });
-  await waitFor(() => expect(api.getScatterChart).toHaveBeenCalledTimes(2));
   expect(await screen.findByText(/Plotted: 1 player/)).toBeInTheDocument();
-  expect(api.getScatterChart.mock.calls[1][0]).toMatchObject({ age_max: 23 });
+  await waitFor(() => expect(api.getScatterChart.mock.calls.some(([params]) => params.age_max === 23)).toBe(true));
   expect(screen.getByText(/age ≤ 23/)).toBeInTheDocument();
 });
 
@@ -85,6 +86,28 @@ test('mounting a query link selects the linked metric pair', async () => {
   render(<PlotAnyMetricView activeSeason="2024-2025" />);
   await screen.findByRole('button', { name: /Linked Player/ });
   expect(api.getScatterChart.mock.calls[0][0]).toMatchObject({ x: 'Gls', y: 'Ast', position: 'FW' });
+});
+
+test('metric selectors expose combined totals and per-90 rates without a separate rate toggle', async () => {
+  window.location.hash = '#plots?x=G%2BA&y=xG%2BxAG&pos=FW&mins=500';
+  api.getScatterChart.mockResolvedValue(chart([point(1, 'Combined Player')]));
+  render(<PlotAnyMetricView activeSeason="2024-2025" />);
+  await screen.findByRole('button', { name: /Combined Player/ });
+  expect(api.getScatterChart.mock.calls[0][0]).toMatchObject({ x: 'G+A', y: 'xG+xAG' });
+  expect(screen.getAllByRole('option', { name: 'Goals + Assists (G+A)' })).toHaveLength(2);
+  expect(screen.getAllByRole('option', { name: 'Expected Goals + Expected Assisted Goals (xG+xAG)' })).toHaveLength(2);
+  expect(screen.getAllByRole('option', { name: 'Goals per 90 (Gls_90)' })).toHaveLength(2);
+  expect(screen.queryByLabelText('Totals / Per 90')).not.toBeInTheDocument();
+});
+
+test('legacy per-90 links select per-90 metrics explicitly', async () => {
+  window.location.hash = '#plots?x=Gls&y=Ast&pos=FW&mins=500&perg=1';
+  api.getScatterChart.mockResolvedValue(chart([point(1, 'Legacy Rate Player')]));
+  render(<PlotAnyMetricView activeSeason="2024-2025" />);
+  await screen.findByRole('button', { name: /Legacy Rate Player/ });
+  expect(api.getScatterChart.mock.calls[0][0]).toMatchObject({ x: 'Gls_90', y: 'Ast_90' });
+  expect(window.location.hash).toContain('x=Gls_90');
+  expect(window.location.hash).not.toContain('perg=1');
 });
 
 test('lock-scale URL state requests shared ranges with active filters and applies them', async () => {

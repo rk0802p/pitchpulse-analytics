@@ -9,6 +9,7 @@ import DataQualityBadge from '../common/DataQualityBadge';
 const METRIC_CATALOG = [
   // Scoring
   { id: 'Gls', name: 'Goals (Gls)', short: 'Goals', group: 'Scoring', desc: 'Total goals scored' },
+  { id: 'G+A', name: 'Goals + Assists (G+A)', short: 'G+A', group: 'Scoring', desc: 'Combined goals and assists' },
   { id: 'xG', name: 'Expected Goals (xG)', short: 'xG', group: 'Scoring', desc: 'Shot quality accumulation' },
   { id: 'Gls_90', name: 'Goals per 90 (Gls_90)', short: 'Goals/90', group: 'Scoring', desc: 'Goals scaled to 90 minutes' },
   { id: 'xG_90', name: 'xG per 90 (xG_90)', short: 'xG/90', group: 'Scoring', desc: 'Expected goals scaled to 90 minutes' },
@@ -17,6 +18,7 @@ const METRIC_CATALOG = [
   // Creating
   { id: 'Ast', name: 'Assists (Ast)', short: 'Assists', group: 'Creating', desc: 'Direct goal assists' },
   { id: 'xAG', name: 'Expected Assisted Goals (xAG)', short: 'xAG', group: 'Creating', desc: 'Shot assist quality' },
+  { id: 'xG+xAG', name: 'Expected Goals + Expected Assisted Goals (xG+xAG)', short: 'xG+xAG', group: 'Creating', desc: 'Combined expected goals and expected assisted goals' },
   { id: 'Ast_90', name: 'Assists per 90 (Ast_90)', short: 'Assists/90', group: 'Creating', desc: 'Assists scaled to 90 minutes' },
   { id: 'xAG_90', name: 'xAG per 90 (xAG_90)', short: 'xAG/90', group: 'Creating', desc: 'Creation quality scaled to 90 mins' },
   { id: 'xG+xAG_90', name: 'xG + xAG per 90', short: 'xG+xAG/90', group: 'Creating', desc: 'Combined attacking output rate' },
@@ -48,14 +50,17 @@ export default function PlotAnyMetricView({
   const initialParams = useMemo(() => {
     const { query: sp } = parseHash(window.location.hash);
     if ([...sp.keys()].length > 0) {
+      const legacyPer90 = sp.get('perg') === '1';
+      const x = sp.get('x') || 'xAG_90';
+      const y = sp.get('y') || 'xG_90';
       return {
-        x: sp.get('x') || 'xAG_90',
-        y: sp.get('y') || 'xG_90',
+        x: legacyPer90 && !x.endsWith('_90') ? (PER90_PAIRS[x] || x) : x,
+        y: legacyPer90 && !y.endsWith('_90') ? (PER90_PAIRS[y] || y) : y,
         pos: sp.get('pos') || 'FW',
         comp: sp.get('comp') || '',
         mins: Number(sp.get('mins')) || 500,
         ageMax: sp.has('age_max') ? Number(sp.get('age_max')) : '',
-        per90: sp.get('perg') === '1', colorBy: sp.get('color') || 'none', jitter: sp.get('jitter') !== '0', lock: sp.get('lock') === '1'
+        colorBy: sp.get('color') || 'none', jitter: sp.get('jitter') !== '0', lock: sp.get('lock') === '1'
       };
     }
     return {
@@ -64,7 +69,7 @@ export default function PlotAnyMetricView({
       pos: 'FW',
       comp: '',
       mins: 500,
-      ageMax: '', per90: false, colorBy: 'none', jitter: true, lock: false
+      ageMax: '', colorBy: 'none', jitter: true, lock: false
     };
   }, []);
 
@@ -76,7 +81,6 @@ export default function PlotAnyMetricView({
   const [ageMax, setAgeMax] = useState(initialParams.ageMax);
   const [debouncedFilters, setDebouncedFilters] = useState({ mins: initialParams.mins, age: initialParams.ageMax });
   const [searchHighlight, setSearchHighlight] = useState('');
-  const [per90, setPer90] = useState(initialParams.per90);
   const [colorBy, setColorBy] = useState(initialParams.colorBy);
   const [jitter, setJitter] = useState(initialParams.jitter);
   const [lockScale, setLockScale] = useState(initialParams.lock);
@@ -86,9 +90,8 @@ export default function PlotAnyMetricView({
   const [rangeData, setRangeData] = useState(null);
   const [rangeError, setRangeError] = useState(false);
 
-  const effectiveX = per90 && !xMetric.endsWith('_90') ? (PER90_PAIRS[xMetric] || xMetric) : xMetric;
-  const effectiveY = per90 && !yMetric.endsWith('_90') ? (PER90_PAIRS[yMetric] || yMetric) : yMetric;
-  const canUsePer90 = Boolean(PER90_PAIRS[xMetric] && PER90_PAIRS[yMetric]);
+  const effectiveX = xMetric;
+  const effectiveY = yMetric;
   const untrackedMetrics = seasonQuality?.untracked_metrics || [];
   const metricIsUntracked = (metricId) => untrackedMetrics.includes(metricId) || untrackedMetrics.includes(metricId.replace(/_90$/, ''));
   const plotXUntracked = metricIsUntracked(effectiveX);
@@ -114,11 +117,10 @@ export default function PlotAnyMetricView({
     if (minMinutes) sp.set('mins', String(minMinutes));
     if (ageMax !== '') sp.set('age_max', String(ageMax));
     if (colorBy !== 'none') sp.set('color', colorBy);
-    if (per90) sp.set('perg', '1');
     if (!jitter) sp.set('jitter', '0');
     if (lockScale) sp.set('lock', '1');
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#plots?${sp.toString()}`);
-  }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax, colorBy, per90, jitter, lockScale]);
+  }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax, colorBy, jitter, lockScale]);
 
   // Keep the chart tied to the current controls, ignoring responses from stale requests.
   useEffect(() => {
@@ -235,14 +237,14 @@ export default function PlotAnyMetricView({
   const isNotTracked = currentChartData?.tracking_status === 'not_tracked' || plotXUntracked || plotYUntracked;
   const resetControls = () => {
     setXMetric('xAG_90'); setYMetric('xG_90'); setSelectedPos('FW'); setSelectedComp('');
-    setMinMinutes(500); setAgeMax(''); setSearchHighlight(''); setPer90(false); setColorBy('none');
+    setMinMinutes(500); setAgeMax(''); setSearchHighlight(''); setColorBy('none');
     setJitter(true); setLockScale(false); setQuadrantsOn(true); setDotMode('volume');
   };
   const exportScope = `${selectedComp || 'all-big5'}_${selectedPos || 'all-pos'}_${minMinutes}min`.replace(/[^a-z0-9-]+/gi, '-');
   const exportContext = {
     title: `${yShort} vs ${xShort}`,
     scope: `Season ${activeSeason.replace('-', '/')} · ${selectedComp || 'All Big 5'} · ${selectedPos || 'All positions'} · ${minMinutes}+ minutes${ageMax !== '' ? ` · age ≤ ${ageMax}` : ''} · ${scatterPoints.length} players`,
-    mode: per90 ? 'Per 90' : 'Totals',
+    mode: 'Selected metrics',
     sizeLegend: dotMode === 'volume' ? 'Size: minutes' : 'Size: equal',
     colorLegend: `Colour: ${colorBy}`,
     quality: qualityLabel,
@@ -421,9 +423,8 @@ export default function PlotAnyMetricView({
           </div>
         </div>
         <div className="flex flex-wrap items-end gap-x-5 gap-y-3 border-t border-[var(--rule)] pt-3">
-          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per90} disabled={!canUsePer90} onChange={(e) => setPer90(e.target.checked)} /><span title={!canUsePer90 ? 'Selected metrics do not both have per-90 counterparts.' : ''}>Totals / Per 90</span></label>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={quadrantsOn} onChange={(e) => setQuadrantsOn(e.target.checked)} />Quadrant labels</label>
-          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={jitter} onChange={(e) => setJitter(e.target.checked)} />Reduce overlap</label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={jitter} onChange={(e) => setJitter(e.target.checked)} title="Offsets overlapping dots by at most 4 pixels; plotted values and axes do not change." />Reduce overlap</label>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={lockScale} onChange={(e) => setLockScale(e.target.checked)} title={rangeError ? 'Shared range request failed; using this season’s dynamic scale.' : ''} />Compare seasons: lock scale</label>
           <label className="flex items-center gap-2 text-xs">Size
             <select aria-label="Dot size" value={dotMode} onChange={(e) => setDotMode(e.target.value)} className="border border-[var(--rule)] bg-[var(--panel)] p-1"><option value="volume">Minutes</option><option value="uniform">Equal</option></select>
@@ -432,7 +433,6 @@ export default function PlotAnyMetricView({
             <select aria-label="Colour by" value={colorBy} onChange={(e) => setColorBy(e.target.value)} className="border border-[var(--rule)] bg-[var(--panel)] p-1"><option value="none">None</option><option value="position">Position</option><option value="club">Club</option><option value="finishing" disabled={!xgTracked} title={!xgTracked ? 'Goals minus xG is not tracked for this season.' : ''}>Goals - xG{!xgTracked ? ' (not tracked)' : ''}</option></select>
           </label>
           <button type="button" onClick={resetControls} className="ml-auto border border-[var(--ink)] px-2 py-1 text-xs hover:bg-[var(--panel)]">Reset controls</button>
-          {per90 && <span className="basis-full text-[11px] italic text-[var(--mute)]">Per-90 rates can be noisy for players with few minutes.</span>}
         </div>
       </fieldset>
 

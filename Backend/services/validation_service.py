@@ -149,6 +149,13 @@ def validate_metric(metric_param, default="Gls"):
         return metric_key
     return default
 
+
+def validate_scatter_metric(metric_param, default="Gls"):
+    """Validate plot-only derived metrics without exposing them as stored columns."""
+    if metric_param and str(metric_param).strip().lower() == 'xg+xag':
+        return 'xG+xAG'
+    return validate_metric(metric_param, default=default)
+
 def validate_pagination(page_str, limit_str, default_page=1, default_limit=50, max_limit=500):
     try:
         page = int(page_str) if page_str is not None else default_page

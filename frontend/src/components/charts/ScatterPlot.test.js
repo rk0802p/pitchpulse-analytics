@@ -18,19 +18,22 @@ test('shows an explicit empty state when there are no plotted observations', () 
   expect(screen.getByRole('status')).toHaveTextContent('No eligible observations');
 });
 
-test('shows per-90 coordinate precision in the point tooltip', () => {
+test('shows only selected metrics in the tooltip, with finishing differential when available', () => {
   render(
     <ScatterPlot
-      points={[{ ...player(1, 29, 18 * 90 / 3371), y: 18 * 90 / 3371 }]}
+      points={[{ ...player(1, 29, 18 * 90 / 3371), y: 18 * 90 / 3371, tooltip: { Ast_90: 18 * 90 / 3371, Gls_minus_xG: 3.8 } }]}
       medians={{ x: 29, y: 18 * 90 / 3371 }}
       xLabel="Goals (Gls)"
       yLabel="Assists per 90 (Ast_90)"
+      xShort="Goals"
       yShort="Assists"
       yMetricId="Ast_90"
     />
   );
   fireEvent.mouseEnter(screen.getByRole('button', { name: /Player 1/ }));
-  expect(screen.getByText(/Assists per 90: 0\.4806/)).toBeInTheDocument();
+  expect(screen.getByText(/Goals: 29 · Assists: 0\.4806/)).toBeInTheDocument();
+  expect(screen.getByText('Goals - xG: 3.8')).toBeInTheDocument();
+  expect(screen.queryByText(/(?:Goals|Assists) per 90:/i)).not.toBeInTheDocument();
 });
 
 test('uses dynamic axes and descriptive metric labels', () => {
@@ -102,13 +105,22 @@ test('uses one roving tab stop and supports pin then profile keyboard action', (
   expect(onSelectPlayer).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
 });
 
-test('jitter changes only plotted positions while accessible values remain true', () => {
-  const p = player(7, 8, 5);
-  const { rerender } = render(<ScatterPlot points={[p]} jitter />);
-  const jittered = Number(screen.getByRole('button', { name: /Player 7: X Axis 8/ }).getAttribute('cx'));
-  rerender(<ScatterPlot points={[p]} jitter={false} />);
-  const truePosition = Number(screen.getByRole('button', { name: /Player 7: X Axis 8/ }).getAttribute('cx'));
-  expect(jittered).not.toBe(truePosition);
+test('overlap reduction only applies a small offset to coincident points', () => {
+  const points = [player(7, 8, 5), player(8, 8, 5), player(9, 10, 6)];
+  const { rerender } = render(<ScatterPlot points={points} jitter />);
+  const pointOn = screen.getByRole('button', { name: /Player 7: X Axis 8/ });
+  const separateOn = screen.getByRole('button', { name: /Player 9: X Axis 10/ });
+  const overlapOn = [Number(pointOn.getAttribute('cx')), Number(pointOn.getAttribute('cy'))];
+  const separatePositionOn = [Number(separateOn.getAttribute('cx')), Number(separateOn.getAttribute('cy'))];
+  rerender(<ScatterPlot points={points} jitter={false} />);
+  const pointOff = screen.getByRole('button', { name: /Player 7: X Axis 8/ });
+  const separateOff = screen.getByRole('button', { name: /Player 9: X Axis 10/ });
+  const overlapOff = [Number(pointOff.getAttribute('cx')), Number(pointOff.getAttribute('cy'))];
+  const separatePositionOff = [Number(separateOff.getAttribute('cx')), Number(separateOff.getAttribute('cy'))];
+  expect(Math.hypot(overlapOn[0] - overlapOff[0], overlapOn[1] - overlapOff[1])).toBeLessThanOrEqual(4);
+  expect(overlapOn).not.toEqual(overlapOff);
+  expect(separatePositionOn).toEqual(separatePositionOff);
+  expect(screen.getByRole('button', { name: /Player 7: X Axis 8/ })).toBeInTheDocument();
 });
 
 test('shows a colour legend and clears pins with Escape', () => {

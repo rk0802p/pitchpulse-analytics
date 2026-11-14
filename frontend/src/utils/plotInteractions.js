@@ -3,12 +3,25 @@ export const normalizePlayerSearch = (value = '') => String(value)
   .replace(/[\u0300-\u036f]/g, '')
   .toLocaleLowerCase();
 
-export function deterministicJitter(id, axis, tickSize) {
-  const input = `${id ?? ''}:${axis}`;
-  let hash = 2166136261;
-  for (let i = 0; i < input.length; i += 1) hash = Math.imul(hash ^ input.charCodeAt(i), 16777619);
-  const unit = ((hash >>> 0) / 4294967295) * 2 - 1;
-  return unit * Math.abs(tickSize) * 0.25;
+export function getOverlapOffsets(points, projectX, projectY, enabled = true, maxOffset = 4) {
+  if (!enabled) return new Map();
+  const groups = new Map();
+  points.forEach((point) => {
+    const key = `${Math.round(projectX(point.x))}:${Math.round(projectY(point.y))}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(point);
+  });
+
+  const offsets = new Map();
+  groups.forEach((group) => {
+    if (group.length < 2) return;
+    const radius = Math.min(maxOffset, 1.2 + Math.sqrt(group.length) * 0.8);
+    [...group].sort((a, b) => String(a.id).localeCompare(String(b.id))).forEach((point, index) => {
+      const angle = -Math.PI / 2 + (index * 2 * Math.PI) / group.length;
+      offsets.set(point.id, { dx: Math.cos(angle) * radius, dy: Math.sin(angle) * radius });
+    });
+  });
+  return offsets;
 }
 
 export const PER90_PAIRS = {
