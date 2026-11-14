@@ -98,15 +98,17 @@ def get_scatter_range():
     except (TypeError, ValueError):
         return error_response('min_minutes must be a non-negative integer', status_code=400, code='ERR_INVALID_MINUTES')
     competition = request.args.get('competition') or None
-    key = (x_metric, y_metric, position, competition, min_minutes)
+    seasons = season_service.list_seasons()
+    manifest_versions = tuple((season['id'], season.get('content_hash')) for season in seasons)
+    key = (x_metric, y_metric, position, competition, min_minutes, manifest_versions)
     with _SCATTER_RANGE_LOCK:
         cached = _SCATTER_RANGE_CACHE.get(key)
     if cached is not None:
         return success_response(cached)
 
-    frames = [data_loader.get_dataframe(season=season['id']) for season in season_service.list_seasons()]
     x_values = []; y_values = []; x_seasons = []; y_seasons = []
-    for season, frame in zip(season_service.list_seasons(), frames):
+    for season in seasons:
+        frame = data_loader.get_dataframe(season=season['id'])
         filtered = pool(frame, position=position, competition=competition, min_minutes=min_minutes)
         if filtered is None or filtered.empty:
             continue
@@ -128,6 +130,8 @@ def get_scatter_range():
         return result
     payload = {'x': metric_range(x_metric, x_values, x_seasons), 'y': metric_range(y_metric, y_values, y_seasons), 'filters': {'position': position, 'competition': competition, 'min_minutes': min_minutes}}
     with _SCATTER_RANGE_LOCK:
+        if len(_SCATTER_RANGE_CACHE) >= 128:
+            _SCATTER_RANGE_CACHE.clear()
         _SCATTER_RANGE_CACHE[key] = payload
     return success_response(payload)
 

@@ -98,6 +98,18 @@ test('lock-scale URL state requests shared ranges with active filters and applie
   expect(screen.getAllByText('50').length).toBeGreaterThan(0);
 });
 
+test('lock-scale toggle updates the URL and explains dynamic fallback if range loading fails', async () => {
+  window.location.hash = '#plots?x=Gls&y=Ast&pos=FW&mins=500';
+  api.getScatterChart.mockResolvedValue(chart([point(1, 'Toggle Player')]));
+  api.getScatterRange.mockRejectedValue(new Error('range unavailable'));
+  render(<PlotAnyMetricView activeSeason="2024-2025" />);
+  const lockToggle = screen.getByLabelText('Compare seasons: lock scale');
+  fireEvent.click(lockToggle);
+  await waitFor(() => expect(api.getScatterRange).toHaveBeenCalled());
+  await waitFor(() => expect(lockToggle).toHaveAttribute('title', expect.stringContaining('using this season’s dynamic scale')));
+  expect(window.location.hash).toContain('lock=1');
+});
+
 test('untracked progression shows alternative metrics', async () => {
   window.location.hash = '#plots?x=PrgC&y=PrgP&pos=FW&mins=500';
   api.getScatterChart.mockResolvedValue({ points: [], tracking_status: 'not_tracked' });

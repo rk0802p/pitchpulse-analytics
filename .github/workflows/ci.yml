@@ -2,7 +2,7 @@ name: PitchPulse CI
 
 on:
   push:
-    branches: [ main, review-and-charts ]
+    branches: [ main, 'codex/**' ]
   pull_request:
     branches: [ main ]
 
@@ -38,6 +38,17 @@ jobs:
         run: |
           python Backend/test_api_baseline.py
 
+      - name: Check storage parity for protected and repaired seasons
+        run: |
+          python Backend/scripts/check_storage_parity.py --season 2024-2025
+          python Backend/scripts/check_storage_parity.py --season 2025-2026
+
+      - name: Audit Python dependencies (advisory)
+        continue-on-error: true
+        run: |
+          python -m pip install pip-audit
+          pip-audit -r Backend/requirements-dev.txt
+
   frontend-test-and-build:
     name: Frontend Test & Production Build
     runs-on: ubuntu-latest
@@ -61,6 +72,17 @@ jobs:
         run: |
           cd frontend
           npm test -- --watchAll=false
+
+      - name: Lint frontend source
+        run: |
+          cd frontend
+          npx eslint src --quiet
+
+      - name: Audit JavaScript dependencies (advisory)
+        continue-on-error: true
+        run: |
+          cd frontend
+          npm audit
 
       - name: Build Frontend Production Artifact
         env:

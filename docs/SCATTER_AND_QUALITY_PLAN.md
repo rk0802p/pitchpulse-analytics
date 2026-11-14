@@ -20,17 +20,28 @@ Backend tests: 139 passed and 9 subtests passed. Baseline verifier: 13 tests pas
 | F9 chart accessibility | CONFIRMED | `ScatterPlot.js` uses `role="img"` while placing a focusable button hitbox on each point; result status is not announced consistently. | Phases 1 and 3 |
 | F10 overlapping dots | CONFIRMED | Points are projected at their exact coordinates; no deterministic overlap adjustment is applied. | Phase 3 optional deterministic jitter |
 | F11 data-quality metadata not surfaced | CONFIRMED | Season service exposes `known_gaps`, but frontend does not consume it; 2025-26 manifest has prose rather than structured partial/untracked metadata. | Phase 5 additive metadata and UI |
-| F12 unused dependencies | CONFIRMED | Repository source search found no imports for the seven named packages. | Phase 6 remove and verify install/build |
-| F13 Tailwind/PostCSS mismatch | CONFIRMED | Frontend declares Tailwind 3 and v4 `@tailwindcss/postcss`; CRA config uses that plugin while project directives/config are v3 style. | Phase 6 retain Tailwind 3 and remove unused v4 plugin/config |
-| F14 cache version / import placement | CONFIRMED | `Backend/api.py` imports `request` after registering the closure; cache tags identify the season but have no dataset version. | Phase 6 move import and add version tags/ETag |
-| F15 deployment file inclusion | PARTLY | `Backend/vercel.json` explicitly includes baseline JSON and season CSV only. `.vercelignore` excludes docs/scripts/tests and spreadsheets, but does not exclude manifest/known-gap JSON. Static config does not establish what Vercel's Python tracer bundles; no deployment build was run. CSV is the runtime store, while metadata JSON is read dynamically. | Phase 5 explicitly include metadata JSON and verify the bundled-data smoke test |
-| F16 wildcard CORS default | CONFIRMED | `Backend/config.py` sets `ALLOWED_ORIGINS='*'` when `CORS_ORIGINS` is missing or `*`. | Phase 6 environment-sensitive default and warning |
-| F17 CI gaps | CONFIRMED | `.github/workflows/ci.yml` pushes to `main` and stale `review-and-charts`; it runs tests/build but no lint, storage parity, or dependency audits. | Phase 6 CI updates |
+| F12 unused dependencies | FIXED | Eight unused packages were removed from the frontend dependency manifest and lockfile after a repository-wide source search. | Removed in Phase 6; validated with clean install, tests, and build |
+| F13 Tailwind/PostCSS mismatch | FIXED | Tailwind 3 remains; the unused Tailwind v4 plugin and custom PostCSS config were removed so CRA uses its supported Tailwind 3 integration. | Fixed in Phase 6 |
+| F14 cache version / import placement | FIXED | `request` is imported at module scope; cacheable API responses carry a SHA-256 version derived from season manifest contents, ETag, and versioned cache tag. | Fixed and covered by runtime tests |
+| F15 deployment file inclusion | PARTLY | `Backend/vercel.json` explicitly includes season CSV and JSON files; `.vercelignore` excludes docs/scripts/tests and spreadsheets. Static config confirms intended inclusion, but a Vercel bundle/deployment smoke test was not run. | Runtime reads are covered locally; deployment packaging still needs a Vercel build check |
+| F16 wildcard CORS default | FIXED | Wildcard is retained only for development/testing; production with unset or wildcard configuration falls back to restricted local origins and logs a warning. | Fixed and covered by config tests |
+| F17 CI gaps | FIXED | CI now includes `codex/**`, frontend lint, parity for 2024/25 and 2025/26, and advisory Python/npm dependency audits. | Fixed in Phase 6 |
 
 ## Overview progression behavior
 
-`frontend/src/App.js` requests a top player sorted by `PrgC` on every season change. The dashboard's progression panel checks for non-null `PrgC`/`PrgP` and already displays an unavailable/not-tracked message when all values are null; the unused top-progression result is still fetched and stored. Phase 5 will remove or guard that request when progression is untracked so it cannot imply a zero-valued leader.
+`frontend/src/App.js` skips the top-player request sorted by `PrgC` when season metadata marks progression untracked. The dashboard's progression panel checks for non-null `PrgC`/`PrgP` and displays an unavailable/not-tracked message when all values are null.
 
 ## Notes
 
 This phase made no season data changes. At baseline, the scatter page uses a maximum of 48 for goals and assists, and its tooltip exposes ambiguous labels. Phase 0's screenshot request could not be completed because no headless browser was installed; no browser was installed for this task.
+
+## Phase completion record
+
+- Phase 1: deep-link parsing, debounced requests, abort handling, and stale-response protection.
+- Phase 2: metric-aware domains, readable axis labels, metric-rich tooltips, and reduced-motion-aware transitions.
+- Phase 3: one responsive labelled toolbar, reset action, accessible point interaction, overlap controls, and quadrant labels.
+- Phase 4: context-rich PNG export and clipboard support where available.
+- Phase 5: additive season quality metadata and the opt-in `lock=1` all-season scatter range API/UI.
+- Phase 6: dependency/PostCSS cleanup, data-version cache headers, production CORS restriction, CI checks, and deployment documentation.
+
+Phase 5 and Phase 6 changed metadata/configuration and application code only. No player data rows or storage copies were modified in these phases.

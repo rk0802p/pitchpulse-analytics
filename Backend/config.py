@@ -1,4 +1,5 @@
 import os
+import logging
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DATASET = os.path.join(BASE_DIR, 'data', 'seasons', '2024-2025', 'top5-players24-25.csv')
@@ -123,10 +124,25 @@ DEFAULT_ORIGINS = [
     "http://localhost:5001",
     "http://127.0.0.1:5001",
 ]
-cors_env = os.environ.get('CORS_ORIGINS')
-ALLOWED_ORIGINS = '*' if not cors_env or cors_env == '*' else [o.strip() for o in cors_env.split(',') if o.strip()]
-
 FLASK_ENV = os.environ.get('FLASK_ENV', 'development')
+
+def resolve_allowed_origins(cors_env=None, flask_env='development', testing=False):
+    """Use wildcard CORS only in local development and isolated tests."""
+    requested = cors_env if cors_env is not None else os.environ.get('CORS_ORIGINS')
+    if requested and requested.strip() != '*':
+        return [origin.strip() for origin in requested.split(',') if origin.strip()]
+    if flask_env in ('development', 'testing') or testing:
+        return '*'
+    logging.getLogger(__name__).warning(
+        'CORS_ORIGINS is unset or wildcard in production; using local development origins. '
+        'Set CORS_ORIGINS to the deployed frontend origin(s).'
+    )
+    return DEFAULT_ORIGINS.copy()
+
+ALLOWED_ORIGINS = resolve_allowed_origins(
+    flask_env=FLASK_ENV,
+    testing=os.environ.get('TESTING', '').lower() == 'true'
+)
 # S1: Fail closed by default if ADMIN_TOKEN is not explicitly configured
 ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN')
 if not ADMIN_TOKEN and (FLASK_ENV == 'testing' or os.environ.get('TESTING') == 'True'):

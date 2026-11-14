@@ -280,7 +280,7 @@ export const TerraceHomeView = ({
           </div>
 
           {/* Progression Leaders Podium */}
-          <div className="border border-[var(--rule)] bg-[var(--paper)] p-4 rounded-xs flex flex-col justify-between">
+          <div data-testid="progression-panel" className="border border-[var(--rule)] bg-[var(--paper)] p-4 rounded-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-[var(--rule)] pb-2 mb-3">
                 <div className="flex items-center gap-2">
@@ -299,6 +299,7 @@ export const TerraceHomeView = ({
                   return (
                     <div
                       key={p.id || idx}
+                      data-testid={`progression-row-${p.id || idx}`}
                       onClick={() => onSelectPlayer && onSelectPlayer(p)}
                       className="py-2 flex items-center justify-between hover:bg-[var(--panel)] px-1.5 cursor-pointer transition-colors group"
                     >
@@ -524,6 +525,7 @@ export const TerraceHomeView = ({
               return (
                 <div
                   key={player.id || idx}
+                  data-testid={`dashboard-scatter-point-${player.id || idx}`}
                   style={{ left: `${xPercent}%`, top: `${yPercent}%` }}
                   className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
                   onMouseEnter={() => setScatterHover(player)}

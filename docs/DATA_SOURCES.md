@@ -68,6 +68,12 @@ Run `python Backend/scripts/check_storage_parity.py` to compare each season's CS
 
 The audit currently reports differences for 2012/13–2022/23: legacy CSV/XLSX files contain zero placeholders for metrics that the runtime era registry marks untracked, while Parquet and DuckDB normalize those metrics to null. This is a representation mismatch between physical stores; the loader's CSV/XLSX fallback also applies normalization before serving data. The audit does not rewrite files. Reconcile these historical physical representations in a separately reviewed data migration before expecting a fully green all-season parity run.
 
+### Deployment packaging and runtime metadata
+
+The Vercel Python function bundles season CSV and JSON files as specified in `Backend/vercel.json`. CSV files are runtime player stores; JSON manifests and `known_gaps.json` are read by the season registry and quality endpoint. XLSX, tests, scripts, Markdown documentation, and local artifacts are excluded by `.vercelignore`; current runtime routes do not read these excluded files. GitHub Actions checks out the full repository separately and runs the relevant tests and parity script from the repository. Production deployments should set `CORS_ORIGINS` to the exact frontend origin(s); leaving it unset or wildcarded in production falls back to restricted local origins and emits a warning.
+
+The API exposes `X-Data-Version`, a manifest-derived ETag, and both stable season and versioned data cache tags on cacheable successful GET responses. Updating any season manifest changes the ETag and data tag, allowing clients and the CDN to revalidate or purge the prior version.
+
 ---
 
 ## 2. The 2024/25 Authoritative Reference Baseline

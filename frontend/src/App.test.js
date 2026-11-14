@@ -88,10 +88,8 @@ test('renders PitchPulse editorial masthead, split-flap scoreboard, and almanac 
   expect(screen.getByText(/Statistical ledger of Europe's top 5 leagues/i)).toBeInTheDocument();
 
   // Verify scoreboard and editorial figures
-  await waitFor(() => {
-    expect(screen.getByText(/Expected goals, minute by minute/i)).toBeInTheDocument();
-    expect(screen.getByText(/Every shot, one goal at the top/i)).toBeInTheDocument();
-  });
+  expect(await screen.findByText(/Expected goals, minute by minute/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Every shot, one goal at the top/i)).toBeInTheDocument();
   await flushAsyncEffects();
 });
 

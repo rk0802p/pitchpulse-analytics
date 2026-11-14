@@ -56,6 +56,12 @@ PitchPulse is a modern, full-stack European football analytics platform and scou
 - **Deterministic Rate Auto-Derivation**: Automatically derives missing `90s`, compound stats (`G+A`, `G-PK`, `npxG+xAG`), and all 10 per-90 rates from raw counts.
 - **Security Hardening**: Protected by admin authentication, strict season identifier validation, path containment, and automated atomic writes.
 
+### 8. 📈 Scatter plot comparison
+- Scatter plots use metric-aware domains, median guide lines, and tooltips with minutes, club, position, competition, per-90 values where tracked, and goals minus xG when available.
+- The labelled toolbar supports filters, per-90 display, colour and size encodings, overlap reduction, quadrant labels, and a reset action.
+- **Compare seasons: lock scale** is off by default. Enabling it sets `lock=1` in the plot URL and uses `/api/charts/scatter/range` to calculate shared bounds across seasons with tracked values; if that request fails, the chart stays on its season-specific scale.
+- See [Scatter plot behavior and maintenance](docs/SCATTER_AND_QUALITY_PLAN.md) for details.
+
 ---
 
 ## 🗄 Multi-Season Registry & Historical Eras
@@ -163,6 +169,12 @@ cd frontend && npm test -- --watchAll=false
 ```
 
 The parity audit is read-only and returns a failure code when stores differ. It currently identifies historical zero-versus-null representation differences for 2012/13–2022/23; see [Data Sources](docs/DATA_SOURCES.md) before interpreting those results.
+
+CI runs parity checks for the locked 2024/25 baseline and repaired 2025/26 season. Python and production JavaScript dependency audits are advisory so upstream advisories do not conceal test or build failures. Frontend lint errors are blocking.
+
+### Deployment notes
+
+Vercel packaging intentionally excludes Markdown documentation, tests, maintenance scripts, XLSX files, and local audit artifacts. CI still checks out and runs repository tests and scripts. The deployed Flask app reads season CSV and JSON metadata, both of which are included in `Backend/vercel.json`; XLSX files are downloadable source artifacts, not runtime inputs. Set `CORS_ORIGINS` to the deployed frontend origin(s) in production. Local development and isolated tests retain wildcard CORS; a production process with an unset or wildcard value restricts origins to the local development list and logs a warning.
 
 ---
 

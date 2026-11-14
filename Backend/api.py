@@ -1,7 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+import hashlib
 import os
 import logging
+from pathlib import Path
 from config import ALLOWED_ORIGINS, MAX_CONTENT_LENGTH
 from services.data_loader import data_loader
 from routes.meta import meta_bp
@@ -15,6 +17,18 @@ from routes.charts import charts_bp
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
 logger = logging.getLogger(__name__)
+SEASON_MANIFESTS_DIR = Path(__file__).resolve().parent / 'data' / 'seasons'
+
+
+def _data_version(manifests_dir=SEASON_MANIFESTS_DIR):
+    """Return a stable version derived from the deployed season manifests."""
+    digest = hashlib.sha256()
+    for manifest in sorted(Path(manifests_dir).glob('*/manifest.json')):
+        digest.update(manifest.parent.name.encode('utf-8'))
+        digest.update(b'\0')
+        digest.update(manifest.read_bytes())
+        digest.update(b'\0')
+    return digest.hexdigest()
 
 def create_app():
     app = Flask(__name__)
@@ -66,7 +80,7 @@ def create_app():
             path = request.path
             if path.startswith('/api/') and not path.startswith('/api/admin'):
                 # For historical seasons: cache for 24h at edge, 7 days stale-while-revalidate
-                # Active season (2024-2025): shorter cache since it may update during season
+                # Mutable/current data receives a shorter edge cache than closed seasons.
                 season = request.args.get('season')
                 is_historical = season and season != '2024-2025' and season != '2025-2026'
 
@@ -77,11 +91,15 @@ def create_app():
                     else:
                         # Active season: 5 min edge cache, 1 hour stale-while-revalidate
                         response.headers['Cache-Control'] = 'public, s-maxage=300, stale-while-revalidate=3600'
-                    # Add cache tag for potential purging
-                    response.headers['Cache-Tag'] = f'season-{season}' if season else 'active-season'
+                    # Version cache keys/tags whenever any season manifest changes.
+                    version = _data_version()
+                    response.set_etag(version)
+                    response.headers['X-Data-Version'] = version
+                    response.headers['Cache-Tag'] = f"season-{season or 'active'},data-{version[:12]}"
+                    if request.if_none_match.contains(version):
+                        response.status_code = 304
+                        response.set_data(b'')
         return response
-
-    from flask import request
 
     @app.route('/api/')
     @app.route('/')

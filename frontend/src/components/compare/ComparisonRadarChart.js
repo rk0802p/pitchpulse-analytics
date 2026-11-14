@@ -109,7 +109,7 @@ export const ComparisonRadarChart = ({
                   x2={x}
                   y2={y}
                   stroke="#334155"
-                  strokeWidth={lvl === 0.5 ? "1.8" : "1"}
+                  strokeWidth="1"
                   opacity="0.6"
                 />
                 <text
