@@ -308,11 +308,11 @@ export const AppLayout = ({
             })}
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-xs italic text-[var(--mute)]">
+          {currentTab !== 'plots' && <div className="hidden md:flex items-center gap-2 text-xs italic text-[var(--mute)]">
             <span>{selectedComp ? leagues.find(l => l.id === selectedComp)?.label : "All Big 5"}</span>
             <span>•</span>
             <span>{formatSeasonName(activeSeason)}</span>
-          </div>
+          </div>}
         </nav>
 
         {/* Mobile Navigation Dropdown */}

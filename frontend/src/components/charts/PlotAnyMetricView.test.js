@@ -33,7 +33,7 @@ test('uses the plotted point count and requests the age filter', async () => {
 
   render(<PlotAnyMetricView activeSeason="2024-2025" />);
   expect(await screen.findByText(/Plotted: 2 players/)).toBeInTheDocument();
-  expect(screen.getAllByText('48').length).toBeGreaterThan(0);
+  expect(screen.queryByText('48')).not.toBeInTheDocument();
 
   fireEvent.change(screen.getByPlaceholderText('e.g. 23 (U23)'), { target: { value: '23' } });
   await waitFor(() => expect(api.getScatterChart).toHaveBeenCalledTimes(2));

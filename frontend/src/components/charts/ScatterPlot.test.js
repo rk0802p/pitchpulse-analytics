@@ -25,36 +25,37 @@ test('shows per-90 coordinate precision in the point tooltip', () => {
       medians={{ x: 29, y: 18 * 90 / 3371 }}
       xLabel="Goals (Gls)"
       yLabel="Assists per 90 (Ast_90)"
+      yShort="Assists"
+      yMetricId="Ast_90"
     />
   );
   fireEvent.mouseEnter(screen.getByRole('button', { name: /Player 1/ }));
-  expect(screen.getByText(/Assists: 0\.4806/)).toBeInTheDocument();
+  expect(screen.getByText(/Assists per 90: 0\.4806/)).toBeInTheDocument();
 });
 
-test('uses integer axes in steps of eight for goals and assists', () => {
+test('uses dynamic axes and descriptive metric labels', () => {
   render(
     <ScatterPlot
       points={[player(1, 0, 0), player(2, 31, 18)]}
       medians={{ x: 8, y: 8 }}
       xLabel="Goals (Gls)"
       yLabel="Assists (Ast)"
-      xTickStep={8}
-      yTickStep={8}
-      xMax={48}
-      yMax={48}
+      xMetricId="Gls"
+      yMetricId="Ast"
+      xShort="Goals"
+      yShort="Assists"
     />
   );
 
-  expect(screen.getAllByText('48').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('40').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('32').length).toBeGreaterThan(0);
-  expect(screen.queryByText('4.69')).not.toBeInTheDocument();
+  expect(screen.queryByText('48')).not.toBeInTheDocument();
+  expect(screen.getByText('Goals')).toBeInTheDocument();
+  expect(screen.getByText('Assists')).toBeInTheDocument();
   expect(screen.getByRole('note')).toHaveTextContent(
     'Median guides: Goals (Gls) 8 · Assists (Ast) 8; tied values can lie on the guides.'
   );
 });
 
-test('caps configured axes at 50 and reports values plotted at the edge', () => {
+test('keeps explicit legacy axis props available to other ScatterPlot callers', () => {
   render(
     <ScatterPlot
       points={[player(1, 10, 12), player(2, 55, 60)]}
@@ -69,8 +70,16 @@ test('caps configured axes at 50 and reports values plotted at the edge', () => 
   const beyondLimit = screen.getByRole('button', { name: /Player 2/ });
   expect(Number(beyondLimit.getAttribute('cx'))).toBeLessThan(780);
   expect(Number(beyondLimit.getAttribute('cy'))).toBeGreaterThan(0);
-  expect(screen.getByRole('status')).toHaveTextContent('exceed the fixed axis maximum');
   expect(screen.getAllByText('48').length).toBeGreaterThan(0);
+});
+
+test('tooltip names both plotted metrics and marks absent values n/a', () => {
+  const p = { ...player(1, 8, 6), Comp: 'it Serie A', tooltip: { PrgC_90: 1.25, Gls_minus_xG: null } };
+  render(<ScatterPlot points={[p]} xLabel="Progressive Carries (PrgC)" yLabel="Progressive Passes (PrgP)" xShort="Prog. carries" yShort="Prog. passes" xMetricId="PrgC" yMetricId="PrgP" />);
+  fireEvent.mouseEnter(screen.getByRole('button', { name: /Player 1/ }));
+  expect(screen.getByText(/Prog\. carries: 8 · Prog\. passes: 6/)).toBeInTheDocument();
+  expect(screen.getByText(/Goals - xG: n\/a/)).toBeInTheDocument();
+  expect(screen.getByText(/Competition: it Serie A/)).toBeInTheDocument();
 });
 
 test('discloses that table view is limited to the first 100 plotted players', () => {

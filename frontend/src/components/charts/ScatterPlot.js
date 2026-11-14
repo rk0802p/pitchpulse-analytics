@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
 import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng } from '../../utils/chartMath';
+import { computeAxisDomain } from '../../utils/axisDomain';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
 const MARGIN = { top: 24, right: 32, bottom: 58, left: 68 };
@@ -11,12 +12,19 @@ const formatCoordinate = (value) => {
   if (Number.isInteger(numeric)) return String(numeric);
   return String(Number(numeric.toFixed(4)));
 };
+const formatOptional = (value) => (value === null || value === undefined || !Number.isFinite(Number(value)) ? 'n/a' : formatCoordinate(value));
 
 export default function ScatterPlot({
   points = [],
   medians = { x: 0, y: 0 },
   xLabel = 'X Axis',
   yLabel = 'Y Axis',
+  xShort = null,
+  yShort = null,
+  xMetricId = null,
+  yMetricId = null,
+  xCanBeNegative = false,
+  yCanBeNegative = false,
   highlightId = null,
   highlightName = '',
   parity = false,
@@ -37,7 +45,17 @@ export default function ScatterPlot({
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
   const [dotMode, setDotMode] = useState('volume'); // 'volume' | 'uniform'
+  const [reducedMotion, setReducedMotion] = useState(false);
   const svgRef = useRef(null);
+
+  React.useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!media) return undefined;
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
 
   const W = width - MARGIN.left - MARGIN.right;
   const H = height - MARGIN.top - MARGIN.bottom;
@@ -54,23 +72,23 @@ export default function ScatterPlot({
       };
     }
 
-    const axisDomain = (values, tickStep, maximum) => {
+    const axisDomain = (values, tickStep, maximum, isX, metricId) => {
       const min = Math.min(...values);
       const max = Math.max(...values);
       if (Number.isFinite(maximum) && maximum > 0 && min >= 0) return [0, maximum];
       if (Number.isFinite(tickStep) && tickStep > 0 && min >= 0) {
         return [Math.floor(min / tickStep) * tickStep, (Math.floor(max / tickStep) + 1) * tickStep];
       }
-      if (min === max) {
-        if (min === 0) return [-1, 1];
-        const padding = Math.abs(min) * 0.06;
-        return [min - padding, max + padding];
-      }
-      const padding = (max - min) * 0.06;
-      return [min >= 0 ? 0 : min - padding, max + padding];
+      const integer = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' && metricId !== 'xG+xAG_90' : values.every(Number.isInteger);
+      return computeAxisDomain(values, {
+        integer,
+        canBeNegative: metricId === 'Gls_minus_xG' || (isX ? xCanBeNegative : yCanBeNegative) || min < 0,
+        padding: isX ? 0.14 : 0.1,
+        minimumSpan: integer ? 5 : 0.5
+      });
     };
-    const xDomain = axisDomain(points.map((p) => p.x), xTickStep, xMax);
-    const yDomain = axisDomain(points.map((p) => p.y), yTickStep, yMax);
+    const xDomain = axisDomain(points.map((p) => p.x), xTickStep, xMax, true, xMetricId);
+    const yDomain = axisDomain(points.map((p) => p.y), yTickStep, yMax, false, yMetricId);
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
     const poolSize = points.length;
@@ -142,7 +160,7 @@ export default function ScatterPlot({
       resolvedMedians: { x: mX, y: mY },
       poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative]);
 
   const handleExport = () => {
     if (svgRef.current) {
@@ -207,7 +225,7 @@ export default function ScatterPlot({
               title={dotMode === 'volume' ? 'Switch to uniform micro-dots (2px)' : 'Switch to volume-scaled dots (minutes-based)'}
             >
               <span className="font-mono">
-                {dotMode === 'volume' ? '● Volume' : '● Uniform'}
+                {dotMode === 'volume' ? '● Size: Minutes' : '● Size: Equal'}
               </span>
             </button>
           )}
@@ -219,6 +237,11 @@ export default function ScatterPlot({
           <Info className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
           <span>{poolCaption}</span>
         </div>
+      )}
+      {poolSize > 0 && dotMode === 'volume' && (
+        <p className="text-[10px] text-[var(--mute)]" aria-label="Dot size legend">
+          Dot size represents minutes: {Math.min(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} · {Math.round(points.reduce((sum, p) => sum + (p.mins || p.Min || 0), 0) / poolSize).toLocaleString()} · {Math.max(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} min (min · average · max)
+        </p>
       )}
       {poolSize > 0 && Number.isFinite(resolvedMedians.x) && Number.isFinite(resolvedMedians.y) && (
         <div className="text-xs text-[var(--mute)]" role="note">
@@ -286,9 +309,9 @@ export default function ScatterPlot({
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-auto"
             role="img"
-            aria-label={`${yLabel} against ${xLabel}. Dotted guides mark the pool medians.`}
+            aria-label={`${yShort || yLabel} against ${xShort || xLabel}. Dotted guides mark the pool medians.`}
           >
-            <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
+              <g transform={`translate(${MARGIN.left},${MARGIN.top})`} style={{ transition: !reducedMotion && poolSize <= 800 ? 'transform 200ms ease' : 'none' }}>
               {/* Background Quadrant Labels */}
               {quadrantLabels && (
                 <g pointerEvents="none" className="opacity-70">
@@ -428,6 +451,7 @@ export default function ScatterPlot({
                       onFocus={() => setHovered(p)}
                       onBlur={() => setHovered(null)}
                       onClick={() => onSelectPlayer && onSelectPlayer(p)}
+                      style={{ transition: !reducedMotion && poolSize <= 800 ? 'cx 200ms ease, cy 200ms ease, r 200ms ease' : 'none' }}
                     />
                     {/* Visible dot with bloom + halo on interaction */}
                     <circle
@@ -439,6 +463,7 @@ export default function ScatterPlot({
                       stroke={haloStroke}
                       strokeWidth={haloStrokeWidth}
                       pointerEvents="none"
+                      style={{ transition: !reducedMotion && poolSize <= 800 ? 'cx 200ms ease, cy 200ms ease, r 200ms ease' : 'none' }}
                     />
                     {/* Core dot */}
                     <circle
@@ -450,6 +475,7 @@ export default function ScatterPlot({
                       stroke={stroke}
                       strokeWidth={strokeWidth}
                       pointerEvents="none"
+                      style={{ transition: !reducedMotion && poolSize <= 800 ? 'cx 200ms ease, cy 200ms ease, r 200ms ease' : 'none' }}
                     />
                   </g>
                 );
@@ -475,21 +501,21 @@ export default function ScatterPlot({
 
               {/* Axis Titles */}
               <text x={W / 2} y={H + 46} textAnchor="middle" className="fill-[var(--ink)] font-disp font-bold text-xs uppercase tracking-wider">
-                {xLabel}
+                {xShort || xLabel}
               </text>
               <text
                 transform={`translate(-48,${H / 2}) rotate(-90)`}
                 textAnchor="middle"
                 className="fill-[var(--ink)] font-disp font-bold text-xs uppercase tracking-wider"
               >
-                {yLabel}
+                {yShort || yLabel}
               </text>
             </g>
 
             {/* Hover Tooltip Overlay with smart left/right auto-flip */}
             {hovered && (() => {
-              const tooltipW = 200;
-              const tooltipH = 58;
+              const tooltipW = 258;
+              const tooltipH = 142;
               const dotPxX = MARGIN.left + projectPointX(hovered.x);
               const dotPxY = MARGIN.top + projectPointY(hovered.y);
 
@@ -522,10 +548,22 @@ export default function ScatterPlot({
                     {hovered.name || hovered.Player}
                   </text>
                   <text x="10" y="34" className="fill-[var(--mute)] text-[10px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
-                    {hovered.club || hovered.Squad} · {(hovered.mins || hovered.Min || 0).toLocaleString()} mins
+                    Club: {hovered.club ?? hovered.Squad ?? 'n/a'} · Minutes: {hovered.mins ?? hovered.Min ?? 'n/a'}
                   </text>
-                  <text x="10" y="48" className="fill-[var(--blue)] font-mono text-[10px] font-semibold" pointerEvents="none" style={{ pointerEvents: 'none' }}>
-                    {xLabel.split(' ')[0]}: {formatCoordinate(hovered.x)} | {yLabel.split(' ')[0]}: {formatCoordinate(hovered.y)}
+                  <text x="10" y="50" className="fill-[var(--mute)] text-[10px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    Position: {hovered.pos ?? hovered.Pos ?? 'n/a'} · Competition: {hovered.comp ?? hovered.Comp ?? 'n/a'}
+                  </text>
+                  <text x="10" y="68" className="fill-[var(--blue)] font-mono text-[10px] font-semibold" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    {xShort || xLabel}: {formatCoordinate(hovered.x)} · {yShort || yLabel}: {formatCoordinate(hovered.y)}
+                  </text>
+                  <text x="10" y="86" className="fill-[var(--blue)] font-mono text-[10px]" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    {xShort || xLabel} per 90: {formatOptional(hovered.tooltip?.[xMetricId?.endsWith('_90') ? xMetricId : `${xMetricId}_90`] ?? (xMetricId?.endsWith('_90') ? hovered.x : null))} · {yShort || yLabel} per 90: {formatOptional(hovered.tooltip?.[yMetricId?.endsWith('_90') ? yMetricId : `${yMetricId}_90`] ?? (yMetricId?.endsWith('_90') ? hovered.y : null))}
+                  </text>
+                  <text x="10" y="104" className="fill-[var(--blue)] font-mono text-[10px]" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    Goals - xG: {formatOptional(hovered.tooltip?.Gls_minus_xG)}
+                  </text>
+                  <text x="10" y="124" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    Per-90 and goals - xG show n/a when not tracked.
                   </text>
                 </g>
               );

@@ -374,6 +374,18 @@ def get_scatter_chart_data(df, x_metric="xG_90", y_metric="xAG_90", position=Non
             'Min': int(row['Min']),
             'x': vx,
             'y': vy,
+            # Additive tooltip-only fields; plotted coordinates and existing response
+            # fields retain their prior meanings and precision.
+            'tooltip': {
+                **{
+                    metric: (float(row[metric]) if metric in row and pd.notna(row[metric]) else None)
+                    for metric in ('Gls_90', 'Ast_90', 'xG_90', 'xAG_90', 'PrgC_90', 'PrgP_90', 'PrgR_90')
+                },
+                'Gls_minus_xG': (
+                    float(row['Gls']) - float(row['xG'])
+                    if 'Gls' in row and 'xG' in row and pd.notna(row['Gls']) and pd.notna(row['xG']) else None
+                )
+            },
             'quadrant': q
         })
 

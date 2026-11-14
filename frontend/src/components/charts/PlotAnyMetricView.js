@@ -6,35 +6,35 @@ import { parseHash } from '../../utils/hashRoute';
 
 const METRIC_CATALOG = [
   // Scoring
-  { id: 'Gls', name: 'Goals (Gls)', group: 'Scoring', desc: 'Total goals scored' },
-  { id: 'xG', name: 'Expected Goals (xG)', group: 'Scoring', desc: 'Shot quality accumulation' },
-  { id: 'Gls_90', name: 'Goals per 90 (Gls_90)', group: 'Scoring', desc: 'Goals scaled to 90 minutes' },
-  { id: 'xG_90', name: 'xG per 90 (xG_90)', group: 'Scoring', desc: 'Expected goals scaled to 90 minutes' },
-  { id: 'Gls_minus_xG', name: 'Goals minus xG', group: 'Scoring', desc: 'Season goals minus expected goals' },
+  { id: 'Gls', name: 'Goals (Gls)', short: 'Goals', group: 'Scoring', desc: 'Total goals scored' },
+  { id: 'xG', name: 'Expected Goals (xG)', short: 'xG', group: 'Scoring', desc: 'Shot quality accumulation' },
+  { id: 'Gls_90', name: 'Goals per 90 (Gls_90)', short: 'Goals/90', group: 'Scoring', desc: 'Goals scaled to 90 minutes' },
+  { id: 'xG_90', name: 'xG per 90 (xG_90)', short: 'xG/90', group: 'Scoring', desc: 'Expected goals scaled to 90 minutes' },
+  { id: 'Gls_minus_xG', name: 'Goals minus xG', short: 'Goals - xG', group: 'Scoring', desc: 'Season goals minus expected goals' },
 
   // Creating
-  { id: 'Ast', name: 'Assists (Ast)', group: 'Creating', desc: 'Direct goal assists' },
-  { id: 'xAG', name: 'Expected Assisted Goals (xAG)', group: 'Creating', desc: 'Shot assist quality' },
-  { id: 'Ast_90', name: 'Assists per 90 (Ast_90)', group: 'Creating', desc: 'Assists scaled to 90 minutes' },
-  { id: 'xAG_90', name: 'xAG per 90 (xAG_90)', group: 'Creating', desc: 'Creation quality scaled to 90 mins' },
-  { id: 'xG+xAG_90', name: 'xG + xAG per 90', group: 'Creating', desc: 'Combined attacking output rate' },
+  { id: 'Ast', name: 'Assists (Ast)', short: 'Assists', group: 'Creating', desc: 'Direct goal assists' },
+  { id: 'xAG', name: 'Expected Assisted Goals (xAG)', short: 'xAG', group: 'Creating', desc: 'Shot assist quality' },
+  { id: 'Ast_90', name: 'Assists per 90 (Ast_90)', short: 'Assists/90', group: 'Creating', desc: 'Assists scaled to 90 minutes' },
+  { id: 'xAG_90', name: 'xAG per 90 (xAG_90)', short: 'xAG/90', group: 'Creating', desc: 'Creation quality scaled to 90 mins' },
+  { id: 'xG+xAG_90', name: 'xG + xAG per 90', short: 'xG+xAG/90', group: 'Creating', desc: 'Combined attacking output rate' },
 
   // Progressing
-  { id: 'PrgC', name: 'Progressive Carries (PrgC)', group: 'Progressing', desc: 'Carries moving ball >= 10 yards forward' },
-  { id: 'PrgP', name: 'Progressive Passes (PrgP)', group: 'Progressing', desc: 'Completed passes moving ball forward >= 10 yards' },
-  { id: 'PrgR', name: 'Progressive Receptions (PrgR)', group: 'Progressing', desc: 'Receptions of progressive passes' },
-  { id: 'PrgC_90', name: 'Progressive Carries / 90', group: 'Progressing', desc: 'Carries scaled to 90 minutes' },
-  { id: 'PrgP_90', name: 'Progressive Passes / 90', group: 'Progressing', desc: 'Passes scaled to 90 minutes' },
-  { id: 'PrgR_90', name: 'Progressive Receptions / 90', group: 'Progressing', desc: 'Receptions scaled to 90 minutes' },
+  { id: 'PrgC', name: 'Progressive Carries (PrgC)', short: 'Prog. carries', group: 'Progressing', desc: 'Carries moving ball >= 10 yards forward' },
+  { id: 'PrgP', name: 'Progressive Passes (PrgP)', short: 'Prog. passes', group: 'Progressing', desc: 'Completed passes moving ball forward >= 10 yards' },
+  { id: 'PrgR', name: 'Progressive Receptions (PrgR)', short: 'Prog. receptions', group: 'Progressing', desc: 'Receptions of progressive passes' },
+  { id: 'PrgC_90', name: 'Progressive Carries / 90', short: 'Carries/90', group: 'Progressing', desc: 'Carries scaled to 90 minutes' },
+  { id: 'PrgP_90', name: 'Progressive Passes / 90', short: 'Passes/90', group: 'Progressing', desc: 'Passes scaled to 90 minutes' },
+  { id: 'PrgR_90', name: 'Progressive Receptions / 90', short: 'Receptions/90', group: 'Progressing', desc: 'Receptions scaled to 90 minutes' },
 
   // Playing Time & Volume
-  { id: 'Min', name: 'Minutes Played (Min)', group: 'Volume', desc: 'Total match minutes' },
-  { id: '90s', name: '90s Played (90s)', group: 'Volume', desc: 'Total 90-minute equivalents' },
-  { id: 'Age', name: 'Player Age', group: 'Volume', desc: 'Age in years' },
+  { id: 'Min', name: 'Minutes Played (Min)', short: 'Minutes', group: 'Volume', desc: 'Total match minutes' },
+  { id: '90s', name: '90s Played (90s)', short: '90s', group: 'Volume', desc: 'Total 90-minute equivalents' },
+  { id: 'Age', name: 'Player Age', short: 'Age', group: 'Volume', desc: 'Age in years' },
 
   // Discipline
-  { id: 'CrdY', name: 'Yellow Cards (CrdY)', group: 'Discipline', desc: 'Cautions received' },
-  { id: 'CrdR', name: 'Red Cards (CrdR)', group: 'Discipline', desc: 'Send-offs received' }
+  { id: 'CrdY', name: 'Yellow Cards (CrdY)', short: 'Yellow cards', group: 'Discipline', desc: 'Cautions received' },
+  { id: 'CrdR', name: 'Red Cards (CrdR)', short: 'Red cards', group: 'Discipline', desc: 'Send-offs received' }
 ];
 
 export default function PlotAnyMetricView({
@@ -169,6 +169,8 @@ export default function PlotAnyMetricView({
 
   const xLabel = METRIC_CATALOG.find((m) => m.id === xMetric)?.name || xMetric;
   const yLabel = METRIC_CATALOG.find((m) => m.id === yMetric)?.name || yMetric;
+  const xShort = METRIC_CATALOG.find((m) => m.id === xMetric)?.short || xMetric;
+  const yShort = METRIC_CATALOG.find((m) => m.id === yMetric)?.short || yMetric;
   const currentChartData = chartData?.payload || null;
   const currentError = error?.requestKey === requestKey ? error.message : null;
   const isLoading = !currentChartData && (loading || !currentError);
@@ -363,13 +365,15 @@ export default function PlotAnyMetricView({
           parity={hasParity}
           parityLabel={hasParity ? 'Parity (Gls = xG)' : ''}
           quadrantLabels={quadrantLabels}
-          title={`${yLabel} vs ${xLabel}`}
-          subtitle={`Interactive bubble scatter plot with pool median cross-hairs and collision-free outlier labels`}
-          poolCaption={`Plotted: ${scatterPoints.length} ${plottedLabel} (${selectedPos || 'All positions'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}${selectedComp ? `, ${selectedComp}` : ''})`}
-          xTickStep={xMetric === 'Gls' || xMetric === 'Ast' ? 8 : null}
-          yTickStep={yMetric === 'Gls' || yMetric === 'Ast' ? 8 : null}
-          xMax={xMetric === 'Gls' || xMetric === 'Ast' ? 48 : null}
-          yMax={yMetric === 'Gls' || yMetric === 'Ast' ? 48 : null}
+          title={`${yShort} vs ${xShort}`}
+          subtitle="Interactive player scatter plot with median guides"
+          xShort={xShort}
+          yShort={yShort}
+          xMetricId={xMetric}
+          yMetricId={yMetric}
+          xCanBeNegative={xMetric === 'Gls_minus_xG'}
+          yCanBeNegative={yMetric === 'Gls_minus_xG'}
+          poolCaption={`Season ${activeSeason.replace('-', '/')} · ${selectedComp || 'All Big 5'} · ${selectedPos || 'All positions'} · ${minMinutes}+ minutes${ageMax !== '' ? ` · age ≤ ${ageMax}` : ''} · Plotted: ${scatterPoints.length} ${plottedLabel}`}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />

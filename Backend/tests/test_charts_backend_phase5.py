@@ -75,6 +75,14 @@ class TestChartsBackendPhase5(unittest.TestCase):
         self.assertNotEqual(salah['y'], 0.48)
         self.assertEqual(salah['x'], 29)
 
+    def test_scatter_includes_optional_tooltip_metrics_without_changing_coordinates(self):
+        response = self.client.get('/api/charts/scatter?season=2024-2025&x=Gls&y=Ast&min_minutes=500')
+        self.assertEqual(response.status_code, 200)
+        salah = next(point for point in response.get_json()['data']['points'] if point['Player'] == 'Mohamed Salah')
+        self.assertEqual((salah['x'], salah['y']), (29, 18))
+        self.assertAlmostEqual(salah['tooltip']['Gls_90'], 29 * 90 / salah['Min'], places=2)
+        self.assertEqual(salah['tooltip']['Gls_minus_xG'], 29 - 25.2)
+
     def test_scatter_untracked_metrics_are_null_and_marked_not_tracked(self):
         """Untracked historical metrics must not serialize an empty chart as zero statistics."""
         for query in (
