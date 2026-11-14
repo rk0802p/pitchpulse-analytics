@@ -4,6 +4,7 @@ import ScatterPlot from './ScatterPlot';
 import { Sliders, Search } from 'lucide-react';
 import { parseHash } from '../../utils/hashRoute';
 import { normalizePlayerSearch, PER90_PAIRS } from '../../utils/plotInteractions';
+import DataQualityBadge from '../common/DataQualityBadge';
 
 const METRIC_CATALOG = [
   // Scoring
@@ -40,6 +41,7 @@ const METRIC_CATALOG = [
 
 export default function PlotAnyMetricView({
   activeSeason = '2024-2025',
+  seasonQuality = null,
   onSelectPlayer = null
 }) {
   // Read initial configuration from URL hash query if present
@@ -81,10 +83,16 @@ export default function PlotAnyMetricView({
   const [quadrantsOn, setQuadrantsOn] = useState(true);
   const [dotMode, setDotMode] = useState('volume');
   const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [rangeData, setRangeData] = useState(null);
+  const [rangeError, setRangeError] = useState(false);
 
   const effectiveX = per90 && !xMetric.endsWith('_90') ? (PER90_PAIRS[xMetric] || xMetric) : xMetric;
   const effectiveY = per90 && !yMetric.endsWith('_90') ? (PER90_PAIRS[yMetric] || yMetric) : yMetric;
   const canUsePer90 = Boolean(PER90_PAIRS[xMetric] && PER90_PAIRS[yMetric]);
+  const untrackedMetrics = seasonQuality?.untracked_metrics || [];
+  const metricIsUntracked = (metricId) => untrackedMetrics.includes(metricId) || untrackedMetrics.includes(metricId.replace(/_90$/, ''));
+  const plotXUntracked = metricIsUntracked(effectiveX);
+  const plotYUntracked = metricIsUntracked(effectiveY);
 
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -144,6 +152,17 @@ export default function PlotAnyMetricView({
     return () => { isCurrent = false; controller.abort(); };
   }, [requestKey, activeSeason, effectiveX, effectiveY, selectedPos, selectedComp, debouncedFilters]);
 
+  useEffect(() => {
+    if (!lockScale) { setRangeData(null); setRangeError(false); return undefined; }
+    const controller = new AbortController();
+    setRangeError(false);
+    setRangeData(null);
+    api.getScatterRange({ x: effectiveX, y: effectiveY, position: selectedPos, competition: selectedComp, min_minutes: debouncedFilters.mins }, { signal: controller.signal })
+      .then((res) => { const payload = res?.data || res; setRangeData(payload?.data || payload); })
+      .catch((error) => { if (error?.name !== 'AbortError') { setRangeData(null); setRangeError(true); } });
+    return () => controller.abort();
+  }, [lockScale, effectiveX, effectiveY, selectedPos, selectedComp, debouncedFilters]);
+
   // Automatic quadrant labels for known pairs
   const quadrantLabels = useMemo(() => {
     if (!quadrantsOn) return null;
@@ -190,6 +209,30 @@ export default function PlotAnyMetricView({
     .sort((a, b) => Number(normalizePlayerSearch(b.Player || b.name).startsWith(normalizePlayerSearch(searchHighlight))) - Number(normalizePlayerSearch(a.Player || a.name).startsWith(normalizePlayerSearch(searchHighlight))))
     .slice(0, 6);
   const xgTracked = scatterPoints.some((point) => point.tooltip?.Gls_minus_xG !== null && point.tooltip?.Gls_minus_xG !== undefined);
+  const gaps = seasonQuality?.known_gaps?.clubs_with_gaps || [];
+  const scopedGaps = gaps.filter((gap) => !selectedComp || gap.league === selectedComp).sort((a, b) => (b.shortfall || 0) - (a.shortfall || 0)).slice(0, 2);
+  const partialCompetitions = seasonQuality?.partial_competitions || {};
+  const partial = selectedComp && partialCompetitions[selectedComp];
+  const qualityMessage = partial
+    ? `${selectedComp.replace(/^[a-z]{2}\s+/, '')} is a partial snapshot, approximately matchweek ${partial.matchweek}/${partial.of}.`
+    : scopedGaps.length ? `Known gap in this scope: ${scopedGaps.map((gap) => {
+      const names = (seasonQuality?.known_gaps?.missing_top10_scorers || []).filter((player) => player.club === gap.club).map((player) => player.player);
+      return `${gap.club} ${gap.data_goals}/${gap.wiki_goals} goals${names.length ? `; missing ${names.join(', ')}` : ''}`;
+    }).join('; ')}.` : '';
+  const qualityLabel = qualityMessage || seasonQuality?.known_gaps?.summary || '';
+  const qualityAlternative = (metricId) => {
+    if (plotXUntracked && plotYUntracked) { setXMetric(metricId); setYMetric(metricId === 'Gls' ? 'Ast' : metricId); return; }
+    if (plotXUntracked) setXMetric(metricId);
+    if (plotYUntracked) setYMetric(metricId);
+  };
+  const sharedDomain = (range) => {
+    if (!range || !Number.isFinite(Number(range.max))) return null;
+    const min = range.signed ? Number(range.min) : 0;
+    const max = Number(range.max);
+    if (!Number.isFinite(min) || max <= min) return null;
+    return [min, max];
+  };
+  const isNotTracked = currentChartData?.tracking_status === 'not_tracked' || plotXUntracked || plotYUntracked;
   const resetControls = () => {
     setXMetric('xAG_90'); setYMetric('xG_90'); setSelectedPos('FW'); setSelectedComp('');
     setMinMinutes(500); setAgeMax(''); setSearchHighlight(''); setPer90(false); setColorBy('none');
@@ -202,7 +245,7 @@ export default function PlotAnyMetricView({
     mode: per90 ? 'Per 90' : 'Totals',
     sizeLegend: dotMode === 'volume' ? 'Size: minutes' : 'Size: equal',
     colorLegend: `Colour: ${colorBy}`,
-    quality: '',
+    quality: qualityLabel,
     sourceLine: 'Season-specific provenance: Dataset Registry'
   };
 
@@ -247,7 +290,7 @@ export default function PlotAnyMetricView({
                 <optgroup key={group} label={group}>
                   {metrics.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.name}
+                      {m.name}{metricIsUntracked(m.id) ? ' (not tracked)' : ''}
                     </option>
                   ))}
                 </optgroup>
@@ -269,7 +312,7 @@ export default function PlotAnyMetricView({
                 <optgroup key={group} label={group}>
                   {metrics.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.name}
+                      {m.name}{metricIsUntracked(m.id) ? ' (not tracked)' : ''}
                     </option>
                   ))}
                 </optgroup>
@@ -381,7 +424,7 @@ export default function PlotAnyMetricView({
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per90} disabled={!canUsePer90} onChange={(e) => setPer90(e.target.checked)} /><span title={!canUsePer90 ? 'Selected metrics do not both have per-90 counterparts.' : ''}>Totals / Per 90</span></label>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={quadrantsOn} onChange={(e) => setQuadrantsOn(e.target.checked)} />Quadrant labels</label>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={jitter} onChange={(e) => setJitter(e.target.checked)} />Reduce overlap</label>
-          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={lockScale} onChange={(e) => setLockScale(e.target.checked)} />Compare seasons: lock scale</label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={lockScale} onChange={(e) => setLockScale(e.target.checked)} title={rangeError ? 'Shared range request failed; using this season’s dynamic scale.' : ''} />Compare seasons: lock scale</label>
           <label className="flex items-center gap-2 text-xs">Size
             <select aria-label="Dot size" value={dotMode} onChange={(e) => setDotMode(e.target.value)} className="border border-[var(--rule)] bg-[var(--panel)] p-1"><option value="volume">Minutes</option><option value="uniform">Equal</option></select>
           </label>
@@ -436,6 +479,10 @@ export default function PlotAnyMetricView({
           yMetricId={effectiveY}
           xCanBeNegative={effectiveX === 'Gls_minus_xG'}
           yCanBeNegative={effectiveY === 'Gls_minus_xG'}
+          xDomainOverride={lockScale ? sharedDomain(rangeData?.x) : null}
+          yDomainOverride={lockScale ? sharedDomain(rangeData?.y) : null}
+          qualityMetadata={seasonQuality}
+          qualityMessage={qualityMessage}
           poolCaption={`Season ${activeSeason.replace('-', '/')} · ${selectedComp || 'All Big 5'} · ${selectedPos || 'All positions'} · ${minMinutes}+ minutes${ageMax !== '' ? ` · age ≤ ${ageMax}` : ''} · Plotted: ${scatterPoints.length} ${plottedLabel}`}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
@@ -443,8 +490,8 @@ export default function PlotAnyMetricView({
         </div>
       ) : (
         <div className="border border-[var(--ink)] bg-[var(--paper)] p-12 text-center text-xs italic text-[var(--mute)]">
-          {currentChartData?.tracking_status === 'not_tracked'
-            ? `${xLabel} or ${yLabel} is not tracked for ${activeSeason}.`
+          {isNotTracked
+            ? <><strong className="block text-base not-italic text-[var(--ink)]">Not tracked for {activeSeason}</strong><span className="block mt-1">{seasonQuality?.untracked_metrics_reason || `${xLabel} or ${yLabel} is unavailable for this season.`}</span><span className="flex flex-wrap justify-center gap-2 mt-3 not-italic">Try a tracked metric: {['Gls', 'Ast', 'xG', 'xAG'].map((id) => <button key={id} type="button" className="underline text-[var(--blue)]" onClick={() => qualityAlternative(id)}>{id}</button>)}</span></>
             : currentChartData?.tracking_status === 'no_eligible_observations'
               ? `No players have eligible ${xLabel} and ${yLabel} values for the selected filters.`
               : `No players match the selected criteria (${selectedPos || 'All positions'}, ${selectedComp || 'All Big 5'}, ${minMinutes}+ minutes${ageMax !== '' ? `, age ≤ ${ageMax}` : ''}). Lower the filters to include more players.`}

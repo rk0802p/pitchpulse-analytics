@@ -5,7 +5,7 @@ import PlotAnyMetricView from './PlotAnyMetricView';
 
 jest.mock('../../services/api', () => ({
   __esModule: true,
-  default: { getScatterChart: jest.fn() }
+  default: { getScatterChart: jest.fn(), getScatterRange: jest.fn() }
 }));
 
 const chart = (points) => ({
@@ -23,6 +23,7 @@ const point = (id, Player) => ({
 
 beforeEach(() => {
   api.getScatterChart.mockReset();
+  api.getScatterRange.mockReset();
   window.location.hash = '#plots?x=Gls&y=Ast&pos=FW&mins=500';
 });
 
@@ -84,4 +85,25 @@ test('mounting a query link selects the linked metric pair', async () => {
   render(<PlotAnyMetricView activeSeason="2024-2025" />);
   await screen.findByRole('button', { name: /Linked Player/ });
   expect(api.getScatterChart.mock.calls[0][0]).toMatchObject({ x: 'Gls', y: 'Ast', position: 'FW' });
+});
+
+test('lock-scale URL state requests shared ranges with active filters and applies them', async () => {
+  window.location.hash = '#plots?x=Gls&y=Ast&pos=FW&comp=es+La+Liga&mins=500&lock=1';
+  api.getScatterChart.mockResolvedValue(chart([point(1, 'Range Player')]));
+  api.getScatterRange.mockResolvedValue({ success: true, data: { x: { max: 50, signed: false }, y: { max: 24, signed: false } } });
+  render(<PlotAnyMetricView activeSeason="2024-2025" />);
+  await screen.findByRole('button', { name: /Range Player/ });
+  await waitFor(() => expect(api.getScatterRange).toHaveBeenCalled());
+  expect(api.getScatterRange.mock.calls[0][0]).toMatchObject({ x: 'Gls', y: 'Ast', position: 'FW', competition: 'es La Liga', min_minutes: 500 });
+  expect(screen.getAllByText('50').length).toBeGreaterThan(0);
+});
+
+test('untracked progression shows alternative metrics', async () => {
+  window.location.hash = '#plots?x=PrgC&y=PrgP&pos=FW&mins=500';
+  api.getScatterChart.mockResolvedValue({ points: [], tracking_status: 'not_tracked' });
+  render(<PlotAnyMetricView activeSeason="2025-2026" seasonQuality={{ untracked_metrics: ['PrgC', 'PrgP', 'PrgR'], untracked_metrics_reason: 'Progression unavailable.' }} />);
+  expect(await screen.findByText('Not tracked for 2025-2026')).toBeInTheDocument();
+  expect(screen.getByText('Progression unavailable.')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Gls' }));
+  await waitFor(() => expect(api.getScatterChart.mock.calls.some(([params]) => params.x === 'Gls' && params.y === 'Ast')).toBe(true));
 });

@@ -23,6 +23,7 @@ import {
 
 export const LeaderboardsView = ({
   activeSeason = "2024-2025",
+  untrackedMetrics = [],
   onSelectPlayer,
   onAddToCompare,
   compareList = []
@@ -54,6 +55,11 @@ export const LeaderboardsView = ({
 
   const activeMetricObj = metrics.find(m => m.id === metric) || metrics[0];
   const queryMetric = isPer90 && activeMetricObj.per90Id ? activeMetricObj.per90Id : activeMetricObj.id;
+  const metricUnavailable = (metricId) => untrackedMetrics.includes(metricId) || untrackedMetrics.includes(metricId.replace(/_90$/, ''));
+
+  useEffect(() => {
+    if (metricUnavailable(metric) || (isPer90 && metricUnavailable(queryMetric))) { setMetric('Gls'); setIsPer90(false); }
+  }, [untrackedMetrics, metric, isPer90, queryMetric]);
 
   const formatSeason = activeSeason.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
   const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2}\s+/, '') : "European Big 5";
@@ -178,13 +184,15 @@ export const LeaderboardsView = ({
               <button
                 key={m.id}
                 onClick={() => setMetric(m.id)}
+                disabled={metricUnavailable(m.id)}
+                title={metricUnavailable(m.id) ? `${m.label} is not tracked for ${formatSeason}. Choose a tracked metric.` : ''}
                 className={`font-disp font-bold text-xs uppercase px-3 py-1.5 border transition-colors whitespace-nowrap cursor-pointer ${
                   metric === m.id
                     ? 'bg-[var(--ink)] text-[var(--paper)] border-[var(--ink)]'
                     : 'bg-[var(--paper)] text-[var(--ink)] border-[var(--rule)] hover:bg-[var(--panel)]'
                 }`}
               >
-                {m.label}
+                {m.label}{metricUnavailable(m.id) ? ' (not tracked)' : ''}
               </button>
             ))}
           </div>

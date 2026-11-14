@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Database, ChevronDown, Check, RefreshCw, Calendar, AlertTriangle } from 'lucide-react';
+import { getQualityDetails } from './DataQualityBadge';
 
 /**
  * Reusable, accessible Season / Year Selector component.
@@ -54,6 +55,7 @@ export const SeasonSelector = ({
   const activeMeta = availableSeasons.find(s => (s.id || s) === activeSeason) || {};
   const isQuarantined = activeMeta.is_quarantined || activeMeta.dataset_status === 'quarantined';
   const isProjection = activeMeta.is_projection || activeMeta.dataset_status === 'projection' || isQuarantined;
+  const activeQualityDetails = getQualityDetails(activeMeta);
 
   // Resolved dropdown horizontal alignment
   const resolvedAlign = align || (variant === 'navbar' ? 'right' : 'left');
@@ -104,6 +106,7 @@ export const SeasonSelector = ({
         <span className="font-mono font-bold">
           {variant === 'header' ? `Season ${formatSeasonShort(activeSeason)}` : formatSeasonShort(activeSeason)}
         </span>
+        {activeQualityDetails.label && <span title={activeQualityDetails.summary} className="text-[9px] font-mono normal-case">· {activeQualityDetails.label}</span>}
         {isQuarantined && (
           <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/25 text-amber-300 font-mono">
             Quarantine
@@ -111,6 +114,7 @@ export const SeasonSelector = ({
         )}
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
+      {activeQualityDetails.label && <a href="#data" title={`${activeQualityDetails.summary} · View Dataset Registry`} aria-label={`View ${activeSeason} data quality in Dataset Registry`} className="ml-1 text-[9px] underline">quality</a>}
 
       {/* Floating Dropdown Menu */}
       {isOpen && (
@@ -138,16 +142,17 @@ export const SeasonSelector = ({
               const sName = s.name || s.display_name || sId;
               const isSelected = sId === activeSeason;
               const isItemQuarantined = s.is_quarantined || s.dataset_status === 'quarantined';
+              const quality = getQualityDetails(s);
 
               return (
+                <div key={sId} className="flex items-stretch">
                 <button
-                  key={sId}
                   role="option"
                   type="button"
                   aria-selected={isSelected}
                   disabled={isSwitchingSeason}
                   onClick={() => handleSelect(sId)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
+                  className={`flex-1 min-w-0 w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
                     isSelected
                       ? (isItemQuarantined ? 'bg-amber-500/15 text-amber-300 font-bold border-l-2 border-amber-400 pl-3' : 'bg-emerald-500/15 text-emerald-400 font-bold border-l-2 border-emerald-400 pl-3')
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white border-l-2 border-transparent pl-3'
@@ -165,6 +170,7 @@ export const SeasonSelector = ({
                       }`}>
                         {s.status_label || (isItemQuarantined ? 'Quarantined / Provisional' : 'Historical Season')}
                       </span>
+                      {quality.label && <span title={quality.summary} className="text-[9px] px-1 py-0.5 border border-amber-500/30 text-amber-300 rounded">{quality.label}</span>}
                     </div>
                     <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-2">
                       <span className="text-slate-500 font-bold">{sId}</span>
@@ -173,6 +179,8 @@ export const SeasonSelector = ({
                   </div>
                   {isSelected && <Check className={`w-4 h-4 shrink-0 ml-1 ${isItemQuarantined ? 'text-amber-400' : 'text-emerald-400'}`} />}
                 </button>
+                {quality.label && <a href="#data" aria-label={`View ${sName} data quality in Dataset Registry`} title={`${quality.summary} · View Dataset Registry`} className="flex items-center px-2 text-[10px] underline text-slate-300">↗</a>}
+                </div>
               );
             })}
           </div>

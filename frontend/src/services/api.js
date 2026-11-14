@@ -83,6 +83,7 @@ export const api = {
     body: JSON.stringify({ season })
   }),
   getSeasonDetails: (id) => request(`/seasons/${encodeURIComponent(id)}`),
+  getSeasonQuality: (id) => request(`/seasons/${encodeURIComponent(id)}/quality`),
   getSeasonPresets: () => request('/seasons/presets'),
   verifyBaseline: () => request('/seasons/baseline/verify'),
   importSeason: (formDataOrData) => {
@@ -147,6 +148,14 @@ export const api = {
     });
     const queryString = queryParams.toString();
     return request(`/charts/scatter${queryString ? `?${queryString}` : ''}`, { signal });
+  },
+
+  getScatterRange: (params = {}, { signal } = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') queryParams.append(key, value);
+    });
+    return request(`/charts/scatter/range?${queryParams.toString()}`, { signal });
   },
 
   getPlayerPercentiles: (playerId, params = {}) => {

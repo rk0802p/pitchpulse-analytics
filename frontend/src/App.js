@@ -20,6 +20,7 @@ function App() {
   // Season State
   const [activeSeason, setActiveSeason] = useState('2024-2025');
   const [availableSeasons, setAvailableSeasons] = useState([{ id: '2024-2025', name: '2024/25 Regular Season' }]);
+  const [seasonQuality, setSeasonQuality] = useState(null);
   const [isSwitchingSeason, setIsSwitchingSeason] = useState(false);
 
   // Global League / Competition Filter
@@ -123,6 +124,15 @@ function App() {
       .catch(err => console.error("Error loading seasons:", err));
   }, []);
 
+  useEffect(() => {
+    let current = true;
+    setSeasonQuality(null);
+    api.getSeasonQuality(activeSeason)
+      .then((res) => { if (current) setSeasonQuality(res?.data || null); })
+      .catch(() => { if (current) setSeasonQuality(null); });
+    return () => { current = false; };
+  }, [activeSeason]);
+
   // Load Metadata, Top Performers, Squads, and Global Players
   useEffect(() => {
     api.getMetadata(activeSeason)
@@ -147,8 +157,11 @@ function App() {
         if (p) setTopAssister(p);
       }).catch(() => {});
 
-    // Top progression
-    api.getPlayers({ season: activeSeason, sort_by: 'PrgC', order: 'desc', limit: 1 })
+    // Do not request or imply a progression leader where the season does not track progression.
+    const activeSeasonMeta = availableSeasons.find((season) => (season.id || season) === activeSeason) || {};
+    const progressionUntracked = (seasonQuality?.untracked_metrics || activeSeasonMeta.untracked_metrics || []).some((metric) => metric.startsWith('Prg'));
+    if (progressionUntracked) setTopProgression(null);
+    else api.getPlayers({ season: activeSeason, sort_by: 'PrgC', order: 'desc', limit: 1 })
       .then(res => {
         const p = res?.data?.[0] || res?.[0];
         if (p) setTopProgression(p);
@@ -182,7 +195,7 @@ function App() {
       })
       .catch(err => console.error("Error loading dashboard data:", err));
 
-  }, [activeSeason, selectedComp]);
+  }, [activeSeason, selectedComp, availableSeasons, seasonQuality]);
 
   // Fetch Explorer Players
   useEffect(() => {
@@ -274,6 +287,7 @@ function App() {
         window.location.hash = `#${tab}`;
       }}
       activeSeason={activeSeason}
+      seasonQuality={seasonQuality}
       availableSeasons={availableSeasons}
       onSelectSeason={handleSwitchSeason}
       isSwitchingSeason={isSwitchingSeason}
@@ -364,6 +378,7 @@ function App() {
       {currentTab === 'plots' && (
         <PlotAnyMetricView
           activeSeason={activeSeason}
+          seasonQuality={seasonQuality}
           onSelectPlayer={handleSelectPlayer}
         />
       )}
@@ -372,6 +387,7 @@ function App() {
       {currentTab === 'leaderboards' && (
         <LeaderboardsView
           activeSeason={activeSeason}
+          untrackedMetrics={seasonQuality?.untracked_metrics || []}
           onSelectPlayer={handleSelectPlayer}
           onAddToCompare={handleAddToCompare}
           compareList={compareList}

@@ -16,12 +16,14 @@ import {
   Info
 } from 'lucide-react';
 import GlossaryModal from '../common/GlossaryModal';
+import DataQualityBadge from '../common/DataQualityBadge';
 
 export const AppLayout = ({ 
   children, 
   currentTab = "dashboard", 
   onNavigate,
   activeSeason = "2024-2025",
+  seasonQuality = null,
   availableSeasons = [],
   onSelectSeason,
   isSwitchingSeason = false,
@@ -109,6 +111,7 @@ export const AppLayout = ({
 
   // Dynamic record & club counts based on active season
   const currentSeasonObj = availableSeasons.find(s => (s.id || s) === activeSeason);
+  const activeQuality = seasonQuality || currentSeasonObj;
   const activeRecordsCount = currentSeasonObj?.records_count || (allPlayers?.length ? allPlayers.length : null);
   const activeClubsCount = currentSeasonObj?.clubs_count || (allSquads?.length ? allSquads.length : null);
 
@@ -471,6 +474,10 @@ export const AppLayout = ({
 
         {/* Main Publication Content */}
         <main className="py-5">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-[var(--mute)]">
+            <DataQualityBadge metadata={activeQuality} />
+            {activeQuality?.partial_competitions && Object.keys(activeQuality.partial_competitions).length > 0 && <span>{activeQuality.quality_notes || activeQuality.notes}</span>}
+          </div>
           {children}
         </main>
 

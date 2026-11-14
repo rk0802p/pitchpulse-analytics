@@ -7,7 +7,8 @@
       "config": {
         "includeFiles": [
           "data/baselines/*.json",
-          "data/seasons/**/*.csv"
+          "data/seasons/**/*.csv",
+          "data/seasons/**/*.json"
         ]
       }
     }

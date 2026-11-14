@@ -65,21 +65,12 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
         self.assertGreaterEqual(len(seasons), 3)
 
         season_ids = [s['id'] for s in seasons]
-
         self.assertEqual(season_ids, sorted(season_ids))
-
         self.assertIn('2023-2024', season_ids)
-
         self.assertIn('2024-2025', season_ids)
-
         self.assertIn('2025-2026', season_ids)
-
-        # Verify all 3 seasons have correct governance metadata
-
         for s in seasons:
-
             if s['id'] == '2025-2026':
-                # 2025-2026 is verified historical (completed season)
                 self.assertEqual(s['dataset_status'], 'verified_historical')
                 self.assertFalse(s['is_quarantined'])
                 self.assertFalse(s['is_projection'])
@@ -96,11 +87,31 @@ class TestSeasonSwitchingAndIntegrity(unittest.TestCase):
                 self.assertFalse(s['is_projection'])
                 self.assertFalse(s['is_simulated'])
                 self.assertEqual(s['status_label'], 'Historical Season')
+            self.assertEqual(s['is_baseline'], s['id'] == '2024-2025')
 
-            if s['id'] == '2024-2025':
-                self.assertTrue(s['is_baseline'])
-            else:
-                self.assertFalse(s['is_baseline'])
+    def test_season_quality_returns_known_gaps_and_2025_snapshot_metadata(self):
+        gaps = self.client.get('/api/seasons/2014-2015/quality')
+        self.assertEqual(gaps.status_code, 200)
+        self.assertIsNotNone(gaps.get_json()['data']['known_gaps'])
+        snapshot = self.client.get('/api/seasons/2025-2026/quality')
+        metadata = snapshot.get_json()['data']
+        self.assertEqual(metadata['partial_competitions']['it Serie A']['matchweek'], 33)
+        self.assertIn('PrgC', metadata['untracked_metrics'])
+
+    def test_season_quality_rejects_invalid_and_traversal_ids(self):
+        for season_id in ('not-a-season', '%252e%252e%255c2024-2025'):
+            with self.subTest(season_id=season_id):
+                response = self.client.get(f'/api/seasons/{season_id}/quality')
+                self.assertEqual(response.status_code, 404)
+
+    def test_baseline_quality_does_not_modify_locked_manifest(self):
+        import json
+        manifest_path = os.path.join(backend_dir, 'data', 'seasons', '2024-2025', 'manifest.json')
+        with open(manifest_path, encoding='utf-8') as handle:
+            manifest = json.load(handle)
+        self.assertNotIn('known_gaps', manifest)
+        self.assertEqual(self.client.get('/api/seasons/2024-2025/quality').status_code, 200)
+
     
 
 

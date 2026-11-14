@@ -177,6 +177,10 @@ class SeasonService:
                 'data_as_of': manifest.get('data_as_of'),
                 'verification_notes': manifest.get('verification_notes'),
                 'known_gaps': manifest.get('known_gaps'),
+                'partial_competitions': manifest.get('partial_competitions', {}),
+                'untracked_metrics': manifest.get('untracked_metrics', []),
+                'untracked_metrics_reason': manifest.get('untracked_metrics_reason'),
+                'quality_notes': manifest.get('quality_notes', manifest.get('verification_notes')),
                 'content_hash': manifest.get('content_hash', manifest.get('sha256')),
                 'validation_status': manifest.get('validation_status', 'passed'),
                 'files': manifest.get('files', {})

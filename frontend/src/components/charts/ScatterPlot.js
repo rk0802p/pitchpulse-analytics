@@ -3,6 +3,7 @@ import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
 import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng, copySvgAsPng, canCopyChartImage } from '../../utils/chartMath';
 import { computeAxisDomain } from '../../utils/axisDomain';
 import { deterministicJitter, normalizePlayerSearch } from '../../utils/plotInteractions';
+import DataQualityBadge from '../common/DataQualityBadge';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
 const MARGIN = { top: 24, right: 32, bottom: 58, left: 68 };
@@ -26,6 +27,8 @@ export default function ScatterPlot({
   yMetricId = null,
   xCanBeNegative = false,
   yCanBeNegative = false,
+  xDomainOverride = null,
+  yDomainOverride = null,
   dotMode = 'volume',
   jitter = true,
   colorBy = 'none',
@@ -46,7 +49,9 @@ export default function ScatterPlot({
   xMax = null,
   yMax = null,
   exportContext = {},
-  exportName = 'pitchpulse-scatter.png'
+  exportName = 'pitchpulse-scatter.png',
+  qualityMetadata = null,
+  qualityMessage = ''
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
@@ -125,8 +130,8 @@ export default function ScatterPlot({
         minimumSpan: integer ? 5 : 0.5
       });
     };
-    const xDomain = axisDomain(points.map((p) => p.x), xTickStep, xMax, true, xMetricId);
-    const yDomain = axisDomain(points.map((p) => p.y), yTickStep, yMax, false, yMetricId);
+    const xDomain = xDomainOverride || axisDomain(points.map((p) => p.x), xTickStep, xMax, true, xMetricId);
+    const yDomain = yDomainOverride || axisDomain(points.map((p) => p.y), yTickStep, yMax, false, yMetricId);
     const minMins = Math.min(...points.map((p) => p.mins || p.Min || 0));
     const maxMins = Math.max(...points.map((p) => p.mins || p.Min || 1));
     const poolSize = points.length;
@@ -206,7 +211,7 @@ export default function ScatterPlot({
       resolvedMedians: { x: mX, y: mY },
       poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative, pinnedIds, jitter]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative, pinnedIds, jitter, xDomainOverride, yDomainOverride]);
 
   const handleExport = async () => {
     if (svgRef.current) {
@@ -279,6 +284,7 @@ export default function ScatterPlot({
               {subtitle}
             </p>
           )}
+          <div className="mt-1 flex flex-wrap items-center gap-2"><DataQualityBadge metadata={qualityMetadata} />{qualityMessage && <span className="text-[10px] text-amber-300" title={qualityMetadata?.notes || qualityMetadata?.known_gaps?.summary}>{qualityMessage}</span>}</div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">

@@ -32,6 +32,27 @@ class TestChartsBackendPhase5(unittest.TestCase):
         self.assertIn('quadrants', dist)
         self.assertEqual(dist['quadrants']['q1'] + dist['quadrants']['q2'] + dist['quadrants']['q3'] + dist['quadrants']['q4'], payload['points_count'])
 
+    def test_scatter_range_rejects_unknown_metrics(self):
+        response = self.client.get('/api/charts/scatter/range?x=not-a-metric&y=Ast')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json()['error_detail']['code'], 'ERR_INVALID_METRIC')
+
+    def test_scatter_range_only_uses_tracked_seasons(self):
+        response = self.client.get('/api/charts/scatter/range?x=PrgC&y=Gls&position=FW&competition=eng%20Premier%20League&min_minutes=500')
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()['data']
+        self.assertGreater(payload['x']['max'], 0)
+        self.assertNotIn('2025-2026', payload['x']['seasons'])
+        self.assertTrue(payload['x']['seasons'])
+
+    def test_scatter_range_returns_minimum_for_signed_metrics(self):
+        response = self.client.get('/api/charts/scatter/range?x=Gls_minus_xG&y=Ast&min_minutes=270')
+        self.assertEqual(response.status_code, 200)
+        x_range = response.get_json()['data']['x']
+        self.assertTrue(x_range['signed'])
+        self.assertIn('min', x_range)
+        self.assertLessEqual(x_range['min'], x_range['max'])
+
     def test_02_scatter_endpoint_custom_metrics_and_filters(self):
         """GET /api/charts/scatter accepts custom x/y metrics, position, and minutes."""
         res = self.client.get('/api/charts/scatter?x=Gls_90&y=Ast_90&pos=FW&min_minutes=500')

@@ -1,6 +1,7 @@
 import os
 import hmac
 import tempfile
+import json
 from flask import Blueprint, request, jsonify, send_file
 from config import ADMIN_TOKEN
 from services.season_service import season_service
@@ -194,6 +195,31 @@ def get_season_details(season_id):
     if not manifest:
         return error_response(f"Season manifest for '{validated}' not found.", status_code=404, code="ERR_NOT_FOUND")
     return success_response(manifest)
+
+@seasons_bp.route('/seasons/<season_id>/quality', methods=['GET'])
+def get_season_quality(season_id):
+    """Return read-only data-quality metadata and a known-gaps sidecar when present."""
+    validated = validate_season_id(season_id, seasons_dir=season_service.seasons_dir, must_exist=True)
+    if not validated:
+        return error_response(f"Season '{season_id}' not found.", status_code=404, code='ERR_NOT_FOUND')
+    manifest = season_service.get_season_manifest(validated) or {}
+    known_gaps = None
+    gaps_metadata = manifest.get('known_gaps') or {}
+    gaps_file = gaps_metadata.get('file') or 'known_gaps.json'
+    if os.path.basename(gaps_file) == gaps_file:
+        path = os.path.join(season_service.seasons_dir, validated, gaps_file)
+        if os.path.isfile(path):
+            with open(path, 'r', encoding='utf-8') as sidecar:
+                known_gaps = json.load(sidecar)
+    return success_response({
+        'season': validated,
+        'known_gaps': known_gaps,
+        'partial_competitions': manifest.get('partial_competitions', {}),
+        'untracked_metrics': manifest.get('untracked_metrics', []),
+        'untracked_metrics_reason': manifest.get('untracked_metrics_reason'),
+        'dataset_status': manifest.get('dataset_status'),
+        'notes': manifest.get('quality_notes', manifest.get('verification_notes'))
+    })
 
 @seasons_bp.route('/seasons/<season_id>/download', methods=['GET'])
 def download_season(season_id):

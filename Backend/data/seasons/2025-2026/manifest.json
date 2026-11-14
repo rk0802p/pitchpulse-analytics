@@ -10,6 +10,14 @@
   "records_count": 2611,
   "clubs_count": 172,
   "competitions_count": 5,
+  "partial_competitions": {
+    "it Serie A": { "matchweek": 33, "of": 38 },
+    "fr Ligue 1": { "matchweek": 30, "of": 34 }
+  },
+  "partial_competitions_note": "Matchweek values are approximate snapshots inferred from the maximum appearances present in the player aggregates.",
+  "untracked_metrics": ["PrgC", "PrgP", "PrgR"],
+  "untracked_metrics_reason": "Progression values were removed because no traceable season source was found; see progression_removal_reason.",
+  "quality_notes": "Serie A and Ligue 1 are partial snapshots (approximately matchweek 33/38 and 30/34). Progressive carries, passes, and receptions are untracked.",
   "competitions": {
     "es La Liga": 611,
     "eng Premier League": 551,

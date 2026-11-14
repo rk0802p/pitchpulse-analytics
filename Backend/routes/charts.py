@@ -5,10 +5,11 @@ player style similarity matching, and composite performance indices.
 """
 
 import math
+import threading
 from flask import Blueprint, request
 from services.data_loader import data_loader
 from services.season_service import season_service
-from services.validation_service import resolve_and_validate_season, validate_position, parse_bool
+from services.validation_service import resolve_and_validate_season, validate_position, parse_bool, validate_metric
 from services.chart_service import (
     get_scatter_chart_data,
     similar_players,
@@ -16,9 +17,13 @@ from services.chart_service import (
     pool,
     percentiles
 )
+from services.chart_service import _scatter_metric_values
+from config import METRIC_DEFINITIONS
 from schemas.responses import success_response, error_response
 
 charts_bp = Blueprint('charts', __name__)
+_SCATTER_RANGE_CACHE = {}
+_SCATTER_RANGE_LOCK = threading.Lock()
 
 @charts_bp.route('/charts/scatter', methods=['GET'])
 def get_scatter():
@@ -72,6 +77,59 @@ def get_scatter():
         age_max=age_max
     )
     return success_response(data, metadata={'season': target_season})
+
+@charts_bp.route('/charts/scatter/range', methods=['GET'])
+def get_scatter_range():
+    """Return cohort-filtered shared metric bounds across seasons where both metrics exist."""
+    x_raw = request.args.get('x') or 'xG_90'
+    y_raw = request.args.get('y') or 'xAG_90'
+    x_metric = validate_metric(x_raw, default=None)
+    y_metric = validate_metric(y_raw, default=None)
+    if x_metric not in METRIC_DEFINITIONS and x_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'}:
+        return error_response(f"Invalid metric '{x_raw}'", status_code=400, code='ERR_INVALID_METRIC')
+    if y_metric not in METRIC_DEFINITIONS and y_metric not in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'}:
+        return error_response(f"Invalid metric '{y_raw}'", status_code=400, code='ERR_INVALID_METRIC')
+    position = request.args.get('position') or None
+    if position and not validate_position(position):
+        return error_response(f"Invalid position '{position}'", status_code=400, code='ERR_INVALID_POSITION')
+    raw_minutes = request.args.get('min_minutes', '270')
+    try:
+        min_minutes = max(0, int(raw_minutes))
+    except (TypeError, ValueError):
+        return error_response('min_minutes must be a non-negative integer', status_code=400, code='ERR_INVALID_MINUTES')
+    competition = request.args.get('competition') or None
+    key = (x_metric, y_metric, position, competition, min_minutes)
+    with _SCATTER_RANGE_LOCK:
+        cached = _SCATTER_RANGE_CACHE.get(key)
+    if cached is not None:
+        return success_response(cached)
+
+    frames = [data_loader.get_dataframe(season=season['id']) for season in season_service.list_seasons()]
+    x_values = []; y_values = []; x_seasons = []; y_seasons = []
+    for season, frame in zip(season_service.list_seasons(), frames):
+        filtered = pool(frame, position=position, competition=competition, min_minutes=min_minutes)
+        if filtered is None or filtered.empty:
+            continue
+        if x_metric in filtered.columns:
+            values = _scatter_metric_values(filtered, x_metric).dropna()
+            if not values.empty:
+                x_values.extend(values.astype(float).tolist()); x_seasons.append(season['id'])
+        if y_metric in filtered.columns:
+            values = _scatter_metric_values(filtered, y_metric).dropna()
+            if not values.empty:
+                y_values.extend(values.astype(float).tolist()); y_seasons.append(season['id'])
+
+    def metric_range(metric, values, seasons):
+        if not values:
+            return {'metric': metric, 'max': None, 'signed': metric in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'}, 'seasons': []}
+        result = {'metric': metric, 'max': max(values), 'signed': metric in {'Gls_minus_xG', 'Ast_minus_xAG', 'xG_minus_Gls'} or min(values) < 0, 'seasons': sorted(set(seasons))}
+        if result['signed']:
+            result['min'] = min(values)
+        return result
+    payload = {'x': metric_range(x_metric, x_values, x_seasons), 'y': metric_range(y_metric, y_values, y_seasons), 'filters': {'position': position, 'competition': competition, 'min_minutes': min_minutes}}
+    with _SCATTER_RANGE_LOCK:
+        _SCATTER_RANGE_CACHE[key] = payload
+    return success_response(payload)
 
 @charts_bp.route('/players/<player_id>/percentiles', methods=['GET'])
 def get_player_percentiles(player_id):
