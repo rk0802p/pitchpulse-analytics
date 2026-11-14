@@ -55,6 +55,7 @@ async function request(path, options = {}) {
 
     return data;
   } catch (err) {
+    if (err?.name === 'AbortError') throw err;
     if (err instanceof ApiError) {
       throw err;
     }
@@ -137,7 +138,7 @@ export const api = {
   },
 
   // Chart and Analytics Feature Endpoints
-  getScatterChart: (params = {}) => {
+  getScatterChart: (params = {}, { signal } = {}) => {
     const queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -145,7 +146,7 @@ export const api = {
       }
     });
     const queryString = queryParams.toString();
-    return request(`/charts/scatter${queryString ? `?${queryString}` : ''}`);
+    return request(`/charts/scatter${queryString ? `?${queryString}` : ''}`, { signal });
   },
 
   getPlayerPercentiles: (playerId, params = {}) => {

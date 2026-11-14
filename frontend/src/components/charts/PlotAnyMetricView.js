@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import ScatterPlot from './ScatterPlot';
-import { Sliders, Search, Filter, RotateCcw, Sparkles } from 'lucide-react';
+import { Sliders, Search } from 'lucide-react';
+import { parseHash } from '../../utils/hashRoute';
 
 const METRIC_CATALOG = [
   // Scoring
@@ -42,10 +43,8 @@ export default function PlotAnyMetricView({
 }) {
   // Read initial configuration from URL hash query if present
   const initialParams = useMemo(() => {
-    const hash = window.location.hash;
-    const queryIdx = hash.indexOf('?');
-    if (queryIdx !== -1) {
-      const sp = new URLSearchParams(hash.slice(queryIdx + 1));
+    const { query: sp } = parseHash(window.location.hash);
+    if ([...sp.keys()].length > 0) {
       return {
         x: sp.get('x') || 'xAG_90',
         y: sp.get('y') || 'xG_90',
@@ -71,12 +70,18 @@ export default function PlotAnyMetricView({
   const [selectedComp, setSelectedComp] = useState(initialParams.comp);
   const [minMinutes, setMinMinutes] = useState(initialParams.mins);
   const [ageMax, setAgeMax] = useState(initialParams.ageMax);
+  const [debouncedFilters, setDebouncedFilters] = useState({ mins: initialParams.mins, age: initialParams.ageMax });
   const [searchHighlight, setSearchHighlight] = useState('');
 
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const requestKey = JSON.stringify([activeSeason, xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
+  const requestKey = JSON.stringify([activeSeason, xMetric, yMetric, selectedPos, selectedComp, debouncedFilters.mins, debouncedFilters.age]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedFilters({ mins: minMinutes, age: ageMax }), 250);
+    return () => window.clearTimeout(timer);
+  }, [minMinutes, ageMax]);
 
   // Sync state to URL hash for shareable links
   useEffect(() => {
@@ -87,24 +92,24 @@ export default function PlotAnyMetricView({
     if (selectedComp) sp.set('comp', selectedComp);
     if (minMinutes) sp.set('mins', String(minMinutes));
     if (ageMax !== '') sp.set('age_max', String(ageMax));
-    window.location.hash = `#plots?${sp.toString()}`;
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#plots?${sp.toString()}`);
   }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
 
   // Keep the chart tied to the current controls, ignoring responses from stale requests.
   useEffect(() => {
+    const controller = new AbortController();
     let isCurrent = true;
     setLoading(true);
     setError(null);
-    setChartData(null);
     api.getScatterChart({
       season: activeSeason,
       x: xMetric,
       y: yMetric,
       position: selectedPos,
       competition: selectedComp,
-      min_minutes: minMinutes,
-      age_max: ageMax !== '' ? ageMax : undefined
-    })
+      min_minutes: debouncedFilters.mins,
+      age_max: debouncedFilters.age !== '' ? debouncedFilters.age : undefined
+    }, { signal: controller.signal })
       .then((res) => {
         const payload = res?.data || res;
         if (payload && isCurrent) {
@@ -112,15 +117,15 @@ export default function PlotAnyMetricView({
         }
       })
       .catch((err) => {
-        if (!isCurrent) return;
+        if (!isCurrent || err?.name === 'AbortError') return;
         console.error('Failed to load scatter data:', err);
         setError({ requestKey, message: err.message || 'Failed to generate chart coordinates' });
       })
       .finally(() => {
         if (isCurrent) setLoading(false);
       });
-    return () => { isCurrent = false; };
-  }, [requestKey, activeSeason, xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
+    return () => { isCurrent = false; controller.abort(); };
+  }, [requestKey, activeSeason, xMetric, yMetric, selectedPos, selectedComp, debouncedFilters]);
 
   // Automatic quadrant labels for known pairs
   const quadrantLabels = useMemo(() => {
@@ -164,9 +169,9 @@ export default function PlotAnyMetricView({
 
   const xLabel = METRIC_CATALOG.find((m) => m.id === xMetric)?.name || xMetric;
   const yLabel = METRIC_CATALOG.find((m) => m.id === yMetric)?.name || yMetric;
-  const currentChartData = chartData?.requestKey === requestKey ? chartData.payload : null;
+  const currentChartData = chartData?.payload || null;
   const currentError = error?.requestKey === requestKey ? error.message : null;
-  const isLoading = loading || (!currentChartData && !currentError);
+  const isLoading = !currentChartData && (loading || !currentError);
   const scatterPoints = currentChartData?.points || [];
   const plottedLabel = scatterPoints.length === 1 ? 'player' : 'players';
 
@@ -188,7 +193,7 @@ export default function PlotAnyMetricView({
           </div>
 
           <div className="text-xs font-mono text-[var(--mute)] bg-[var(--panel)] px-3 py-1.5 border border-[var(--rule)] self-start md:self-auto">
-            Volume: {activeSeason}
+          {activeSeason.replace('-', '/')}
           </div>
         </div>
       </div>
@@ -346,7 +351,9 @@ export default function PlotAnyMetricView({
             Resolving pool medians and standard deviations across {activeSeason}
           </p>
         </div>
-      ) : currentError ? null : currentChartData && scatterPoints.length > 0 ? (
+      ) : currentError && !currentChartData ? null : currentChartData && scatterPoints.length > 0 ? (
+        <div aria-busy={loading} className={loading ? 'opacity-60 transition-opacity' : ''}>
+        {loading && <p role="status" aria-live="polite" className="text-xs text-[var(--mute)]">Updating scatter results…</p>}
         <ScatterPlot
           points={scatterPoints}
           medians={currentChartData.medians || (currentChartData.distribution ? { x: currentChartData.distribution.median_x, y: currentChartData.distribution.median_y } : { x: null, y: null })}
@@ -366,6 +373,7 @@ export default function PlotAnyMetricView({
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}
         />
+        </div>
       ) : (
         <div className="border border-[var(--ink)] bg-[var(--paper)] p-12 text-center text-xs italic text-[var(--mute)]">
           {currentChartData?.tracking_status === 'not_tracked'

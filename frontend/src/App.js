@@ -9,14 +9,12 @@ import SquadBrowserView from './components/squad/SquadBrowserView';
 import DataManagementView from './components/data/DataManagementView';
 import PlotAnyMetricView from './components/charts/PlotAnyMetricView';
 import api from './services/api';
+import { parseHash } from './utils/hashRoute';
 
 function App() {
   // Navigation & View State
   const [currentTab, setCurrentTab] = useState(() => {
-    const hash = window.location.hash.replace(/^#\/?/, '').split('/')[0];
-    return ['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'profile', 'data'].includes(hash)
-      ? hash
-      : 'dashboard';
+    return parseHash(window.location.hash).tab;
   });
 
   // Season State
@@ -61,10 +59,9 @@ function App() {
   // Sync hash changes with navigation and load deep-linked player
   useEffect(() => {
     const handleHashChange = () => {
-      const parts = window.location.hash.replace(/^#\/?/, '').split('/');
-      const tab = parts[0];
+      const { tab, param } = parseHash(window.location.hash);
       if (tab === 'profile') {
-        const rawParam = parts[1] ? decodeURIComponent(parts[1]).trim() : '';
+        const rawParam = param ? param.trim() : '';
         if (!rawParam || rawParam === 'undefined' || rawParam === 'null') {
           setCurrentTab('explorer');
           window.location.hash = '#explorer';
