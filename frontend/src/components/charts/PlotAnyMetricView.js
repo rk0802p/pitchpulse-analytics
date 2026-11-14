@@ -195,6 +195,16 @@ export default function PlotAnyMetricView({
     setMinMinutes(500); setAgeMax(''); setSearchHighlight(''); setPer90(false); setColorBy('none');
     setJitter(true); setLockScale(false); setQuadrantsOn(true); setDotMode('volume');
   };
+  const exportScope = `${selectedComp || 'all-big5'}_${selectedPos || 'all-pos'}_${minMinutes}min`.replace(/[^a-z0-9-]+/gi, '-');
+  const exportContext = {
+    title: `${yShort} vs ${xShort}`,
+    scope: `Season ${activeSeason.replace('-', '/')} · ${selectedComp || 'All Big 5'} · ${selectedPos || 'All positions'} · ${minMinutes}+ minutes${ageMax !== '' ? ` · age ≤ ${ageMax}` : ''} · ${scatterPoints.length} players`,
+    mode: per90 ? 'Per 90' : 'Totals',
+    sizeLegend: dotMode === 'volume' ? 'Size: minutes' : 'Size: equal',
+    colorLegend: `Colour: ${colorBy}`,
+    quality: '',
+    sourceLine: 'Season-specific provenance: Dataset Registry'
+  };
 
   return (
     <div className="space-y-6 font-ser">
@@ -413,6 +423,8 @@ export default function PlotAnyMetricView({
           dotMode={dotMode}
           jitter={jitter}
           colorBy={colorBy}
+          exportContext={exportContext}
+          exportName={`pitchpulse_${activeSeason}_${effectiveY}-vs-${effectiveX}_${exportScope}.png`}
           parity={hasParity}
           parityLabel={hasParity ? 'Parity (Gls = xG)' : ''}
           quadrantLabels={quadrantLabels}

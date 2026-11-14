@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
-import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng } from '../../utils/chartMath';
+import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng, copySvgAsPng, canCopyChartImage } from '../../utils/chartMath';
 import { computeAxisDomain } from '../../utils/axisDomain';
 import { deterministicJitter, normalizePlayerSearch } from '../../utils/plotInteractions';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
@@ -44,7 +44,9 @@ export default function ScatterPlot({
   xTickStep = null,
   yTickStep = null,
   xMax = null,
-  yMax = null
+  yMax = null,
+  exportContext = {},
+  exportName = 'pitchpulse-scatter.png'
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
@@ -52,6 +54,7 @@ export default function ScatterPlot({
   const [activePointId, setActivePointId] = useState(points[0]?.id ?? null);
   const [tableSort, setTableSort] = useState({ key: 'Min', descending: true });
   const [showAllRows, setShowAllRows] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('');
   const [reducedMotion, setReducedMotion] = useState(false);
   const svgRef = useRef(null);
 
@@ -205,10 +208,15 @@ export default function ScatterPlot({
     };
   }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative, pinnedIds, jitter]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (svgRef.current) {
-      downloadSvgAsPng(svgRef.current, `scatter-${xLabel.replace(/\s+/g, '_')}-vs-${yLabel.replace(/\s+/g, '_')}.png`);
+      try { await downloadSvgAsPng(svgRef.current, exportName, 2, exportContext); }
+      catch { setCopyStatus('Could not export the chart image.'); }
     }
+  };
+  const handleCopyImage = async () => {
+    try { const copied = await copySvgAsPng(svgRef.current, exportContext); setCopyStatus(copied ? 'Chart image copied.' : 'Image copying is unavailable.'); }
+    catch { setCopyStatus('Could not copy the chart image.'); }
   };
 
   const parityEnd = parity ? Math.min(sx.domain()[1], sy.domain()[1]) : 0;
@@ -296,6 +304,7 @@ export default function ScatterPlot({
               <span>Export PNG</span>
             </button>
           )}
+          {!viewTable && canCopyChartImage() && <button type="button" onClick={handleCopyImage} className="border border-[var(--rule)] px-2.5 py-1 text-xs">Copy image</button>}
 
         </div>
       </div>
@@ -306,6 +315,7 @@ export default function ScatterPlot({
           <span>{poolCaption}</span>
         </div>
       )}
+      {copyStatus && <p role="status" aria-live="polite" className="text-xs text-[var(--mute)]">{copyStatus}</p>}
       {poolSize > 0 && dotMode === 'volume' && (
         <p className="text-[10px] text-[var(--mute)]" aria-label="Dot size legend">
           Dot size represents minutes: {Math.min(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} · {Math.round(points.reduce((sum, p) => sum + (p.mins || p.Min || 0), 0) / poolSize).toLocaleString()} · {Math.max(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} min (min · average · max)

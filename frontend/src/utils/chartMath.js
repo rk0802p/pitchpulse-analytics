@@ -100,37 +100,101 @@ export function scaleSqrt(domain, range) {
   return scale;
 }
 
-export function downloadSvgAsPng(svgEl, name = 'pitchpulse-chart.png', scale = 2) {
-  if (!svgEl) return;
-  const xml = new XMLSerializer().serializeToString(svgEl);
-  const img = new Image();
+const FALLBACK_TOKENS = { paper: '#E3E6DA', panel: '#D7DCCE', ink: '#14181F', mute: '#5F665E', rule: '#B5BBAC', blue: '#27419C', red: '#B3382A', amber: '#F0B429' };
+
+export function inlineSvgStyles(svgEl) {
+  if (!svgEl) return null;
+  const clone = svgEl.cloneNode(true);
+  const rootStyles = getComputedStyle(document.documentElement);
+  const tokens = Object.fromEntries(Object.entries(FALLBACK_TOKENS).map(([key, fallback]) => [key, rootStyles.getPropertyValue(`--${key}`).trim() || fallback]));
+  const replaceVars = (value) => String(value || '').replace(/var\(--([\w-]+)(?:,\s*([^)]*))?\)/g, (_, key, fallback) => tokens[key] || fallback || FALLBACK_TOKENS.ink);
+  const originalNodes = [svgEl, ...svgEl.querySelectorAll('*')];
+  const clonedNodes = [clone, ...clone.querySelectorAll('*')];
+  originalNodes.forEach((original, index) => {
+    const node = clonedNodes[index];
+    if (!node || node.nodeType !== 1) return;
+    const computed = getComputedStyle(original);
+    const fill = computed.fill && computed.fill !== 'none' ? computed.fill : replaceVars(original.getAttribute('fill'));
+    const stroke = computed.stroke && computed.stroke !== 'none' ? computed.stroke : replaceVars(original.getAttribute('stroke'));
+    const style = {
+      fill: fill || 'none',
+      stroke: stroke || 'none',
+      'font-family': computed.fontFamily || 'Georgia, serif',
+      'font-size': computed.fontSize || '12px',
+      'font-weight': computed.fontWeight || '400',
+      'font-style': computed.fontStyle || 'normal',
+      'stroke-width': computed.strokeWidth || original.getAttribute('stroke-width') || '1',
+      opacity: computed.opacity || original.getAttribute('opacity') || '1',
+      'paint-order': computed.paintOrder || original.style?.paintOrder || 'normal'
+    };
+    Object.entries(style).forEach(([key, value]) => node.style.setProperty(key, replaceVars(value)));
+    [...node.attributes].forEach((attr) => {
+      const updated = replaceVars(attr.value);
+      if (updated !== attr.value) node.setAttribute(attr.name, updated);
+    });
+    node.removeAttribute('class');
+  });
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.setAttribute('width', svgEl.viewBox?.baseVal?.width || svgEl.clientWidth || 900);
+  clone.setAttribute('height', svgEl.viewBox?.baseVal?.height || svgEl.clientHeight || 560);
+  return new XMLSerializer().serializeToString(clone);
+}
+
+export function buildExportHeader(context = {}) {
+  return [context.title || 'Scatter plot', context.scope || '', `${context.mode || 'Totals'} · ${context.sizeLegend || 'Size: minutes'} · ${context.colorLegend || 'Colour: none'}`, context.quality || '', context.sourceLine || 'Dataset provenance: Dataset Registry'].filter(Boolean);
+}
+
+export function canCopyChartImage() {
+  return typeof ClipboardItem !== 'undefined' && typeof navigator !== 'undefined' && Boolean(navigator.clipboard?.write);
+}
+
+export function createSvgPngBlob(svgEl, context = {}, scale = 2) {
+  if (!svgEl) return Promise.resolve(null);
+  const xml = inlineSvgStyles(svgEl);
+  const image = new Image();
   const width = svgEl.viewBox?.baseVal?.width || svgEl.clientWidth || 900;
   const height = svgEl.viewBox?.baseVal?.height || svgEl.clientHeight || 560;
+  const rootStyles = getComputedStyle(document.documentElement);
+  const token = (name) => rootStyles.getPropertyValue(`--${name}`).trim() || FALLBACK_TOKENS[name];
+  const paper = token('paper'); const ink = token('ink'); const mute = token('mute');
+  return new Promise((resolve, reject) => {
+    image.onerror = reject;
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      const headerHeight = 96; const footerHeight = 38;
+      canvas.width = width * scale; canvas.height = (height + headerHeight + footerHeight) * scale;
+      const context2d = canvas.getContext('2d');
+      if (!context2d) { resolve(null); return; }
+      context2d.scale(scale, scale);
+      context2d.fillStyle = paper; context2d.fillRect(0, 0, width, height + headerHeight + footerHeight);
+      context2d.fillStyle = ink; context2d.font = '700 20px Georgia, serif'; context2d.fillText(context.title || 'Scatter plot', 18, 28);
+      context2d.fillStyle = mute; context2d.font = '12px Georgia, serif';
+      context2d.fillText(context.scope || '', 18, 48, width - 36);
+      context2d.fillText(`${context.mode || 'Totals'} · ${context.sizeLegend || 'Size: minutes'} · ${context.colorLegend || 'Colour: none'}`, 18, 67, width - 36);
+      if (context.quality) context2d.fillText(context.quality, 18, 85, width - 36);
+      context2d.drawImage(image, 0, headerHeight, width, height);
+      context2d.fillStyle = mute; context2d.font = '11px Georgia, serif';
+      context2d.fillText(`PitchPulse Analytics · ${context.sourceLine || 'Dataset provenance: Dataset Registry'}`, 18, height + headerHeight + 23, width - 36);
+      canvas.toBlob(resolve, 'image/png');
+    };
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+  });
+}
 
-  // Resolve current document theme colors
-  const computed = getComputedStyle(document.documentElement);
-  const paper = computed.getPropertyValue('--paper').trim() || '#f7f6f2';
+export async function downloadSvgAsPng(svgEl, name = 'pitchpulse-chart.png', scale = 2, context = {}) {
+  const blob = await createSvgPngBlob(svgEl, context, scale);
+  if (!blob) return null;
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a'); anchor.href = url; anchor.download = name;
+  document.body.appendChild(anchor); anchor.click(); anchor.remove();
+  URL.revokeObjectURL(url);
+  return blob;
+}
 
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = width * scale;
-    canvas.height = height * scale;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = paper;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-  };
-
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+export async function copySvgAsPng(svgEl, context = {}) {
+  if (!canCopyChartImage()) return false;
+  const blob = await createSvgPngBlob(svgEl, context, 2);
+  if (!blob) return false;
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  return true;
 }
