@@ -3,6 +3,7 @@ import api from '../../services/api';
 import ScatterPlot from './ScatterPlot';
 import { Sliders, Search } from 'lucide-react';
 import { parseHash } from '../../utils/hashRoute';
+import { normalizePlayerSearch, PER90_PAIRS } from '../../utils/plotInteractions';
 
 const METRIC_CATALOG = [
   // Scoring
@@ -51,7 +52,8 @@ export default function PlotAnyMetricView({
         pos: sp.get('pos') || 'FW',
         comp: sp.get('comp') || '',
         mins: Number(sp.get('mins')) || 500,
-        ageMax: sp.has('age_max') ? Number(sp.get('age_max')) : ''
+        ageMax: sp.has('age_max') ? Number(sp.get('age_max')) : '',
+        per90: sp.get('perg') === '1', colorBy: sp.get('color') || 'none', jitter: sp.get('jitter') !== '0', lock: sp.get('lock') === '1'
       };
     }
     return {
@@ -60,7 +62,7 @@ export default function PlotAnyMetricView({
       pos: 'FW',
       comp: '',
       mins: 500,
-      ageMax: ''
+      ageMax: '', per90: false, colorBy: 'none', jitter: true, lock: false
     };
   }, []);
 
@@ -72,11 +74,22 @@ export default function PlotAnyMetricView({
   const [ageMax, setAgeMax] = useState(initialParams.ageMax);
   const [debouncedFilters, setDebouncedFilters] = useState({ mins: initialParams.mins, age: initialParams.ageMax });
   const [searchHighlight, setSearchHighlight] = useState('');
+  const [per90, setPer90] = useState(initialParams.per90);
+  const [colorBy, setColorBy] = useState(initialParams.colorBy);
+  const [jitter, setJitter] = useState(initialParams.jitter);
+  const [lockScale, setLockScale] = useState(initialParams.lock);
+  const [quadrantsOn, setQuadrantsOn] = useState(true);
+  const [dotMode, setDotMode] = useState('volume');
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+
+  const effectiveX = per90 && !xMetric.endsWith('_90') ? (PER90_PAIRS[xMetric] || xMetric) : xMetric;
+  const effectiveY = per90 && !yMetric.endsWith('_90') ? (PER90_PAIRS[yMetric] || yMetric) : yMetric;
+  const canUsePer90 = Boolean(PER90_PAIRS[xMetric] && PER90_PAIRS[yMetric]);
 
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const requestKey = JSON.stringify([activeSeason, xMetric, yMetric, selectedPos, selectedComp, debouncedFilters.mins, debouncedFilters.age]);
+  const requestKey = JSON.stringify([activeSeason, effectiveX, effectiveY, selectedPos, selectedComp, debouncedFilters.mins, debouncedFilters.age]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedFilters({ mins: minMinutes, age: ageMax }), 250);
@@ -92,8 +105,12 @@ export default function PlotAnyMetricView({
     if (selectedComp) sp.set('comp', selectedComp);
     if (minMinutes) sp.set('mins', String(minMinutes));
     if (ageMax !== '') sp.set('age_max', String(ageMax));
+    if (colorBy !== 'none') sp.set('color', colorBy);
+    if (per90) sp.set('perg', '1');
+    if (!jitter) sp.set('jitter', '0');
+    if (lockScale) sp.set('lock', '1');
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#plots?${sp.toString()}`);
-  }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax]);
+  }, [xMetric, yMetric, selectedPos, selectedComp, minMinutes, ageMax, colorBy, per90, jitter, lockScale]);
 
   // Keep the chart tied to the current controls, ignoring responses from stale requests.
   useEffect(() => {
@@ -103,8 +120,8 @@ export default function PlotAnyMetricView({
     setError(null);
     api.getScatterChart({
       season: activeSeason,
-      x: xMetric,
-      y: yMetric,
+      x: effectiveX,
+      y: effectiveY,
       position: selectedPos,
       competition: selectedComp,
       min_minutes: debouncedFilters.mins,
@@ -125,36 +142,28 @@ export default function PlotAnyMetricView({
         if (isCurrent) setLoading(false);
       });
     return () => { isCurrent = false; controller.abort(); };
-  }, [requestKey, activeSeason, xMetric, yMetric, selectedPos, selectedComp, debouncedFilters]);
+  }, [requestKey, activeSeason, effectiveX, effectiveY, selectedPos, selectedComp, debouncedFilters]);
 
   // Automatic quadrant labels for known pairs
   const quadrantLabels = useMemo(() => {
-    if (xMetric === 'xAG_90' && yMetric === 'xG_90') {
-      return {
-        topRight: 'Scores and creates',
-        topLeft: 'Mostly scorers',
-        bottomRight: 'Mostly creators',
-        bottomLeft: 'Lower output'
-      };
-    }
-    if (xMetric === 'PrgP' && yMetric === 'PrgC') {
-      return {
-        topRight: 'Dual progressors',
-        topLeft: 'Carriers',
-        bottomRight: 'Pass distributors',
-        bottomLeft: 'Consolidated role'
-      };
-    }
-    if (xMetric === 'Gls_90' && yMetric === 'xG_90') {
-      return {
-        topRight: 'High volume threat',
-        topLeft: 'Underperforming xG',
-        bottomRight: 'Overperforming xG',
-        bottomLeft: 'Quiet in front of goal'
-      };
-    }
-    return null;
-  }, [xMetric, yMetric]);
+    if (!quadrantsOn) return null;
+    const pairKey = `${xMetric}:${yMetric}`;
+    const mapped = {
+      'Gls:Ast': { topRight: 'All-round', topLeft: 'Creators', bottomRight: 'Finishers', bottomLeft: 'Low output' },
+      'Gls:xG': { topRight: 'High output', topLeft: 'Below xG', bottomRight: 'Above xG', bottomLeft: 'Low output' },
+      'Gls_90:xG_90': { topRight: 'High volume threat', topLeft: 'Underperforming xG', bottomRight: 'Overperforming xG', bottomLeft: 'Quiet in front of goal' },
+      'xG:xAG': { topRight: 'Scoring and creating', topLeft: 'Creators', bottomRight: 'Scorers', bottomLeft: 'Lower xG output' },
+      'xAG:xG': { topRight: 'Scoring and creating', topLeft: 'Scorers', bottomRight: 'Creators', bottomLeft: 'Lower xG output' },
+      'Ast:xAG': { topRight: 'Assist and chance creation', topLeft: 'Chance creators', bottomRight: 'Assist providers', bottomLeft: 'Lower creation' },
+      'PrgP:PrgC': { topRight: 'Dual progressors', topLeft: 'Carriers', bottomRight: 'Pass distributors', bottomLeft: 'Lower progression' },
+      'PrgC:PrgP': { topRight: 'Dual progressors', topLeft: 'Pass distributors', bottomRight: 'Carriers', bottomLeft: 'Lower progression' },
+      'xAG_90:xG_90': { topRight: 'Scores and creates', topLeft: 'Mostly scorers', bottomRight: 'Mostly creators', bottomLeft: 'Lower output' }
+    };
+    if (mapped[pairKey]) return mapped[pairKey];
+    const xName = METRIC_CATALOG.find((m) => m.id === xMetric)?.short || xMetric;
+    const yName = METRIC_CATALOG.find((m) => m.id === yMetric)?.short || yMetric;
+    return { topRight: `High ${xName} / High ${yName}`, topLeft: `Low ${xName} / High ${yName}`, bottomRight: `High ${xName} / Low ${yName}`, bottomLeft: `Low ${xName} / Low ${yName}` };
+  }, [xMetric, yMetric, quadrantsOn]);
 
   const hasParity = (xMetric === 'Gls_90' && yMetric === 'xG_90') || (xMetric === 'Gls' && yMetric === 'xG');
 
@@ -167,15 +176,25 @@ export default function PlotAnyMetricView({
     }, {});
   }, []);
 
-  const xLabel = METRIC_CATALOG.find((m) => m.id === xMetric)?.name || xMetric;
-  const yLabel = METRIC_CATALOG.find((m) => m.id === yMetric)?.name || yMetric;
-  const xShort = METRIC_CATALOG.find((m) => m.id === xMetric)?.short || xMetric;
-  const yShort = METRIC_CATALOG.find((m) => m.id === yMetric)?.short || yMetric;
+  const xLabel = METRIC_CATALOG.find((m) => m.id === effectiveX)?.name || effectiveX;
+  const yLabel = METRIC_CATALOG.find((m) => m.id === effectiveY)?.name || effectiveY;
+  const xShort = METRIC_CATALOG.find((m) => m.id === effectiveX)?.short || effectiveX;
+  const yShort = METRIC_CATALOG.find((m) => m.id === effectiveY)?.short || effectiveY;
   const currentChartData = chartData?.payload || null;
   const currentError = error?.requestKey === requestKey ? error.message : null;
   const isLoading = !currentChartData && (loading || !currentError);
   const scatterPoints = currentChartData?.points || [];
   const plottedLabel = scatterPoints.length === 1 ? 'player' : 'players';
+  const suggestions = searchHighlight.trim().length < 2 ? [] : [...scatterPoints]
+    .filter((p) => normalizePlayerSearch(p.Player || p.name).includes(normalizePlayerSearch(searchHighlight)))
+    .sort((a, b) => Number(normalizePlayerSearch(b.Player || b.name).startsWith(normalizePlayerSearch(searchHighlight))) - Number(normalizePlayerSearch(a.Player || a.name).startsWith(normalizePlayerSearch(searchHighlight))))
+    .slice(0, 6);
+  const xgTracked = scatterPoints.some((point) => point.tooltip?.Gls_minus_xG !== null && point.tooltip?.Gls_minus_xG !== undefined);
+  const resetControls = () => {
+    setXMetric('xAG_90'); setYMetric('xG_90'); setSelectedPos('FW'); setSelectedComp('');
+    setMinMinutes(500); setAgeMax(''); setSearchHighlight(''); setPer90(false); setColorBy('none');
+    setJitter(true); setLockScale(false); setQuadrantsOn(true); setDotMode('volume');
+  };
 
   return (
     <div className="space-y-6 font-ser">
@@ -201,7 +220,8 @@ export default function PlotAnyMetricView({
       </div>
 
       {/* Control Grid */}
-      <div className="border border-[var(--ink)] bg-[var(--paper)] p-4 sm:p-5 rounded-xs space-y-4">
+      <fieldset aria-label="Scatter plot controls" className="min-w-0 border border-[var(--ink)] bg-[var(--paper)] p-4 sm:p-5 rounded-xs space-y-4">
+        <legend className="px-2 font-disp font-bold uppercase tracking-wider text-sm text-[var(--ink)]">Scatter controls</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* X Axis Metric */}
           <div className="space-y-1">
@@ -328,13 +348,40 @@ export default function PlotAnyMetricView({
                 placeholder="Search player to highlight..."
                 value={searchHighlight}
                 onChange={(e) => setSearchHighlight(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown' && suggestions.length) { e.preventDefault(); setSuggestionIndex((suggestionIndex + 1) % suggestions.length); }
+                  if (e.key === 'ArrowUp' && suggestions.length) { e.preventDefault(); setSuggestionIndex((suggestionIndex + suggestions.length - 1) % suggestions.length); }
+                  if (e.key === 'Enter' && suggestions[suggestionIndex]) { e.preventDefault(); setSearchHighlight(suggestions[suggestionIndex].Player || suggestions[suggestionIndex].name); }
+                }}
+                aria-autocomplete="list"
+                aria-expanded={suggestions.length > 0}
+                aria-controls="scatter-player-suggestions"
                 className="w-full text-xs font-ser border border-[var(--rule)] bg-[var(--panel)] pl-7 pr-2 py-1.5 text-[var(--ink)] focus:border-[var(--ink)] outline-none"
               />
               <Search className="w-3.5 h-3.5 text-[var(--mute)] absolute left-2 top-2.5" />
+              {suggestions.length > 0 && <div id="scatter-player-suggestions" role="listbox" className="absolute z-20 top-full left-0 right-0 border border-[var(--rule)] bg-[var(--panel)] shadow-lg max-h-52 overflow-y-auto">
+                {suggestions.map((p, index) => <button key={p.id} type="button" role="option" aria-selected={index === suggestionIndex} onClick={() => setSearchHighlight(p.Player || p.name)} className={`block w-full text-left px-2 py-1 text-xs ${index === suggestionIndex ? 'bg-[var(--paper)]' : ''}`}>
+                  {p.Player || p.name} <span className="text-[var(--mute)]">· {p.Squad || p.club}</span>
+                </button>)}
+              </div>}
             </div>
           </div>
         </div>
-      </div>
+        <div className="flex flex-wrap items-end gap-x-5 gap-y-3 border-t border-[var(--rule)] pt-3">
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per90} disabled={!canUsePer90} onChange={(e) => setPer90(e.target.checked)} /><span title={!canUsePer90 ? 'Selected metrics do not both have per-90 counterparts.' : ''}>Totals / Per 90</span></label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={quadrantsOn} onChange={(e) => setQuadrantsOn(e.target.checked)} />Quadrant labels</label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={jitter} onChange={(e) => setJitter(e.target.checked)} />Reduce overlap</label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={lockScale} onChange={(e) => setLockScale(e.target.checked)} />Compare seasons: lock scale</label>
+          <label className="flex items-center gap-2 text-xs">Size
+            <select aria-label="Dot size" value={dotMode} onChange={(e) => setDotMode(e.target.value)} className="border border-[var(--rule)] bg-[var(--panel)] p-1"><option value="volume">Minutes</option><option value="uniform">Equal</option></select>
+          </label>
+          <label className="flex items-center gap-2 text-xs">Colour
+            <select aria-label="Colour by" value={colorBy} onChange={(e) => setColorBy(e.target.value)} className="border border-[var(--rule)] bg-[var(--panel)] p-1"><option value="none">None</option><option value="position">Position</option><option value="club">Club</option><option value="finishing" disabled={!xgTracked} title={!xgTracked ? 'Goals minus xG is not tracked for this season.' : ''}>Goals - xG{!xgTracked ? ' (not tracked)' : ''}</option></select>
+          </label>
+          <button type="button" onClick={resetControls} className="ml-auto border border-[var(--ink)] px-2 py-1 text-xs hover:bg-[var(--panel)]">Reset controls</button>
+          {per90 && <span className="basis-full text-[11px] italic text-[var(--mute)]">Per-90 rates can be noisy for players with few minutes.</span>}
+        </div>
+      </fieldset>
 
       {/* Error state */}
       {currentError && (
@@ -362,6 +409,10 @@ export default function PlotAnyMetricView({
           xLabel={xLabel}
           yLabel={yLabel}
           highlightName={searchHighlight}
+          highlightId={suggestions[0]?.id || null}
+          dotMode={dotMode}
+          jitter={jitter}
+          colorBy={colorBy}
           parity={hasParity}
           parityLabel={hasParity ? 'Parity (Gls = xG)' : ''}
           quadrantLabels={quadrantLabels}
@@ -369,10 +420,10 @@ export default function PlotAnyMetricView({
           subtitle="Interactive player scatter plot with median guides"
           xShort={xShort}
           yShort={yShort}
-          xMetricId={xMetric}
-          yMetricId={yMetric}
-          xCanBeNegative={xMetric === 'Gls_minus_xG'}
-          yCanBeNegative={yMetric === 'Gls_minus_xG'}
+          xMetricId={effectiveX}
+          yMetricId={effectiveY}
+          xCanBeNegative={effectiveX === 'Gls_minus_xG'}
+          yCanBeNegative={effectiveY === 'Gls_minus_xG'}
           poolCaption={`Season ${activeSeason.replace('-', '/')} · ${selectedComp || 'All Big 5'} · ${selectedPos || 'All positions'} · ${minMinutes}+ minutes${ageMax !== '' ? ` · age ≤ ${ageMax}` : ''} · Plotted: ${scatterPoints.length} ${plottedLabel}`}
           onSelectPlayer={onSelectPlayer}
           labelBudget={14}

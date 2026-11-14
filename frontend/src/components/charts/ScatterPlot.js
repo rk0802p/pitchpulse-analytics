@@ -1,7 +1,8 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { placeLabels, chooseLabelled } from '../../utils/placeLabels';
 import { deviation, scaleLinear, scaleSqrt, downloadSvgAsPng } from '../../utils/chartMath';
 import { computeAxisDomain } from '../../utils/axisDomain';
+import { deterministicJitter, normalizePlayerSearch } from '../../utils/plotInteractions';
 import { Download, Table as TableIcon, Eye, Info } from 'lucide-react';
 
 const MARGIN = { top: 24, right: 32, bottom: 58, left: 68 };
@@ -25,6 +26,9 @@ export default function ScatterPlot({
   yMetricId = null,
   xCanBeNegative = false,
   yCanBeNegative = false,
+  dotMode = 'volume',
+  jitter = true,
+  colorBy = 'none',
   highlightId = null,
   highlightName = '',
   parity = false,
@@ -44,9 +48,40 @@ export default function ScatterPlot({
 }) {
   const [hovered, setHovered] = useState(null);
   const [viewTable, setViewTable] = useState(false);
-  const [dotMode, setDotMode] = useState('volume'); // 'volume' | 'uniform'
+  const [pinnedIds, setPinnedIds] = useState(() => new Set());
+  const [activePointId, setActivePointId] = useState(points[0]?.id ?? null);
+  const [tableSort, setTableSort] = useState({ key: 'Min', descending: true });
+  const [showAllRows, setShowAllRows] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const svgRef = useRef(null);
+
+  useEffect(() => {
+    setPinnedIds(new Set());
+    setHovered(null);
+    setActivePointId(points[0]?.id ?? null);
+  }, [points]);
+
+  useEffect(() => {
+    const clearOnEscape = (event) => {
+      if (event.key === 'Escape') { setPinnedIds(new Set()); setHovered(null); }
+    };
+    window.addEventListener('keydown', clearOnEscape);
+    return () => window.removeEventListener('keydown', clearOnEscape);
+  }, []);
+
+  const sortedTablePoints = useMemo(() => [...points].sort((a, b) => {
+    const av = a[tableSort.key] ?? a[({ Player: 'name', Squad: 'club', Comp: 'comp', Pos: 'pos' })[tableSort.key]];
+    const bv = b[tableSort.key] ?? b[({ Player: 'name', Squad: 'club', Comp: 'comp', Pos: 'pos' })[tableSort.key]];
+    const result = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av ?? '').localeCompare(String(bv ?? ''));
+    return tableSort.descending ? -result : result;
+  }), [points, tableSort]);
+
+  const clubColors = useMemo(() => {
+    const counts = new Map();
+    points.forEach((p) => counts.set(p.Squad || p.club || 'Unknown', (counts.get(p.Squad || p.club || 'Unknown') || 0) + 1));
+    const palette = ['var(--blue)', 'var(--red)', 'var(--amber)', 'var(--board)', 'var(--ink)', 'var(--mute)', 'var(--blue)', 'var(--red)'];
+    return new Map([...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([club], index) => [club, palette[index]]));
+  }, [points]);
 
   React.useEffect(() => {
     const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
@@ -95,6 +130,12 @@ export default function ScatterPlot({
 
     const sx = scaleLinear(xDomain, [0, W]);
     const sy = scaleLinear(yDomain, [H, 0]);
+    const plotted = (p, axis, domain, metricId) => {
+      const value = p[axis];
+      const isIntegerMetric = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' : Number.isInteger(value);
+      if (!jitter || !isIntegerMetric || !Number.isInteger(value)) return value;
+      return value + deterministicJitter(p.id, axis, (domain[1] - domain[0]) / 6);
+    };
 
     // Density-aware radius scaling
     let sr;
@@ -128,22 +169,24 @@ export default function ScatterPlot({
     const xs = { median: mX, sd: deviation(points, (p) => p.x) };
     const ys = { median: mY, sd: deviation(points, (p) => p.y) };
 
-    const effectiveHighlightId = highlightId || (highlightName ? points.find(p => p.name?.toLowerCase() === highlightName.toLowerCase())?.id : null);
+    const normalizedSearch = normalizePlayerSearch(highlightName.trim());
+    const effectiveHighlightId = highlightId || (normalizedSearch ? points.find(p => normalizePlayerSearch(p.name || p.Player).includes(normalizedSearch))?.id : null);
+    const prioritized = points.map((p) => ({ ...p, highlight: p.id === effectiveHighlightId || pinnedIds.has(p.id) }));
 
-    const chosen = chooseLabelled(points, xs, ys, effectiveHighlightId, labelBudget)
+    const chosen = chooseLabelled(prioritized, xs, ys, effectiveHighlightId, Math.max(labelBudget, pinnedIds.size + (effectiveHighlightId ? 1 : 0)))
       .map((p) => ({
         id: p.id,
         text: p.name || p.Player || '',
-        x: Math.max(8, Math.min(W - 8, sx(p.x))),
-        y: Math.max(8, Math.min(H - 8, sy(p.y))),
+        x: Math.max(8, Math.min(W - 8, sx(plotted(p, 'x', xDomain, xMetricId)))),
+        y: Math.max(8, Math.min(H - 8, sy(plotted(p, 'y', yDomain, yMetricId)))),
         r: sr(p.mins || p.Min || 0)
       }));
 
     const all = points.map((p) => ({
       id: p.id,
       text: p.name || p.Player || '',
-      x: Math.max(8, Math.min(W - 8, sx(p.x))),
-      y: Math.max(8, Math.min(H - 8, sy(p.y))),
+      x: Math.max(8, Math.min(W - 8, sx(plotted(p, 'x', xDomain, xMetricId)))),
+      y: Math.max(8, Math.min(H - 8, sy(plotted(p, 'y', yDomain, yMetricId)))),
       r: sr(p.mins || p.Min || 0)
     }));
 
@@ -160,7 +203,7 @@ export default function ScatterPlot({
       resolvedMedians: { x: mX, y: mY },
       poolSize
     };
-  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative]);
+  }, [points, medians, highlightId, highlightName, labelBudget, W, H, dotMode, xTickStep, yTickStep, xMax, yMax, xMetricId, yMetricId, xCanBeNegative, yCanBeNegative, pinnedIds, jitter]);
 
   const handleExport = () => {
     if (svgRef.current) {
@@ -171,8 +214,44 @@ export default function ScatterPlot({
   const parityEnd = parity ? Math.min(sx.domain()[1], sy.domain()[1]) : 0;
   const projectX = (value) => Math.max(0, Math.min(W, sx(value)));
   const projectY = (value) => Math.max(0, Math.min(H, sy(value)));
-  const projectPointX = (value) => Math.max(8, Math.min(W - 8, sx(value)));
-  const projectPointY = (value) => Math.max(8, Math.min(H - 8, sy(value)));
+  const plottedCoordinate = (point, axis, metricId, scale) => {
+    const value = point[axis];
+    const integerMetric = metricId ? !metricId.endsWith('_90') && metricId !== 'Gls_minus_xG' : Number.isInteger(value);
+    if (!jitter || !integerMetric || !Number.isInteger(value)) return value;
+    return value + deterministicJitter(point.id, axis, (scale.domain()[1] - scale.domain()[0]) / 6);
+  };
+  const projectPointX = (point) => Math.max(8, Math.min(W - 8, sx(plottedCoordinate(point, 'x', xMetricId, sx))));
+  const projectPointY = (point) => Math.max(8, Math.min(H - 8, sy(plottedCoordinate(point, 'y', yMetricId, sy))));
+  const getPointColor = (point) => {
+    if (colorBy === 'position') {
+      const pos = String(point.Pos || point.pos || '').split(',')[0].trim();
+      return ({ FW: 'var(--blue)', MF: 'var(--red)', DF: 'var(--board)', GK: 'var(--amber)' })[pos] || 'var(--mute)';
+    }
+    if (colorBy === 'club') return clubColors.get(point.Squad || point.club) || 'var(--mute)';
+    if (colorBy === 'finishing') {
+      const value = point.tooltip?.Gls_minus_xG;
+      if (!Number.isFinite(Number(value))) return 'var(--mute)';
+      return Number(value) < 0 ? 'var(--blue)' : Number(value) > 0 ? 'var(--red)' : 'var(--amber)';
+    }
+    return 'var(--blue)';
+  };
+  const quadrantLabelVisible = (text, corner) => {
+    if (!text) return false;
+    const left = corner.endsWith('Left');
+    const bottom = corner.startsWith('bottom');
+    const widthGuess = Math.min(W * 0.44, text.length * 6.2);
+    const box = { x1: left ? 8 : W - widthGuess - 8, x2: left ? widthGuess + 8 : W - 8, y1: bottom ? H - 27 : 4, y2: bottom ? H - 4 : 20 };
+    return !points.some((p) => {
+      const x = projectPointX(p); const y = projectPointY(p); const radius = sr(p.Min || 0);
+      return x + radius > box.x1 && x - radius < box.x2 && y + radius > box.y1 && y - radius < box.y2;
+    }) && !labels.some((label) => label.x < box.x2 && label.x + label.text.length * 6.2 > box.x1 && label.y > box.y1 && label.y < box.y2);
+  };
+  const xSortedPoints = useMemo(() => [...points].sort((a, b) => a.x - b.x || String(a.id).localeCompare(String(b.id))), [points]);
+  const moveFocus = (point, direction) => {
+    const index = xSortedPoints.findIndex((item) => item.id === point.id);
+    const next = xSortedPoints[Math.max(0, Math.min(xSortedPoints.length - 1, index + direction))];
+    if (next) { setActivePointId(next.id); document.getElementById(`scatter-hit-${next.id}`)?.focus(); }
+  };
   const overflowCount = points.filter((point) =>
     (Number.isFinite(xMax) && point.x > xMax) || (Number.isFinite(yMax) && point.y > yMax)
   ).length;
@@ -195,6 +274,7 @@ export default function ScatterPlot({
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          {pinnedIds.size > 0 && <button type="button" onClick={() => setPinnedIds(new Set())} className="border border-[var(--rule)] px-2 py-1 text-xs">Clear pins</button>}
           <button
             type="button"
             onClick={() => setViewTable(!viewTable)}
@@ -217,23 +297,11 @@ export default function ScatterPlot({
             </button>
           )}
 
-          {!viewTable && (
-            <button
-              type="button"
-              onClick={() => setDotMode(dotMode === 'volume' ? 'uniform' : 'volume')}
-              className="border border-[var(--rule)] hover:border-[var(--ink)] px-2.5 py-1 text-xs italic text-[var(--ink)] flex items-center gap-1.5 transition-colors cursor-pointer"
-              title={dotMode === 'volume' ? 'Switch to uniform micro-dots (2px)' : 'Switch to volume-scaled dots (minutes-based)'}
-            >
-              <span className="font-mono">
-                {dotMode === 'volume' ? '● Size: Minutes' : '● Size: Equal'}
-              </span>
-            </button>
-          )}
         </div>
       </div>
 
       {poolCaption && (
-        <div className="text-xs italic text-[var(--mute)] flex items-center gap-1.5">
+        <div className="text-xs italic text-[var(--mute)] flex items-center gap-1.5" role="status" aria-live="polite">
           <Info className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
           <span>{poolCaption}</span>
         </div>
@@ -243,6 +311,10 @@ export default function ScatterPlot({
           Dot size represents minutes: {Math.min(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} · {Math.round(points.reduce((sum, p) => sum + (p.mins || p.Min || 0), 0) / poolSize).toLocaleString()} · {Math.max(...points.map((p) => p.mins || p.Min || 0)).toLocaleString()} min (min · average · max)
         </p>
       )}
+      {colorBy !== 'none' && <div className="flex flex-wrap items-center gap-3 text-[10px] text-[var(--mute)]" aria-label="Point colour legend">
+        <span>Colour encodes {colorBy === 'position' ? 'position group' : colorBy === 'club' ? 'club (top 8; others grey)' : 'Goals - xG; n/a is grey'}:</span>
+        {(colorBy === 'position' ? [['FW', 'var(--blue)'], ['MF', 'var(--red)'], ['DF', 'var(--board)'], ['GK', 'var(--amber)']] : colorBy === 'finishing' ? [['Below 0', 'var(--blue)'], ['0', 'var(--amber)'], ['Above 0', 'var(--red)']] : [...clubColors.entries()].map(([club, color]) => [club, color])).map(([label, color]) => <span key={label} className="inline-flex items-center gap-1"><i style={{ backgroundColor: color }} className="inline-block w-2 h-2 rounded-full" />{label}</span>)}
+      </div>}
       {poolSize > 0 && Number.isFinite(resolvedMedians.x) && Number.isFinite(resolvedMedians.y) && (
         <div className="text-xs text-[var(--mute)]" role="note">
           <span className="font-semibold">Median guides:</span>{' '}
@@ -263,25 +335,18 @@ export default function ScatterPlot({
         </div>
       ) : viewTable ? (
         <div className="overflow-x-auto max-h-[500px] border border-[var(--rule)]">
-          {poolSize > 100 && (
-            <p className="px-3 py-2 text-xs italic text-[var(--mute)]" role="status">
-              Showing the first 100 of {poolSize} plotted players.
-            </p>
-          )}
+          <div className="flex items-center justify-between px-3 py-2 text-xs italic text-[var(--mute)]" role="status">
+            <span>Showing {showAllRows ? poolSize : Math.min(poolSize, 100)} of {poolSize} plotted players.</span>
+            {poolSize > 100 && <button type="button" onClick={() => setShowAllRows((value) => !value)} className="underline">{showAllRows ? 'Show first 100' : 'Show all'}</button>}
+          </div>
           <table className="w-full text-xs font-ser border-collapse">
             <thead>
               <tr className="border-b border-[var(--ink)] bg-[var(--panel)]">
-                <th className="py-2 px-3 text-left font-bold text-[var(--ink)]">Player</th>
-                <th className="py-2 px-2 text-left font-bold text-[var(--ink)]">Club</th>
-                <th className="py-2 px-2 text-left font-bold text-[var(--ink)]">Comp</th>
-                <th className="py-2 px-2 text-center font-bold text-[var(--ink)]">Pos</th>
-                <th className="py-2 px-2 text-right font-bold text-[var(--ink)]">Minutes</th>
-                <th className="py-2 px-3 text-right font-bold text-[var(--ink)]">{xLabel}</th>
-                <th className="py-2 px-3 text-right font-bold text-[var(--ink)]">{yLabel}</th>
+                {[["Player", "Player"], ["Squad", "Club"], ["Comp", "Comp"], ["Pos", "Pos"], ["Min", "Minutes"], ["x", xLabel], ["y", yLabel]].map(([key, label]) => <th key={key} className="py-2 px-2 text-left font-bold text-[var(--ink)]"><button type="button" onClick={() => setTableSort((old) => ({ key, descending: old.key === key ? !old.descending : true }))}>{label}{tableSort.key === key ? (tableSort.descending ? ' ↓' : ' ↑') : ''}</button></th>)}
               </tr>
             </thead>
             <tbody>
-              {points.slice(0, 100).map((p, idx) => (
+              {(showAllRows ? sortedTablePoints : sortedTablePoints.slice(0, 100)).map((p, idx) => (
                 <tr
                   key={p.id || idx}
                   onClick={() => onSelectPlayer && onSelectPlayer(p)}
@@ -308,29 +373,29 @@ export default function ScatterPlot({
             ref={svgRef}
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-auto"
-            role="img"
+            role="group"
             aria-label={`${yShort || yLabel} against ${xShort || xLabel}. Dotted guides mark the pool medians.`}
           >
               <g transform={`translate(${MARGIN.left},${MARGIN.top})`} style={{ transition: !reducedMotion && poolSize <= 800 ? 'transform 200ms ease' : 'none' }}>
               {/* Background Quadrant Labels */}
               {quadrantLabels && (
                 <g pointerEvents="none" className="opacity-70">
-                  {quadrantLabels.topRight && (
+                  {quadrantLabelVisible(quadrantLabels.topRight, 'topRight') && (
                     <text x={W - 8} y={16} textAnchor="end" className="text-[11px] italic font-ser fill-[var(--mute)]">
                       {quadrantLabels.topRight}
                     </text>
                   )}
-                  {quadrantLabels.topLeft && (
+                  {quadrantLabelVisible(quadrantLabels.topLeft, 'topLeft') && (
                     <text x={8} y={16} textAnchor="start" className="text-[11px] italic font-ser fill-[var(--mute)]">
                       {quadrantLabels.topLeft}
                     </text>
                   )}
-                  {quadrantLabels.bottomRight && (
+                  {quadrantLabelVisible(quadrantLabels.bottomRight, 'bottomRight') && (
                     <text x={W - 8} y={H - 12} textAnchor="end" className="text-[11px] italic font-ser fill-[var(--mute)]">
                       {quadrantLabels.bottomRight}
                     </text>
                   )}
-                  {quadrantLabels.bottomLeft && (
+                  {quadrantLabelVisible(quadrantLabels.bottomLeft, 'bottomLeft') && (
                     <text x={8} y={H - 12} textAnchor="start" className="text-[11px] italic font-ser fill-[var(--mute)]">
                       {quadrantLabels.bottomLeft}
                     </text>
@@ -340,7 +405,7 @@ export default function ScatterPlot({
 
               {/* Y Grid lines and Ticks */}
               {sy.ticks(6, yTickStep).map((t) => (
-                <g key={`y-${t}`} transform={`translate(0,${sy(t)})`}>
+                  <g key={`y-${t}`} transform={`translate(0,${sy(t)})`} style={{ transition: !reducedMotion && poolSize <= 800 ? 'transform 200ms ease' : 'none' }}>
                   <line x2={W} stroke="var(--rule)" strokeWidth="0.8" />
                   <text x={-10} dy="0.32em" textAnchor="end" className="fill-[var(--mute)] text-[11px] font-mono">
                     {t}
@@ -350,7 +415,7 @@ export default function ScatterPlot({
 
               {/* X Ticks */}
               {sx.ticks(7, xTickStep).map((t) => (
-                <g key={`x-${t}`} transform={`translate(${sx(t)},${H})`}>
+                  <g key={`x-${t}`} transform={`translate(${sx(t)},${H})`} style={{ transition: !reducedMotion && poolSize <= 800 ? 'transform 200ms ease' : 'none' }}>
                   <line y2={5} stroke="var(--ink)" strokeWidth="1" />
                   <text y={20} textAnchor="middle" className="fill-[var(--mute)] text-[11px] font-mono">
                     {t}
@@ -406,7 +471,10 @@ export default function ScatterPlot({
 
               {/* Plotted Player Dots */}
               {points.map((p) => {
-                const isHighlight = p.id === highlightId || (highlightName && p.name?.toLowerCase() === highlightName.toLowerCase());
+                const searchTerm = normalizePlayerSearch(highlightName.trim());
+                const isHighlight = p.id === highlightId || (searchTerm && normalizePlayerSearch(p.name || p.Player).includes(searchTerm));
+                const isPinned = pinnedIds.has(p.id);
+                const hasSearch = Boolean(searchTerm);
                 const isHover = hovered && (hovered.id === p.id || (hovered.name === p.name && hovered.x === p.x && hovered.y === p.y));
                 const mins = p.mins || p.Min || 0;
                 const baseR = sr(mins);
@@ -421,9 +489,9 @@ export default function ScatterPlot({
                 const baseOpacity = isLowMinutes ? 0.30 : 0.55;
                 const baseStrokeWidth = isLowMinutes ? 0.4 : 0.6;
                 const baseStroke = isLowMinutes ? 'var(--blue)' : 'var(--blue)';
-                const baseFill = 'var(--blue)';
+                const baseFill = getPointColor(p);
 
-                const opacity = (isHighlight || isHover) ? 1 : baseOpacity;
+                const opacity = (isHighlight || isHover || isPinned) ? 1 : hasSearch ? 0.16 : baseOpacity;
                 const fill = isHighlight ? 'var(--signal, #c92a2a)' : baseFill;
                 const stroke = isHighlight ? 'var(--signal, #c92a2a)' : isHover ? 'var(--ink)' : baseStroke;
                 const strokeWidth = (isHighlight || isHover) ? 1.75 : baseStrokeWidth;
@@ -437,26 +505,39 @@ export default function ScatterPlot({
                   <g key={p.id || `${p.name}-${p.x}-${p.y}`}>
                     {/* Invisible transparent hitbox for effortless targeting */}
                     <circle
-                      cx={projectPointX(p.x)}
-                      cy={projectPointY(p.y)}
+                      id={`scatter-hit-${p.id}`}
+                      cx={projectPointX(p)}
+                      cy={projectPointY(p)}
                       r={hitboxR}
                       fill="transparent"
                       stroke="transparent"
                       className="cursor-pointer"
-                      tabIndex={0}
+                      tabIndex={p.id === activePointId ? 0 : -1}
                       role="button"
                       aria-label={`${p.name || p.Player}: ${xLabel} ${p.x}, ${yLabel} ${p.y}`}
                       onMouseEnter={() => setHovered(p)}
                       onMouseLeave={() => setHovered((cur) => (cur && (cur.id === p.id || cur.name === p.name) ? null : cur))}
                       onFocus={() => setHovered(p)}
                       onBlur={() => setHovered(null)}
-                      onClick={() => onSelectPlayer && onSelectPlayer(p)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); moveFocus(p, event.key === 'ArrowRight' ? 1 : -1); }
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          if (pinnedIds.has(p.id)) onSelectPlayer?.(p);
+                          else setPinnedIds((old) => new Set(old).add(p.id));
+                        }
+                      }}
+                      onClick={() => {
+                        setHovered(p);
+                        setPinnedIds((old) => { const next = new Set(old); if (next.has(p.id)) next.delete(p.id); else next.add(p.id); return next; });
+                      }}
+                      onDoubleClick={() => onSelectPlayer?.(p)}
                       style={{ transition: !reducedMotion && poolSize <= 800 ? 'cx 200ms ease, cy 200ms ease, r 200ms ease' : 'none' }}
                     />
                     {/* Visible dot with bloom + halo on interaction */}
                     <circle
-                      cx={projectPointX(p.x)}
-                      cy={projectPointY(p.y)}
+                      cx={projectPointX(p)}
+                      cy={projectPointY(p)}
                       r={bloomR}
                       fill={fill}
                       fillOpacity={opacity}
@@ -467,8 +548,10 @@ export default function ScatterPlot({
                     />
                     {/* Core dot */}
                     <circle
-                      cx={projectPointX(p.x)}
-                      cy={projectPointY(p.y)}
+                      cx={projectPointX(p)}
+                      cy={projectPointY(p)}
+                      stroke={getPointColor(p)}
+                      strokeWidth="0.8"
                       r={visualR}
                       fill={fill}
                       fillOpacity={opacity}
@@ -515,12 +598,12 @@ export default function ScatterPlot({
             {/* Hover Tooltip Overlay with smart left/right auto-flip */}
             {hovered && (() => {
               const tooltipW = 258;
-              const tooltipH = 142;
-              const dotPxX = MARGIN.left + projectPointX(hovered.x);
-              const dotPxY = MARGIN.top + projectPointY(hovered.y);
+              const tooltipH = 162;
+              const dotPxX = MARGIN.left + projectPointX(hovered);
+              const dotPxY = MARGIN.top + projectPointY(hovered);
 
               // Auto-flip: If point is on the right 45% of plot, render tooltip to the left of the dot
-              const posX = (projectPointX(hovered.x) > W * 0.55)
+              const posX = (projectPointX(hovered) > W * 0.55)
                 ? Math.max(MARGIN.left + 6, dotPxX - tooltipW - 14)
                 : Math.min(dotPxX + 14, width - tooltipW - MARGIN.right);
 
@@ -564,6 +647,9 @@ export default function ScatterPlot({
                   </text>
                   <text x="10" y="124" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
                     Per-90 and goals - xG show n/a when not tracked.
+                  </text>
+                  <text x="10" y="144" className="fill-[var(--mute)] text-[9px] italic font-ser" pointerEvents="none" style={{ pointerEvents: 'none' }}>
+                    Click to pin · double-click or Enter to open profile.
                   </text>
                 </g>
               );

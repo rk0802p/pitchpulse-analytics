@@ -82,9 +82,40 @@ test('tooltip names both plotted metrics and marks absent values n/a', () => {
   expect(screen.getByText(/Competition: it Serie A/)).toBeInTheDocument();
 });
 
-test('discloses that table view is limited to the first 100 plotted players', () => {
+test('offers all plotted rows after the initial table page', () => {
   const points = Array.from({ length: 101 }, (_, index) => player(index + 1, index, index));
   render(<ScatterPlot points={points} />);
   fireEvent.click(screen.getByRole('button', { name: /View Table/ }));
-  expect(screen.getByRole('status')).toHaveTextContent('Showing the first 100 of 101 plotted players');
+  expect(screen.getByText(/Showing 100 of 101 plotted players/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
+  expect(screen.getByText(/Showing 101 of 101 plotted players/)).toBeInTheDocument();
+  expect(screen.getByText('Player 101')).toBeInTheDocument();
+});
+
+test('uses one roving tab stop and supports pin then profile keyboard action', () => {
+  const onSelectPlayer = jest.fn();
+  render(<ScatterPlot points={[player(1, 1, 2), player(2, 3, 4)]} onSelectPlayer={onSelectPlayer} />);
+  const buttons = screen.getAllByRole('button', { name: /Player [12]:/ });
+  expect(buttons.filter((button) => button.tabIndex === 0)).toHaveLength(1);
+  fireEvent.keyDown(buttons[0], { key: 'Enter' });
+  fireEvent.keyDown(buttons[0], { key: 'Enter' });
+  expect(onSelectPlayer).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
+});
+
+test('jitter changes only plotted positions while accessible values remain true', () => {
+  const p = player(7, 8, 5);
+  const { rerender } = render(<ScatterPlot points={[p]} jitter />);
+  const jittered = Number(screen.getByRole('button', { name: /Player 7: X Axis 8/ }).getAttribute('cx'));
+  rerender(<ScatterPlot points={[p]} jitter={false} />);
+  const truePosition = Number(screen.getByRole('button', { name: /Player 7: X Axis 8/ }).getAttribute('cx'));
+  expect(jittered).not.toBe(truePosition);
+});
+
+test('shows a colour legend and clears pins with Escape', () => {
+  render(<ScatterPlot points={[{ ...player(1, 2, 3), tooltip: { Gls_minus_xG: 1.2 } }]} colorBy="finishing" />);
+  expect(screen.getByLabelText('Point colour legend')).toHaveTextContent('Goals - xG');
+  fireEvent.click(screen.getByRole('button', { name: /Player 1:/ }));
+  expect(screen.getByRole('button', { name: 'Clear pins' })).toBeInTheDocument();
+  fireEvent.keyDown(window, { key: 'Escape' });
+  expect(screen.queryByRole('button', { name: 'Clear pins' })).not.toBeInTheDocument();
 });
