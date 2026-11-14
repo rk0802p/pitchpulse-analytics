@@ -220,6 +220,13 @@ export default function ScatterPlot({
           <span>{poolCaption}</span>
         </div>
       )}
+      {poolSize > 0 && Number.isFinite(resolvedMedians.x) && Number.isFinite(resolvedMedians.y) && (
+        <div className="text-xs text-[var(--mute)]" role="note">
+          <span className="font-semibold">Median guides:</span>{' '}
+          {xLabel} {formatCoordinate(resolvedMedians.x)} · {yLabel} {formatCoordinate(resolvedMedians.y)}
+          <span className="italic">; tied values can lie on the guides.</span>
+        </div>
+      )}
       {overflowCount > 0 && (
         <div className="text-xs italic text-[var(--mute)]" role="status">
           {overflowCount} point{overflowCount === 1 ? '' : 's'} exceed the fixed axis maximum; shown at the chart edge. Hover or open the table for exact values.
@@ -279,7 +286,7 @@ export default function ScatterPlot({
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-auto"
             role="img"
-            aria-label={`${yLabel} against ${xLabel}`}
+            aria-label={`${yLabel} against ${xLabel}. Dotted guides mark the pool medians.`}
           >
             <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
               {/* Background Quadrant Labels */}
@@ -337,6 +344,7 @@ export default function ScatterPlot({
                 stroke="var(--mute)"
                 strokeDasharray="3 5"
                 strokeWidth="1.2"
+                strokeOpacity="0.65"
               />}
               {poolSize > 0 && <line
                 y1={projectY(resolvedMedians.y)}
@@ -346,6 +354,7 @@ export default function ScatterPlot({
                 stroke="var(--mute)"
                 strokeDasharray="3 5"
                 strokeWidth="1.2"
+                strokeOpacity="0.65"
               />}
 
               {/* Optional Parity Line */}

@@ -49,6 +49,9 @@ test('uses integer axes in steps of eight for goals and assists', () => {
   expect(screen.getAllByText('40').length).toBeGreaterThan(0);
   expect(screen.getAllByText('32').length).toBeGreaterThan(0);
   expect(screen.queryByText('4.69')).not.toBeInTheDocument();
+  expect(screen.getByRole('note')).toHaveTextContent(
+    'Median guides: Goals (Gls) 8 · Assists (Ast) 8; tied values can lie on the guides.'
+  );
 });
 
 test('caps configured axes at 50 and reports values plotted at the edge', () => {
