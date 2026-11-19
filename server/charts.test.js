@@ -88,8 +88,8 @@ test('similarPlayers handles partial-tracking eras without coercing untracked me
   }
 });
 
-test('api/index.js exports Express app and serves core API endpoints with HTTP 200', async () => {
-  const app = require('../api/index');
+test('server.js exports Express app and serves core API endpoints with HTTP 200', async () => {
+  const app = require('../server');
   const server = app.listen(0);
   const { port } = server.address();
   const baseUrl = `http://127.0.0.1:${port}`;
