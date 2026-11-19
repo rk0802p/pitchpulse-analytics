@@ -907,6 +907,10 @@ app.use((err, req, res, next) => {
   return sendError(res, 'Internal server error', 500, 'ERR_INTERNAL_SERVER_ERROR');
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`[PitchPulse] Server running at http://${HOST}:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, HOST, () => {
+    console.log(`[PitchPulse] Server running at http://${HOST}:${PORT}`);
+  });
+}
+
+module.exports = app;

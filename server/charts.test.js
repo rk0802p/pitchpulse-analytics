@@ -87,3 +87,44 @@ test('similarPlayers handles partial-tracking eras without coercing untracked me
     assert.notEqual(s.id, kane.id);
   }
 });
+
+test('api/index.js exports Express app and serves core API endpoints with HTTP 200', async () => {
+  const app = require('../api/index');
+  const server = app.listen(0);
+  const { port } = server.address();
+  const baseUrl = `http://127.0.0.1:${port}`;
+
+  try {
+    const [health, seasons, baseline, players, dashboard] = await Promise.all([
+      fetch(`${baseUrl}/api/health`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/seasons`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/seasons/baseline/verify`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/players?season=2024-2025&limit=5`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/dashboard?season=2024-2025`).then((r) => ({ status: r.status, body: r.json() })),
+    ]);
+
+    assert.equal(health.status, 200);
+    assert.equal((await health.body).success, true);
+
+    assert.equal(seasons.status, 200);
+    const seasonsJson = await seasons.body;
+    assert.equal(seasonsJson.success, true);
+    assert.ok(Array.isArray(seasonsJson.data) && seasonsJson.data.length >= 14);
+
+    assert.equal(baseline.status, 200);
+    const baselineJson = await baseline.body;
+    assert.equal(baselineJson.data.verified, true);
+
+    assert.equal(players.status, 200);
+    const playersJson = await players.body;
+    assert.equal(playersJson.success, true);
+    assert.equal(playersJson.data.length, 5);
+
+    assert.equal(dashboard.status, 200);
+    const dashJson = await dashboard.body;
+    assert.equal(dashJson.success, true);
+    assert.ok(dashJson.data.kpis.total_players > 2500);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
