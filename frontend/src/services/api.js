@@ -5,7 +5,9 @@
 
 const getApiBaseUrl = () => {
   const envUrl = process.env.REACT_APP_API_URL;
-  if (envUrl && !envUrl.includes('your-backend-url')) {
+  // Always use same-origin '/api' (or an explicit relative path) so stale external
+  // deployment URLs injected via REACT_APP_API_URL never trigger cross-origin CORS failures.
+  if (envUrl && envUrl.startsWith('/')) {
     return envUrl.replace(/\/+$/, '');
   }
   return '/api';
