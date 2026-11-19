@@ -26,16 +26,21 @@ export const LeaderboardsView = ({
   untrackedMetrics = [],
   onSelectPlayer,
   onAddToCompare,
-  compareList = []
+  compareList = [],
+  selectedComp: globalComp = ''
 }) => {
   const [viewMode, setViewMode] = useState('metrics'); // 'metrics' | 'index'
   const [metric, setMetric] = useState('Gls'); // Gls, Ast, xG, xAG, G+A, PrgC, PrgP, PrgR, Gls_90
   const [isPer90, setIsPer90] = useState(false);
-  const [selectedComp, setSelectedComp] = useState('');
+  const [selectedComp, setSelectedComp] = useState(globalComp || '');
   const [selectedPos, setSelectedPos] = useState('');
   const [minMinutes, setMinMinutes] = useState(500);
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedComp(globalComp || '');
+  }, [globalComp]);
 
   // Performance Index State
   const [indexRole, setIndexRole] = useState('forwards'); // forwards, midfielders, defenders, wingers
@@ -100,8 +105,9 @@ export const LeaderboardsView = ({
       limit: 25
     })
       .then(res => {
-        if (res) {
-          setIndexData(res);
+        const payload = res?.data || res;
+        if (payload) {
+          setIndexData(payload);
         }
       })
       .catch(err => {
@@ -302,15 +308,21 @@ export const LeaderboardsView = ({
                 <span>Published Weights Formulation · {indexData.role?.toUpperCase()}</span>
               </div>
               <p className="text-xs italic text-[var(--mute)]">
-                Performance ratings are computed by z-score standardisation within the positional pool (clipped to [-3, 3]), weighted by the published formula below, and scaled 0–100 percentile rank:
+                Performance ratings are computed by average percentile rank within the positional pool, weighted by the active tracked metrics below and scaled 0–100:
               </p>
               <div className="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
                 {Object.entries(indexData.weights).map(([k, w]) => (
-                  <span key={k} className="border border-[var(--rule)] bg-[var(--panel)] px-2 py-1">
+                  <span key={k} className="border border-[var(--rule)] bg-[var(--panel)] px-2 py-1 tabular-nums">
                     <strong>{k}</strong>: {(w * 100).toFixed(0)}%
                   </span>
                 ))}
               </div>
+              {Array.isArray(indexData.excluded_metrics) && indexData.excluded_metrics.length > 0 && (
+                <p className="text-[11px] text-[var(--mute)] pt-1">
+                  Excluded untracked metrics in {formatSeason} (weights re-normalized to 100%):{' '}
+                  <span className="font-mono">{indexData.excluded_metrics.join(', ')}</span>
+                </p>
+              )}
             </div>
           )}
 
@@ -319,7 +331,7 @@ export const LeaderboardsView = ({
             <div className="py-16 text-center border border-[var(--rule)] bg-[var(--paper)] animate-pulse">
               <span className="font-disp font-bold text-lg text-[var(--ink)]">Computing Performance Ratings...</span>
             </div>
-          ) : indexData?.leaders ? (
+          ) : (indexData?.leaders || indexData?.players)?.length > 0 ? (
             <div className="overflow-x-auto border-t border-[var(--ink)]">
               <table className="w-full min-w-[700px] border-collapse text-xs font-ser">
                 <thead>

@@ -1,1 +1,5 @@
-{"name":"pitchpulse-analytics","description":"European Big 5 player performance analytics, expected goals (xG), leaderboards, comparisons, and progressive metrics across 14 seasons.","requestFramePermissions":[]}
+{
+  "name": "PitchPulse Analytics",
+  "description": "European Big 5 player performance analytics, expected goals (xG), leaderboards, comparisons, and progressive metrics across 14 seasons.",
+  "requestFramePermissions": []
+}

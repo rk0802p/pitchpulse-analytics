@@ -61,30 +61,40 @@ export const PlayerExplorerView = ({
 
   const exportCSV = () => {
     if (!players || players.length === 0) return;
+    const escapeCell = (val) => {
+      if (val === null || val === undefined || Number.isNaN(val)) return '';
+      const str = String(val);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
     const headers = ["Player", "Club", "League", "Pos", "Age", "Apps", "Minutes", "Goals", "xG", "G - xG", "Assists", "xAG", "PrgC", "PrgP"];
     const rows = players.map(p => [
-      `"${p.Player || ''}"`,
-      `"${p.Squad || p.Team || ''}"`,
-      `"${p.Comp || ''}"`,
-      `"${p.Pos || ''}"`,
-      p.Age || '',
-      p.MP || '',
-      p.Min || '',
-      p.Gls || 0,
-      p.xG || 0,
-      p.Gls_minus_xG || 0,
-      p.Ast || 0,
-      p.xAG || 0,
-      p.PrgC || 0,
-      p.PrgP || 0
+      escapeCell(p.Player ?? ''),
+      escapeCell(p.Squad || p.Team || ''),
+      escapeCell(p.Comp ?? ''),
+      escapeCell(p.Pos ?? ''),
+      escapeCell(p.Age),
+      escapeCell(p.MP),
+      escapeCell(p.Min),
+      escapeCell(p.Gls),
+      escapeCell(p.xG),
+      escapeCell(p.Gls_minus_xG),
+      escapeCell(p.Ast),
+      escapeCell(p.xAG),
+      escapeCell(p.PrgC),
+      escapeCell(p.PrgP)
     ].join(','));
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+    const csvBlob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(csvBlob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("href", url);
     link.setAttribute("download", `pitchpulse_player_ledger_${activeSeason}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const columns = [
@@ -352,13 +362,13 @@ export const PlayerExplorerView = ({
                     </td>
 
                     {/* 11. PrgC */}
-                    <td className={`${paddingClass} dotted-rule text-right font-mono`}>
-                      {p.PrgC ?? 0}
+                    <td className={`${paddingClass} dotted-rule text-right font-mono tabular-nums ${p.PrgC === null || p.PrgC === undefined ? 'text-[var(--mute)]' : ''}`}>
+                      {p.PrgC !== null && p.PrgC !== undefined ? p.PrgC : '—'}
                     </td>
 
                     {/* 12. PrgP */}
-                    <td className={`${paddingClass} dotted-rule text-right font-mono`}>
-                      {p.PrgP ?? 0}
+                    <td className={`${paddingClass} dotted-rule text-right font-mono tabular-nums ${p.PrgP === null || p.PrgP === undefined ? 'text-[var(--mute)]' : ''}`}>
+                      {p.PrgP !== null && p.PrgP !== undefined ? p.PrgP : '—'}
                     </td>
 
                     {/* 13. Compare Button */}

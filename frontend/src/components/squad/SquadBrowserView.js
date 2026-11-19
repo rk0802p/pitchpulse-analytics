@@ -118,15 +118,18 @@ export const SquadBrowserView = ({
     });
   }, [clubs, clubSearch]);
 
-  // Squad Aggregate Stats
+  // Squad Aggregate Stats (excluding unsplit full-season transfer xG/xAG to avoid double-counting)
   const squadStats = useMemo(() => {
     if (!squadRoster || squadRoster.length === 0) {
       return {
         size: 0,
         goals: 0,
         assists: 0,
-        xG: 0,
-        xAG: 0,
+        xG: null,
+        xAG: null,
+        goalsMinusXG: null,
+        hasXg: false,
+        sharedXgPlayers: [],
         minutes: 0,
         topScorer: null,
         topCreator: null,
@@ -138,25 +141,40 @@ export const SquadBrowserView = ({
     let assists = 0;
     let xG = 0;
     let xAG = 0;
+    let xGCount = 0;
+    let goalsForXgDelta = 0;
     let minutes = 0;
     let maxGls = -1;
     let topScorer = null;
     let maxAst = -1;
     let topCreator = null;
     let league = squadRoster[0]?.Comp || '';
+    const sharedXgPlayers = [];
 
     squadRoster.forEach(p => {
       const g = Number(p.Gls) || 0;
       const a = Number(p.Ast) || 0;
-      const x = Number(p.xG) || 0;
-      const xa = Number(p.xAG) || 0;
+      const isSharedXg = Boolean(p.shared_season_xg || p._shared_season_xg);
+      const hasValidXg = p.xG !== null && p.xG !== undefined && Number.isFinite(Number(p.xG));
+      const hasValidXag = p.xAG !== null && p.xAG !== undefined && Number.isFinite(Number(p.xAG));
       const m = Number(p.Min) || 0;
 
       goals += g;
       assists += a;
-      xG += x;
-      xAG += xa;
       minutes += m;
+
+      if (isSharedXg) {
+        sharedXgPlayers.push(p.Player);
+      } else {
+        if (hasValidXg) {
+          xG += Number(p.xG);
+          goalsForXgDelta += g;
+          xGCount += 1;
+        }
+        if (hasValidXag) {
+          xAG += Number(p.xAG);
+        }
+      }
 
       if (g > maxGls && g > 0) {
         maxGls = g;
@@ -168,13 +186,20 @@ export const SquadBrowserView = ({
       }
     });
 
+    const hasXg = xGCount > 0;
+    const roundedXg = hasXg ? parseFloat(xG.toFixed(1)) : null;
+    const roundedXag = hasXg ? parseFloat(xAG.toFixed(1)) : null;
+    const goalsMinusXG = hasXg ? parseFloat((goalsForXgDelta - xG).toFixed(1)) : null;
+
     return {
       size: squadRoster.length,
       goals,
       assists,
-      xG: parseFloat(xG.toFixed(1)),
-      xAG: parseFloat(xAG.toFixed(1)),
-      goalsMinusXG: parseFloat((goals - xG).toFixed(1)),
+      xG: roundedXg,
+      xAG: roundedXag,
+      goalsMinusXG,
+      hasXg,
+      sharedXgPlayers,
       minutes,
       topScorer,
       topCreator,
@@ -369,8 +394,8 @@ export const SquadBrowserView = ({
                     Total xG
                     <MetricTooltip metricKey="xG" />
                   </div>
-                  <div className="font-mono font-bold text-xl text-[var(--ink)] mt-0.5">
-                    {formatDecimal(squadStats.xG)}
+                  <div className="font-mono font-bold text-xl text-[var(--ink)] mt-0.5 tabular-nums">
+                    {squadStats.hasXg ? formatDecimal(squadStats.xG) : '—'}
                   </div>
                 </div>
 
@@ -380,9 +405,12 @@ export const SquadBrowserView = ({
                     <MetricTooltip metricKey="G-xG" />
                   </div>
                   {(() => {
+                    if (!squadStats.hasXg) {
+                      return <div className="font-mono font-bold text-xl mt-0.5 text-[var(--mute)]">—</div>;
+                    }
                     const delta = formatGoalsMinusXG(squadStats.goalsMinusXG);
                     return (
-                      <div className={`font-mono font-bold text-xl mt-0.5 ${
+                      <div className={`font-mono font-bold text-xl mt-0.5 tabular-nums ${
                         delta.isOver ? 'text-[var(--blue)]' : delta.isUnder ? 'text-[var(--red)]' : 'text-[var(--ink)]'
                       }`}>
                         {delta.glyph} {delta.text}
@@ -392,6 +420,13 @@ export const SquadBrowserView = ({
                 </div>
               </div>
             </div>
+
+            {squadStats.sharedXgPlayers.length > 0 && (
+              <div className="pt-2.5 text-[11px] font-ser italic text-[var(--mute)] border-b border-[var(--rule)] pb-2.5">
+                Note: Club Total xG and Goals − xG exclude {squadStats.sharedXgPlayers.length} mid-season transfer spell
+                {squadStats.sharedXgPlayers.length === 1 ? '' : 's'} ({squadStats.sharedXgPlayers.join(', ')}) whose source xG/xAG reflects unsplit full-season totals across multiple clubs.
+              </div>
+            )}
 
             {/* Top Scorer & Top Creator Spotlight Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -608,13 +643,19 @@ export const SquadBrowserView = ({
                                 </td>
 
                                 {/* xG */}
-                                <td className="py-2 px-2 text-right text-xs text-[var(--mute)]">
-                                  {formatDecimal(player.xG)}
+                                <td
+                                  className="py-2 px-2 text-right text-xs text-[var(--mute)] tabular-nums"
+                                  title={(player.shared_season_xg || player._shared_season_xg) ? 'Unsplit full-season xG across multiple club spells — excluded from club xG total' : undefined}
+                                >
+                                  {formatDecimal(player.xG)}{(player.shared_season_xg || player._shared_season_xg) ? '*' : ''}
                                 </td>
 
                                 {/* xAG */}
-                                <td className="py-2 px-2 text-right text-xs text-[var(--mute)]">
-                                  {formatDecimal(player.xAG)}
+                                <td
+                                  className="py-2 px-2 text-right text-xs text-[var(--mute)] tabular-nums"
+                                  title={(player.shared_season_xg || player._shared_season_xg) ? 'Unsplit full-season xAG across multiple club spells — excluded from club xAG total' : undefined}
+                                >
+                                  {formatDecimal(player.xAG)}{(player.shared_season_xg || player._shared_season_xg) ? '*' : ''}
                                 </td>
 
                                 {/* Actions */}

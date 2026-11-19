@@ -381,13 +381,17 @@ class DataLoader {
         const combinedMin = group.reduce((s, r) => s + (r.Min || 0), 0);
         for (const r of group) {
           r._shared_season_xg = true;
+          r.shared_season_xg = true;
           r._combined_season_min = combinedMin;
-          // Single-club per-90 rates cannot be computed from unsplit full-season xG/xAG
+          // Single-club per-90 rates and finishing deltas cannot be computed from unsplit full-season xG/xAG
           r.xG_90 = null;
           r.xAG_90 = null;
           r['xG+xAG_90'] = null;
           r.npxG_90 = null;
           r['npxG+xAG_90'] = null;
+          r.Gls_minus_xG = null;
+          r.xG_minus_Gls = null;
+          r.Ast_minus_xAG = null;
         }
       }
     }

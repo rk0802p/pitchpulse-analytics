@@ -59,6 +59,7 @@ function App() {
 
   // Sync hash changes with navigation and load deep-linked player
   useEffect(() => {
+    let cancelled = false;
     const handleHashChange = () => {
       const { tab, param } = parseHash(window.location.hash);
       if (tab === 'profile') {
@@ -69,37 +70,44 @@ function App() {
           return;
         }
         setCurrentTab('profile');
-        api.getPlayers({ season: activeSeason, search: rawParam, limit: 1 })
-          .then(res => {
-            const p = res?.data?.[0] || res?.[0];
-            if (p) {
-              setSelectedPlayer(p);
+        api.getPlayer(rawParam, activeSeason)
+          .then(pRes => {
+            if (cancelled) return;
+            const raw = pRes?.data?.raw_record;
+            const iden = pRes?.data?.identity || pRes?.identity;
+            if (raw) {
+              setSelectedPlayer(raw);
+            } else if (iden) {
+              setSelectedPlayer({
+                id: iden.id,
+                Player: iden.name,
+                Squad: iden.squad,
+                Comp: iden.competition,
+                Pos: iden.position,
+                Age: iden.age,
+                Min: iden.minutes,
+                season: activeSeason
+              });
             } else {
-              api.getPlayer(rawParam, activeSeason)
-                .then(pRes => {
-                  const iden = pRes?.data?.identity || pRes?.identity;
-                  if (iden) {
-                    setSelectedPlayer({
-                      id: iden.id,
-                      Player: iden.name,
-                      Squad: iden.squad,
-                      Comp: iden.competition,
-                      Pos: iden.position,
-                      Age: iden.age,
-                      Min: iden.minutes
-                    });
-                  } else {
-                    setCurrentTab('explorer');
-                    window.location.hash = '#explorer';
-                  }
-                }).catch(() => {
-                  setCurrentTab('explorer');
-                  window.location.hash = '#explorer';
-                });
+              // Keep profile open so PlayerProfileView can display career history & available seasons
+              setSelectedPlayer({ Player: rawParam, season: activeSeason });
             }
-          }).catch(() => {
-            setCurrentTab('explorer');
-            window.location.hash = '#explorer';
+          })
+          .catch(() => {
+            if (cancelled) return;
+            api.getPlayers({ season: activeSeason, search: rawParam, limit: 1 })
+              .then(res => {
+                if (cancelled) return;
+                const p = res?.data?.[0] || res?.[0];
+                if (p) {
+                  setSelectedPlayer(p);
+                } else {
+                  setSelectedPlayer({ Player: rawParam, season: activeSeason });
+                }
+              })
+              .catch(() => {
+                if (!cancelled) setSelectedPlayer({ Player: rawParam, season: activeSeason });
+              });
           });
       } else if (['dashboard', 'explorer', 'plots', 'leaderboards', 'compare', 'browse', 'data'].includes(tab)) {
         setCurrentTab(tab);
@@ -108,7 +116,10 @@ function App() {
     window.addEventListener('hashchange', handleHashChange);
     // Initial check on load
     handleHashChange();
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, [activeSeason]);
 
   // Load Seasons on Mount
@@ -124,62 +135,34 @@ function App() {
       .catch(err => console.error("Error loading seasons:", err));
   }, []);
 
+  // Load Season-Scoped Metadata, Quality, Squads, and Global Search Pool (runs ONCE per season change)
   useEffect(() => {
-    let current = true;
+    let cancelled = false;
     setSeasonQuality(null);
-    api.getSeasonQuality(activeSeason)
-      .then((res) => { if (current) setSeasonQuality(res?.data || null); })
-      .catch(() => { if (current) setSeasonQuality(null); });
-    return () => { current = false; };
-  }, [activeSeason]);
 
-  // Load Metadata, Top Performers, Squads, and Global Players
-  useEffect(() => {
+    api.getSeasonQuality(activeSeason)
+      .then((res) => { if (!cancelled) setSeasonQuality(res?.data || null); })
+      .catch(() => { if (!cancelled) setSeasonQuality(null); });
+
     api.getMetadata(activeSeason)
       .then(res => {
-        if (res?.success && res.data) {
+        if (!cancelled && res?.success && res.data) {
           setMetadata(res.data);
         }
       })
       .catch(err => console.error("Error loading metadata:", err));
 
-    // Top scorer
-    api.getPlayers({ season: activeSeason, sort_by: 'Gls', order: 'desc', limit: 1 })
-      .then(res => {
-        const p = res?.data?.[0] || res?.[0];
-        if (p) setTopScorer(p);
-      }).catch(() => {});
-
-    // Top assister
-    api.getPlayers({ season: activeSeason, sort_by: 'Ast', order: 'desc', limit: 1 })
-      .then(res => {
-        const p = res?.data?.[0] || res?.[0];
-        if (p) setTopAssister(p);
-      }).catch(() => {});
-
-    // Do not request or imply a progression leader where the season does not track progression.
-    const activeSeasonMeta = availableSeasons.find((season) => (season.id || season) === activeSeason) || {};
-    const progressionUntracked = (seasonQuality?.untracked_metrics || activeSeasonMeta.untracked_metrics || []).some((metric) => metric.startsWith('Prg'));
-    if (progressionUntracked) setTopProgression(null);
-    else api.getPlayers({ season: activeSeason, sort_by: 'PrgC', order: 'desc', limit: 1 })
-      .then(res => {
-        const p = res?.data?.[0] || res?.[0];
-        if (p) setTopProgression(p);
-      }).catch(() => {});
-
-    // Load squad names
     api.getTeams(undefined, activeSeason)
       .then(res => {
-        if (res?.success && Array.isArray(res.data)) {
-          setSquadsList(res.data);
-        } else if (Array.isArray(res)) {
-          setSquadsList(res);
-        }
+        if (cancelled) return;
+        const list = (res?.success && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+        setSquadsList(list);
+        setSelectedSquad(prev => (prev && !list.includes(prev) ? '' : prev));
       }).catch(() => {});
 
-    // Global player search pool (top 500 players by minutes)
     api.getPlayers({ season: activeSeason, limit: 500, sort_by: 'Min', order: 'desc' })
       .then(res => {
+        if (cancelled) return;
         if (res?.success && Array.isArray(res.data)) {
           setAllPlayers(res.data);
         } else if (Array.isArray(res)) {
@@ -187,15 +170,26 @@ function App() {
         }
       }).catch(() => {});
 
-    // Executive Dashboard Analytics
+    return () => { cancelled = true; };
+  }, [activeSeason]);
+
+  // Load Executive Dashboard Analytics & Top Performers (runs ONLY when season or league filter changes)
+  useEffect(() => {
+    let cancelled = false;
     api.getDashboard(selectedComp || undefined, activeSeason)
       .then(res => {
+        if (cancelled) return;
         const d = res?.data || res;
-        if (d) setDashboardData(d);
+        if (d) {
+          setDashboardData(d);
+          setTopScorer(d.top_scorers?.[0] || null);
+          setTopAssister(d.top_creators?.[0] || null);
+          setTopProgression(d.progression_leaders?.[0] || null);
+        }
       })
       .catch(err => console.error("Error loading dashboard data:", err));
-
-  }, [activeSeason, selectedComp, availableSeasons, seasonQuality]);
+    return () => { cancelled = true; };
+  }, [activeSeason, selectedComp]);
 
   // Fetch Explorer Players
   useEffect(() => {
@@ -274,6 +268,8 @@ function App() {
     if (!seasonId || seasonId === activeSeason) return;
     setIsSwitchingSeason(true);
     setActiveSeason(seasonId);
+    setPagination(p => ({ ...p, page: 1 }));
+    api.setActiveSeason(seasonId).catch(() => {});
     setTimeout(() => {
       setIsSwitchingSeason(false);
     }, 150);
@@ -443,6 +439,7 @@ function App() {
           }}
           onCompare={handleAddToCompare}
           onSelectPlayer={handleSelectPlayer}
+          onSelectSeason={handleSwitchSeason}
           activeSeason={activeSeason}
         />
       )}

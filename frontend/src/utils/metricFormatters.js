@@ -144,13 +144,14 @@ export const formatDiscipline = (yellows, reds) => {
 export const generateProfileSummary = (player) => {
   if (!player) return "";
   const name = player.Player || player.name || "The player";
-  const pos = (player.Pos || player.position || "FW").split(',')[0].trim();
-  const gls = Number(player.Gls || player.goals || 0);
-  const xg = Number(player.xG || player.expected_goals || 0);
-  const ast = Number(player.Ast || player.assists || 0);
-  const prgc = Number(player.PrgC || player.progressive_carries || 0);
-  const min = Number(player.Min || player.minutes || 0);
-  const delta = gls - xg;
+  const gls = Number(player.Gls ?? player.goals ?? 0);
+  const rawXg = player.xG !== undefined ? player.xG : player.expected_goals;
+  const hasXg = rawXg !== null && rawXg !== undefined && !Number.isNaN(Number(rawXg)) && !player.shared_season_xg && !player._shared_season_xg;
+  const xg = hasXg ? Number(rawXg) : null;
+  const ast = Number(player.Ast ?? player.assists ?? 0);
+  const rawPrgc = player.PrgC !== undefined ? player.PrgC : player.progressive_carries;
+  const prgc = rawPrgc !== null && rawPrgc !== undefined && !Number.isNaN(Number(rawPrgc)) ? Number(rawPrgc) : null;
+  const min = Number(player.Min ?? player.minutes ?? 0);
 
   const sentences = [];
 
@@ -158,15 +159,20 @@ export const generateProfileSummary = (player) => {
     sentences.push(`Based on ${min.toLocaleString()} minutes. Treat per-90 rates with caution.`);
   }
 
-  if (delta >= 3.0) {
-    sentences.push(`${name} has scored ${delta.toFixed(1)} more than his chances suggest (${gls} goals from ${xg.toFixed(1)} xG).`);
-  } else if (delta <= -3.0) {
-    sentences.push(`${name} has scored ${Math.abs(delta).toFixed(1)} fewer than expected from ${xg.toFixed(1)} xG.`);
+  if (hasXg && xg !== null) {
+    const delta = gls - xg;
+    if (delta >= 3.0) {
+      sentences.push(`${name} has scored ${delta.toFixed(1)} more than his chances suggest (${gls} goals from ${xg.toFixed(1)} xG).`);
+    } else if (delta <= -3.0) {
+      sentences.push(`${name} has scored ${Math.abs(delta).toFixed(1)} fewer than expected from ${xg.toFixed(1)} xG.`);
+    } else if (gls > 0) {
+      sentences.push(`${name} has scored ${gls} goals roughly in line with expectation (${xg.toFixed(1)} xG).`);
+    }
   } else if (gls > 0) {
-    sentences.push(`${name} has scored ${gls} goals roughly in line with expectation (${xg.toFixed(1)} xG).`);
+    sentences.push(`${name} has recorded ${gls} league goal${gls === 1 ? '' : 's'} this campaign.`);
   }
 
-  if (prgc >= 75) {
+  if (prgc !== null && prgc >= 75) {
     sentences.push(`Ranks among the most proactive ball carriers with ${prgc} progressive carries.`);
   }
 
@@ -174,7 +180,7 @@ export const generateProfileSummary = (player) => {
     sentences.push(`A primary creative outlet with ${ast} assists recorded this campaign.`);
   }
 
-  return sentences.join(" ") || `${name} has featured in ${min.toLocaleString()} minutes across all competitions.`;
+  return sentences.join(" ") || `${name} has featured in ${min.toLocaleString()} minutes across league play.`;
 };
 
 export const isMetricTracked = (value) => {

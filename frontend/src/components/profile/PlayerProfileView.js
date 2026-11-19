@@ -25,11 +25,13 @@ export const PlayerProfileView = ({
   onBack,
   onCompare,
   onSelectPlayer,
+  onSelectSeason,
   activeSeason = "2024-2025"
 }) => {
   const [profileData, setProfileData] = useState(null);
+  const [notInSeason, setNotInSeason] = useState(false);
   const [percentilesList, setPercentilesList] = useState([]);
-  const [peerPoolInfo, setPeerPoolInfo] = useState({ size: 749, position: 'FW' });
+  const [peerPoolInfo, setPeerPoolInfo] = useState({ size: 0, position: 'FW' });
   const [scatterFinishingData, setScatterFinishingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [careerHistoryData, setCareerHistoryData] = useState(null);
@@ -38,63 +40,83 @@ export const PlayerProfileView = ({
 
   const playerObj = (player && typeof player === 'object') ? player : {};
   const rawId = playerObj.id || playerObj.record_id || playerObj.Rk || (typeof player === 'number' || typeof player === 'string' ? player : null);
-  const playerId = (rawId && rawId !== 'undefined' && rawId !== 'null') ? rawId : (playerObj.Player || playerObj.name || null);
-  const playerName = playerObj.Player || playerObj.name || profileData?.identity?.name || (typeof player === 'string' && player !== 'undefined' ? player : "Player Profile");
+  const seasonMatchesPlayer = !playerObj.season || playerObj.season === activeSeason;
+  const fallbackName = playerObj.Player || playerObj.name || (typeof player === 'string' && player !== 'undefined' ? player : null);
+  // Avoid passing a numeric CSV row Rk from another season, which would resolve to a different player
+  const lookupKey = seasonMatchesPlayer && rawId && rawId !== 'undefined' && rawId !== 'null'
+    ? rawId
+    : (fallbackName || rawId || null);
+  const playerId = profileData?.identity?.id || lookupKey;
+  const playerName = fallbackName || profileData?.identity?.name || "Player Profile";
 
   // Load detailed profile, percentiles, and finishing scatter plot
   useEffect(() => {
-    if (!playerId) return;
+    if (!lookupKey) return;
+    let cancelled = false;
     setLoading(true);
+    setNotInSeason(false);
+    setProfileData(null);
+    setPercentilesList([]);
 
-    // 1. Core player profile
-    api.getPlayer(playerId, activeSeason)
+    // 1. Core player profile for activeSeason
+    api.getPlayer(lookupKey, activeSeason)
       .then(res => {
-        if (res?.success && res.data) {
-          setProfileData(res.data);
-        } else if (res?.player) {
-          setProfileData(res);
+        if (cancelled) return;
+        const data = res?.success && res.data ? res.data : (res?.player ? res : null);
+        if (data) {
+          setProfileData(data);
+          setNotInSeason(false);
+          const resolvedId = data?.identity?.id || lookupKey;
+          const resolvedPos = (data?.identity?.position || playerObj.Pos || '').split(',')[0] || undefined;
+
+          // 2. Positional percentiles from dedicated endpoint
+          api.getPlayerPercentiles(resolvedId, { season: activeSeason })
+            .then(pRes => {
+              if (cancelled) return;
+              const payload = pRes?.data || pRes;
+              if (payload?.percentiles) {
+                setPercentilesList(Array.isArray(payload.percentiles) ? payload.percentiles : []);
+                if (payload.peer_sample_size || payload.pool) {
+                  setPeerPoolInfo({
+                    size: payload.peer_sample_size || payload.pool?.sample_size || 0,
+                    position: payload.comparison_position || payload.pool?.position || resolvedPos || 'FW'
+                  });
+                }
+              }
+            })
+            .catch(() => {});
+
+          // 3. Finishing scatter plot with parity line for this player's position
+          api.getScatterChart({
+            season: activeSeason,
+            x: 'Gls_90',
+            y: 'xG_90',
+            position: resolvedPos,
+            min_minutes: 500
+          }).then(sRes => {
+            if (cancelled) return;
+            const payload = sRes?.data || sRes;
+            if (payload?.points) setScatterFinishingData(payload);
+          }).catch(() => {});
+        } else {
+          setNotInSeason(true);
         }
       })
-      .catch(err => {
-        console.error("Failed to load player profile:", err);
-      })
-      .finally(() => setLoading(false));
-
-    // 2. Positional percentiles from dedicated endpoint
-    api.getPlayerPercentiles(playerId, { season: activeSeason })
-      .then(res => {
-        const payload = res?.data || res;
-        if (payload?.percentiles) {
-          setPercentilesList(payload.percentiles);
-          if (payload.pool) {
-            setPeerPoolInfo({
-              size: payload.pool.sample_size || 749,
-              position: payload.pool.position || player?.Pos || 'FW'
-            });
-          }
+      .catch(() => {
+        if (!cancelled) {
+          setProfileData(null);
+          setNotInSeason(true);
         }
       })
-      .catch(err => {
-        console.warn("Could not fetch dedicated percentiles endpoint, fallback to profile stats:", err);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
 
-    // 3. Finishing scatter plot with parity line for this player's position
-    api.getScatterChart({
-      season: activeSeason,
-      x: 'Gls_90',
-      y: 'xG_90',
-      position: player?.Pos?.split(',')[0] || undefined,
-      min_minutes: 500
-    }).then(res => {
-      const payload = res?.data || res;
-      if (payload?.points) {
-        setScatterFinishingData(payload);
-      }
-    }).catch(() => {});
-
     // 4. Fetch full multi-season career history (2012-2013 to 2025-2026) from dedicated history endpoint
-    api.getPlayerHistory(playerId, { season: activeSeason })
+    const historyQuery = fallbackName || lookupKey;
+    api.getPlayerHistory(historyQuery, { season: activeSeason })
       .then(res => {
+        if (cancelled) return;
         const payload = res?.data || res;
         if (payload?.seasons) {
           setCareerHistoryData(payload);
@@ -105,11 +127,14 @@ export const PlayerProfileView = ({
         }
       })
       .catch(() => {
-        setCareerHistoryData(null);
-        setCareerHistory([]);
+        if (!cancelled) {
+          setCareerHistoryData(null);
+          setCareerHistory([]);
+        }
       });
 
-  }, [playerId, playerName, activeSeason, player?.Pos]);
+    return () => { cancelled = true; };
+  }, [lookupKey, fallbackName, activeSeason]);
 
   if (!player && !profileData) {
     return (
@@ -133,6 +158,62 @@ export const PlayerProfileView = ({
     );
   }
 
+  if (notInSeason && !loading) {
+    return (
+      <div className="space-y-6 font-ser not-italic">
+        <div className="flex items-center justify-between border-b border-[var(--ink)] pb-3">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-xs italic text-[var(--ink)] hover:text-[var(--blue)] transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Player Ledger</span>
+          </button>
+        </div>
+
+        <div className="border-2 border-[var(--ink)] bg-[var(--paper)] p-6 space-y-4">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[var(--mute)]">
+            Season Availability Notice · {activeSeason}
+          </div>
+          <h2 className="font-disp font-extrabold text-3xl text-[var(--ink)] leading-tight">
+            {careerHistoryData?.player_name || playerName}
+          </h2>
+          <p className="text-sm text-[var(--mute)]">
+            No Big 5 European league appearances recorded for this player in <strong className="text-[var(--ink)]">{activeSeason}</strong>.
+          </p>
+          {careerHistory.length > 0 && (
+            <div className="pt-2 space-y-2">
+              <div className="text-xs font-mono uppercase text-[var(--mute)]">
+                Jump to an archived season ({careerHistory.length} available):
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {careerHistory.map((row) => (
+                  <button
+                    key={row.season}
+                    onClick={() => onSelectSeason && onSelectSeason(row.season)}
+                    className="border border-[var(--ink)] bg-[var(--panel)] hover:bg-[var(--ink)] hover:text-[var(--paper)] px-3 py-1 text-xs font-mono transition-colors cursor-pointer"
+                  >
+                    {row.season} · {row.Squad} ({row.Gls}G)
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {careerHistoryData && (
+          <PlayerXgEfficiencyChart
+            playerId={fallbackName || lookupKey}
+            playerName={careerHistoryData.player_name || playerName}
+            activeSeason={activeSeason}
+            preloadedHistory={careerHistoryData}
+            allowPlayerSwitch={false}
+          />
+        )}
+      </div>
+    );
+  }
+
   const safePlayer = (profileData?.identity ? { ...playerObj, ...profileData.identity } : playerObj);
 
   const identity = profileData?.identity || {
@@ -145,12 +226,12 @@ export const PlayerProfileView = ({
 
   const totals = profileData?.totals || {
     goals: safePlayer.goals ?? safePlayer.Gls ?? 0,
-    expected_goals: safePlayer.expected_goals ?? safePlayer.xG ?? 0,
+    expected_goals: safePlayer.expected_goals !== undefined ? safePlayer.expected_goals : (safePlayer.xG ?? null),
     assists: safePlayer.assists ?? safePlayer.Ast ?? 0,
-    expected_assists: safePlayer.expected_assists ?? safePlayer.xAG ?? 0,
-    progressive_carries: safePlayer.progressive_carries ?? safePlayer.PrgC ?? 0,
-    progressive_passes: safePlayer.progressive_passes ?? safePlayer.PrgP ?? 0,
-    progressive_receptions: safePlayer.progressive_receptions ?? safePlayer.PrgR ?? 0,
+    expected_assists: safePlayer.expected_assists !== undefined ? safePlayer.expected_assists : (safePlayer.xAG ?? null),
+    progressive_carries: safePlayer.progressive_carries !== undefined ? safePlayer.progressive_carries : (safePlayer.PrgC ?? null),
+    progressive_passes: safePlayer.progressive_passes !== undefined ? safePlayer.progressive_passes : (safePlayer.PrgP ?? null),
+    progressive_receptions: safePlayer.progressive_receptions !== undefined ? safePlayer.progressive_receptions : (safePlayer.PrgR ?? null),
     yellow_cards: safePlayer.yellow_cards ?? safePlayer.CrdY ?? 0,
     red_cards: safePlayer.red_cards ?? safePlayer.CrdR ?? 0,
     minutes: safePlayer.minutes ?? safePlayer.Min ?? 0,
@@ -158,22 +239,23 @@ export const PlayerProfileView = ({
   };
 
   const per90 = profileData?.per_90_rates || {
-    goals_per_90: player?.Gls_90 || (totals.minutes > 0 ? (totals.goals / totals.minutes) * 90 : 0),
-    xg_per_90: player?.xG_90 || (totals.minutes > 0 ? (totals.expected_goals / totals.minutes) * 90 : 0),
-    assists_per_90: player?.Ast_90 || (totals.minutes > 0 ? (totals.assists / totals.minutes) * 90 : 0),
-    xag_per_90: player?.xAG_90 || (totals.minutes > 0 ? (totals.expected_assists / totals.minutes) * 90 : 0),
+    goals_per_90: player?.Gls_90 ?? (totals.minutes > 0 ? (totals.goals / totals.minutes) * 90 : 0),
+    xg_per_90: player?.xG_90 ?? null,
+    assists_per_90: player?.Ast_90 ?? (totals.minutes > 0 ? (totals.assists / totals.minutes) * 90 : 0),
+    xag_per_90: player?.xAG_90 ?? null,
   };
 
-  const hasTrackedXg = totals.expected_goals !== null && totals.expected_goals !== undefined;
+  const isSharedSeasonXg = Boolean(profileData?.raw_record?.shared_season_xg || profileData?.raw_record?._shared_season_xg || playerObj.shared_season_xg);
+  const hasTrackedXg = totals.expected_goals !== null && totals.expected_goals !== undefined && !isSharedSeasonXg;
   const deltaObj = hasTrackedXg
     ? formatGoalsMinusXG(totals.goals - totals.expected_goals)
-    : { glyph: '·', text: 'xG not tracked', isOver: false, isUnder: false };
+    : { glyph: '·', text: isSharedSeasonXg ? 'Unsplit transfer xG' : 'xG not tracked', isOver: false, isUnder: false };
   const hasProg = totals.progressive_carries !== null && totals.progressive_carries !== undefined &&
     totals.progressive_passes !== null && totals.progressive_passes !== undefined;
   const progTotal = hasProg ? totals.progressive_carries + totals.progressive_passes : null;
   const gaTotal = (totals.goals || 0) + (totals.assists || 0);
 
-  const autoSummary = generateProfileSummary(player);
+  const autoSummary = generateProfileSummary(profileData?.raw_record || player);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -183,12 +265,12 @@ export const PlayerProfileView = ({
 
   // Fallback percentiles data if dedicated endpoint not yet populated
   const defaultPercentilesData = [
-    { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? (player?.Gls_90_pct ?? 85) },
+    { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? null },
     { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: hasTrackedXg ? per90.xg_per_90 : null, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? null },
-    { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? (player?.Ast_90_pct ?? 74) },
+    { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? null },
     { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? null },
-    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: totals.progressive_carries != null ? (totals.progressive_carries / (totals.nineties || 1)) : null, percentile: profileData?.percentiles?.progressive_carries?.percentile ?? null },
-    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: totals.progressive_passes != null ? (totals.progressive_passes / (totals.nineties || 1)) : null, percentile: profileData?.percentiles?.progressive_passes?.percentile ?? null }
+    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: totals.progressive_carries != null && totals.nineties > 0 ? (totals.progressive_carries / totals.nineties) : null, percentile: profileData?.percentiles?.progressive_carries?.percentile ?? null },
+    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: totals.progressive_passes != null && totals.nineties > 0 ? (totals.progressive_passes / totals.nineties) : null, percentile: profileData?.percentiles?.progressive_passes?.percentile ?? null }
   ];
 
   const resolvedPercentiles = percentilesList.length > 0 ? percentilesList : defaultPercentilesData;

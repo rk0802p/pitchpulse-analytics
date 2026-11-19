@@ -29,6 +29,30 @@ const ROLE_PRESETS = {
     title: 'All-Round Attacking Threat Index',
     description: 'Holistic attacking contribution combining scoring, playmaking, and vertical transition progression.',
   },
+  forwards: {
+    defaultPosition: 'FW',
+    metrics: { Gls_90: 0.30, xG_90: 0.25, npxG_90: 0.15, Ast_90: 0.15, xAG_90: 0.15 },
+    title: 'Forwards Performance Index (FW)',
+    description: 'Evaluates central and wide forwards across scoring rate, shot quality, and chance creation.',
+  },
+  midfielders: {
+    defaultPosition: 'MF',
+    metrics: { xAG_90: 0.25, Ast_90: 0.20, PrgP_90: 0.25, PrgC_90: 0.15, 'G+A_90': 0.15 },
+    title: 'Midfielders Performance Index (MF)',
+    description: 'Balances ball progression, chance creation, and direct goal contributions for midfielders.',
+  },
+  defenders: {
+    defaultPosition: 'DF',
+    metrics: { PrgP_90: 0.35, PrgC_90: 0.25, xAG_90: 0.20, 'G+A_90': 0.20 },
+    title: 'Defenders Progression & Threat Index (DF)',
+    description: 'Highlights defenders driving vertical progression and final-third threat from deep.',
+  },
+  wingers: {
+    defaultPosition: 'FW,MF',
+    metrics: { 'G+A_90': 0.25, xAG_90: 0.25, xG_90: 0.20, PrgC_90: 0.20, PrgR_90: 0.10 },
+    title: 'Wingers & Attacking Midfielders Index',
+    description: 'Measures wide and hybrid attackers on ball carrying, chance creation, and direct goal threat.',
+  },
 };
 
 const SCATTER_PER_90_NUMERATORS = {
@@ -44,6 +68,17 @@ const SCATTER_PER_90_NUMERATORS = {
   PrgP_90: 'PrgP',
   PrgR_90: 'PrgR',
 };
+
+const SHARED_XG_PROTECTED_METRICS = new Set([
+  'xG_90',
+  'xAG_90',
+  'xG+xAG_90',
+  'npxG_90',
+  'npxG+xAG_90',
+  'Gls_minus_xG',
+  'xG_minus_Gls',
+  'Ast_minus_xAG',
+]);
 
 function isFiniteNum(v) {
   return typeof v === 'number' && Number.isFinite(v);
@@ -62,9 +97,15 @@ function pool(records, { position = null, minMinutes = 270, competition = null }
     }
   }
   if (position) {
-    const posClean = String(position).split(',')[0].trim().toUpperCase();
-    if (posClean) {
-      res = res.filter((r) => (r.Pos || '').toUpperCase().includes(posClean));
+    const tokens = String(position)
+      .split(',')
+      .map((t) => t.trim().toUpperCase())
+      .filter(Boolean);
+    if (tokens.length > 0) {
+      res = res.filter((r) => {
+        const pStr = (r.Pos || '').toUpperCase();
+        return tokens.some((tok) => pStr.includes(tok));
+      });
     }
   }
   return res;
@@ -115,41 +156,55 @@ function similarPlayers(player, poolRecords, { k = 5, weights = null, sameLeague
   if (candidates.length === 0) return [];
 
   const metrics = weights ? Object.keys(weights) : DEFAULT_SIMILARITY_METRICS;
-  let featureCols = metrics.filter((m) => isFiniteNum(player[m]));
-  if (featureCols.length < 3) {
-    featureCols = ['Gls_90', 'Ast_90', 'Min', 'G+A_90'];
+  let featureCols = metrics.filter(
+    (m) =>
+      isFiniteNum(player[m]) &&
+      candidates.filter((r) => isFiniteNum(r[m])).length >= Math.min(5, candidates.length)
+  );
+  if (featureCols.length < 2) {
+    featureCols = ['Gls_90', 'Ast_90', 'G+A_90', 'Min'].filter(
+      (m) => isFiniteNum(player[m]) && candidates.some((r) => isFiniteNum(r[m]))
+    );
   }
+  if (featureCols.length === 0) return [];
 
   const wDict = weights || Object.fromEntries(featureCols.map((c) => [c, 1.0]));
-  const wSum = featureCols.reduce((acc, c) => acc + (wDict[c] || 1.0), 0);
+  const totalWeight = featureCols.reduce((acc, c) => acc + (wDict[c] || 1.0), 0);
 
   const stats = {};
   for (const col of featureCols) {
-    const vals = candidates.map((r) => (isFiniteNum(r[col]) ? r[col] : 0.0));
+    const vals = candidates.map((r) => r[col]).filter(isFiniteNum);
+    if (vals.length === 0) continue;
     const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
     const variance =
       vals.length > 1
         ? vals.reduce((acc, v) => acc + (v - mean) ** 2, 0) / (vals.length - 1)
         : 1.0;
     const std = Math.sqrt(variance) > 1e-6 ? Math.sqrt(variance) : 1.0;
-    const targetVal = isFiniteNum(player[col]) ? player[col] : 0.0;
-    stats[col] = { mean, std, targetZ: (targetVal - mean) / std };
+    stats[col] = { mean, std, targetZ: (player[col] - mean) / std };
   }
 
-  const maxReasonableDist = Math.sqrt(wSum) * 3.0;
+  const activeCols = featureCols.filter((c) => stats[c]);
+  if (activeCols.length === 0) return [];
 
-  const scored = candidates.map((row) => {
+  const scored = [];
+  for (const row of candidates) {
     let distSq = 0;
-    for (const col of featureCols) {
+    let matchedWeight = 0;
+    for (const col of activeCols) {
+      if (!isFiniteNum(row[col])) continue;
       const w = wDict[col] || 1.0;
-      const val = isFiniteNum(row[col]) ? row[col] : 0.0;
-      const z = (val - stats[col].mean) / stats[col].std;
+      const z = (row[col] - stats[col].mean) / stats[col].std;
       distSq += w * (z - stats[col].targetZ) ** 2;
+      matchedWeight += w;
     }
-    const dist = Math.sqrt(distSq);
-    const rawSim = 100.0 * (1.0 - dist / maxReasonableDist);
+    if (matchedWeight < totalWeight * 0.5 || matchedWeight <= 0) continue;
+
+    // Normalize weighted squared distance by matchedWeight so missing optional dims don't bias similarity
+    const rmsZDist = Math.sqrt(distSq / matchedWeight);
+    const rawSim = 100.0 * (1.0 - rmsZDist / 3.0);
     const similarity = roundTo(Math.max(10.0, Math.min(99.5, rawSim)), 1);
-    return {
+    scored.push({
       id: row.id,
       Player: row.Player,
       Squad: row.Squad,
@@ -158,7 +213,7 @@ function similarPlayers(player, poolRecords, { k = 5, weights = null, sameLeague
       Age: row.Age,
       Min: row.Min || 0,
       similarity,
-      distance: roundTo(dist, 2),
+      distance: roundTo(rmsZDist, 2),
       stats: {
         Gls: row.Gls || 0,
         Ast: row.Ast || 0,
@@ -167,8 +222,8 @@ function similarPlayers(player, poolRecords, { k = 5, weights = null, sameLeague
         Gls_90: isFiniteNum(row.Gls_90) ? row.Gls_90 : null,
         Ast_90: isFiniteNum(row.Ast_90) ? row.Ast_90 : null,
       },
-    };
-  });
+    });
+  }
 
   scored.sort((a, b) => b.similarity - a.similarity);
   return scored.slice(0, k);
@@ -197,35 +252,99 @@ function performanceIndex(
   { role = 'finisher', position = null, competition = null, minMinutes = 270, limit = 25 } = {}
 ) {
   const preset = ROLE_PRESETS[role] || ROLE_PRESETS.finisher;
-  const weights = preset.metrics;
-  const filtered = pool(records, { position, minMinutes, competition });
+  const baseWeights = preset.metrics;
+  const effectivePosition = position || preset.defaultPosition || null;
+  const filtered = pool(records, { position: effectivePosition, minMinutes, competition });
   if (filtered.length === 0) {
-    return { players: [], role, preset, total: 0 };
+    return {
+      players: [],
+      leaders: [],
+      role,
+      preset,
+      weights: {},
+      base_weights: baseWeights,
+      excluded_metrics: Object.keys(baseWeights),
+      total: 0,
+    };
   }
 
   const n = filtered.length;
-  const scores = new Array(n).fill(0);
-  let activeWeightsSum = 0;
+  const minValidPool = Math.min(5, n);
+  const trackedEntries = [];
+  const excludedMetrics = [];
 
-  for (const [metric, w] of Object.entries(weights)) {
-    const vals = filtered.map((r) => (isFiniteNum(r[metric]) ? r[metric] : 0.0));
-    const ranks = computeAverageRanks(vals);
+  for (const [metric, w] of Object.entries(baseWeights)) {
+    const validIndices = [];
+    const validValues = [];
     for (let i = 0; i < n; i += 1) {
-      scores[i] += w * ((ranks[i] / n) * 100.0);
+      const val = filtered[i][metric];
+      if (isFiniteNum(val)) {
+        validIndices.push(i);
+        validValues.push(val);
+      }
     }
-    activeWeightsSum += w;
+    if (validIndices.length >= minValidPool) {
+      trackedEntries.push({ metric, weight: w, validIndices, validValues });
+    } else {
+      excludedMetrics.push(metric);
+    }
   }
 
-  const combined = filtered.map((row, i) => ({
-    row,
-    composite_index: activeWeightsSum > 0 ? roundTo(scores[i] / activeWeightsSum, 1) : 50.0,
-  }));
+  // Fallback to core tracked rate metrics if every preset metric was untracked (e.g. progressor in 2012-2013)
+  if (trackedEntries.length === 0) {
+    const fallbackWeights = { Gls_90: 0.4, Ast_90: 0.35, 'G+A_90': 0.25 };
+    for (const [metric, w] of Object.entries(fallbackWeights)) {
+      const validIndices = [];
+      const validValues = [];
+      for (let i = 0; i < n; i += 1) {
+        const val = filtered[i][metric];
+        if (isFiniteNum(val)) {
+          validIndices.push(i);
+          validValues.push(val);
+        }
+      }
+      if (validIndices.length >= minValidPool) {
+        trackedEntries.push({ metric, weight: w, validIndices, validValues });
+      }
+    }
+  }
+
+  const trackedWeightSum = trackedEntries.reduce((acc, e) => acc + e.weight, 0);
+  const effectiveWeights = {};
+  for (const entry of trackedEntries) {
+    effectiveWeights[entry.metric] =
+      trackedWeightSum > 0 ? roundTo(entry.weight / trackedWeightSum, 4) : 0;
+  }
+
+  const weightedSum = new Array(n).fill(0);
+  const rowWeightSum = new Array(n).fill(0);
+
+  for (const { metric, validIndices, validValues } of trackedEntries) {
+    const normW = effectiveWeights[metric];
+    const mCount = validValues.length;
+    const ranks = computeAverageRanks(validValues);
+    for (let k = 0; k < mCount; k += 1) {
+      const rowIdx = validIndices[k];
+      const pctScore = ((ranks[k] - 0.5) / mCount) * 100.0;
+      weightedSum[rowIdx] += normW * pctScore;
+      rowWeightSum[rowIdx] += normW;
+    }
+  }
+
+  const combined = [];
+  for (let i = 0; i < n; i += 1) {
+    // Require at least 50% of active tracked weight on a player row so missing-xG transfer spells aren't distorted
+    if (rowWeightSum[i] < 0.5) continue;
+    const score = roundTo(weightedSum[i] / rowWeightSum[i], 1);
+    combined.push({ row: filtered[i], composite_index: score });
+  }
 
   combined.sort((a, b) => b.composite_index - a.composite_index);
 
+  const activeMetricKeys = trackedEntries.map((e) => e.metric);
   const players = combined.slice(0, limit).map(({ row, composite_index }, idx) => {
     const metricSnapshot = {};
-    for (const m of Object.keys(weights)) {
+    for (const m of activeMetricKeys) {
       metricSnapshot[m] = isFiniteNum(row[m]) ? roundTo(row[m], 2) : null;
     }
     return {
@@ -238,6 +357,7 @@ function performanceIndex(
       Age: row.Age,
       Min: row.Min || 0,
       composite_index,
+      performance_index: composite_index,
       metrics: metricSnapshot,
     };
   });
@@ -245,12 +365,21 @@ function performanceIndex(
   return {
     role,
     preset,
-    total: filtered.length,
+    weights: effectiveWeights,
+    base_weights: baseWeights,
+    excluded_metrics: excludedMetrics,
+    total: combined.length,
     players,
+    leaders: players,
   };
 }
 
 function scatterMetricValue(row, metric) {
+  const isSharedXg = Boolean(row._shared_season_xg || row.shared_season_xg);
+  if (isSharedXg && SHARED_XG_PROTECTED_METRICS.has(metric)) {
+    return null;
+  }
+
   if (metric === 'G+A') {
     return isFiniteNum(row.Gls) && isFiniteNum(row.Ast) ? row.Gls + row.Ast : null;
   }
@@ -258,12 +387,15 @@ function scatterMetricValue(row, metric) {
     return isFiniteNum(row.xG) && isFiniteNum(row.xAG) ? row.xG + row.xAG : null;
   }
   if (metric === 'xG+xAG_90') {
+    if (isFiniteNum(row['xG+xAG_90'])) return row['xG+xAG_90'];
+    if (row['xG+xAG_90'] === null) return null;
     if (isFiniteNum(row.xG) && isFiniteNum(row.xAG) && isFiniteNum(row.Min) && row.Min > 0) {
       return ((row.xG + row.xAG) * 90.0) / row.Min;
     }
     return null;
   }
   if (metric === 'G+A-PK_90') {
+    if (isFiniteNum(row['G+A-PK_90'])) return row['G+A-PK_90'];
     if (isFiniteNum(row['G-PK']) && isFiniteNum(row.Ast) && isFiniteNum(row.Min) && row.Min > 0) {
       return ((row['G-PK'] + row.Ast) * 90.0) / row.Min;
     }
@@ -271,6 +403,8 @@ function scatterMetricValue(row, metric) {
   }
   const numCol = SCATTER_PER_90_NUMERATORS[metric];
   if (numCol) {
+    if (isFiniteNum(row[metric])) return row[metric];
+    if (row[metric] === null) return null;
     if (isFiniteNum(row[numCol]) && isFiniteNum(row.Min) && row.Min > 0) {
       return (row[numCol] * 90.0) / row.Min;
     }
