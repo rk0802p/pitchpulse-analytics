@@ -18,6 +18,7 @@ import PercentileTable from './PercentileTable';
 import RadarChart from '../charts/RadarChart';
 import SimilarPlayers from './SimilarPlayers';
 import ScatterPlot from '../charts/ScatterPlot';
+import PlayerXgEfficiencyChart from '../charts/PlayerXgEfficiencyChart';
 
 export const PlayerProfileView = ({
   player,
@@ -31,6 +32,7 @@ export const PlayerProfileView = ({
   const [peerPoolInfo, setPeerPoolInfo] = useState({ size: 749, position: 'FW' });
   const [scatterFinishingData, setScatterFinishingData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [careerHistoryData, setCareerHistoryData] = useState(null);
   const [careerHistory, setCareerHistory] = useState([]);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -90,24 +92,22 @@ export const PlayerProfileView = ({
       }
     }).catch(() => {});
 
-    // 4. Fetch multi-season career data for player across recent available seasons
-    const seasonsToQuery = ['2024-2025', '2023-2024', '2022-2023', '2021-2022'];
-    Promise.all(
-      seasonsToQuery.map(s => 
-        api.getPlayers({ season: s, search: playerName, limit: 5 })
-          .then(r => ({ season: s, data: r?.data || (Array.isArray(r) ? r : []) }))
-          .catch(() => ({ season: s, data: [] }))
-      )
-    ).then(results => {
-      const records = [];
-      results.forEach(res => {
-        const match = res.data.find(p => p.Player?.toLowerCase() === playerName.toLowerCase());
-        if (match) {
-          records.push({ season: res.season, ...match });
+    // 4. Fetch full multi-season career history (2012-2013 to 2025-2026) from dedicated history endpoint
+    api.getPlayerHistory(playerId, { season: activeSeason })
+      .then(res => {
+        const payload = res?.data || res;
+        if (payload?.seasons) {
+          setCareerHistoryData(payload);
+          setCareerHistory([...payload.seasons].sort((a, b) => b.season.localeCompare(a.season)));
+        } else {
+          setCareerHistoryData(null);
+          setCareerHistory([]);
         }
+      })
+      .catch(() => {
+        setCareerHistoryData(null);
+        setCareerHistory([]);
       });
-      setCareerHistory(records.sort((a, b) => b.season.localeCompare(a.season)));
-    });
 
   }, [playerId, playerName, activeSeason, player?.Pos]);
 
@@ -164,8 +164,13 @@ export const PlayerProfileView = ({
     xag_per_90: player?.xAG_90 || (totals.minutes > 0 ? (totals.expected_assists / totals.minutes) * 90 : 0),
   };
 
-  const deltaObj = formatGoalsMinusXG(totals.goals - totals.expected_goals);
-  const progTotal = (totals.progressive_carries || 0) + (totals.progressive_passes || 0);
+  const hasTrackedXg = totals.expected_goals !== null && totals.expected_goals !== undefined;
+  const deltaObj = hasTrackedXg
+    ? formatGoalsMinusXG(totals.goals - totals.expected_goals)
+    : { glyph: '·', text: 'xG not tracked', isOver: false, isUnder: false };
+  const hasProg = totals.progressive_carries !== null && totals.progressive_carries !== undefined &&
+    totals.progressive_passes !== null && totals.progressive_passes !== undefined;
+  const progTotal = hasProg ? totals.progressive_carries + totals.progressive_passes : null;
   const gaTotal = (totals.goals || 0) + (totals.assists || 0);
 
   const autoSummary = generateProfileSummary(player);
@@ -179,11 +184,11 @@ export const PlayerProfileView = ({
   // Fallback percentiles data if dedicated endpoint not yet populated
   const defaultPercentilesData = [
     { metric: 'Gls_90', label: 'Goals / 90', group: 'Scoring', value: per90.goals_per_90, percentile: profileData?.percentiles?.goals_per_90?.percentile ?? (player?.Gls_90_pct ?? 85) },
-    { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: per90.xg_per_90, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? (player?.xG_90_pct ?? 82) },
+    { metric: 'xG_90', label: 'Expected Goals / 90', group: 'Scoring', value: hasTrackedXg ? per90.xg_per_90 : null, percentile: profileData?.percentiles?.xg_per_90?.percentile ?? null },
     { metric: 'Ast_90', label: 'Assists / 90', group: 'Creating', value: per90.assists_per_90, percentile: profileData?.percentiles?.assists_per_90?.percentile ?? (player?.Ast_90_pct ?? 74) },
-    { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? (player?.xAG_90_pct ?? 78) },
-    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: (totals.progressive_carries / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_carries?.percentile ?? (player?.PrgC_90_pct ?? 88) },
-    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: (totals.progressive_passes / (totals.nineties || 1)), percentile: profileData?.percentiles?.progressive_passes?.percentile ?? (player?.PrgP_90_pct ?? 70) }
+    { metric: 'xAG_90', label: 'Expected Assisted Goals / 90', group: 'Creating', value: per90.xag_per_90, percentile: profileData?.percentiles?.xag_per_90?.percentile ?? null },
+    { metric: 'PrgC_90', label: 'Progressive Carries / 90', group: 'Progressing', value: totals.progressive_carries != null ? (totals.progressive_carries / (totals.nineties || 1)) : null, percentile: profileData?.percentiles?.progressive_carries?.percentile ?? null },
+    { metric: 'PrgP_90', label: 'Progressive Passes / 90', group: 'Progressing', value: totals.progressive_passes != null ? (totals.progressive_passes / (totals.nineties || 1)) : null, percentile: profileData?.percentiles?.progressive_passes?.percentile ?? null }
   ];
 
   const resolvedPercentiles = percentilesList.length > 0 ? percentilesList : defaultPercentilesData;
@@ -290,7 +295,11 @@ export const PlayerProfileView = ({
           <div className={`text-xs font-semibold mt-2 flex items-center gap-1 ${
             deltaObj.isOver ? 'text-[var(--blue)]' : deltaObj.isUnder ? 'text-[var(--red, #b91c1c)]' : 'text-[var(--mute)]'
           }`}>
-            <span>{deltaObj.glyph} {deltaObj.text} vs xG ({formatDecimal(totals.expected_goals, 1)} xG)</span>
+            <span>
+              {hasTrackedXg
+                ? `${deltaObj.glyph} ${deltaObj.text} vs xG (${formatDecimal(totals.expected_goals, 1)} xG)`
+                : 'xG not tracked for this season'}
+            </span>
           </div>
         </div>
 
@@ -313,10 +322,14 @@ export const PlayerProfileView = ({
             Progressive Actions (PrgC + PrgP)
           </span>
           <div className="font-disp font-extrabold text-4xl text-[var(--ink)] leading-none">
-            {progTotal}
+            {progTotal !== null ? progTotal : '—'}
           </div>
           <div className="text-xs text-[var(--mute)] mt-2">
-            <span>{totals.progressive_carries} carries + {totals.progressive_passes} passes</span>
+            <span>
+              {hasProg
+                ? `${totals.progressive_carries} carries + ${totals.progressive_passes} passes`
+                : 'Progression not tracked in this season'}
+            </span>
           </div>
         </div>
 
@@ -364,7 +377,16 @@ export const PlayerProfileView = ({
         </div>
       </section>
 
-      {/* 5. Section 4.4: Finishing Scatter Plot with Highlighted Dot & Parity Line */}
+      {/* 5. Multi-Season Recharts xG vs Actual Goals Efficiency Scatter Plot */}
+      <PlayerXgEfficiencyChart
+        playerId={playerId}
+        playerName={identity.name}
+        activeSeason={activeSeason}
+        preloadedHistory={careerHistoryData}
+        allowPlayerSwitch={false}
+      />
+
+      {/* 5b. Positional Finishing Scatter Plot with Highlighted Dot & Parity Line */}
       {scatterFinishingData && scatterFinishingData.points && (
         <section className="space-y-3 pt-2">
           <ScatterPlot

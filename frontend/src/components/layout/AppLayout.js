@@ -1,62 +1,101 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ThemeContext } from '../../theme/ThemeContext';
-import { 
-  Calendar, 
-  RefreshCw, 
-  Database, 
-  ChevronDown, 
-  Check, 
-  Menu, 
+import {
+  RefreshCw,
+  ChevronDown,
+  Check,
+  Menu,
   X,
   Search,
   BookOpen,
   Activity,
-  Sliders,
-  Layers,
-  Info
+  ArrowRight,
 } from 'lucide-react';
 import GlossaryModal from '../common/GlossaryModal';
 import DataQualityBadge from '../common/DataQualityBadge';
+import api from '../../services/api';
 
-export const AppLayout = ({ 
-  children, 
-  currentTab = "dashboard", 
+const LEAGUES = [
+  { id: '', label: 'All Big 5', short: 'All 5', aliases: ['all', 'big 5'] },
+  { id: 'eng Premier League', label: 'Premier League', short: 'EPL', aliases: ['epl', 'england', 'english', 'premier'] },
+  { id: 'es La Liga', label: 'La Liga', short: 'La Liga', aliases: ['laliga', 'spain', 'spanish', 'primera'] },
+  { id: 'it Serie A', label: 'Serie A', short: 'Serie A', aliases: ['seriea', 'italy', 'italian'] },
+  { id: 'de Bundesliga', label: 'Bundesliga', short: 'Bundesliga', aliases: ['buli', 'germany', 'german'] },
+  { id: 'fr Ligue 1', label: 'Ligue 1', short: 'Ligue 1', aliases: ['ligue1', 'france', 'french'] },
+];
+
+const normalizeText = (value) =>
+  String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+export const AppLayout = ({
+  children,
+  currentTab = 'dashboard',
   onNavigate,
-  activeSeason = "2024-2025",
+  activeSeason = '2024-2025',
   seasonQuality = null,
   availableSeasons = [],
   onSelectSeason,
   isSwitchingSeason = false,
-  selectedComp = "",
+  selectedComp = '',
   onSelectComp,
+  searchQuery = '',
+  onSearchChange,
+  onSubmitSearch,
   onSelectPlayer,
   onSelectSquad,
   allPlayers = [],
-  allSquads = []
+  allSquads = [],
 }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [statusPanelOpen, setStatusPanelOpen] = useState(false);
-  
-  // Global Search Palette State
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+
+  // Top Search Bar State (controlled via searchQuery prop with local fallback)
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [liveResults, setLiveResults] = useState([]);
+  const [liveTotal, setLiveTotal] = useState(0);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  // Keyboard shortcut listener: '/' or 'Ctrl+K' / 'Cmd+K' opens global search
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  const effectiveQuery = onSearchChange ? searchQuery : localQuery;
+  const trimmedQuery = effectiveQuery.trim();
+
+  const updateQuery = (nextVal) => {
+    setLocalQuery(nextVal);
+    if (onSearchChange) onSearchChange(nextVal);
+  };
+
+  // Keyboard shortcut listener: '/' or 'Ctrl+K' / 'Cmd+K' focuses top search input
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+      if (
+        (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) &&
+        !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)
+      ) {
         e.preventDefault();
-        setSearchOpen(true);
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          setSearchFocused(true);
+        }
       }
       if (e.key === 'Escape') {
-        setSearchOpen(false);
+        setSearchFocused(false);
         setSeasonDropdownOpen(false);
         setStatusPanelOpen(false);
+        if (searchInputRef.current) searchInputRef.current.blur();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -64,38 +103,85 @@ export const AppLayout = ({
   }, []);
 
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setSeasonDropdownOpen(false);
+      }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setSearchFocused(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const navItems = [
-    { id: "dashboard", label: "Overview" },
-    { id: "explorer", label: "Player Explorer" },
-    { id: "plots", label: "Scatter Plots" },
-    { id: "leaderboards", label: "Leaderboards" },
-    { id: "compare", label: "Comparison" },
-    { id: "browse", label: "Squad Browser" },
-    { id: "data", label: "Dataset Registry" },
-  ];
+  // Debounced live search across the full season player dataset by name or league
+  useEffect(() => {
+    if (trimmedQuery.length < 2) {
+      setLiveResults([]);
+      setLiveTotal(0);
+      setLoadingSearch(false);
+      return;
+    }
 
-  const leagues = [
-    { id: "", label: "All Big 5", short: "All 5" },
-    { id: "eng Premier League", label: "Premier League", short: "EPL" },
-    { id: "es La Liga", label: "La Liga", short: "La Liga" },
-    { id: "it Serie A", label: "Serie A", short: "Serie A" },
-    { id: "de Bundesliga", label: "Bundesliga", short: "Bundesliga" },
-    { id: "fr Ligue 1", label: "Ligue 1", short: "Ligue 1" },
+    let cancelled = false;
+    setLoadingSearch(true);
+    const timer = setTimeout(() => {
+      api
+        .getPlayers({
+          season: activeSeason,
+          search: trimmedQuery,
+          competition: selectedComp || undefined,
+          sort_by: 'Gls',
+          order: 'desc',
+          limit: 8,
+        })
+        .then((res) => {
+          if (cancelled) return;
+          if (res?.success && Array.isArray(res.data)) {
+            setLiveResults(res.data);
+            setLiveTotal(res.pagination?.total ?? res.data.length);
+          } else if (Array.isArray(res)) {
+            setLiveResults(res.slice(0, 8));
+            setLiveTotal(res.length);
+          } else {
+            setLiveResults([]);
+            setLiveTotal(0);
+          }
+        })
+        .catch(() => {
+          if (cancelled) return;
+          // Graceful fallback to in-memory player list if request fails
+          const q = normalizeText(trimmedQuery);
+          const fallback = allPlayers.filter(
+            (p) =>
+              normalizeText(p.Player).includes(q) ||
+              normalizeText(p.Comp).includes(q) ||
+              normalizeText(p.competition_name).includes(q) ||
+              normalizeText(p.Squad).includes(q)
+          );
+          setLiveResults(fallback.slice(0, 8));
+          setLiveTotal(fallback.length);
+        })
+        .finally(() => {
+          if (!cancelled) setLoadingSearch(false);
+        });
+    }, 150);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [trimmedQuery, activeSeason, selectedComp, allPlayers]);
+
+  const navItems = [
+    { id: 'dashboard', label: 'Overview' },
+    { id: 'explorer', label: 'Player Explorer' },
+    { id: 'plots', label: 'Scatter Plots' },
+    { id: 'leaderboards', label: 'Leaderboards' },
+    { id: 'compare', label: 'Comparison' },
+    { id: 'browse', label: 'Squad Browser' },
+    { id: 'data', label: 'Dataset Registry' },
   ];
 
   const formatSeasonName = (id) => {
@@ -103,40 +189,58 @@ export const AppLayout = ({
     return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
   };
 
-  // Determine non-contradictory season state label
   const isBaseline = activeSeason === '2024-2025';
-  const seasonBadgeText = isBaseline 
-    ? 'Reference Baseline Season'
-    : 'Historical Season';
+  const seasonBadgeText = isBaseline ? 'Reference Baseline Season' : 'Historical Season';
 
-  // Dynamic record & club counts based on active season
-  const currentSeasonObj = availableSeasons.find(s => (s.id || s) === activeSeason);
+  const currentSeasonObj = availableSeasons.find((s) => (s.id || s) === activeSeason);
   const activeQuality = seasonQuality || currentSeasonObj;
   const activeRecordsCount = currentSeasonObj?.records_count || (allPlayers?.length ? allPlayers.length : null);
   const activeClubsCount = currentSeasonObj?.clubs_count || (allSquads?.length ? allSquads.length : null);
 
-  // Filtered search results grouped as Players & Clubs
-  const matchingPlayers = searchQuery.trim().length > 1
-    ? allPlayers.filter(p => p.Player?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
-    : [];
+  // Match Big 5 leagues against search query
+  const normalizedQuery = normalizeText(trimmedQuery);
+  const matchingLeagues =
+    trimmedQuery.length >= 2
+      ? LEAGUES.filter(
+          (lg) =>
+            lg.id &&
+            (normalizeText(lg.label).includes(normalizedQuery) ||
+              normalizeText(lg.id).includes(normalizedQuery) ||
+              lg.aliases.some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)))
+        )
+      : [];
 
-  const matchingClubs = searchQuery.trim().length > 1
-    ? allSquads.filter(sq => {
-        const name = typeof sq === 'string' ? sq : sq.name || sq.Squad;
-        return name?.toLowerCase().includes(searchQuery.toLowerCase());
-      }).slice(0, 4)
-    : [];
+  const matchingClubs =
+    trimmedQuery.length >= 2
+      ? allSquads
+          .filter((sq) => {
+            const name = typeof sq === 'string' ? sq : sq.name || sq.Squad;
+            return normalizeText(name).includes(normalizedQuery);
+          })
+          .slice(0, 3)
+      : [];
+
+  const showSearchDropdown = searchFocused && trimmedQuery.length >= 2;
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchFocused(false);
+    if (onSubmitSearch) {
+      onSubmitSearch(effectiveQuery);
+    } else if (onNavigate) {
+      onNavigate('explorer');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)] font-ser selection:bg-[var(--rule)] selection:text-[var(--ink)]">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-5">
-        
         {/* Editorial Masthead */}
         <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 mast-border">
           <div>
             <div className="flex items-baseline gap-3 flex-wrap">
-              <h1 
-                onClick={() => onNavigate && onNavigate("dashboard")}
+              <h1
+                onClick={() => onNavigate && onNavigate('dashboard')}
                 className="font-disp font-extrabold text-5xl sm:text-7xl md:text-8xl tracking-tight leading-none cursor-pointer hover:opacity-95 transition-opacity"
               >
                 PitchPulse
@@ -151,19 +255,6 @@ export const AppLayout = ({
           </div>
 
           <div className="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
-            {/* Quick Global Search Trigger with [Ctrl+K] / [/] hint */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="border border-[var(--ink)] bg-transparent hover:bg-[var(--panel)] text-[var(--ink)] font-ser text-xs px-2.5 py-1.5 rounded-sm flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Search Players & Clubs (Press / or Ctrl+K)"
-            >
-              <Search className="w-3.5 h-3.5 opacity-70" />
-              <span className="hidden sm:inline italic">Search</span>
-              <kbd className="hidden md:inline-block px-1 py-0.2 bg-[var(--panel)] border border-[var(--rule)] text-[10px] font-mono rounded">
-                /
-              </kbd>
-            </button>
-
             {/* Non-contradictory Season Selector */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -209,7 +300,11 @@ export const AppLayout = ({
                           <div>
                             <div className="truncate">{sName}</div>
                             <div className="text-[10px] text-[var(--mute)]">
-                              {isRef ? "Reference Baseline • FBref / StatsBomb" : sId < "2014-2015" ? "Archive • Transfermarkt (no xG)" : "Archive • Transfermarkt & Understat"}
+                              {isRef
+                                ? 'Reference Baseline • FBref / StatsBomb'
+                                : sId < '2014-2015'
+                                  ? 'Archive • Transfermarkt (no xG)'
+                                  : 'Archive • Transfermarkt & Understat'}
                             </div>
                           </div>
                           {isSelected && <Check className="w-3.5 h-3.5 text-[var(--blue)] shrink-0 ml-1" />}
@@ -242,7 +337,7 @@ export const AppLayout = ({
             </button>
 
             {/* Light / Dark paper toggle */}
-            <button 
+            <button
               onClick={toggleTheme}
               className="border border-[var(--ink)] bg-transparent hover:bg-[var(--panel)] text-[var(--ink)] font-ser italic text-xs px-2.5 py-1.5 rounded-sm cursor-pointer whitespace-nowrap transition-colors"
               aria-label="Toggle paper theme"
@@ -261,31 +356,223 @@ export const AppLayout = ({
           </div>
         </header>
 
-        {/* European Big 5 Coverage Strip */}
-        <div className="border-b border-[var(--ink)] py-2 flex items-center justify-between gap-3 overflow-x-auto text-xs font-ser">
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <span className="font-disp font-bold uppercase text-[11px] text-[var(--mute)] tracking-wider mr-1">
-              Top 5 European Leagues Covered:
+        {/* Top Player & League Search Bar */}
+        <section
+          ref={searchContainerRef}
+          className="relative border-b border-[var(--ink)] py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs font-ser"
+          aria-label="Global player and league search"
+        >
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--mute)] pointer-events-none" />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={effectiveQuery}
+                onFocus={() => setSearchFocused(true)}
+                onChange={(e) => {
+                  updateQuery(e.target.value);
+                  setSearchFocused(true);
+                }}
+                placeholder="Search players by name or league (e.g. Mbappé, Salah, Premier League, La Liga)..."
+                aria-label="Search players by name or league"
+                className="w-full border border-[var(--ink)] bg-[var(--paper)] focus:bg-[var(--panel)] pl-9 pr-16 py-2 text-xs sm:text-sm text-[var(--ink)] placeholder:italic placeholder:text-[var(--mute)] focus:outline-none transition-colors"
+              />
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                {effectiveQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="p-0.5 text-[var(--mute)] hover:text-[var(--ink)]"
+                    aria-label="Clear search"
+                    title="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-[var(--panel)] border border-[var(--rule)] text-[10px] font-mono text-[var(--mute)]">
+                  /
+                </kbd>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="border border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)] hover:opacity-90 font-disp font-bold uppercase tracking-wider text-xs px-3.5 py-2 whitespace-nowrap transition-opacity"
+            >
+              Filter Players
+            </button>
+          </form>
+
+          {/* Interactive Big 5 League Filter Strip */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 md:pb-0 shrink-0">
+            <span className="font-disp font-bold uppercase text-[10px] text-[var(--mute)] tracking-wider mr-0.5 whitespace-nowrap">
+              League:
             </span>
-            {leagues.filter(l => l.id).map(lg => (
-              <span
-                key={lg.id}
-                className="px-2.5 py-0.5 rounded-xs border border-[var(--rule)] bg-[var(--panel)] text-[var(--ink)] text-[11px] font-semibold tracking-wide whitespace-nowrap"
-              >
-                {lg.label}
-              </span>
-            ))}
+            {LEAGUES.map((lg) => {
+              const isSelected = selectedComp === lg.id;
+              return (
+                <button
+                  key={lg.id || 'all'}
+                  type="button"
+                  onClick={() => onSelectComp && onSelectComp(lg.id)}
+                  className={`px-2 py-1 border text-[11px] font-semibold tracking-wide whitespace-nowrap transition-colors ${
+                    isSelected
+                      ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]'
+                      : 'border-[var(--rule)] bg-[var(--panel)] text-[var(--ink)] hover:border-[var(--ink)]'
+                  }`}
+                  aria-pressed={isSelected}
+                >
+                  {lg.short}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 text-[11px] italic text-[var(--mute)] shrink-0 font-medium">
-            <span>{activeRecordsCount ? `${Number(activeRecordsCount).toLocaleString()} Players` : "2,854+ Players"}</span>
+          {/* Live Search Results Dropdown */}
+          {showSearchDropdown && (
+            <div className="absolute left-0 right-0 top-full mt-0.5 bg-[var(--paper)] border-2 border-[var(--ink)] shadow-2xl z-50 max-h-[26rem] overflow-y-auto">
+              {/* Matching Leagues */}
+              {matchingLeagues.length > 0 && (
+                <div className="p-2.5 border-b border-[var(--rule)] bg-[var(--panel)]">
+                  <span className="font-disp font-bold uppercase text-[10px] tracking-wider text-[var(--mute)] block mb-1.5">
+                    Filter by League
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {matchingLeagues.map((lg) => (
+                      <button
+                        key={lg.id}
+                        type="button"
+                        onClick={() => {
+                          if (onSelectComp) onSelectComp(lg.id);
+                          updateQuery('');
+                          setSearchFocused(false);
+                          if (onNavigate) onNavigate('explorer');
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-[var(--ink)] bg-[var(--paper)] hover:bg-[var(--ink)] hover:text-[var(--paper)] text-xs font-semibold transition-colors"
+                      >
+                        <span>{lg.label}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Matching Players */}
+              <div className="p-2.5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-disp font-bold uppercase text-[10px] tracking-wider text-[var(--mute)]">
+                    Matching Players {liveTotal > 0 ? `(${liveTotal.toLocaleString()})` : ''}
+                  </span>
+                  {loadingSearch && (
+                    <span className="text-[11px] italic text-[var(--mute)]">Searching archive...</span>
+                  )}
+                </div>
+
+                {liveResults.length > 0 ? (
+                  <div className="divide-y divide-[var(--rule)]">
+                    {liveResults.map((p) => (
+                      <button
+                        key={p.id || p.Rk || `${p.Player}-${p.Squad}`}
+                        type="button"
+                        onClick={() => {
+                          if (onSelectPlayer) onSelectPlayer(p);
+                          setSearchFocused(false);
+                        }}
+                        className="w-full text-left py-2 px-2 hover:bg-[var(--panel)] flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="min-w-0">
+                          <div className="font-semibold text-xs sm:text-sm text-[var(--ink)] truncate">
+                            {p.Player}
+                          </div>
+                          <div className="text-[11px] text-[var(--mute)] truncate">
+                            {p.Squad} • {p.competition_name || p.Comp?.replace(/^[a-z]{2}\s+/, '')} • {p.Pos}
+                          </div>
+                        </div>
+                        <div className="text-right font-mono text-[11px] shrink-0 text-[var(--ink)]">
+                          <span className="font-bold">{p.Gls ?? 0} Gls</span>
+                          <span className="text-[var(--mute)]"> • {p.Ast ?? 0} Ast</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : !loadingSearch ? (
+                  <div className="py-4 text-center text-xs italic text-[var(--mute)]">
+                    No players found matching "{trimmedQuery}"
+                    {selectedComp ? ` in ${LEAGUES.find((l) => l.id === selectedComp)?.label}` : ''}.
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Matching Clubs */}
+              {matchingClubs.length > 0 && (
+                <div className="p-2.5 border-t border-[var(--rule)]">
+                  <span className="font-disp font-bold uppercase text-[10px] tracking-wider text-[var(--mute)] block mb-1">
+                    Clubs
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {matchingClubs.map((sq) => {
+                      const name = typeof sq === 'string' ? sq : sq.name || sq.Squad;
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => {
+                            if (onSelectSquad) onSelectSquad(name);
+                            setSearchFocused(false);
+                          }}
+                          className="px-2 py-1 border border-[var(--rule)] hover:border-[var(--ink)] bg-[var(--panel)] text-xs font-semibold"
+                        >
+                          {name} &rarr;
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Footer Action to view all filtered results */}
+              {liveTotal > 0 && (
+                <div className="p-2 border-t border-[var(--ink)] bg-[var(--panel)] flex items-center justify-between">
+                  <span className="text-[11px] italic text-[var(--mute)]">
+                    Showing top {liveResults.length} of {liveTotal.toLocaleString()} matches in Vol. {formatSeasonName(activeSeason)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchFocused(false);
+                      if (onSubmitSearch) onSubmitSearch(effectiveQuery);
+                      else if (onNavigate) onNavigate('explorer');
+                    }}
+                    className="inline-flex items-center gap-1 font-disp font-bold uppercase tracking-wider text-xs text-[var(--blue)] hover:underline"
+                  >
+                    <span>View All in Player Explorer</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* Coverage Metadata Strip */}
+        <div className="border-b border-[var(--rule)] py-1.5 flex items-center justify-between gap-3 text-[11px] italic text-[var(--mute)] font-ser">
+          <span>
+            Coverage: Premier League, La Liga, Serie A, Bundesliga, and Ligue 1
+          </span>
+          <div className="hidden sm:flex items-center gap-2 shrink-0 font-medium">
+            <span>{activeRecordsCount ? `${Number(activeRecordsCount).toLocaleString()} Players` : '2,854+ Players'}</span>
             <span>•</span>
-            <span>{activeClubsCount ? `${activeClubsCount} European Clubs` : "96+ European Clubs"}</span>
+            <span>{activeClubsCount ? `${activeClubsCount} European Clubs` : '96+ European Clubs'}</span>
           </div>
         </div>
 
         {/* Section Navigation / Table of Contents */}
-        <nav 
+        <nav
           className="sticky top-0 z-40 bg-[var(--paper)] border-b-2 border-[var(--ink)] py-2.5 flex items-center justify-between gap-4 overflow-x-auto text-sm sm:text-base"
           aria-label="Publication sections"
         >
@@ -300,8 +587,8 @@ export const AppLayout = ({
                     setMobileMenuOpen(false);
                   }}
                   className={`font-semibold pb-0.5 border-b-2 transition-colors whitespace-nowrap ${
-                    isActive 
-                      ? 'border-[var(--red)] text-[var(--ink)] font-bold' 
+                    isActive
+                      ? 'border-[var(--red)] text-[var(--ink)] font-bold'
                       : 'border-transparent text-[var(--ink)] opacity-70 hover:opacity-100 hover:border-[var(--rule)]'
                   }`}
                 >
@@ -311,11 +598,13 @@ export const AppLayout = ({
             })}
           </div>
 
-          {currentTab !== 'plots' && <div className="hidden md:flex items-center gap-2 text-xs italic text-[var(--mute)]">
-            <span>{selectedComp ? leagues.find(l => l.id === selectedComp)?.label : "All Big 5"}</span>
-            <span>•</span>
-            <span>{formatSeasonName(activeSeason)}</span>
-          </div>}
+          {currentTab !== 'plots' && (
+            <div className="hidden md:flex items-center gap-2 text-xs italic text-[var(--mute)]">
+              <span>{selectedComp ? LEAGUES.find((l) => l.id === selectedComp)?.label : 'All Big 5'}</span>
+              <span>•</span>
+              <span>{formatSeasonName(activeSeason)}</span>
+            </div>
+          )}
         </nav>
 
         {/* Mobile Navigation Dropdown */}
@@ -345,7 +634,7 @@ export const AppLayout = ({
               <h4 className="font-disp font-bold text-base text-[var(--ink)] uppercase tracking-wider">
                 API Engine & Dataset Coverage Report
               </h4>
-              <button 
+              <button
                 onClick={() => setStatusPanelOpen(false)}
                 className="text-[var(--mute)] hover:text-[var(--ink)] font-bold text-sm"
               >
@@ -355,12 +644,14 @@ export const AppLayout = ({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-1">
               <div>
                 <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">Active Dataset</span>
-                <span className="font-bold text-sm text-[var(--ink)]">{formatSeasonName(activeSeason)} ({seasonBadgeText})</span>
+                <span className="font-bold text-sm text-[var(--ink)]">
+                  {formatSeasonName(activeSeason)} ({seasonBadgeText})
+                </span>
               </div>
               <div>
                 <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">Provenance & Source</span>
                 <span className="font-medium text-[var(--ink)]">
-                  {isBaseline ? "FBref / StatsBomb Big 5 European aggregates" : "Transfermarkt & Understat historical logs"}
+                  {isBaseline ? 'FBref / StatsBomb Big 5 European aggregates' : 'Transfermarkt & Understat historical logs'}
                 </span>
               </div>
               <div>
@@ -375,108 +666,16 @@ export const AppLayout = ({
           </div>
         )}
 
-        {/* Global Search Palette Overlay */}
-        {searchOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 bg-black/60 backdrop-blur-xs font-ser">
-            <div className="bg-[var(--paper)] border-2 border-[var(--ink)] shadow-2xl max-w-xl w-full rounded-xs overflow-hidden">
-              <div className="p-3 border-b border-[var(--ink)] flex items-center gap-2 bg-[var(--panel)]">
-                <Search className="w-4 h-4 text-[var(--mute)]" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Search player or club across Europe..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-sm text-[var(--ink)] placeholder:italic focus:outline-none"
-                />
-                <button 
-                  onClick={() => setSearchOpen(false)}
-                  className="text-xs px-2 py-0.5 border border-[var(--rule)] hover:border-[var(--ink)]"
-                >
-                  ESC
-                </button>
-              </div>
-
-              <div className="max-h-80 overflow-y-auto divide-y divide-[var(--rule)] p-2">
-                {searchQuery.trim().length <= 1 ? (
-                  <div className="p-4 text-center text-xs italic text-[var(--mute)]">
-                    Type at least 2 characters to search across 2,854 players and 96 clubs.
-                  </div>
-                ) : (
-                  <>
-                    {/* Players Group */}
-                    {matchingPlayers.length > 0 && (
-                      <div className="p-2">
-                        <span className="font-disp font-bold uppercase text-[10px] tracking-wider text-[var(--mute)] block mb-1">
-                          Players
-                        </span>
-                        {matchingPlayers.map(p => (
-                          <div
-                            key={p.id || p.Player}
-                            onClick={() => {
-                              if (onSelectPlayer) onSelectPlayer(p);
-                              setSearchOpen(false);
-                            }}
-                            className="p-1.5 hover:bg-[var(--panel)] cursor-pointer flex justify-between items-center text-xs"
-                          >
-                            <div>
-                              <span className="font-semibold text-[var(--ink)]">{p.Player}</span>
-                              <span className="text-[11px] text-[var(--mute)] block">{p.Squad || p.Team} • {p.Pos}</span>
-                            </div>
-                            <span className="font-mono text-xs">{p.Gls} Gls / {p.xG} xG</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Clubs Group */}
-                    {matchingClubs.length > 0 && (
-                      <div className="p-2">
-                        <span className="font-disp font-bold uppercase text-[10px] tracking-wider text-[var(--mute)] block mb-1">
-                          Clubs
-                        </span>
-                        {matchingClubs.map(sq => {
-                          const name = typeof sq === 'string' ? sq : sq.name || sq.Squad;
-                          return (
-                            <div
-                              key={name}
-                              onClick={() => {
-                                if (onSelectSquad) onSelectSquad(name);
-                                setSearchOpen(false);
-                              }}
-                              className="p-1.5 hover:bg-[var(--panel)] cursor-pointer flex justify-between items-center text-xs"
-                            >
-                              <span className="font-semibold text-[var(--ink)]">{name}</span>
-                              <span className="text-xs italic text-[var(--mute)]">View Roster &rarr;</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {matchingPlayers.length === 0 && matchingClubs.length === 0 && (
-                      <div className="p-4 text-center text-xs italic text-[var(--mute)]">
-                        No players or clubs matching "{searchQuery}".
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Global Metric Glossary Modal */}
-        <GlossaryModal 
-          isOpen={glossaryOpen} 
-          onClose={() => setGlossaryOpen(false)} 
-        />
+        <GlossaryModal isOpen={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
 
         {/* Main Publication Content */}
         <main className="py-5">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-[var(--mute)]">
             <DataQualityBadge metadata={activeQuality} />
-            {activeQuality?.partial_competitions && Object.keys(activeQuality.partial_competitions).length > 0 && <span>{activeQuality.quality_notes || activeQuality.notes}</span>}
+            {activeQuality?.partial_competitions && Object.keys(activeQuality.partial_competitions).length > 0 && (
+              <span>{activeQuality.quality_notes || activeQuality.notes}</span>
+            )}
           </div>
           {children}
         </main>
@@ -514,7 +713,6 @@ export const AppLayout = ({
             <p className="mt-1 sm:mt-0">Tabular numerals • Lining figures enabled</p>
           </div>
         </footer>
-
       </div>
     </div>
   );

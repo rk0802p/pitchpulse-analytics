@@ -132,7 +132,7 @@ export const PlayerExplorerView = ({
           <div className="relative">
             <input
               type="text"
-              placeholder="Search player or club..."
+              placeholder="Search player, club, or league..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full border border-[var(--ink)] bg-[var(--paper)] py-1.5 px-3 pr-8 text-xs text-[var(--ink)] placeholder:italic focus:outline-none focus:bg-[var(--panel)]"

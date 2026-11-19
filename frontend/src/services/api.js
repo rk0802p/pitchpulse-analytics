@@ -4,20 +4,11 @@
  */
 
 const getApiBaseUrl = () => {
-  // When running locally in browser, always target the local Flask API
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    return 'http://127.0.0.1:5000/api';
-  }
-
   const envUrl = process.env.REACT_APP_API_URL;
   if (envUrl && !envUrl.includes('your-backend-url')) {
     return envUrl.replace(/\/+$/, '');
   }
-  // Production Vercel or cloud domain
-  if (typeof window !== 'undefined' && window.location.hostname && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-    return 'https://sports-analytics-backend.vercel.app/api';
-  }
-  return 'http://127.0.0.1:5000/api';
+  return '/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -129,6 +120,21 @@ export const api = {
   getPlayer: (id, season) => {
     const query = season ? `?season=${encodeURIComponent(season)}` : '';
     return request(`/players/${encodeURIComponent(id)}${query}`);
+  },
+
+  getPlayerHistory: (playerId, params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          if (value.length > 0) queryParams.append(key, value.join(','));
+        } else {
+          queryParams.append(key, value);
+        }
+      }
+    });
+    const queryString = queryParams.toString();
+    return request(`/players/${encodeURIComponent(playerId)}/history${queryString ? `?${queryString}` : ''}`);
   },
 
   comparePlayers: (playerIds, season) => {

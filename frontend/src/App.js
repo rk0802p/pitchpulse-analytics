@@ -292,7 +292,21 @@ function App() {
       onSelectSeason={handleSwitchSeason}
       isSwitchingSeason={isSwitchingSeason}
       selectedComp={selectedComp}
-      onSelectComp={setSelectedComp}
+      onSelectComp={(comp) => {
+        setSelectedComp(comp);
+        setPagination(p => ({ ...p, page: 1 }));
+      }}
+      searchQuery={searchQuery}
+      onSearchChange={(q) => {
+        setSearchQuery(q);
+        setPagination(p => ({ ...p, page: 1 }));
+      }}
+      onSubmitSearch={(q) => {
+        if (q !== undefined) setSearchQuery(q);
+        setPagination(p => ({ ...p, page: 1 }));
+        setCurrentTab('explorer');
+        window.location.hash = '#explorer';
+      }}
       onSelectPlayer={handleSelectPlayer}
       onSelectSquad={handleSelectSquad}
       allPlayers={allPlayers}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import ScatterPlot from './ScatterPlot';
+import PlayerXgEfficiencyChart from './PlayerXgEfficiencyChart';
 import { Sliders, Search } from 'lucide-react';
 import { parseHash } from '../../utils/hashRoute';
 import { normalizePlayerSearch, PER90_PAIRS } from '../../utils/plotInteractions';
@@ -273,6 +274,12 @@ export default function PlotAnyMetricView({
           </div>
         </div>
       </div>
+
+      {/* Multi-Season Player xG vs Goals Efficiency Scatter Plot (Recharts) */}
+      <PlayerXgEfficiencyChart
+        activeSeason={activeSeason}
+        allowPlayerSwitch={true}
+      />
 
       {/* Control Grid */}
       <fieldset aria-label="Scatter plot controls" className="min-w-0 border border-[var(--ink)] bg-[var(--paper)] p-4 sm:p-5 rounded-xs space-y-4">

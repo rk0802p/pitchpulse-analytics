@@ -33,6 +33,7 @@ dist/
 /Backend/config.env
 
 # IDE & OS
+.antigravity/
 .vscode/
 .idea/
 .DS_Store

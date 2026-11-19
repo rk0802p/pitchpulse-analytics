@@ -1,0 +1,20 @@
+{
+  "name": "pitchpulse-analytics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PitchPulse Analytics: European Big 5 player performance, expected goals (xG), and progressive metrics.",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:frontend",
+    "lint": "node --check server.js && node --check server/config.js && node --check server/dataLoader.js && node --check server/analytics.js && node --check server/charts.js",
+    "postinstall": "npm --prefix frontend install --legacy-peer-deps"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "csv-parse": "^7.0.3",
+    "express": "^5.3.0"
+  }
+}

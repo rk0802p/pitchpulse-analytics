@@ -1,0 +1,171 @@
+{
+  "season": "2025-2026",
+  "canonical_id": "2025-2026",
+  "display_name": "2025/26 Season",
+  "dataset_status": "verified_historical",
+  "status_label": "Historical Season",
+  "is_baseline": false,
+  "is_projection": false,
+  "is_simulated": false,
+  "records_count": 2611,
+  "clubs_count": 172,
+  "competitions_count": 5,
+  "partial_competitions": {
+    "it Serie A": {
+      "matchweek": 33,
+      "of": 38
+    },
+    "fr Ligue 1": {
+      "matchweek": 30,
+      "of": 34
+    }
+  },
+  "partial_competitions_note": "Matchweek values are approximate snapshots inferred from the maximum appearances present in the player aggregates.",
+  "untracked_metrics": [
+    "PrgC",
+    "PrgP",
+    "PrgR"
+  ],
+  "untracked_metrics_reason": "Progression values were removed because no traceable season source was found; see progression_removal_reason.",
+  "quality_notes": "Serie A and Ligue 1 are partial snapshots (approximately matchweek 33/38 and 30/34). Progressive carries, passes, and receptions are untracked.",
+  "competitions": {
+    "es La Liga": 611,
+    "eng Premier League": 551,
+    "de Bundesliga": 507,
+    "it Serie A": 495,
+    "fr Ligue 1": 447
+  },
+  "totals": {
+    "goals": 4426,
+    "assists": 3090,
+    "minutes": 3248289,
+    "xg": 3969.04,
+    "xag": 2715.19,
+    "yellow_cards": 6387,
+    "red_cards": 320,
+    "progressive_passes": null,
+    "progressive_carries": null
+  },
+  "preview": {
+    "top_scorers": [
+      {
+        "Player": "Harry Kane",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "FW,MF",
+        "Gls": 36,
+        "Ast": 5,
+        "xG": 24.91
+      },
+      {
+        "Player": "Erling Haaland",
+        "Squad": "Manchester City",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 27,
+        "Ast": 8,
+        "xG": 22.36
+      },
+      {
+        "Player": "Kylian Mbappé",
+        "Squad": "Real Madrid",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 25,
+        "Ast": 5,
+        "xG": 22.24
+      },
+      {
+        "Player": "Vedat Muriqi",
+        "Squad": "Mallorca",
+        "Comp": "es La Liga",
+        "Pos": "FW",
+        "Gls": 23,
+        "Ast": 1,
+        "xG": 15.37
+      },
+      {
+        "Player": "Igor Thiago",
+        "Squad": "Brentford",
+        "Comp": "eng Premier League",
+        "Pos": "FW",
+        "Gls": 22,
+        "Ast": 1,
+        "xG": 19.1
+      }
+    ],
+    "top_creators": [
+      {
+        "Player": "Bruno Fernandes",
+        "Squad": "Manchester Utd",
+        "Comp": "eng Premier League",
+        "Pos": "MF",
+        "Ast": 21,
+        "Gls": 9,
+        "xAG": 9.64
+      },
+      {
+        "Player": "Michael Olise",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 19,
+        "Gls": 15,
+        "xAG": 15.2
+      },
+      {
+        "Player": "Julian Ryerson",
+        "Squad": "Dortmund",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 15,
+        "Gls": 0,
+        "xAG": 8.69
+      },
+      {
+        "Player": "Federico Dimarco",
+        "Squad": "Inter",
+        "Comp": "it Serie A",
+        "Pos": "DF,FW",
+        "Ast": 15,
+        "Gls": 6,
+        "xAG": 9.77
+      },
+      {
+        "Player": "Luis Díaz",
+        "Squad": "Bayern Munich",
+        "Comp": "de Bundesliga",
+        "Pos": "MF",
+        "Ast": 14,
+        "Gls": 15,
+        "xAG": 6.99
+      }
+    ]
+  },
+  "files": {
+    "excel": "top5-players-2025-2026.xlsx",
+    "csv": "top5-players-2025-2026.csv",
+    "squad_verification": "squad_verification.csv",
+    "zero_minute_archive": "archive/zero_minute_rows.csv",
+    "removed_progression_values": "../../scripts/output/removed_progression_values.csv"
+  },
+  "source": "FBref / StatsBomb style player-level aggregates (composite)",
+  "source_name": "Composite dataset - top 5 European leagues 2025/26 completed season",
+  "source_url": "https://fbref.com",
+  "data_as_of": "2025-2026 European Regular Season (Completed)",
+  "content_hash": "378d2977dd95e558e1ecc33d75f1fb91c304d46150f39ac9d379bb7b2755e7e0",
+  "sha256": "378d2977dd95e558e1ecc33d75f1fb91c304d46150f39ac9d379bb7b2755e7e0",
+  "validation_status": "passed",
+  "verification_notes": "Phase 2 applied to 2025/26: 386 zero-minute placeholders archived and removed; PrgC/PrgP/PrgR nulled. Crosscheck & integrity repair: recomputed exact per-90 expected-metric rates from authoritative totals/minutes; set exact npxG = xG only where PKatt = 0 and left npxG blank (untracked) on 132 PL/LaLiga/Bundesliga penalty-taker rows (zero estimated constants); nulled 78 failed-join 0.0 xG rows on goal-scorers; cleared per-spell xG/90 rates and deduplicated season totals on 67 transferred players (134 spell rows) whose source xG/xAG was joined as an unsplit full-season total.",
+  "progression_removal_reason": "The matched CSV has no progression columns, FBref advanced data ended in January 2026, the supplied values correlate 0.83 with goals (0.39 in 2023-24) and 0.10 with minutes, and git/scripts/docs contain no traceable generation source.",
+  "squad_verification_counts": {
+    "rows": 252,
+    "verified_true": 84,
+    "verified_false": 168,
+    "actions_correct": 73,
+    "actions_auto_map": 11,
+    "actions_unresolved": 168
+  },
+  "is_quarantined": false,
+  "quarantine_reason": null
+}
