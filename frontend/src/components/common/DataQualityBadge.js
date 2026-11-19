@@ -18,7 +18,7 @@ export default function DataQualityBadge({ metadata, compact = false }) {
   if (!details.label) return null;
   const warning = details.grade === 'SIGNIFICANT_GAPS' || details.grade === 'PARTIAL_SNAPSHOT';
   return <a href="#data" title={`${details.summary || details.label} · View Dataset Registry`} aria-label={`${details.label}. ${details.summary || ''} View Dataset Registry.`}
-    className={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] leading-tight ${warning ? 'border-amber-500/50 text-amber-300 bg-amber-500/10' : 'border-[var(--rule)] text-[var(--mute)] bg-[var(--panel)]'}`}>
+    className={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] leading-tight uppercase tracking-wide ${warning ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--panel)] font-semibold' : 'border-[var(--rule)] text-[var(--mute)] bg-[var(--panel)]'}`}>
     {compact ? details.grade === 'PARTIAL_SNAPSHOT' ? 'partial' : details.grade === 'SIGNIFICANT_GAPS' ? 'gaps' : 'minor' : details.label}
   </a>;
 }

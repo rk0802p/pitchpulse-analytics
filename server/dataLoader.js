@@ -18,6 +18,7 @@ class SeasonService {
   constructor(seasonsDir = SEASONS_DIR) {
     this.seasonsDir = seasonsDir;
     this._activeSeason = DEFAULT_SEASON;
+    this._csvHashCache = new Map();
   }
 
   getActiveSeason() {
@@ -77,12 +78,57 @@ class SeasonService {
     }
   }
 
+  getSeasonCsvFingerprint(seasonId) {
+    const sId = this.resolveSeason(seasonId);
+    if (this._csvHashCache.has(sId)) {
+      return this._csvHashCache.get(sId);
+    }
+    const csvPath = this.getSeasonCsvPath(sId);
+    if (!csvPath || !fs.existsSync(csvPath)) {
+      return { csv_sha256: null, file_size_bytes: null, csv_filename: null };
+    }
+    const rawBuf = fs.readFileSync(csvPath);
+    const info = {
+      csv_sha256: crypto.createHash('sha256').update(rawBuf).digest('hex'),
+      file_size_bytes: rawBuf.length,
+      csv_filename: path.basename(csvPath),
+    };
+    this._csvHashCache.set(sId, info);
+    return info;
+  }
+
+  getSeasonDetails(seasonId) {
+    const sId = this.resolveSeason(seasonId);
+    const manifest = this.getSeasonManifest(sId);
+    if (!manifest) return null;
+    const policy = this.getQuarantinePolicy(sId);
+    const fp = this.getSeasonCsvFingerprint(sId);
+    return {
+      ...manifest,
+      season: manifest.season || sId,
+      canonical_id: manifest.canonical_id || sId,
+      sha256: manifest.sha256 || fp.csv_sha256,
+      csv_sha256: fp.csv_sha256,
+      file_size_bytes: fp.file_size_bytes,
+      csv_filename: fp.csv_filename,
+      is_baseline: sId === '2024-2025' || manifest.is_baseline === true,
+      is_quarantined: policy.is_quarantined,
+      dataset_status: policy.dataset_status,
+      status_label: policy.status_label,
+    };
+  }
+
   getQuarantinePolicy(seasonId) {
     const sId = seasonId ? this.resolveSeason(seasonId) : this._activeSeason;
     const manifest = this.getSeasonManifest(sId) || {};
-    const VERIFIED_ALLOWLIST = new Set(['verified_historical', 'read_only_baseline']);
+    const VERIFIED_ALLOWLIST = new Set([
+      'verified_historical',
+      'verified_historical_with_known_gaps',
+      'read_only_baseline',
+    ]);
     const KNOWN_STATUSES = new Set([
       'verified_historical',
+      'verified_historical_with_known_gaps',
       'read_only_baseline',
       'projected',
       'simulated',
@@ -93,7 +139,7 @@ class SeasonService {
 
     let isQuarantined = false;
     let status = 'verified_historical';
-    let datasetStatus = 'verified_historical';
+    let datasetStatus = rawStatus && VERIFIED_ALLOWLIST.has(rawStatus) ? rawStatus : 'verified_historical';
     let statusLabel = 'Historical Season';
     let quarantineReason = null;
 

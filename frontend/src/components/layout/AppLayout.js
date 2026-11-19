@@ -8,7 +8,7 @@ import {
   X,
   Search,
   BookOpen,
-  Activity,
+  Database,
   ArrowRight,
 } from 'lucide-react';
 import GlossaryModal from '../common/GlossaryModal';
@@ -189,11 +189,30 @@ export const AppLayout = ({
     return id.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
   };
 
-  const isBaseline = activeSeason === '2024-2025';
-  const seasonBadgeText = isBaseline ? 'Reference Baseline Season' : 'Historical Season';
-
   const currentSeasonObj = availableSeasons.find((s) => (s.id || s) === activeSeason);
   const activeQuality = seasonQuality || currentSeasonObj;
+  const isBaseline = activeSeason === '2024-2025';
+  const hasPartialSnapshot = Boolean(
+    activeQuality?.partial_competitions && Object.keys(activeQuality.partial_competitions).length > 0
+  );
+  const isPreXgSeason = activeSeason < '2014-2015';
+  const seasonBadgeText = isBaseline
+    ? 'Reference Baseline'
+    : hasPartialSnapshot
+      ? 'Partial Snapshot'
+      : isPreXgSeason
+        ? 'Pre-xG Archive'
+        : 'Historical Archive';
+  const activeProvenanceSource =
+    currentSeasonObj?.source ||
+    (isBaseline
+      ? 'FBref / StatsBomb Big 5 aggregates'
+      : isPreXgSeason
+        ? 'Transfermarkt match logs (Pre-xG era)'
+        : 'Transfermarkt & Understat historical logs');
+  const activeUntrackedMetrics = Array.isArray(activeQuality?.untracked_metrics)
+    ? activeQuality.untracked_metrics
+    : [];
   const activeRecordsCount = currentSeasonObj?.records_count || (allPlayers?.length ? allPlayers.length : null);
   const activeClubsCount = currentSeasonObj?.clubs_count || (allSquads?.length ? allSquads.length : null);
 
@@ -254,7 +273,7 @@ export const AppLayout = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap lg:flex-nowrap shrink-0">
             {/* Non-contradictory Season Selector */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -302,9 +321,11 @@ export const AppLayout = ({
                             <div className="text-[10px] text-[var(--mute)]">
                               {isRef
                                 ? 'Reference Baseline • FBref / StatsBomb'
-                                : sId < '2014-2015'
-                                  ? 'Archive • Transfermarkt (no xG)'
-                                  : 'Archive • Transfermarkt & Understat'}
+                                : s.partial_competitions && Object.keys(s.partial_competitions).length > 0
+                                  ? 'Partial Snapshot • Transfermarkt & Understat'
+                                  : sId < '2014-2015'
+                                    ? 'Pre-xG Archive • Transfermarkt'
+                                    : 'Archive • Transfermarkt & Understat'}
                             </div>
                           </div>
                           {isSelected && <Check className="w-3.5 h-3.5 text-[var(--blue)] shrink-0 ml-1" />}
@@ -316,14 +337,21 @@ export const AppLayout = ({
               )}
             </div>
 
-            {/* Engine & Data Status Trigger */}
+            {/* Archive Provenance Trigger */}
             <button
+              type="button"
               onClick={() => setStatusPanelOpen(!statusPanelOpen)}
-              className="border border-[var(--ink)] bg-transparent hover:bg-[var(--panel)] text-[var(--ink)] font-ser text-xs px-2.5 py-1.5 rounded-sm flex items-center gap-1 transition-colors"
-              title="Inspect Dataset & Engine Status"
+              aria-expanded={statusPanelOpen}
+              aria-label="Inspect dataset provenance"
+              className={`border border-[var(--ink)] font-ser text-xs px-2.5 py-1.5 rounded-sm flex items-center gap-1 transition-colors ${
+                statusPanelOpen
+                  ? 'bg-[var(--ink)] text-[var(--paper)]'
+                  : 'bg-transparent hover:bg-[var(--panel)] text-[var(--ink)]'
+              }`}
+              title="Inspect active season provenance and coverage"
             >
-              <Activity className="w-3 h-3 text-[var(--blue)]" />
-              <span className="hidden sm:inline italic">Engine</span>
+              <Database className={`w-3 h-3 ${statusPanelOpen ? 'text-[var(--paper)]' : 'text-[var(--blue)]'}`} />
+              <span className="hidden sm:inline italic">Provenance</span>
             </button>
 
             {/* Glossary Button */}
@@ -627,40 +655,66 @@ export const AppLayout = ({
           </div>
         )}
 
-        {/* Engine & Dataset Status Modal / Drawer */}
+        {/* Simplified Dataset Provenance Summary Panel */}
         {statusPanelOpen && (
-          <div className="my-3 p-4 border-2 border-[var(--ink)] bg-[var(--panel)] rounded-xs shadow-md text-xs font-ser space-y-2">
-            <div className="flex justify-between items-center border-b border-[var(--rule)] pb-1.5">
+          <div className="my-3 p-4 border-2 border-[var(--ink)] bg-[var(--panel)] text-xs font-ser space-y-3">
+            <div className="flex justify-between items-center border-b border-[var(--rule)] pb-1.5 gap-3">
               <h4 className="font-disp font-bold text-base text-[var(--ink)] uppercase tracking-wider">
-                API Engine & Dataset Coverage Report
+                Active Volume Provenance
               </h4>
-              <button
-                onClick={() => setStatusPanelOpen(false)}
-                className="text-[var(--mute)] hover:text-[var(--ink)] font-bold text-sm"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatusPanelOpen(false);
+                    if (onNavigate) onNavigate('data');
+                  }}
+                  className="inline-flex items-center gap-1 font-mono text-[11px] uppercase font-bold text-[var(--blue)] hover:underline"
+                >
+                  <span>Dataset Registry</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusPanelOpen(false)}
+                  aria-label="Close provenance panel"
+                  className="text-[var(--mute)] hover:text-[var(--ink)] font-bold text-sm"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-0.5">
               <div>
-                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">Active Dataset</span>
+                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">
+                  Active Volume
+                </span>
                 <span className="font-bold text-sm text-[var(--ink)]">
-                  {formatSeasonName(activeSeason)} ({seasonBadgeText})
+                  Vol. {formatSeasonName(activeSeason)} · {seasonBadgeText}
                 </span>
+                <div className="text-[11px] text-[var(--mute)] mt-0.5">
+                  {availableSeasons.length || 14} archived seasons (2012/13 – 2025/26)
+                </div>
               </div>
               <div>
-                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">Provenance & Source</span>
+                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">
+                  Source &amp; Attribution
+                </span>
+                <span className="font-medium text-[var(--ink)]">{activeProvenanceSource}</span>
+              </div>
+              <div>
+                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">
+                  Metric Tracking
+                </span>
                 <span className="font-medium text-[var(--ink)]">
-                  {isBaseline ? 'FBref / StatsBomb Big 5 European aggregates' : 'Transfermarkt & Understat historical logs'}
+                  {activeUntrackedMetrics.length > 0
+                    ? `Untracked (null): ${activeUntrackedMetrics.join(', ')}`
+                    : isPreXgSeason
+                      ? 'Pre-xG era: xG, xAG, and progressive actions are null'
+                      : isBaseline
+                        ? 'All 37 canonical metrics tracked (incl. PrgC/PrgP/PrgR)'
+                        : 'Goals, assists, minutes, and expected goals (xG/xAG) tracked'}
                 </span>
-              </div>
-              <div>
-                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">Seasons Loaded</span>
-                <span className="font-medium text-[var(--ink)]">14 Seasons (2012/13 – 2025/26)</span>
-              </div>
-              <div>
-                <span className="text-[var(--mute)] uppercase text-[10px] font-disp font-bold block">League Coverage</span>
-                <span className="font-medium text-[var(--ink)]">Premier League, La Liga, Serie A, Bundesliga, Ligue 1</span>
               </div>
             </div>
           </div>

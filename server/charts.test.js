@@ -134,3 +134,38 @@ test('server.js exports Express app and serves core API endpoints with HTTP 200'
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test('season details API returns distinct live CSV SHA-256 hashes and valid CSV download stream', async () => {
+  const app = require('../server');
+  const server = app.listen(0);
+  const { port } = server.address();
+  const baseUrl = `http://127.0.0.1:${port}`;
+
+  try {
+    const [res2425, res2526, csvRes] = await Promise.all([
+      fetch(`${baseUrl}/api/seasons/2024-2025`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/seasons/2025-2026`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/seasons/2024-2025/download`).then(async (r) => ({
+        status: r.status,
+        text: await r.text(),
+      })),
+    ]);
+
+    assert.equal(res2425.status, 200);
+    assert.equal(res2526.status, 200);
+
+    const d2425 = (await res2425.body).data;
+    const d2526 = (await res2526.body).data;
+    assert.match(d2425.csv_sha256, /^[0-9a-f]{64}$/);
+    assert.match(d2526.csv_sha256, /^[0-9a-f]{64}$/);
+    assert.notEqual(d2425.csv_sha256, d2526.csv_sha256);
+    assert.ok(d2425.file_size_bytes > 10000);
+    assert.equal(d2526.is_quarantined, false);
+
+    assert.equal(csvRes.status, 200);
+    const firstLine = csvRes.text.split(/\r?\n/)[0];
+    assert.ok(firstLine.includes('Player') && firstLine.includes('Squad'), `Unexpected CSV header: ${firstLine}`);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});

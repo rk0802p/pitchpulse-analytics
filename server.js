@@ -289,9 +289,9 @@ api.get('/seasons/:seasonId/download', (req, res) => {
 api.get('/seasons/:seasonId', (req, res) => {
   const validated = validateSeasonId(req.params.seasonId, seasonService.seasonsDir, true);
   if (!validated) return sendError(res, `Season '${req.params.seasonId}' not found.`, 404, 'ERR_NOT_FOUND');
-  const manifest = seasonService.getSeasonManifest(validated);
-  if (!manifest) return sendError(res, `Season manifest for '${validated}' not found.`, 404, 'ERR_NOT_FOUND');
-  return sendSuccess(res, manifest);
+  const details = seasonService.getSeasonDetails(validated);
+  if (!details) return sendError(res, `Season manifest for '${validated}' not found.`, 404, 'ERR_NOT_FOUND');
+  return sendSuccess(res, details);
 });
 
 // --- CHARTS & ANALYTICS ROUTES (registered before /players/:id) ---

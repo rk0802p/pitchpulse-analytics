@@ -10,6 +10,8 @@
   --rule: #B5BBAC;
   --blue: #27419C;
   --red: #B3382A;
+  --green: #1B6B46;
+  --accent: #9A5512;
   --amber: #F0B429;
   --board: #123D2D;
   --tile: #F4F1E6;
@@ -28,6 +30,8 @@
     --rule: #38404A;
     --blue: #8FA8FF;
     --red: #FF8E7C;
+    --green: #5FD19A;
+    --accent: #F0B429;
     --board: #0E2A20;
   }
 }
@@ -40,6 +44,8 @@
   --rule: #38404A;
   --blue: #8FA8FF;
   --red: #FF8E7C;
+  --green: #5FD19A;
+  --accent: #F0B429;
   --board: #0E2A20;
 }
 
@@ -51,6 +57,8 @@
   --rule: #B5BBAC;
   --blue: #27419C;
   --red: #B3382A;
+  --green: #1B6B46;
+  --accent: #9A5512;
   --amber: #F0B429;
   --board: #123D2D;
   --tile: #F4F1E6;
