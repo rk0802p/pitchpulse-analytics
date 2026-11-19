@@ -5,21 +5,8 @@
 
 const getApiBaseUrl = () => {
   const envUrl = process.env.REACT_APP_API_URL;
+  // Unified full-stack deployment serves both the React app and Express /api on the same origin.
   if (envUrl && envUrl.startsWith('/')) {
-    return envUrl.replace(/\/+$/, '');
-  }
-  const host = typeof window !== 'undefined' ? window.location.hostname : '';
-  const isUnifiedOrigin =
-    !host ||
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host.endsWith('.run.app');
-  if (
-    !isUnifiedOrigin &&
-    envUrl &&
-    !envUrl.includes('your-backend-url') &&
-    !envUrl.includes('sports-analytics-backend.vercel.app')
-  ) {
     return envUrl.replace(/\/+$/, '');
   }
   return '/api';

@@ -104,9 +104,10 @@ export default function PlotAnyMetricView({
   const requestKey = JSON.stringify([activeSeason, effectiveX, effectiveY, selectedPos, selectedComp, debouncedFilters.mins, debouncedFilters.age]);
 
   useEffect(() => {
+    if (debouncedFilters.mins === minMinutes && debouncedFilters.age === ageMax) return;
     const timer = window.setTimeout(() => setDebouncedFilters({ mins: minMinutes, age: ageMax }), 250);
     return () => window.clearTimeout(timer);
-  }, [minMinutes, ageMax]);
+  }, [minMinutes, ageMax, debouncedFilters.mins, debouncedFilters.age]);
 
   // Sync state to URL hash for shareable links
   useEffect(() => {

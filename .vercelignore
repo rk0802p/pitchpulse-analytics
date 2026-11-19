@@ -31,3 +31,5 @@ __pycache__/
 *.pyd
 .vscode/
 .idea/
+.playwright-cli/
+.aistudio/

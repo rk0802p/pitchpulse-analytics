@@ -95,12 +95,13 @@ test('api/index.js exports Express app and serves core API endpoints with HTTP 2
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
-    const [health, seasons, baseline, players, dashboard] = await Promise.all([
+    const [health, seasons, baseline, players, dashboard, mbappeHistory] = await Promise.all([
       fetch(`${baseUrl}/api/health`).then((r) => ({ status: r.status, body: r.json() })),
       fetch(`${baseUrl}/api/seasons`).then((r) => ({ status: r.status, body: r.json() })),
       fetch(`${baseUrl}/api/seasons/baseline/verify`).then((r) => ({ status: r.status, body: r.json() })),
       fetch(`${baseUrl}/api/players?season=2024-2025&limit=5`).then((r) => ({ status: r.status, body: r.json() })),
       fetch(`${baseUrl}/api/dashboard?season=2024-2025`).then((r) => ({ status: r.status, body: r.json() })),
+      fetch(`${baseUrl}/api/players/${encodeURIComponent('Kylian Mbappé')}/history`).then((r) => ({ status: r.status, body: r.json() })),
     ]);
 
     assert.equal(health.status, 200);
@@ -124,6 +125,11 @@ test('api/index.js exports Express app and serves core API endpoints with HTTP 2
     const dashJson = await dashboard.body;
     assert.equal(dashJson.success, true);
     assert.ok(dashJson.data.kpis.total_players > 2500);
+
+    assert.equal(mbappeHistory.status, 200);
+    const mbappeJson = await mbappeHistory.body;
+    assert.equal(mbappeJson.success, true);
+    assert.ok(Array.isArray(mbappeJson.data.seasons) && mbappeJson.data.seasons.length >= 8);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
