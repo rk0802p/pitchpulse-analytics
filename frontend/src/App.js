@@ -36,6 +36,7 @@ function App() {
   const [allPlayers, setAllPlayers] = useState([]);
   const [squadsList, setSquadsList] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
 
   // Player Explorer State
   const [explorerPlayers, setExplorerPlayers] = useState([]);
@@ -176,6 +177,7 @@ function App() {
   // Load Executive Dashboard Analytics & Top Performers (runs ONLY when season or league filter changes)
   useEffect(() => {
     let cancelled = false;
+    setLoadingDashboard(true);
     api.getDashboard(selectedComp || undefined, activeSeason)
       .then(res => {
         if (cancelled) return;
@@ -187,7 +189,10 @@ function App() {
           setTopProgression(d.progression_leaders?.[0] || null);
         }
       })
-      .catch(err => console.error("Error loading dashboard data:", err));
+      .catch(err => console.error("Error loading dashboard data:", err))
+      .finally(() => {
+        if (!cancelled) setLoadingDashboard(false);
+      });
     return () => { cancelled = true; };
   }, [activeSeason, selectedComp]);
 
@@ -313,6 +318,7 @@ function App() {
         <TerraceHomeView
           metadata={metadata}
           dashboardData={dashboardData}
+          loading={loadingDashboard}
           topScorer={topScorer}
           topAssister={topAssister}
           topProgression={topProgression}
@@ -324,6 +330,10 @@ function App() {
           onSelectTeam={(team) => {
             const name = typeof team === 'string' ? team : (team.name || team.Squad || team.Team);
             handleSelectSquad(name);
+          }}
+          onSelectComp={(comp) => {
+            setSelectedComp(comp);
+            setPagination(p => ({ ...p, page: 1 }));
           }}
           selectedComp={selectedComp}
           activeSeason={activeSeason}

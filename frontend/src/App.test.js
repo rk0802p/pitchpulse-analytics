@@ -41,6 +41,63 @@ beforeEach(() => {
         })
       });
     }
+    if (url.includes('/api/dashboard')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            kpis: {
+              total_players: 2854,
+              total_clubs: 96,
+              total_goals: 4806,
+              total_assists: 3429,
+              total_xg: 4870.2,
+              total_xag: 3450.5,
+              finishing_delta: -64.2,
+              has_xg: true,
+              has_progression: true,
+            },
+            top_scorers: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Comp: 'eng Premier League', Gls: 25, xG: 22.4 },
+            ],
+            top_creators: [
+              { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Comp: 'eng Premier League', Ast: 14, xAG: 12.1 },
+            ],
+            overperformers: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Comp: 'eng Premier League', Pos: 'FW', Gls: 25, xG: 22.4, Gls_minus_xG: 2.6 },
+            ],
+            underperformers: [],
+            progression_leaders: [
+              { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Comp: 'eng Premier League', PrgC: 80, PrgP: 95 },
+            ],
+            scatter_data: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Comp: 'eng Premier League', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, Gls_minus_xG: 2.6, Min: 2400 },
+              { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Comp: 'eng Premier League', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, Gls_minus_xG: 1.5, Min: 2200 },
+            ],
+            scatter_medians: { xAG: 7.65, xG: 16.45 },
+            league_efficiency: [
+              {
+                id: 'premier-league',
+                raw_name: 'eng Premier League',
+                name: 'Premier League',
+                short_name: 'EPL',
+                clubs_count: 20,
+                players_count: 574,
+                goals: 1115,
+                assists: 810,
+                xg: 1120.4,
+                finishing_delta: -5.4,
+                conversion_pct: 99.5,
+                goals_per_club: 55.8,
+                top_scorer: { id: 1, Player: 'Erling Haaland', Squad: 'Manchester City', Gls: 25 },
+              },
+            ],
+            club_efficiency: [],
+          },
+        }),
+      });
+    }
     if (url.includes('/api/players')) {
       return Promise.resolve({
         ok: true,
@@ -80,16 +137,16 @@ const flushAsyncEffects = async () => {
   });
 };
 
-test('renders PitchPulse editorial masthead, split-flap scoreboard, and almanac layout', async () => {
+test('renders PitchPulse editorial masthead and live executive overview layout', async () => {
   render(<App />);
 
   expect(screen.getAllByText(/PitchPulse/i).length).toBeGreaterThan(0);
   expect(screen.getAllByText(/PitchPulse Analytics/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/Statistical ledger of Europe's top 5 leagues/i)).toBeInTheDocument();
 
-  // Verify scoreboard and editorial figures
-  expect(await screen.findByText(/Expected goals, minute by minute/i)).toBeInTheDocument();
-  expect(await screen.findByText(/Every shot, one goal at the top/i)).toBeInTheDocument();
+  // Verify live data-backed overview sections
+  expect(await screen.findByRole('heading', { name: /Top-League Efficiency Showcase/i })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: /Attacking Output Matrix/i })).toBeInTheDocument();
   await flushAsyncEffects();
 });
 

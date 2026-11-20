@@ -685,8 +685,24 @@ function pickFields(row, fields) {
   return obj;
 }
 
+function computeMedian(values) {
+  const nums = values.filter(isFiniteNum).sort((a, b) => a - b);
+  if (nums.length === 0) return null;
+  const mid = Math.floor(nums.length / 2);
+  return nums.length % 2 === 1 ? roundTo(nums[mid], 2) : roundTo((nums[mid - 1] + nums[mid]) / 2, 2);
+}
+
+const SHORT_LEAGUE_NAMES = {
+  'eng Premier League': 'EPL',
+  'es La Liga': 'La Liga',
+  'it Serie A': 'Serie A',
+  'de Bundesliga': 'Bundesliga',
+  'fr Ligue 1': 'Ligue 1',
+};
+
 function getDashboardAnalytics(competition = null, season = null) {
-  let records = dataLoader.getRecords(season);
+  const allSeasonRecords = dataLoader.getRecords(season);
+  let records = allSeasonRecords;
   if (competition) {
     const resolved = resolveCompetition(competition);
     if (!resolved) return null;
@@ -697,6 +713,7 @@ function getDashboardAnalytics(competition = null, season = null) {
   const totalClubs = new Set(records.map((r) => r.Squad).filter(Boolean)).size;
   let totalGoals = 0;
   let totalAssists = 0;
+  let totalMinutes = 0;
   let totalXg = 0;
   let totalXag = 0;
   let maxXg = 0;
@@ -706,6 +723,7 @@ function getDashboardAnalytics(competition = null, season = null) {
   for (const r of records) {
     totalGoals += r.Gls || 0;
     totalAssists += r.Ast || 0;
+    totalMinutes += r.Min || 0;
     const skipShared = r._shared_season_xg && seenSharedXg.has(r.player_id || r.player_slug);
     if (r._shared_season_xg && !skipShared) {
       seenSharedXg.add(r.player_id || r.player_slug);
@@ -718,14 +736,16 @@ function getDashboardAnalytics(competition = null, season = null) {
     if (isFiniteNum(r.PrgC) && r.PrgC > maxPrgC) maxPrgC = r.PrgC;
   }
 
-  totalXg = roundTo(totalXg, 1);
-  totalXag = roundTo(totalXag, 1);
-  const finishingDelta = roundTo(totalGoals - totalXg, 1);
+  const hasXg = maxXg > 0;
+  const hasPrgC = maxPrgC > 0;
+  const roundedXg = hasXg ? roundTo(totalXg, 1) : null;
+  const roundedXag = hasXg ? roundTo(totalXag, 1) : null;
+  const finishingDelta = hasXg ? roundTo(totalGoals - roundedXg, 1) : null;
 
   const scorerFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min'];
   const creatorFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Ast', 'xAG', 'Ast_minus_xAG', 'Min'];
   const progFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'PrgC', 'PrgP', 'Min'];
-  const scatterFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'xG', 'xAG', 'Gls', 'Ast', 'Min'];
+  const scatterFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'xG', 'xAG', 'Gls', 'Ast', 'Min', 'Gls_minus_xG'];
 
   const topScorers = sortRecords(records, 'Gls', false)
     .slice(0, 8)
@@ -734,9 +754,6 @@ function getDashboardAnalytics(competition = null, season = null) {
   const topCreators = sortRecords(records, 'Ast', false)
     .slice(0, 8)
     .map((r) => pickFields(r, creatorFields));
-
-  const hasXg = maxXg > 0;
-  const hasPrgC = maxPrgC > 0;
 
   const min500 = records.filter((r) => (r.Min || 0) >= 500 && isFiniteNum(r.Gls_minus_xG));
   const overperformers = hasXg
@@ -757,15 +774,142 @@ function getDashboardAnalytics(competition = null, season = null) {
         .map((r) => pickFields(r, progFields))
     : [];
 
-  const min450 = records.filter((r) => (r.Min || 0) >= 450);
-  const scatterData = [...min450]
-    .sort((a, b) => {
-      const sa = hasXg ? (a.xG || 0) + (a.xAG || 0) : (a.Gls || 0) + (a.Ast || 0);
-      const sb = hasXg ? (b.xG || 0) + (b.xAG || 0) : (b.Gls || 0) + (b.Ast || 0);
-      return sb - sa;
+  const min450 = records.filter((r) => (r.Min || 0) >= 450 && (!hasXg || (isFiniteNum(r.xG) && isFiniteNum(r.xAG))));
+  const scatterData = hasXg
+    ? [...min450]
+        .sort((a, b) => (b.xG + b.xAG) - (a.xG + a.xAG))
+        .slice(0, 40)
+        .map((r) => pickFields(r, scatterFields))
+    : [];
+
+  const scatterMedians = {
+    xAG: hasXg ? computeMedian(scatterData.map((p) => p.xAG)) : null,
+    xG: hasXg ? computeMedian(scatterData.map((p) => p.xG)) : null,
+  };
+
+  // --- Big 5 League Efficiency Showcase (always covers all leagues in the active season) ---
+  const leagueBuckets = new Map();
+  for (const r of allSeasonRecords) {
+    if (!r.Comp) continue;
+    if (!leagueBuckets.has(r.Comp)) {
+      leagueBuckets.set(r.Comp, {
+        rawName: r.Comp,
+        squads: new Set(),
+        rows: [],
+        seenShared: new Set(),
+        goals: 0,
+        assists: 0,
+        xg: 0,
+        xag: 0,
+        hasXg: false,
+      });
+    }
+    const b = leagueBuckets.get(r.Comp);
+    if (r.Squad) b.squads.add(r.Squad);
+    b.rows.push(r);
+    b.goals += r.Gls || 0;
+    b.assists += r.Ast || 0;
+    const key = r.player_id || r.player_slug;
+    const skipShared = r._shared_season_xg && b.seenShared.has(key);
+    if (r._shared_season_xg && !skipShared) b.seenShared.add(key);
+    if (!skipShared && isFiniteNum(r.xG)) {
+      b.xg += r.xG;
+      if (r.xG > 0) b.hasXg = true;
+    }
+    if (!skipShared && isFiniteNum(r.xAG)) {
+      b.xag += r.xAG;
+    }
+  }
+
+  const leagueEfficiency = Array.from(leagueBuckets.values())
+    .map((b) => {
+      const info = COMPETITIONS[b.rawName] || {
+        id: b.rawName.toLowerCase().replace(/\s+/g, '-'),
+        name: b.rawName,
+        country: 'Europe',
+      };
+      const xgVal = b.hasXg ? roundTo(b.xg, 1) : null;
+      const xagVal = b.hasXg ? roundTo(b.xag, 1) : null;
+      const deltaVal = b.hasXg ? roundTo(b.goals - xgVal, 1) : null;
+      const convPct = b.hasXg && xgVal > 0 ? roundTo((b.goals / xgVal) * 100, 1) : null;
+      const leagueTopScorer = sortRecords(b.rows, 'Gls', false)[0] || null;
+      const leagueOverCandidates = b.rows.filter((r) => (r.Min || 0) >= 500 && isFiniteNum(r.Gls_minus_xG));
+      const leagueTopOver = b.hasXg ? sortRecords(leagueOverCandidates, 'Gls_minus_xG', false)[0] || null : null;
+
+      return {
+        id: info.id,
+        raw_name: b.rawName,
+        name: info.name,
+        short_name: SHORT_LEAGUE_NAMES[b.rawName] || info.name,
+        country: info.country,
+        clubs_count: b.squads.size,
+        players_count: b.rows.length,
+        goals: b.goals,
+        assists: b.assists,
+        xg: xgVal,
+        xag: xagVal,
+        finishing_delta: deltaVal,
+        conversion_pct: convPct,
+        goals_per_club: b.squads.size > 0 ? roundTo(b.goals / b.squads.size, 1) : 0,
+        top_scorer: leagueTopScorer ? pickFields(leagueTopScorer, scorerFields) : null,
+        top_overperformer: leagueTopOver ? pickFields(leagueTopOver, scorerFields) : null,
+      };
     })
-    .slice(0, 25)
-    .map((r) => pickFields(r, scatterFields));
+    .sort((a, b) => b.goals - a.goals);
+
+  // --- Top Clubs Efficiency Showcase (scoped to active competition or Big 5) ---
+  const clubBuckets = new Map();
+  for (const r of records) {
+    if (!r.Squad) continue;
+    const clubKey = `${r.Squad}||${r.Comp || ''}`;
+    if (!clubBuckets.has(clubKey)) {
+      clubBuckets.set(clubKey, {
+        squad: r.Squad,
+        comp: r.Comp || '',
+        competition_name: r.competition_name || r.Comp || '',
+        rows: [],
+        goals: 0,
+        assists: 0,
+        xg: 0,
+        xgExcludedShared: 0,
+        hasXg: false,
+      });
+    }
+    const cb = clubBuckets.get(clubKey);
+    cb.rows.push(r);
+    cb.goals += r.Gls || 0;
+    cb.assists += r.Ast || 0;
+    if (r._shared_season_xg) {
+      cb.xgExcludedShared += 1;
+    } else if (isFiniteNum(r.xG)) {
+      cb.xg += r.xG;
+      if (r.xG > 0) cb.hasXg = true;
+    }
+  }
+
+  const clubEfficiency = Array.from(clubBuckets.values())
+    .map((cb) => {
+      const xgVal = cb.hasXg ? roundTo(cb.xg, 1) : null;
+      const deltaVal = cb.hasXg ? roundTo(cb.goals - xgVal, 1) : null;
+      const convPct = cb.hasXg && xgVal > 0 ? roundTo((cb.goals / xgVal) * 100, 1) : null;
+      const topScorer = sortRecords(cb.rows, 'Gls', false)[0] || null;
+      return {
+        squad: cb.squad,
+        comp: cb.comp,
+        competition_name: cb.competition_name,
+        short_league: SHORT_LEAGUE_NAMES[cb.comp] || cb.competition_name,
+        players_count: cb.rows.length,
+        goals: cb.goals,
+        assists: cb.assists,
+        xg: xgVal,
+        finishing_delta: deltaVal,
+        conversion_pct: convPct,
+        shared_xg_excluded_count: cb.xgExcludedShared,
+        top_scorer: topScorer ? pickFields(topScorer, scorerFields) : null,
+      };
+    })
+    .sort((a, b) => b.goals - a.goals)
+    .slice(0, 8);
 
   const quarPolicy = seasonService.getQuarantinePolicy(season);
   const quarantineNotice = quarPolicy.is_quarantined
@@ -781,9 +925,12 @@ function getDashboardAnalytics(competition = null, season = null) {
       total_clubs: totalClubs,
       total_goals: totalGoals,
       total_assists: totalAssists,
-      total_xg: totalXg,
-      total_xag: totalXag,
+      total_minutes: totalMinutes,
+      total_xg: roundedXg,
+      total_xag: roundedXag,
       finishing_delta: finishingDelta,
+      has_xg: hasXg,
+      has_progression: hasPrgC,
     },
     top_scorers: topScorers,
     top_creators: topCreators,
@@ -791,6 +938,9 @@ function getDashboardAnalytics(competition = null, season = null) {
     underperformers,
     progression_leaders: progressionLeaders,
     scatter_data: scatterData,
+    scatter_medians: scatterMedians,
+    league_efficiency: leagueEfficiency,
+    club_efficiency: clubEfficiency,
   };
 }
 

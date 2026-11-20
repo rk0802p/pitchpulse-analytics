@@ -169,3 +169,34 @@ test('season details API returns distinct live CSV SHA-256 hashes and valid CSV 
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test('getDashboardAnalytics returns Big 5 league_efficiency, club_efficiency, true medians, and null xG in pre-xG eras', () => {
+  const { getDashboardAnalytics } = require('./analytics');
+
+  const d2425 = getDashboardAnalytics(null, '2024-2025');
+  assert.equal(d2425.kpis.has_xg, true);
+  assert.equal(d2425.kpis.total_goals, 4806);
+  assert.equal(d2425.league_efficiency.length, 5);
+  assert.equal(d2425.club_efficiency.length, 8);
+  assert.ok(d2425.scatter_medians.xG > 0 && d2425.scatter_medians.xAG > 0);
+  const sumLeagueGoals = d2425.league_efficiency.reduce((s, l) => s + l.goals, 0);
+  assert.equal(sumLeagueGoals, 4806);
+  for (const lg of d2425.league_efficiency) {
+    assert.ok(typeof lg.xg === 'number' && lg.xg > 500);
+    assert.ok(typeof lg.conversion_pct === 'number' && lg.conversion_pct > 70 && lg.conversion_pct < 130);
+    assert.ok(lg.top_scorer && lg.top_scorer.Player);
+  }
+
+  // Pre-xG season (2012-2013) must strictly report null xG KPIs and empty scatter_data (never fake 0.0)
+  const d1213 = getDashboardAnalytics(null, '2012-2013');
+  assert.equal(d1213.kpis.has_xg, false);
+  assert.equal(d1213.kpis.total_xg, null);
+  assert.equal(d1213.kpis.finishing_delta, null);
+  assert.equal(d1213.scatter_data.length, 0);
+  assert.equal(d1213.league_efficiency.length, 5);
+  for (const lg of d1213.league_efficiency) {
+    assert.equal(lg.xg, null);
+    assert.equal(lg.finishing_delta, null);
+    assert.ok(lg.goals > 500);
+  }
+});
