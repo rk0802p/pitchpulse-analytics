@@ -60,7 +60,7 @@ describe('ComparisonMatrix & generateMultiPlayerVerdict', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /Positional Percentiles/i }));
     await waitFor(() => {
-      expect(screen.getByText(/99th/)).toBeInTheDocument();
+      expect(screen.getAllByText(/99th/).length).toBeGreaterThanOrEqual(3);
     });
   });
 

@@ -84,14 +84,16 @@ export function generateMultiPlayerVerdict(players = []) {
     : `All ${players.length} players post closely matched output across tracked attacking categories.`;
 }
 
+const EMPTY_ARRAY = [];
+
 export const ComparisonMatrix = ({
-  players = [],
+  players = EMPTY_ARRAY,
   onRemovePlayer,
   onAddPlayer,
   onReplacePlayers,
-  allAvailablePlayers = [],
+  allAvailablePlayers = EMPTY_ARRAY,
   onSelectPlayer,
-  shortlist = [],
+  shortlist = EMPTY_ARRAY,
   onToggleShortlist,
   activeSeason = '2024-2025',
 }) => {
@@ -109,6 +111,10 @@ export const ComparisonMatrix = ({
   const [loadingCompare, setLoadingCompare] = useState(false);
 
   const searchBoxRef = useRef(null);
+  const allAvailableRef = useRef(allAvailablePlayers);
+  allAvailableRef.current = allAvailablePlayers;
+
+  const playerIdsKey = players.map((p) => `${p.id ?? p.Player}@${p.season || activeSeason}`).join('|');
 
   useEffect(() => {
     const handleOutside = (e) => {
@@ -124,7 +130,7 @@ export const ComparisonMatrix = ({
   useEffect(() => {
     const trimmed = searchTerm.trim();
     if (trimmed.length < 2) {
-      setAsyncResults([]);
+      setAsyncResults((prev) => (prev.length === 0 ? prev : EMPTY_ARRAY));
       setSearchingDb(false);
       return;
     }
@@ -152,7 +158,7 @@ export const ComparisonMatrix = ({
           .catch(() => {
             if (cancelled) return;
             const q = trimmed.toLowerCase();
-            const fallback = allAvailablePlayers.filter(
+            const fallback = (allAvailableRef.current || []).filter(
               (p) =>
                 p.Player?.toLowerCase().includes(q) ||
                 (p.Squad || '').toLowerCase().includes(q)
@@ -164,7 +170,7 @@ export const ComparisonMatrix = ({
           });
       } else {
         const q = trimmed.toLowerCase();
-        const fallback = allAvailablePlayers.filter((p) => p.Player?.toLowerCase().includes(q));
+        const fallback = (allAvailableRef.current || []).filter((p) => p.Player?.toLowerCase().includes(q));
         setAsyncResults(excludeSelected(fallback).slice(0, 8));
         setSearchingDb(false);
       }
@@ -174,10 +180,9 @@ export const ComparisonMatrix = ({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [searchTerm, activeSeason, players, allAvailablePlayers]);
+  }, [searchTerm, activeSeason, playerIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch backend /api/players/compare payload whenever 2+ players are selected
-  const playerIdsKey = players.map((p) => `${p.id ?? p.Player}@${p.season || activeSeason}`).join('|');
 
   useEffect(() => {
     if (players.length < 2 || !api || typeof api.comparePlayers !== 'function') {

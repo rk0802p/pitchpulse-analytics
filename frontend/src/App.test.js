@@ -315,7 +315,7 @@ test('renders ComparisonMatrix side by side with scouting verdict', async () => 
   expect(screen.getByText(/Player Comparison/i)).toBeInTheDocument();
   expect(screen.getAllByText('Erling Haaland').length).toBeGreaterThan(0);
   expect(screen.getAllByText('Bukayo Saka').length).toBeGreaterThan(0);
-  expect(screen.getByText(/Scouting Verdict:/i)).toBeInTheDocument();
+  expect(screen.getByText(/Scouting Verdict/i)).toBeInTheDocument();
   await flushAsyncEffects();
 });
 
