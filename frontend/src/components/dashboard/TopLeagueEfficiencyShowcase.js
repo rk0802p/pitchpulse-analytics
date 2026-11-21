@@ -122,7 +122,7 @@ export const TopLeagueEfficiencyShowcase = ({
   );
 
   const formatSeason = activeSeason.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
-  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2}\s+/, '') : 'European Big 5';
+  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2,3}\s+/, '') : 'European Big 5';
 
   return (
     <section

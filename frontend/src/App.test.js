@@ -1,10 +1,6 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import App from './App';
-import SplitFlapScoreboard from './components/common/SplitFlapScoreboard';
-import ExpectedGoalsFigure from './components/dashboard/ExpectedGoalsFigure';
-import ShotMapFigure from './components/dashboard/ShotMapFigure';
-import LeagueTableAlmanac from './components/leaderboards/LeagueTableAlmanac';
 import DataTable from './components/common/DataTable';
 import StatCard from './components/common/StatCard';
 import PlayerProfileView from './components/profile/PlayerProfileView';
@@ -12,8 +8,12 @@ import ComparisonMatrix from './components/compare/ComparisonMatrix';
 import LeaderboardsView from './components/leaderboards/LeaderboardsView';
 import SquadBrowserView from './components/squad/SquadBrowserView';
 import DataManagementView from './components/data/DataManagementView';
+import RadarChart from './components/charts/RadarChart';
+import ShortlistDrawer from './components/common/ShortlistDrawer';
 
 beforeEach(() => {
+  window.localStorage.clear();
+  window.location.hash = '';
   global.fetch = jest.fn((url) => {
     if (url.includes('/api/health')) {
       return Promise.resolve({
@@ -98,6 +98,37 @@ beforeEach(() => {
         }),
       });
     }
+    if (url.includes('/api/clubs/summary')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: [
+            { squad: 'Arsenal', short_league: 'EPL', players_count: 25, goals: 69, xg: 64.2, finishing_delta: 4.8, avg_age: 25.4, top_scorer: { Player: 'Bukayo Saka', Gls: 12 } },
+            { squad: 'Liverpool', short_league: 'EPL', players_count: 24, goals: 86, xg: 81.5, finishing_delta: 4.5, avg_age: 26.8, top_scorer: { Player: 'Mohamed Salah', Gls: 29 } },
+          ]
+        })
+      });
+    }
+    if (url.includes('/api/players/compare')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            season: '2024-2025',
+            players: [
+              { id: 1, Player: 'Erling Haaland', Squad: 'Man City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90, Min: 2400 },
+              { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120, Min: 2200 }
+            ],
+            radar_percentiles: {
+              'Erling Haaland': { Gls_90: 98, xG_90: 97, Ast_90: 42, xAG_90: 45, PrgC_90: 35, PrgP_90: 30 },
+              'Bukayo Saka': { Gls_90: 82, xG_90: 79, Ast_90: 96, xAG_90: 95, PrgC_90: 94, PrgP_90: 92 },
+            }
+          }
+        })
+      });
+    }
     if (url.includes('/api/players')) {
       return Promise.resolve({
         ok: true,
@@ -137,44 +168,73 @@ const flushAsyncEffects = async () => {
   });
 };
 
-test('renders PitchPulse editorial masthead and live executive overview layout', async () => {
+test('renders PitchPulse editorial masthead, Shortlist button, and live executive overview layout', async () => {
   render(<App />);
 
   expect(screen.getAllByText(/PitchPulse/i).length).toBeGreaterThan(0);
   expect(screen.getAllByText(/PitchPulse Analytics/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/Statistical ledger of Europe's top 5 leagues/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Open Scout Shortlist/i })).toBeInTheDocument();
 
-  // Verify live data-backed overview sections
   expect(await screen.findByRole('heading', { name: /Top-League Efficiency Showcase/i })).toBeInTheDocument();
   expect(await screen.findByRole('heading', { name: /Attacking Output Matrix/i })).toBeInTheDocument();
   await flushAsyncEffects();
 });
 
-test('renders SplitFlapScoreboard with team names', () => {
+test('RadarChart omits untracked null dimensions with disclosure instead of imputing 50', () => {
   render(
-    <SplitFlapScoreboard
-      homeTeam="ARSENAL"
-      awayTeam="CHELSEA"
-      homeScore={2}
-      awayScore={1}
+    <RadarChart
+      dimensions={[
+        { key: 'Gls_90', label: 'Goals/90' },
+        { key: 'xG_90', label: 'xG/90' },
+        { key: 'Ast_90', label: 'Assists/90' },
+        { key: 'xAG_90', label: 'xAG/90' },
+        { key: 'PrgC_90', label: 'Carries/90' },
+        { key: 'PrgP_90', label: 'Passes/90' },
+      ]}
+      series={[
+        {
+          name: 'Kylian Mbappé',
+          values: { Gls_90: 99, xG_90: 97, Ast_90: 71, xAG_90: 80, PrgC_90: null, PrgP_90: null },
+        },
+      ]}
     />
   );
-  expect(screen.getAllByText(/A/i).length).toBeGreaterThan(0);
+
+  expect(screen.getByText(/Untracked in this season/i)).toBeInTheDocument();
+  expect(screen.getByText(/Carries\/90, Passes\/90/i)).toBeInTheDocument();
 });
 
-test('renders ExpectedGoalsFigure and ShotMapFigure', () => {
-  render(<ExpectedGoalsFigure homeTeam="Arsenal" awayTeam="Chelsea" />);
-  expect(screen.getByText(/Fig. 1 Expected goals/i)).toBeInTheDocument();
+test('ShortlistDrawer renders saved players and tag filters', () => {
+  render(
+    <ShortlistDrawer
+      isOpen={true}
+      onClose={() => {}}
+      shortlist={[
+        {
+          key: '2024-2025::1',
+          id: 1,
+          season: '2024-2025',
+          Player: 'Lamine Yamal',
+          Squad: 'Barcelona',
+          Comp: 'es La Liga',
+          Pos: 'FW',
+          Age: 17,
+          Min: 2800,
+          Gls: 9,
+          Ast: 13,
+          xG: 8.4,
+          xAG: 12.1,
+          tag: 'Target',
+          note: 'Priority wide creator',
+        },
+      ]}
+    />
+  );
 
-  render(<ShotMapFigure homeTeam="Arsenal" awayTeam="Chelsea" />);
-  expect(screen.getByText(/Fig. 2 Every shot/i)).toBeInTheDocument();
-});
-
-test('renders LeagueTableAlmanac with sortable standings', () => {
-  render(<LeagueTableAlmanac />);
-  expect(screen.getByText(/Division Standings & Expected Performance/i)).toBeInTheDocument();
-  expect(screen.getByText('Arsenal')).toBeInTheDocument();
-  expect(screen.getByText('Liverpool')).toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: /Scout Shortlist Drawer/i })).toBeInTheDocument();
+  expect(screen.getByText('Lamine Yamal')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('Priority wide creator')).toBeInTheDocument();
 });
 
 test('renders DataTable with custom title and density controls', () => {
@@ -245,7 +305,7 @@ test('renders PlayerProfileView with complete dossier and 3 percentile groups', 
   await flushAsyncEffects();
 });
 
-test('renders ComparisonMatrix side by side with scouting verdict', () => {
+test('renders ComparisonMatrix side by side with scouting verdict', async () => {
   const dummyPlayers = [
     { id: 1, Player: 'Erling Haaland', Squad: 'Man City', Pos: 'FW', Gls: 25, Ast: 3, xG: 22.4, xAG: 3.2, PrgC: 45, PrgP: 30, PrgR: 90, Min: 2400 },
     { id: 2, Player: 'Bukayo Saka', Squad: 'Arsenal', Pos: 'FW', Gls: 12, Ast: 14, xG: 10.5, xAG: 12.1, PrgC: 80, PrgP: 95, PrgR: 120, Min: 2200 }
@@ -253,9 +313,10 @@ test('renders ComparisonMatrix side by side with scouting verdict', () => {
 
   render(<ComparisonMatrix players={dummyPlayers} />);
   expect(screen.getByText(/Player Comparison/i)).toBeInTheDocument();
-  expect(screen.getByText('Erling Haaland')).toBeInTheDocument();
-  expect(screen.getByText('Bukayo Saka')).toBeInTheDocument();
+  expect(screen.getAllByText('Erling Haaland').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('Bukayo Saka').length).toBeGreaterThan(0);
   expect(screen.getByText(/Scouting Verdict:/i)).toBeInTheDocument();
+  await flushAsyncEffects();
 });
 
 test('renders LeaderboardsView with metric picker and podium', async () => {

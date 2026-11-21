@@ -156,6 +156,8 @@ function searchPlayers({
   squad = null,
   position = null,
   minMinutes = 0,
+  ageMin = null,
+  ageMax = null,
   sortBy = 'Gls',
   order = 'desc',
   page = 1,
@@ -190,6 +192,14 @@ function searchPlayers({
 
   if (minMinutes && minMinutes > 0) {
     records = records.filter((r) => (r.Min || 0) >= minMinutes);
+  }
+
+  if (ageMin !== null && ageMin !== undefined && Number.isFinite(ageMin)) {
+    records = records.filter((r) => isFiniteNum(r.Age) && r.Age >= ageMin);
+  }
+
+  if (ageMax !== null && ageMax !== undefined && Number.isFinite(ageMax)) {
+    records = records.filter((r) => isFiniteNum(r.Age) && r.Age <= ageMax);
   }
 
   if (search) {
@@ -1119,9 +1129,112 @@ function getPlayerCareerHistory(playerQuery, { season = null, seasonsFilter = nu
   };
 }
 
+function getClubRollups(competition = null, season = null) {
+  let records = dataLoader.getRecords(season);
+  if (competition) {
+    const resolved = resolveCompetition(competition);
+    if (!resolved) return [];
+    records = records.filter((r) => r.Comp === resolved);
+  }
+
+  const scorerFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Gls', 'xG', 'Gls_minus_xG', 'Min'];
+  const creatorFields = ['id', 'Player', 'Squad', 'Pos', 'Comp', 'competition_name', 'Ast', 'xAG', 'Ast_minus_xAG', 'Min'];
+
+  const clubBuckets = new Map();
+  for (const r of records) {
+    if (!r.Squad) continue;
+    const clubKey = `${r.Squad}||${r.Comp || ''}`;
+    if (!clubBuckets.has(clubKey)) {
+      clubBuckets.set(clubKey, {
+        squad: r.Squad,
+        comp: r.Comp || '',
+        competition_name: r.competition_name || r.Comp || '',
+        rows: [],
+        goals: 0,
+        assists: 0,
+        totalMinutes: 0,
+        weightedAgeSum: 0,
+        weightedAgeMins: 0,
+        ageSum: 0,
+        ageCount: 0,
+        xg: 0,
+        xag: 0,
+        goalsForXgDelta: 0,
+        xgExcludedShared: 0,
+        hasXg: false,
+      });
+    }
+    const cb = clubBuckets.get(clubKey);
+    const gls = r.Gls || 0;
+    const ast = r.Ast || 0;
+    const mins = r.Min || 0;
+
+    cb.rows.push(r);
+    cb.goals += gls;
+    cb.assists += ast;
+    cb.totalMinutes += mins;
+
+    if (isFiniteNum(r.Age) && r.Age > 0) {
+      cb.ageSum += r.Age;
+      cb.ageCount += 1;
+      if (mins > 0) {
+        cb.weightedAgeSum += r.Age * mins;
+        cb.weightedAgeMins += mins;
+      }
+    }
+
+    if (r._shared_season_xg) {
+      cb.xgExcludedShared += 1;
+    } else {
+      if (isFiniteNum(r.xG)) {
+        cb.xg += r.xG;
+        cb.goalsForXgDelta += gls;
+        if (r.xG > 0) cb.hasXg = true;
+      }
+      if (isFiniteNum(r.xAG)) {
+        cb.xag += r.xAG;
+      }
+    }
+  }
+
+  return Array.from(clubBuckets.values())
+    .map((cb) => {
+      const xgVal = cb.hasXg ? roundTo(cb.xg, 1) : null;
+      const xagVal = cb.hasXg ? roundTo(cb.xag, 1) : null;
+      const deltaVal = cb.hasXg ? roundTo(cb.goalsForXgDelta - cb.xg, 1) : null;
+      const convPct = cb.hasXg && xgVal > 0 ? roundTo((cb.goalsForXgDelta / xgVal) * 100, 1) : null;
+      const avgAge = cb.weightedAgeMins > 0
+        ? roundTo(cb.weightedAgeSum / cb.weightedAgeMins, 1)
+        : (cb.ageCount > 0 ? roundTo(cb.ageSum / cb.ageCount, 1) : null);
+      const topScorer = sortRecords(cb.rows, 'Gls', false)[0] || null;
+      const topCreator = sortRecords(cb.rows, 'Ast', false)[0] || null;
+
+      return {
+        squad: cb.squad,
+        comp: cb.comp,
+        competition_name: cb.competition_name,
+        short_league: SHORT_LEAGUE_NAMES[cb.comp] || cb.competition_name,
+        players_count: cb.rows.length,
+        goals: cb.goals,
+        assists: cb.assists,
+        xg: xgVal,
+        xag: xagVal,
+        finishing_delta: deltaVal,
+        conversion_pct: convPct,
+        avg_age: avgAge,
+        total_minutes: cb.totalMinutes,
+        shared_xg_excluded_count: cb.xgExcludedShared,
+        top_scorer: topScorer ? pickFields(topScorer, scorerFields) : null,
+        top_creator: topCreator ? pickFields(topCreator, creatorFields) : null,
+      };
+    })
+    .sort((a, b) => b.goals - a.goals || a.squad.localeCompare(b.squad));
+}
+
 module.exports = {
   getCompetitionsSummary,
   getTeamsByCompetition,
+  getClubRollups,
   mergePlayerSpells,
   searchPlayers,
   getPlayerProfile,

@@ -218,7 +218,7 @@ export default function PlotAnyMetricView({
   const partialCompetitions = seasonQuality?.partial_competitions || {};
   const partial = selectedComp && partialCompetitions[selectedComp];
   const qualityMessage = partial
-    ? `${selectedComp.replace(/^[a-z]{2}\s+/, '')} is a partial snapshot, approximately matchweek ${partial.matchweek}/${partial.of}.`
+    ? `${selectedComp.replace(/^[a-z]{2,3}\s+/, '')} is a partial snapshot, approximately matchweek ${partial.matchweek}/${partial.of}.`
     : scopedGaps.length ? `Known gap in this scope: ${scopedGaps.map((gap) => {
       const names = (seasonQuality?.known_gaps?.missing_top10_scorers || []).filter((player) => player.club === gap.club).map((player) => player.player);
       return `${gap.club} ${gap.data_goals}/${gap.wiki_goals} goals${names.length ? `; missing ${names.join(', ')}` : ''}`;

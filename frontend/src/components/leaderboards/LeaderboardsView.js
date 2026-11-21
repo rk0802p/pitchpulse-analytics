@@ -1,36 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Trophy, 
-  Target, 
-  Zap, 
-  Users, 
-  Filter, 
-  ArrowUpDown, 
-  GitCompare,
-  Medal,
-  Award,
+import {
   Sparkles,
-  Info
+  Info,
+  Bookmark,
 } from 'lucide-react';
 import api from '../../services/api';
-import MetricTooltip from '../common/MetricTooltip';
-import { 
-  formatMinutes, 
-  formatDecimal, 
-  formatNumber, 
-  formatGoalsMinusXG 
+import {
+  formatMinutes,
+  formatDecimal,
+  formatNumber,
+  formatGoalsMinusXG,
 } from '../../utils/metricFormatters';
+import { isPlayerInShortlist } from '../../utils/shortlistStore';
+
+const formatPodiumRank = (rankDisplay, rankNum) => {
+  if (String(rankDisplay).startsWith('T-')) return rankDisplay;
+  if (rankNum === 1) return '1st';
+  if (rankNum === 2) return '2nd';
+  if (rankNum === 3) return '3rd';
+  return `${rankNum}th`;
+};
 
 export const LeaderboardsView = ({
-  activeSeason = "2024-2025",
+  activeSeason = '2024-2025',
   untrackedMetrics = [],
   onSelectPlayer,
   onAddToCompare,
   compareList = [],
-  selectedComp: globalComp = ''
+  shortlist = [],
+  onToggleShortlist,
+  selectedComp: globalComp = '',
 }) => {
   const [viewMode, setViewMode] = useState('metrics'); // 'metrics' | 'index'
-  const [metric, setMetric] = useState('Gls'); // Gls, Ast, xG, xAG, G+A, PrgC, PrgP, PrgR, Gls_90
+  const [metric, setMetric] = useState('Gls');
   const [isPer90, setIsPer90] = useState(false);
   const [selectedComp, setSelectedComp] = useState(globalComp || '');
   const [selectedPos, setSelectedPos] = useState('');
@@ -48,26 +50,47 @@ export const LeaderboardsView = ({
   const [indexLoading, setIndexLoading] = useState(false);
 
   const metrics = [
-    { id: "Gls", per90Id: "Gls_90", label: "Goals (Gls)", title: "Top Scorers" },
-    { id: "Ast", per90Id: "Ast_90", label: "Assists (Ast)", title: "Chief Playmakers" },
-    { id: "xG", per90Id: "xG_90", label: "Expected Goals (xG)", title: "Shot Threat Leaders" },
-    { id: "xAG", per90Id: "xAG_90", label: "Expected Assists (xAG)", title: "Chance Creation Quality" },
-    { id: "G+A", per90Id: "G+A_90", label: "Goals + Assists (G+A)", title: "Goal Contribution Leaders" },
-    { id: "PrgC", per90Id: "PrgC_90", label: "Prog. Carries (PrgC)", title: "Progressive Carry Leaders" },
-    { id: "PrgP", per90Id: "PrgP_90", label: "Prog. Passes (PrgP)", title: "Progressive Passing Leaders" },
-    { id: "PrgR", per90Id: "PrgR_90", label: "Prog. Receptions (PrgR)", title: "Target & Receiving Leaders" },
+    { id: 'Gls', per90Id: 'Gls_90', label: 'Goals (Gls)', title: 'Top Scorers' },
+    { id: 'Ast', per90Id: 'Ast_90', label: 'Assists (Ast)', title: 'Chief Playmakers' },
+    { id: 'xG', per90Id: 'xG_90', label: 'Expected Goals (xG)', title: 'Shot Threat Leaders', isDecimal: true },
+    { id: 'npxG', per90Id: 'npxG_90', label: 'Non-Penalty xG (npxG)', title: 'Open-Play Threat Leaders', isDecimal: true },
+    { id: 'Gls_minus_xG', per90Id: null, label: 'Finishing (G − xG)', title: 'Clinical Finishing Overperformers', isDelta: true },
+    { id: 'xAG', per90Id: 'xAG_90', label: 'Expected Assists (xAG)', title: 'Chance Creation Quality', isDecimal: true },
+    { id: 'G+A', per90Id: 'G+A_90', label: 'Goals + Assists (G+A)', title: 'Goal Contribution Leaders' },
+    { id: 'PrgC', per90Id: 'PrgC_90', label: 'Prog. Carries (PrgC)', title: 'Progressive Carry Leaders' },
+    { id: 'PrgP', per90Id: 'PrgP_90', label: 'Prog. Passes (PrgP)', title: 'Progressive Passing Leaders' },
+    { id: 'PrgR', per90Id: 'PrgR_90', label: 'Prog. Receptions (PrgR)', title: 'Target & Receiving Leaders' },
   ];
 
-  const activeMetricObj = metrics.find(m => m.id === metric) || metrics[0];
-  const queryMetric = isPer90 && activeMetricObj.per90Id ? activeMetricObj.per90Id : activeMetricObj.id;
-  const metricUnavailable = (metricId) => untrackedMetrics.includes(metricId) || untrackedMetrics.includes(metricId.replace(/_90$/, ''));
+  const activeMetricObj = metrics.find((m) => m.id === metric) || metrics[0];
+  const supportsPer90 = Boolean(activeMetricObj.per90Id);
+  const effectivePer90 = isPer90 && supportsPer90;
+  const queryMetric = effectivePer90 ? activeMetricObj.per90Id : activeMetricObj.id;
+  const metricUnavailable = (metricId) =>
+    untrackedMetrics.includes(metricId) ||
+    untrackedMetrics.includes(metricId.replace(/_90$/, '')) ||
+    (metricId === 'Gls_minus_xG' && untrackedMetrics.includes('xG'));
 
   useEffect(() => {
-    if (metricUnavailable(metric) || (isPer90 && metricUnavailable(queryMetric))) { setMetric('Gls'); setIsPer90(false); }
-  }, [untrackedMetrics, metric, isPer90, queryMetric]);
+    if (metricUnavailable(metric) || (effectivePer90 && metricUnavailable(queryMetric))) {
+      setMetric('Gls');
+      setIsPer90(false);
+    }
+  }, [untrackedMetrics, metric, effectivePer90, queryMetric]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const formatMetricValue = (val) => {
+    if (val === null || val === undefined || !Number.isFinite(Number(val))) return '—';
+    if (activeMetricObj.isDelta) {
+      const d = formatGoalsMinusXG(val);
+      return `${d.glyph} ${d.text}`;
+    }
+    if (effectivePer90) return formatDecimal(val, 2);
+    if (activeMetricObj.isDecimal) return formatDecimal(val, 1);
+    return formatNumber(val);
+  };
 
   const formatSeason = activeSeason.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
-  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2}\s+/, '') : "European Big 5";
+  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2,3}\s+/, '') : "European Big 5";
 
   // Fetch Category Leaders
   useEffect(() => {
@@ -277,17 +300,21 @@ export const LeaderboardsView = ({
           {viewMode === 'metrics' && (
             <div className="flex items-center gap-1.5 border border-[var(--ink)] p-0.5 rounded-xs bg-[var(--panel)]">
               <button
+                type="button"
                 onClick={() => setIsPer90(false)}
                 className={`px-2 py-0.5 text-xs font-mono transition-colors ${
-                  !isPer90 ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'text-[var(--mute)]'
+                  !effectivePer90 ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'text-[var(--mute)]'
                 }`}
               >
                 Total
               </button>
               <button
+                type="button"
+                disabled={!supportsPer90}
+                title={!supportsPer90 ? `${activeMetricObj.label} is reported as a season differential.` : ''}
                 onClick={() => setIsPer90(true)}
-                className={`px-2 py-0.5 text-xs font-mono transition-colors ${
-                  isPer90 ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'text-[var(--mute)]'
+                className={`px-2 py-0.5 text-xs font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  effectivePer90 ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'text-[var(--mute)]'
                 }`}
               >
                 Per 90
@@ -369,7 +396,7 @@ export const LeaderboardsView = ({
                           </span>
                         </td>
                         <td className="py-2.5 px-2 dotted-rule text-[var(--mute)]">
-                          {p.Comp?.replace(/^[a-z]{2}\s+/, '')}
+                          {p.Comp?.replace(/^[a-z]{2,3}\s+/, '')}
                         </td>
                         <td className="py-2.5 px-2 dotted-rule text-center font-mono text-[11px]">
                           {p.Pos}
@@ -388,18 +415,38 @@ export const LeaderboardsView = ({
                             <span>{rating.toFixed(1)}</span>
                           </div>
                         </td>
-                        <td className="py-2.5 px-2 dotted-rule text-center">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onAddToCompare && onAddToCompare(p);
-                            }}
-                            className={`text-[10px] px-2 py-0.5 border rounded-xs ${
-                              isSelected ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'border-[var(--rule)] text-[var(--ink)] hover:border-[var(--ink)]'
-                            }`}
-                          >
-                            {isSelected ? '✓ In Compare' : '+ Compare'}
-                          </button>
+                        <td className="py-2.5 px-2 dotted-rule text-center whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1">
+                            {onToggleShortlist && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleShortlist(p);
+                                }}
+                                aria-label={isPlayerInShortlist(shortlist, p, activeSeason) ? `Remove ${p.Player} from shortlist` : `Save ${p.Player} to shortlist`}
+                                className={`p-1 border transition-colors ${
+                                  isPlayerInShortlist(shortlist, p, activeSeason)
+                                    ? 'border-[var(--blue)] text-[var(--blue)] bg-[var(--panel)]'
+                                    : 'border-[var(--rule)] text-[var(--mute)] hover:border-[var(--ink)] hover:text-[var(--ink)]'
+                                }`}
+                              >
+                                <Bookmark className="w-3 h-3" fill={isPlayerInShortlist(shortlist, p, activeSeason) ? 'currentColor' : 'none'} />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAddToCompare && onAddToCompare(p);
+                              }}
+                              className={`text-[10px] px-2 py-0.5 border rounded-xs ${
+                                isSelected ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'border-[var(--rule)] text-[var(--ink)] hover:border-[var(--ink)]'
+                              }`}
+                            >
+                              {isSelected ? '✓ Compare' : '+ Compare'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -424,7 +471,9 @@ export const LeaderboardsView = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {podium.map((p, idx) => {
                   const val = p[queryMetric];
-                  const isSelected = compareList.some(c => (c.id || c.Player) === (p.id || p.Player));
+                  const isSelected = compareList.some((c) => (c.id || c.Player) === (p.id || p.Player));
+                  const isSaved = isPlayerInShortlist(shortlist, p, activeSeason);
+                  const podiumLabel = formatPodiumRank(p.rankDisplay, p.rankNum);
 
                   return (
                     <div
@@ -434,23 +483,27 @@ export const LeaderboardsView = ({
                         idx === 0 ? 'md:-translate-y-2 shadow-md' : ''
                       }`}
                     >
-                      {/* Rank badge */}
+                      {/* Rank badge (respects true ties like T-1 / T-2) */}
                       <div className="flex items-center justify-between mb-3 border-b border-[var(--ink)] pb-2">
-                        <span className="font-disp font-black text-2xl text-[var(--ink)]">
-                          {idx === 0 ? '1st' : idx === 1 ? '2nd' : '3rd'}
+                        <span className="font-disp font-black text-2xl text-[var(--ink)] tabular-nums">
+                          {podiumLabel}
                         </span>
                         <span className="text-xs uppercase font-disp font-bold tracking-widest text-[var(--mute)]">
-                          {p.Pos} • {p.Comp?.replace(/^[a-z]{2}\s+/, '')}
+                          {p.Pos} • {p.Comp?.replace(/^[a-z]{2,3}\s+/, '')}
                         </span>
                       </div>
 
                       {/* Main figure */}
                       <div className="mb-4">
-                        <div className="font-disp font-black text-6xl text-[var(--ink)] leading-none">
-                          {isPer90 ? formatDecimal(val, 2) : formatNumber(val)}
+                        <div className={`font-disp font-black text-5xl sm:text-6xl leading-none tabular-nums ${
+                          activeMetricObj.isDelta
+                            ? (Number(val) > 0 ? 'text-[var(--blue)]' : Number(val) < 0 ? 'text-[var(--red)]' : 'text-[var(--ink)]')
+                            : 'text-[var(--ink)]'
+                        }`}>
+                          {formatMetricValue(val)}
                         </div>
                         <span className="text-xs italic text-[var(--mute)] block mt-1">
-                          {activeMetricObj.label} {isPer90 ? 'per 90' : 'season total'}
+                          {activeMetricObj.label} {effectivePer90 ? 'per 90' : 'season total'}
                         </span>
                       </div>
 
@@ -468,34 +521,53 @@ export const LeaderboardsView = ({
                       <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--rule)] text-xs font-ser">
                         <div>
                           <span className="text-[10px] text-[var(--mute)] block">Minutes</span>
-                          <span className="font-semibold text-[var(--ink)] font-mono">
+                          <span className="font-semibold text-[var(--ink)] font-mono tabular-nums">
                             {p.Min ? formatMinutes(p.Min) : '—'}
                           </span>
                         </div>
                         <div>
                           <span className="text-[10px] text-[var(--mute)] block">xG</span>
-                          <span className="font-semibold text-[var(--ink)] font-mono">
+                          <span className="font-semibold text-[var(--ink)] font-mono tabular-nums">
                             {formatDecimal(p.xG, 1)}
                           </span>
                         </div>
                         <div>
                           <span className="text-[10px] text-[var(--mute)] block">Assists</span>
-                          <span className="font-semibold text-[var(--ink)] font-mono">
+                          <span className="font-semibold text-[var(--ink)] font-mono tabular-nums">
                             {p.Ast ?? 0}
                           </span>
                         </div>
                       </div>
 
-                      {/* Compare Action */}
-                      <div className="mt-3 pt-2 border-t border-[var(--rule)] flex justify-end">
+                      {/* Shortlist & Compare Actions */}
+                      <div className="mt-3 pt-2 border-t border-[var(--rule)] flex items-center justify-between gap-2">
+                        {onToggleShortlist ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onToggleShortlist(p);
+                            }}
+                            aria-label={isSaved ? `Remove ${p.Player} from shortlist` : `Save ${p.Player} to shortlist`}
+                            className={`text-xs px-2 py-1 border rounded-xs inline-flex items-center gap-1 transition-colors ${
+                              isSaved
+                                ? 'border-[var(--blue)] text-[var(--blue)] bg-[var(--panel)] font-semibold'
+                                : 'border-[var(--rule)] text-[var(--mute)] hover:border-[var(--ink)] hover:text-[var(--ink)]'
+                            }`}
+                          >
+                            <Bookmark className="w-3 h-3" fill={isSaved ? 'currentColor' : 'none'} />
+                            <span>{isSaved ? 'Saved' : 'Shortlist'}</span>
+                          </button>
+                        ) : <span />}
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             onAddToCompare && onAddToCompare(p);
                           }}
                           className={`text-xs px-2.5 py-1 border rounded-xs font-ser ${
-                            isSelected 
-                              ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' 
+                            isSelected
+                              ? 'bg-[var(--ink)] text-[var(--paper)] font-bold'
                               : 'hover:bg-[var(--panel)] border-[var(--rule)] text-[var(--ink)]'
                           }`}
                         >
@@ -519,20 +591,21 @@ export const LeaderboardsView = ({
                       <thead>
                         <tr className="border-b border-[var(--ink)]">
                           <th className="text-left py-2 px-2.5 w-14 font-semibold text-[var(--ink)]">Rank</th>
-                          <th className="text-left py-2 px-2.5 font-semibold text-[var(--ink)]">Player & Club</th>
+                          <th className="text-left py-2 px-2.5 font-semibold text-[var(--ink)]">Player &amp; Club</th>
                           <th className="text-left py-2 px-2 font-semibold text-[var(--ink)]">League</th>
                           <th className="text-center py-2 px-2 font-semibold text-[var(--ink)]">Pos</th>
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">Playing Time</th>
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">xG</th>
                           <th className="text-right py-2 px-2 font-semibold text-[var(--ink)]">Assists</th>
-                          <th className="text-right py-2 px-3 font-semibold text-[var(--ink)] text-sm">{activeMetricObj.label}{isPer90 ? " / 90" : ""}</th>
-                          <th className="text-center py-2 px-2 w-24 font-semibold text-[var(--ink)]">Action</th>
+                          <th className="text-right py-2 px-3 font-semibold text-[var(--ink)] text-sm">{activeMetricObj.label}{effectivePer90 ? ' / 90' : ''}</th>
+                          <th className="text-center py-2 px-2 w-28 font-semibold text-[var(--ink)]">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {remaining.map((p) => {
                           const mainVal = p[queryMetric];
-                          const isSelected = compareList.some(c => (c.id || c.Player) === (p.id || p.Player));
+                          const isSelected = compareList.some((c) => (c.id || c.Player) === (p.id || p.Player));
+                          const isSaved = isPlayerInShortlist(shortlist, p, activeSeason);
 
                           return (
                             <tr
@@ -540,7 +613,7 @@ export const LeaderboardsView = ({
                               onClick={() => onSelectPlayer && onSelectPlayer(p)}
                               className="hover:bg-[var(--panel)] cursor-pointer transition-colors group"
                             >
-                              <td className="py-2.5 px-2.5 dotted-rule font-disp font-bold text-sm text-[var(--mute)]">
+                              <td className="py-2.5 px-2.5 dotted-rule font-disp font-bold text-sm text-[var(--mute)] tabular-nums">
                                 {p.rankDisplay}
                               </td>
                               <td className="py-2.5 px-2.5 dotted-rule">
@@ -552,35 +625,59 @@ export const LeaderboardsView = ({
                                 </span>
                               </td>
                               <td className="py-2.5 px-2 dotted-rule text-[var(--mute)]">
-                                {p.Comp?.replace(/^[a-z]{2}\s+/, '')}
+                                {p.Comp?.replace(/^[a-z]{2,3}\s+/, '')}
                               </td>
                               <td className="py-2.5 px-2 dotted-rule text-center font-mono text-[11px]">
                                 {p.Pos}
                               </td>
-                              <td className="py-2.5 px-2 dotted-rule text-right font-mono">
+                              <td className="py-2.5 px-2 dotted-rule text-right font-mono tabular-nums">
                                 {p.Min ? formatMinutes(p.Min) : '—'}
                               </td>
-                              <td className="py-2.5 px-2 dotted-rule text-right text-[var(--mute)] font-mono">
+                              <td className="py-2.5 px-2 dotted-rule text-right text-[var(--mute)] font-mono tabular-nums">
                                 {formatDecimal(p.xG, 1)}
                               </td>
-                              <td className="py-2.5 px-2 dotted-rule text-right font-mono font-semibold">
+                              <td className="py-2.5 px-2 dotted-rule text-right font-mono font-semibold tabular-nums">
                                 {p.Ast ?? 0}
                               </td>
-                              <td className="py-2.5 px-3 dotted-rule text-right font-disp font-bold text-xl text-[var(--ink)]">
-                                {isPer90 ? formatDecimal(mainVal, 2) : formatNumber(mainVal)}
+                              <td className={`py-2.5 px-3 dotted-rule text-right font-disp font-bold text-xl tabular-nums ${
+                                activeMetricObj.isDelta
+                                  ? (Number(mainVal) > 0 ? 'text-[var(--blue)]' : Number(mainVal) < 0 ? 'text-[var(--red)]' : 'text-[var(--ink)]')
+                                  : 'text-[var(--ink)]'
+                              }`}>
+                                {formatMetricValue(mainVal)}
                               </td>
-                              <td className="py-2.5 px-2 dotted-rule text-center">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onAddToCompare && onAddToCompare(p);
-                                  }}
-                                  className={`text-[10px] px-2 py-0.5 border rounded-xs ${
-                                    isSelected ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'border-[var(--rule)] text-[var(--ink)] hover:border-[var(--ink)]'
-                                  }`}
-                                >
-                                  {isSelected ? '✓ In Compare' : '+ Compare'}
-                                </button>
+                              <td className="py-2.5 px-2 dotted-rule text-center whitespace-nowrap">
+                                <div className="inline-flex items-center gap-1">
+                                  {onToggleShortlist && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onToggleShortlist(p);
+                                      }}
+                                      aria-label={isSaved ? `Remove ${p.Player} from shortlist` : `Save ${p.Player} to shortlist`}
+                                      className={`p-1 border transition-colors ${
+                                        isSaved
+                                          ? 'border-[var(--blue)] text-[var(--blue)] bg-[var(--panel)]'
+                                          : 'border-[var(--rule)] text-[var(--mute)] hover:border-[var(--ink)] hover:text-[var(--ink)]'
+                                      }`}
+                                    >
+                                      <Bookmark className="w-3 h-3" fill={isSaved ? 'currentColor' : 'none'} />
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onAddToCompare && onAddToCompare(p);
+                                    }}
+                                    className={`text-[10px] px-2 py-0.5 border rounded-xs ${
+                                      isSelected ? 'bg-[var(--ink)] text-[var(--paper)] font-bold' : 'border-[var(--rule)] text-[var(--ink)] hover:border-[var(--ink)]'
+                                    }`}
+                                  >
+                                    {isSelected ? '✓ Compare' : '+ Compare'}
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );

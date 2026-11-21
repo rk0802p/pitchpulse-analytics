@@ -51,7 +51,7 @@ const MatrixTooltip = ({ active, payload }) => {
           {p.Player}
         </div>
         <div className="text-[11px] italic text-[var(--mute)]">
-          {p.Squad} · {p.Pos || '—'} · {p.Comp ? p.Comp.replace(/^[a-z]{2}\s+/, '') : ''}
+          {p.Squad} · {p.Pos || '—'} · {p.Comp ? p.Comp.replace(/^[a-z]{2,3}\s+/, '') : ''}
         </div>
       </div>
 

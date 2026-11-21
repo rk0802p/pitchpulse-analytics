@@ -10,6 +10,7 @@ import {
   BookOpen,
   Database,
   ArrowRight,
+  Bookmark,
 } from 'lucide-react';
 import GlossaryModal from '../common/GlossaryModal';
 import DataQualityBadge from '../common/DataQualityBadge';
@@ -48,6 +49,8 @@ export const AppLayout = ({
   onSelectSquad,
   allPlayers = [],
   allSquads = [],
+  shortlistCount = 0,
+  onOpenShortlist,
 }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -354,8 +357,24 @@ export const AppLayout = ({
               <span className="hidden sm:inline italic">Provenance</span>
             </button>
 
+            {/* Shortlist Drawer Trigger */}
+            {onOpenShortlist && (
+              <button
+                type="button"
+                onClick={onOpenShortlist}
+                aria-label={`Open Scout Shortlist (${shortlistCount} saved)`}
+                className="border border-[var(--ink)] bg-transparent hover:bg-[var(--panel)] text-[var(--ink)] font-ser text-xs px-2.5 py-1.5 rounded-sm flex items-center gap-1 transition-colors"
+                title="Open Scout Shortlist"
+              >
+                <Bookmark className="w-3 h-3 text-[var(--blue)]" />
+                <span className="hidden sm:inline italic">Shortlist</span>
+                <span className="font-mono font-bold text-[11px] tabular-nums">({shortlistCount})</span>
+              </button>
+            )}
+
             {/* Glossary Button */}
             <button
+              type="button"
               onClick={() => setGlossaryOpen(true)}
               className="border border-[var(--ink)] bg-transparent hover:bg-[var(--panel)] text-[var(--ink)] font-ser text-xs px-2.5 py-1.5 rounded-sm flex items-center gap-1 transition-colors"
               title="Metric Glossary"
@@ -518,7 +537,7 @@ export const AppLayout = ({
                             {p.Player}
                           </div>
                           <div className="text-[11px] text-[var(--mute)] truncate">
-                            {p.Squad} • {p.competition_name || p.Comp?.replace(/^[a-z]{2}\s+/, '')} • {p.Pos}
+                            {p.Squad} • {p.competition_name || p.Comp?.replace(/^[a-z]{2,3}\s+/, '')} • {p.Pos}
                           </div>
                         </div>
                         <div className="text-right font-mono text-[11px] shrink-0 text-[var(--ink)]">

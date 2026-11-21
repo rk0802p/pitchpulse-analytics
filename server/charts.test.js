@@ -200,3 +200,56 @@ test('getDashboardAnalytics returns Big 5 league_efficiency, club_efficiency, tr
     assert.ok(lg.goals > 500);
   }
 });
+
+test('searchPlayers supports ageMin/ageMax filters and getClubRollups returns transfer-safe club stats & weighted avg age', () => {
+  const { searchPlayers, getClubRollups, comparePlayers } = require('./analytics');
+
+  const u21 = searchPlayers({ season: '2024-2025', ageMax: 21, minMinutes: 500, limit: 50 });
+  assert.ok(u21.total > 50, `Expected >50 U21 players with 500+ mins, got ${u21.total}`);
+  for (const p of u21.items) {
+    assert.ok(p.Age <= 21, `Expected Age <= 21, got ${p.Age}`);
+  }
+
+  const prime = searchPlayers({ season: '2024-2025', ageMin: 24, ageMax: 28, minMinutes: 500, limit: 50 });
+  assert.ok(prime.total > 200);
+  for (const p of prime.items) {
+    assert.ok(p.Age >= 24 && p.Age <= 28, `Expected Age 24-28, got ${p.Age}`);
+  }
+
+  const clubs2425 = getClubRollups(null, '2024-2025');
+  assert.equal(clubs2425.length, 96);
+  const plClubs = getClubRollups('eng Premier League', '2024-2025');
+  assert.equal(plClubs.length, 20);
+  for (const c of plClubs) {
+    assert.ok(typeof c.xg === 'number' && c.xg > 10);
+    assert.ok(typeof c.avg_age === 'number' && c.avg_age >= 19 && c.avg_age <= 34);
+    assert.ok(c.players_count >= 15);
+  }
+
+  const clubs1213 = getClubRollups('eng Premier League', '2012-2013');
+  assert.equal(clubs1213.length, 20);
+  for (const c of clubs1213) {
+    assert.equal(c.xg, null);
+    assert.equal(c.finishing_delta, null);
+    assert.ok(typeof c.avg_age === 'number' && c.avg_age >= 19 && c.avg_age <= 34);
+  }
+
+  // comparePlayers positional radar percentiles in 2024-2025 vs pre-xG 2012-2013
+  const top3 = searchPlayers({ season: '2024-2025', sortBy: 'Gls', limit: 3 }).items;
+  const cmp2425 = comparePlayers(top3.map((p) => p.id), '2024-2025');
+  assert.equal(cmp2425.players.length, 3);
+  assert.equal(cmp2425.radar.length, 7);
+  for (const dim of cmp2425.radar) {
+    for (const p of cmp2425.players) {
+      assert.equal(dim.is_tracked[String(p.id)], true);
+      assert.ok(dim.scores[String(p.id)] >= 0 && dim.scores[String(p.id)] <= 100);
+    }
+  }
+
+  const top2PreXg = searchPlayers({ season: '2012-2013', sortBy: 'Gls', limit: 2 }).items;
+  const cmp1213 = comparePlayers(top2PreXg.map((p) => p.id), '2012-2013');
+  const xgDim = cmp1213.radar.find((d) => d.key === 'xG_90');
+  assert.equal(xgDim.is_tracked[String(cmp1213.players[0].id)], false);
+  assert.equal(xgDim.scores[String(cmp1213.players[0].id)], null);
+});
+

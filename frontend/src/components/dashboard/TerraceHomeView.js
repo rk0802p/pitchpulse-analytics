@@ -87,7 +87,7 @@ export const TerraceHomeView = ({
     return Number(kpis.total_xg) > 0 || scatterData.length > 0;
   }, [kpis, scatterData.length]);
 
-  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2}\s+/, '') : 'European Big 5';
+  const compLabel = selectedComp ? selectedComp.replace(/^[a-z]{2,3}\s+/, '') : 'European Big 5';
   const formatSeason = activeSeason.replace('-', '/').replace(/20(\d{2})\/20(\d{2})/, '$1/$2');
 
   const deltaNum = hasXg && kpis && Number.isFinite(Number(kpis.finishing_delta))
@@ -309,7 +309,7 @@ export const TerraceHomeView = ({
                         </div>
                         <div className="text-[10px] text-[var(--mute)] truncate">
                           {p.Squad}
-                          {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2}\s+/, '')}` : ''}
+                          {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2,3}\s+/, '')}` : ''}
                         </div>
                       </div>
                     </div>
@@ -370,7 +370,7 @@ export const TerraceHomeView = ({
                         </div>
                         <div className="text-[10px] text-[var(--mute)] truncate">
                           {p.Squad}
-                          {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2}\s+/, '')}` : ''}
+                          {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2,3}\s+/, '')}` : ''}
                         </div>
                       </div>
                     </div>
@@ -437,7 +437,7 @@ export const TerraceHomeView = ({
                             </div>
                             <div className="text-[10px] text-[var(--mute)] truncate">
                               {p.Squad}
-                              {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2}\s+/, '')}` : ''}
+                              {p.Comp ? ` · ${p.Comp.replace(/^[a-z]{2,3}\s+/, '')}` : ''}
                             </div>
                           </div>
                         </div>
@@ -571,7 +571,7 @@ export const TerraceHomeView = ({
                         {p.Squad}
                       </td>
                       <td className="text-left py-2 px-2 dotted-rule text-[var(--mute)]">
-                        {p.Comp?.replace(/^[a-z]{2}\s+/, '')}
+                        {p.Comp?.replace(/^[a-z]{2,3}\s+/, '')}
                       </td>
                       <td className="text-center py-2 px-2 dotted-rule font-mono text-[11px]">
                         {p.Pos}

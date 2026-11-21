@@ -107,6 +107,14 @@ export const api = {
     return request(`/teams${qs ? `?${qs}` : ''}`);
   },
 
+  getClubSummary: (competition, season) => {
+    const params = new URLSearchParams();
+    if (competition) params.append('competition', competition);
+    if (season) params.append('season', season);
+    const qs = params.toString();
+    return request(`/clubs/summary${qs ? `?${qs}` : ''}`);
+  },
+
   getPlayers: (params = {}) => {
     const queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

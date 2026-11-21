@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowLeft, 
-  GitCompare, 
-  Share2, 
-  Check, 
-  Activity
+import {
+  ArrowLeft,
+  GitCompare,
+  Share2,
+  Check,
+  Activity,
+  Bookmark,
 } from 'lucide-react';
 import api from '../../services/api';
-import { 
-  formatMinutes, 
-  formatDecimal, 
-  formatGoalsMinusXG, 
+import {
+  formatMinutes,
+  formatDecimal,
+  formatGoalsMinusXG,
   formatDiscipline,
-  generateProfileSummary 
+  generateProfileSummary,
 } from '../../utils/metricFormatters';
+import { isPlayerInShortlist } from '../../utils/shortlistStore';
 import PercentileTable from './PercentileTable';
 import RadarChart from '../charts/RadarChart';
 import SimilarPlayers from './SimilarPlayers';
@@ -26,6 +28,8 @@ export const PlayerProfileView = ({
   onCompare,
   onSelectPlayer,
   onSelectSeason,
+  shortlist = [],
+  onToggleShortlist,
   activeSeason = "2024-2025"
 }) => {
   const [profileData, setProfileData] = useState(null);
@@ -221,7 +225,7 @@ export const PlayerProfileView = ({
     squad: safePlayer.squad || safePlayer.Squad || safePlayer.Team || "European Club",
     position: safePlayer.position || safePlayer.Pos || "FW",
     age: safePlayer.age || safePlayer.Age || "—",
-    competition: (safePlayer.competition || safePlayer.Comp || "").replace(/^[a-z]{2}\s+/, '') || "European League"
+    competition: (safePlayer.competition || safePlayer.Comp || "").replace(/^[a-z]{2,3}\s+/, '') || "European League"
   };
 
   const totals = profileData?.totals || {
@@ -302,8 +306,9 @@ export const PlayerProfileView = ({
           <span>Back to Player Ledger</span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
             onClick={handleCopyLink}
             className="border border-[var(--rule)] hover:border-[var(--ink)] px-2.5 py-1 text-xs italic text-[var(--ink)] flex items-center gap-1 rounded-xs"
             title="Share Dossier Link"
@@ -312,9 +317,30 @@ export const PlayerProfileView = ({
             <span>{copiedLink ? 'Copied' : 'Share'}</span>
           </button>
 
+          {onToggleShortlist && (() => {
+            const targetPlayer = profileData?.raw_record || safePlayer;
+            const saved = isPlayerInShortlist(shortlist, targetPlayer, activeSeason);
+            return (
+              <button
+                type="button"
+                onClick={() => onToggleShortlist(targetPlayer, activeSeason)}
+                className={`border px-2.5 py-1 text-xs font-mono flex items-center gap-1 rounded-xs transition-colors ${
+                  saved
+                    ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)] font-bold'
+                    : 'border-[var(--rule)] hover:border-[var(--ink)] text-[var(--ink)]'
+                }`}
+                title={saved ? 'Remove from Scout Shortlist' : 'Save to Scout Shortlist'}
+              >
+                <Bookmark className="w-3 h-3" />
+                <span>{saved ? 'Shortlisted' : 'Shortlist'}</span>
+              </button>
+            );
+          })()}
+
           {onCompare && (
             <button
-              onClick={() => onCompare(player)}
+              type="button"
+              onClick={() => onCompare(profileData?.raw_record || player)}
               className="border border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)] px-3 py-1 text-xs font-disp font-bold uppercase tracking-wider hover:opacity-90 flex items-center gap-1 rounded-xs"
             >
               <GitCompare className="w-3.5 h-3.5" />
@@ -540,34 +566,67 @@ export const PlayerProfileView = ({
                 </tr>
               </thead>
               <tbody>
-                {careerHistory.map((rec) => (
-                  <tr key={rec.season} className="hover:bg-[var(--panel)] transition-colors">
-                    <td className="py-2 px-2.5 dotted-rule font-bold text-[var(--ink)]">
-                      Vol. {rec.season}
-                    </td>
-                    <td className="py-2 px-2.5 dotted-rule">
-                      {rec.Squad || rec.Team}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right">
-                      {rec.MP || '—'}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right font-mono">
-                      {rec.Min ? formatMinutes(rec.Min) : '—'}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right font-bold text-[var(--ink)]">
-                      {rec.Gls ?? 0}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right text-[var(--mute)]">
-                      {formatDecimal(rec.xG, 1)}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right">
-                      {rec.Ast ?? 0}
-                    </td>
-                    <td className="py-2 px-2 dotted-rule text-right font-mono">
-                      {rec.PrgC ?? '—'}
-                    </td>
-                  </tr>
-                ))}
+                {careerHistory.map((rec) => {
+                  const isCurrentSeason = rec.season === activeSeason;
+                  return (
+                    <tr
+                      key={rec.season}
+                      onClick={() => onSelectSeason && !isCurrentSeason && onSelectSeason(rec.season)}
+                      className={`transition-colors ${
+                        isCurrentSeason
+                          ? 'bg-[var(--panel)] font-semibold'
+                          : onSelectSeason
+                            ? 'hover:bg-[var(--panel)] cursor-pointer'
+                            : 'hover:bg-[var(--panel)]'
+                      }`}
+                    >
+                      <td className="py-2 px-2.5 dotted-rule font-bold text-[var(--ink)]">
+                        {onSelectSeason && !isCurrentSeason ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectSeason(rec.season);
+                            }}
+                            className="text-left hover:text-[var(--blue)] hover:underline"
+                          >
+                            Vol. {rec.season}
+                          </button>
+                        ) : (
+                          <span>
+                            Vol. {rec.season}{' '}
+                            {isCurrentSeason && (
+                              <span className="text-[10px] font-mono uppercase text-[var(--blue)] ml-1">
+                                (Active)
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 px-2.5 dotted-rule">
+                        {rec.Squad || rec.Team}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right tabular-nums">
+                        {rec.MP || '—'}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right font-mono tabular-nums">
+                        {rec.Min ? formatMinutes(rec.Min) : '—'}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right font-bold text-[var(--ink)] tabular-nums">
+                        {rec.Gls ?? 0}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right text-[var(--mute)] tabular-nums">
+                        {formatDecimal(rec.xG, 1)}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right tabular-nums">
+                        {rec.Ast ?? 0}
+                      </td>
+                      <td className="py-2 px-2 dotted-rule text-right font-mono tabular-nums">
+                        {rec.PrgC ?? '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

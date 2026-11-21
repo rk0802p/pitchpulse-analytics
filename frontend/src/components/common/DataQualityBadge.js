@@ -5,7 +5,7 @@ export function getQualityDetails(metadata = {}) {
   const known = metadata.known_gaps || {};
   const partial = metadata.partial_competitions || {};
   if (Object.keys(partial).length) {
-    const parts = Object.entries(partial).map(([competition, value]) => `${competition.replace(/^[a-z]{2}\s+/, '')} about matchweek ${value.matchweek}/${value.of}`);
+    const parts = Object.entries(partial).map(([competition, value]) => `${competition.replace(/^[a-z]{2,3}\s+/, '')} about matchweek ${value.matchweek}/${value.of}`);
     return { grade: 'PARTIAL_SNAPSHOT', label: 'partial snapshot', summary: metadata.notes || metadata.quality_notes || parts.join('; ') };
   }
   const grade = known.grade;

@@ -16,6 +16,7 @@ const { seasonService, dataLoader } = require('./server/dataLoader');
 const {
   getCompetitionsSummary,
   getTeamsByCompetition,
+  getClubRollups,
   searchPlayers,
   getPlayerProfile,
   getPlayerCareerHistory,
@@ -487,6 +488,21 @@ api.get('/teams', (req, res) => {
   return sendSuccess(res, getTeamsByCompetition(req.query.competition || null, season));
 });
 
+api.get('/clubs/summary', (req, res) => {
+  let season = null;
+  if (req.query.season) {
+    const check = seasonService.resolveAndValidateSeason(req.query.season);
+    if (check.error) {
+      return sendError(res, check.error, check.code, check.code === 400 ? 'ERR_INVALID_SEASON' : 'ERR_SEASON_NOT_FOUND');
+    }
+    season = check.season;
+  }
+  const comp = req.query.competition || req.query.comp || null;
+  const clubs = getClubRollups(comp, season);
+  const targetSeason = season || seasonService.getActiveSeason();
+  return sendSuccess(res, clubs, { season: targetSeason, total_clubs: clubs.length });
+});
+
 api.get('/leagues', (req, res) => {
   let season = null;
   if (req.query.season) {
@@ -690,6 +706,19 @@ api.get('/players', (req, res) => {
 
   const parsedMin = parseInt(req.query.min_minutes || req.query.min_mins || '0', 10);
   const minMinutes = Number.isNaN(parsedMin) ? 0 : Math.max(0, parsedMin);
+
+  let ageMin = null;
+  if (req.query.age_min !== undefined && req.query.age_min !== '') {
+    const parsedAgeMin = parseFloat(req.query.age_min);
+    if (Number.isFinite(parsedAgeMin) && parsedAgeMin >= 0) ageMin = parsedAgeMin;
+  }
+
+  let ageMax = null;
+  if (req.query.age_max !== undefined && req.query.age_max !== '') {
+    const parsedAgeMax = parseFloat(req.query.age_max);
+    if (Number.isFinite(parsedAgeMax) && parsedAgeMax >= 0) ageMax = parsedAgeMax;
+  }
+
   const targetSeason = season || seasonService.getActiveSeason();
   const quarPolicy = seasonService.getQuarantinePolicy(targetSeason);
   const meta = {
@@ -706,7 +735,7 @@ api.get('/players', (req, res) => {
 
   if (allRecords) {
     const { items, total } = searchPlayers({
-      search, competition, squad, position, minMinutes, sortBy, order, page: 1, limit: 3000, season, mergeSpells,
+      search, competition, squad, position, minMinutes, ageMin, ageMax, sortBy, order, page: 1, limit: 3000, season, mergeSpells,
     });
     meta.total = total;
     return sendSuccess(res, items, meta);
@@ -714,7 +743,7 @@ api.get('/players', (req, res) => {
 
   const { page, limit } = validatePagination(req.query.page, req.query.limit);
   const { items, total } = searchPlayers({
-    search, competition, squad, position, minMinutes, sortBy, order, page, limit, season, mergeSpells,
+    search, competition, squad, position, minMinutes, ageMin, ageMax, sortBy, order, page, limit, season, mergeSpells,
   });
   return sendPaginated(res, items, total, page, limit, meta);
 });
